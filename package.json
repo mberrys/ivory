@@ -88,6 +88,8 @@
     "license:check:fetch-jar": "node scripts/fetch-dash-licenses-jar.js",
     "license:check": "npm run license:check:fetch-jar && npx dash-licenses-wrapper  --configFile=./configs/license-check-config.json",
     "license:check:review": "npm run license:check:fetch-jar && npx dash-licenses-wrapper  --configFile=./configs/license-check-config.json --review",
+    "verify:ivory-n3": "node scripts/ivory/n3-compute.mjs",
+    "test:ivory-n3": "node --test scripts/ivory/n3-protocol.spec.mjs",
     "lint": "lerna run lint",
     "lint:clean": "rimraf .eslintcache",
     "lint:fix": "lerna run lint -- --fix",
