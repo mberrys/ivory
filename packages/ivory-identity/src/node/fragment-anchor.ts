@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 
 import { computeQuoteSelector, derivePassageId } from './identity';
-import { AnchorConfidence, PassageAnchorError, QuoteSelector, TextSpan, validateSpans } from '../common/passage-anchor';
+import { AnchorConfidence, PassageAnchorError, QuoteSelector, TextSpan, normalizeSelectorText, validateSpans } from '../common/passage-anchor';
 
 /** A page-local position that can be displayed without re-running extraction. */
 export interface PageCoordinate {
@@ -130,9 +130,9 @@ export function remapFragmentAnchor(
     }
 
     const normalized = normalizeWithBoundaries(next.text);
-    const exact = normalizeForSearch(original.exact);
-    const prefix = normalizeForSearch(original.prefix);
-    const suffix = normalizeForSearch(original.suffix);
+    const exact = normalizeSelectorText(original.exact);
+    const prefix = normalizeSelectorText(original.prefix);
+    const suffix = normalizeSelectorText(original.suffix);
     const candidates: RemapCandidate[] = [];
     let searchFrom = 0;
     while (exact.length > 0) {
@@ -141,17 +141,22 @@ export function remapFragmentAnchor(
             break;
         }
         const end = hit + exact.length;
-        const candidatePrefix = normalized.value.slice(Math.max(0, hit - prefix.length), hit);
-        const candidateSuffix = normalized.value.slice(end, end + suffix.length);
+        const candidatePrefix = contextBeforeQuote(normalized.value, hit, prefix.length);
+        const candidateSuffix = contextAfterQuote(normalized.value, end, suffix.length);
         if (
             sameDigest(anchor.quote.exactDigest, exact) &&
             sameDigest(anchor.quote.prefixDigest, candidatePrefix) &&
             sameDigest(anchor.quote.suffixDigest, candidateSuffix)
         ) {
             const spans = [{ start: normalized.starts[hit], end: normalized.ends[end - 1] }];
-            candidates.push({ spans, inspectable: inspectFragment(next.text, spans, coordinates) });
+            const inspectable = inspectFragment(next.text, spans, coordinates);
+            // Zero-false-exact: a mapped span whose recovered text no longer normalizes to the
+            // stored quotation is not a match, even if search offsets landed uniquely.
+            if (normalizeSelectorText(inspectable.exact) === exact) {
+                candidates.push({ spans, inspectable });
+            }
         }
-        searchFrom = hit + Math.max(1, exact.length);
+        searchFrom = hit + 1;
     }
 
     if (candidates.length !== 1) {
@@ -175,18 +180,14 @@ export function remapFragmentAnchor(
 
 function sameSelector(selector: QuoteSelector, inspectable: InspectableFragment): boolean {
     return (
-        sameDigest(selector.prefixDigest, normalizeForSearch(inspectable.prefix)) &&
-        sameDigest(selector.exactDigest, normalizeForSearch(inspectable.exact)) &&
-        sameDigest(selector.suffixDigest, normalizeForSearch(inspectable.suffix))
+        sameDigest(selector.prefixDigest, normalizeSelectorText(inspectable.prefix)) &&
+        sameDigest(selector.exactDigest, normalizeSelectorText(inspectable.exact)) &&
+        sameDigest(selector.suffixDigest, normalizeSelectorText(inspectable.suffix))
     );
 }
 
 function sameDigest(expected: string, text: string): boolean {
     return computeQuoteSelector({ prefix: '', exact: text, suffix: '' }).exactDigest === expected;
-}
-
-function normalizeForSearch(text: string): string {
-    return text.normalize('NFC').replace(/\s+/gu, ' ').trim();
 }
 
 function validateTextSpans(text: string, spans: readonly TextSpan[]): readonly TextSpan[] {
@@ -205,25 +206,70 @@ interface NormalizedText {
     readonly ends: readonly number[];
 }
 
+/**
+ * Stored prefix/suffix digests are computed from trimmed selector text, so candidate slices
+ * must skip the collapsed separator adjacent to the quotation rather than consume it as context.
+ */
+function contextBeforeQuote(value: string, hit: number, length: number): string {
+    let end = hit;
+    while (end > 0 && value[end - 1] === ' ') {
+        end -= 1;
+    }
+    return value.slice(Math.max(0, end - length), end);
+}
+
+function contextAfterQuote(value: string, quoteEnd: number, length: number): string {
+    let start = quoteEnd;
+    while (start < value.length && value[start] === ' ') {
+        start += 1;
+    }
+    return value.slice(start, start + length);
+}
+
 /** Normalizes search text while retaining source offsets for the resulting match. */
 function normalizeWithBoundaries(text: string): NormalizedText {
     const starts: number[] = [];
     const ends: number[] = [];
     let value = '';
-    const tokens = /\S+/gu;
-    let match: RegExpExecArray | null;
-    while ((match = tokens.exec(text)) !== null) {
+    for (const match of text.matchAll(/\S+/gu)) {
+        const origin = match.index;
         if (value.length > 0) {
             value += ' ';
-            starts.push(match.index - 1);
-            ends.push(match.index);
+            starts.push(origin - 1);
+            ends.push(origin);
         }
-        const token = match[0].normalize('NFC');
+        const originalToken = match[0];
+        const token = originalToken.normalize('NFC');
         value += token;
-        for (let index = 0; index < token.length; index += 1) {
-            starts.push(match.index);
-            ends.push(match.index + match[0].length);
-        }
+        mapNormalizedTokenOffsets(origin, originalToken, token, starts, ends);
     }
     return { value, starts, ends };
+}
+
+/** Maps each normalized character onto the original UTF-16 range that produced it. */
+function mapNormalizedTokenOffsets(
+    origin: number,
+    originalToken: string,
+    token: string,
+    starts: number[],
+    ends: number[],
+): void {
+    if (token.length === originalToken.length) {
+        for (let index = 0; index < token.length; index += 1) {
+            starts.push(origin + index);
+            ends.push(origin + index + 1);
+        }
+        return;
+    }
+    let consumed = 0;
+    for (let index = 0; index < token.length; index += 1) {
+        const start = consumed;
+        let next = consumed + 1;
+        while (next <= originalToken.length && originalToken.slice(0, next).normalize('NFC') !== token.slice(0, index + 1)) {
+            next += 1;
+        }
+        consumed = next <= originalToken.length ? next : originalToken.length;
+        starts.push(origin + start);
+        ends.push(origin + Math.max(consumed, start + 1));
+    }
 }

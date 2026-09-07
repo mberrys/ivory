@@ -41,7 +41,35 @@ describe('fragment anchors', () => {
         expect(remapped.outcome).to.equal('exact');
         expect(remapped.anchor?.confidence).to.equal('approximate');
         expect(remapped.anchor?.artifactId).to.equal(next.artifactId);
+        expect(remapped.candidates[0].spans).to.deep.equal([{ start: 8, end: 22 }]);
         expect(remapped.candidates[0].inspectable.exact).to.equal('target   quote');
+    });
+
+    it('preserves character offsets when a quotation is a substring of a token', () => {
+        const previous = representation('foobar', 'art_14141414141414141414141414141414');
+        const next = representation('foobar', 'art_15151515151515151515151515151515');
+        const anchor = createFragmentAnchor(previous, [{ start: 1, end: 4 }]);
+        const remapped = remapFragmentAnchor(anchor, previous, next);
+
+        expect(remapped.outcome).to.equal('exact');
+        expect(remapped.anchor?.confidence).to.equal('approximate');
+        expect(remapped.candidates[0].spans).to.deep.equal([{ start: 1, end: 4 }]);
+        expect(remapped.candidates[0].inspectable.exact).to.equal('oob');
+        expect(remapped.anchor?.spans).to.deep.equal([{ start: 1, end: 4 }]);
+    });
+
+    it('treats overlapping quotations as ambiguous rather than a single exact hit', () => {
+        const previous = representation('aaa', 'art_16161616161616161616161616161616');
+        const next = representation('aaaa', 'art_17171717171717171717171717171717');
+        const anchor = createFragmentAnchor(previous, [{ start: 0, end: 3 }]);
+        const remapped = remapFragmentAnchor(anchor, previous, next);
+
+        expect(remapped.outcome).to.equal('ambiguous');
+        expect(remapped.anchor).to.equal(undefined);
+        expect(remapped.candidates).to.have.length(2);
+        expect(remapped.candidates[0].spans).to.deep.equal([{ start: 0, end: 3 }]);
+        expect(remapped.candidates[1].spans).to.deep.equal([{ start: 1, end: 4 }]);
+        expect(remapped.candidates.map(candidate => candidate.inspectable.exact)).to.deep.equal(['aaa', 'aaa']);
     });
 
     it('reports repeated quotations as ambiguous rather than guessing', () => {
