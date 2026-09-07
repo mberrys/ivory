@@ -166,11 +166,32 @@ function controlsAreEnforced(controls) {
         && tmpfs.includes('nosuid');
 }
 
-async function writeEvidence(evidence) {
-    await fs.mkdir(ARTIFACT_ROOT, { recursive: true });
+export function requiredAcceptanceFailures(acceptance) {
+    return Object.entries(acceptance ?? {})
+        .filter(([, value]) => value === false)
+        .map(([name]) => name);
+}
+
+export async function writeEvidence(evidence, artifactRoot = ARTIFACT_ROOT) {
+    await fs.mkdir(artifactRoot, { recursive: true });
     const languageSuffix = evidence.language === undefined ? 'protocol' : evidence.language;
-    await fs.writeFile(path.join(ARTIFACT_ROOT, `evidence-${languageSuffix}.json`), `${JSON.stringify(evidence, null, 2)}\n`);
-    await fs.writeFile(path.join(ARTIFACT_ROOT, 'evidence.json'), `${JSON.stringify(evidence, null, 2)}\n`);
+    await fs.writeFile(path.join(artifactRoot, `evidence-${languageSuffix}.json`), `${JSON.stringify(evidence, null, 2)}\n`);
+    await fs.writeFile(path.join(artifactRoot, 'evidence.json'), `${JSON.stringify(evidence, null, 2)}\n`);
+}
+
+export async function completeN3Verification(evidence, {
+    artifactRoot = ARTIFACT_ROOT,
+    log = console.log,
+    error = console.error,
+} = {}) {
+    await writeEvidence(evidence, artifactRoot);
+    log(JSON.stringify(evidence, null, 2));
+    const failures = requiredAcceptanceFailures(evidence.acceptance);
+    if (failures.length > 0) {
+        error(`N3 verification failed required acceptance checks: ${failures.join(', ')}`);
+        return { exitCode: 1, failures };
+    }
+    return { exitCode: 0, failures };
 }
 
 function measureColdInstall(image) {
@@ -186,6 +207,14 @@ function measureColdInstall(image) {
 }
 
 async function run() {
+    const artifactRoot = argumentValue('--artifact-root') ?? ARTIFACT_ROOT;
+    const acceptanceJson = argumentValue('--check-acceptance-json');
+    if (acceptanceJson !== undefined) {
+        const evidence = JSON.parse(await fs.readFile(acceptanceJson, 'utf8'));
+        const { exitCode } = await completeN3Verification(evidence, { artifactRoot });
+        process.exitCode = exitCode;
+        return;
+    }
     const protocolDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'ivory-n3-protocol-'));
     const protocol = await runProtocolFaultMatrix(protocolDirectory);
     const baseEvidence = {
@@ -194,8 +223,8 @@ async function run() {
         supportedPilotTarget: 'macOS Apple Silicon with a maintained local OCI runtime; cohort confirmation required',
     };
     if (process.argv.includes('--protocol-only')) {
-        await writeEvidence(baseEvidence);
-        console.log(JSON.stringify(baseEvidence, null, 2));
+        const { exitCode } = await completeN3Verification(baseEvidence, { artifactRoot });
+        process.exitCode = exitCode;
         return;
     }
     if (!dockerAvailable()) {
@@ -327,11 +356,18 @@ async function run() {
         oneTerminalPublicationOutcome: ['succeeded', 'failed', 'cancelled'].includes(finalState.status) && evidence.publication.artifactCount === 1,
         validOutputNotAdmittedAsFailure: runEvidence.exitCode === 0 && finalState.status === 'succeeded',
     };
-    await writeEvidence(evidence);
-    console.log(JSON.stringify(evidence, null, 2));
+    const { exitCode } = await completeN3Verification(evidence, { artifactRoot });
+    process.exitCode = exitCode;
 }
 
-run().catch(error => {
-    console.error(error instanceof Error ? error.message : error);
-    process.exitCode = 1;
-});
+function isDirectRun() {
+    const entry = process.argv[1];
+    return entry !== undefined && path.resolve(entry) === fileURLToPath(import.meta.url);
+}
+
+if (isDirectRun()) {
+    run().catch(error => {
+        console.error(error instanceof Error ? error.message : error);
+        process.exitCode = 1;
+    });
+}

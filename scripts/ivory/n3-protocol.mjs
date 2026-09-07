@@ -1,12 +1,15 @@
+import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 export const N3_TERMINAL_STATUSES = new Set(['succeeded', 'failed', 'cancelled']);
 
 const LOCK_RETRY_MS = 10;
-const LOCK_TIMEOUT_MS = 5_000;
-const LOCK_STALE_MS = 5_000;
+export const LOCK_TIMEOUT_MS = 5_000;
+export const LOCK_STALE_MS = 5_000;
+const PROTOCOL_MODULE = fileURLToPath(import.meta.url);
 
 function clone(value) {
     return value === undefined ? undefined : structuredClone(value);
@@ -25,12 +28,41 @@ export function canonicalIntentDigest(intent) {
     })));
 }
 
+function argumentValue(name, argv = process.argv) {
+    const index = argv.indexOf(name);
+    return index === -1 ? undefined : argv[index + 1];
+}
+
+function processIsAlive(pid) {
+    if (!Number.isInteger(pid) || pid <= 0) {
+        return false;
+    }
+    try {
+        process.kill(pid, 0);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+export function fixtureIntent(executionId) {
+    const value = {
+        executionId,
+        inputDigest: sha256(Buffer.from('id,value\n1,2\n')),
+        language: 'python',
+        image: 'fixture@sha256:' + 'a'.repeat(64),
+        scriptDigest: sha256(Buffer.from('fixture')),
+    };
+    return { ...value, intentDigest: canonicalIntentDigest(value) };
+}
+
 export class N3PublicationStore {
     constructor(root) {
         this.root = root;
         this.statePath = path.join(root, 'execution.json');
         this.artifactDirectory = path.join(root, 'artifacts');
         this.lockPath = path.join(root, '.lock');
+        this.lockOwnerPath = path.join(this.lockPath, 'owner.json');
     }
 
     async initialize() {
@@ -59,6 +91,7 @@ export class N3PublicationStore {
                 terminalOutcome: undefined,
                 artifactKey: undefined,
                 artifactDigest: undefined,
+                expectedArtifactDigest: undefined,
                 createdAt: now,
                 updatedAt: now,
             };
@@ -78,6 +111,7 @@ export class N3PublicationStore {
                 status: 'running',
                 currentAttempt: state.currentAttempt + 1,
                 terminalOutcome: undefined,
+                expectedArtifactDigest: undefined,
                 updatedAt: new Date().toISOString(),
             };
             await this.writeState(next);
@@ -91,7 +125,7 @@ export class N3PublicationStore {
             if (N3_TERMINAL_STATUSES.has(state.status)) {
                 return clone(state);
             }
-            const next = { ...state, status: 'cancelled', terminalOutcome: 'cancelled', updatedAt: new Date().toISOString() };
+            const next = { ...state, status: 'cancelled', terminalOutcome: 'cancelled', expectedArtifactDigest: undefined, updatedAt: new Date().toISOString() };
             await this.removeArtifact(state.currentAttempt);
             await this.writeState(next);
             return next;
@@ -108,6 +142,7 @@ export class N3PublicationStore {
                 ...state,
                 status: 'failed',
                 terminalOutcome: { kind: 'failed', code, message },
+                expectedArtifactDigest: undefined,
                 updatedAt: new Date().toISOString(),
             };
             await this.removeArtifact(state.currentAttempt);
@@ -123,7 +158,13 @@ export class N3PublicationStore {
             if (state.status !== 'running') {
                 return false;
             }
-            await this.writeState({ ...state, status: 'publishing', publishingAttempt: attempt, updatedAt: new Date().toISOString() });
+            await this.writeState({
+                ...state,
+                status: 'publishing',
+                publishingAttempt: attempt,
+                expectedArtifactDigest: undefined,
+                updatedAt: new Date().toISOString(),
+            });
             return true;
         });
     }
@@ -136,6 +177,14 @@ export class N3PublicationStore {
                 return false;
             }
             const artifactName = this.artifactName(attempt);
+            const artifactKey = path.posix.join('artifacts', artifactName);
+            const artifactDigest = sha256(bytes);
+            await this.writeState({
+                ...state,
+                expectedArtifactDigest: artifactDigest,
+                pendingArtifactKey: artifactKey,
+                updatedAt: new Date().toISOString(),
+            });
             const temporary = path.join(this.artifactDirectory, `${artifactName}.tmp`);
             const finalPath = path.join(this.artifactDirectory, artifactName);
             const handle = await fs.open(temporary, 'w', 0o600);
@@ -146,7 +195,7 @@ export class N3PublicationStore {
                 await handle.close();
             }
             await fs.rename(temporary, finalPath);
-            return { artifactKey: path.posix.join('artifacts', artifactName), artifactDigest: sha256(bytes) };
+            return { artifactKey, artifactDigest };
         });
     }
 
@@ -156,9 +205,13 @@ export class N3PublicationStore {
             if (state.currentAttempt !== attempt || state.status !== 'publishing' || state.publishingAttempt !== attempt) {
                 return false;
             }
+            const expectedDigest = state.expectedArtifactDigest ?? artifact.artifactDigest;
+            if (expectedDigest !== artifact.artifactDigest) {
+                throw new Error('Publication artifact digest does not match the expected digest.');
+            }
             const finalPath = path.join(this.artifactDirectory, this.artifactName(attempt));
             const bytes = await fs.readFile(finalPath);
-            if (sha256(bytes) !== artifact.artifactDigest) {
+            if (sha256(bytes) !== expectedDigest) {
                 throw new Error('Publication artifact digest changed before commit.');
             }
             await this.writeState({
@@ -166,7 +219,9 @@ export class N3PublicationStore {
                 status: 'succeeded',
                 terminalOutcome: 'succeeded',
                 artifactKey: artifact.artifactKey,
-                artifactDigest: artifact.artifactDigest,
+                artifactDigest: expectedDigest,
+                expectedArtifactDigest: undefined,
+                pendingArtifactKey: undefined,
                 publishingAttempt: undefined,
                 updatedAt: new Date().toISOString(),
             });
@@ -194,24 +249,49 @@ export class N3PublicationStore {
             const finalPath = path.join(this.artifactDirectory, this.artifactName(state.currentAttempt));
             try {
                 const bytes = await fs.readFile(finalPath);
-                const artifact = {
-                    artifactKey: path.posix.join('artifacts', this.artifactName(state.currentAttempt)),
-                    artifactDigest: sha256(bytes),
-                };
-                await this.writeState({
-                    ...state,
-                    status: 'succeeded',
-                    terminalOutcome: 'succeeded',
-                    artifactKey: artifact.artifactKey,
-                    artifactDigest: artifact.artifactDigest,
-                    publishingAttempt: undefined,
-                    updatedAt: new Date().toISOString(),
-                });
+                const digest = sha256(bytes);
+                if (state.expectedArtifactDigest === undefined || digest !== state.expectedArtifactDigest) {
+                    await this.removeArtifact(state.currentAttempt);
+                    await this.writeState({
+                        ...state,
+                        status: 'failed',
+                        terminalOutcome: {
+                            kind: 'failed',
+                            code: 'artifact-digest-mismatch',
+                            message: 'Recovered artifact digest did not match the expected publication digest.',
+                        },
+                        artifactKey: undefined,
+                        artifactDigest: undefined,
+                        expectedArtifactDigest: undefined,
+                        pendingArtifactKey: undefined,
+                        publishingAttempt: undefined,
+                        updatedAt: new Date().toISOString(),
+                    });
+                } else {
+                    await this.writeState({
+                        ...state,
+                        status: 'succeeded',
+                        terminalOutcome: 'succeeded',
+                        artifactKey: state.pendingArtifactKey ?? path.posix.join('artifacts', this.artifactName(state.currentAttempt)),
+                        artifactDigest: state.expectedArtifactDigest,
+                        expectedArtifactDigest: undefined,
+                        pendingArtifactKey: undefined,
+                        publishingAttempt: undefined,
+                        updatedAt: new Date().toISOString(),
+                    });
+                }
             } catch (error) {
                 if (error?.code !== 'ENOENT') {
                     throw error;
                 }
-                await this.writeState({ ...state, status: 'queued', publishingAttempt: undefined, updatedAt: new Date().toISOString() });
+                await this.writeState({
+                    ...state,
+                    status: 'queued',
+                    expectedArtifactDigest: undefined,
+                    pendingArtifactKey: undefined,
+                    publishingAttempt: undefined,
+                    updatedAt: new Date().toISOString(),
+                });
             }
             return this.requireState();
         });
@@ -286,20 +366,44 @@ export class N3PublicationStore {
         }
     }
 
+    async writeLockOwner() {
+        await fs.writeFile(this.lockOwnerPath, `${JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() })}\n`);
+    }
+
+    async lockHolderIsAlive() {
+        try {
+            const owner = JSON.parse(await fs.readFile(this.lockOwnerPath, 'utf8'));
+            return processIsAlive(owner.pid);
+        } catch (error) {
+            if (error?.code !== 'ENOENT') {
+                throw error;
+            }
+            try {
+                const lock = await fs.stat(this.lockPath);
+                return Date.now() - lock.mtimeMs < LOCK_STALE_MS;
+            } catch (statError) {
+                if (statError?.code === 'ENOENT') {
+                    return false;
+                }
+                throw statError;
+            }
+        }
+    }
+
     async withLock(operation) {
         await fs.mkdir(this.root, { recursive: true });
         const deadline = Date.now() + LOCK_TIMEOUT_MS;
         while (true) {
             try {
                 await fs.mkdir(this.lockPath);
+                await this.writeLockOwner();
                 break;
             } catch (error) {
                 if (error?.code !== 'EEXIST' || Date.now() >= deadline) {
                     throw error;
                 }
                 try {
-                    const lock = await fs.stat(this.lockPath);
-                    if (Date.now() - lock.mtimeMs >= LOCK_STALE_MS) {
+                    if (!(await this.lockHolderIsAlive())) {
                         await fs.rm(this.lockPath, { recursive: true, force: true });
                     }
                 } catch (statError) {
@@ -325,6 +429,48 @@ export async function createN3Store(root, intent) {
     return store;
 }
 
+export async function runBoundaryWorker({ root, boundary, executionId }) {
+    const intent = fixtureIntent(executionId);
+    const store = new N3PublicationStore(root);
+    await store.initialize();
+    if (boundary === 'before-create') {
+        return;
+    }
+    await store.createOrReplay(intent);
+    if (boundary === 'after-create' || boundary === 'before-start') {
+        return;
+    }
+    const attempt = await store.startAttempt();
+    if (boundary === 'after-start' || boundary === 'before-publish') {
+        return;
+    }
+    if (boundary === 'after-artifact') {
+        await store.publish(attempt.currentAttempt, Buffer.from('{"ok":true}\n'), { interruptAfterArtifact: true });
+        return;
+    }
+    await store.publish(attempt.currentAttempt, Buffer.from('{"ok":true}\n'));
+}
+
+function spawnBoundaryWorker(root, boundary, executionId) {
+    return new Promise((resolve, reject) => {
+        const child = spawn(process.execPath, [
+            PROTOCOL_MODULE,
+            '--boundary-worker',
+            '--root', root,
+            '--boundary', boundary,
+            '--execution-id', executionId,
+        ], { stdio: ['ignore', 'pipe', 'pipe'] });
+        let stderr = '';
+        let stdout = '';
+        child.stderr.on('data', chunk => { stderr += chunk; });
+        child.stdout.on('data', chunk => { stdout += chunk; });
+        child.on('error', reject);
+        child.on('close', (code, signal) => {
+            resolve({ pid: child.pid, code, signal, stderr, stdout });
+        });
+    });
+}
+
 export async function runProtocolFaultMatrix(tempRoot) {
     const results = [];
     const boundaries = [
@@ -338,47 +484,38 @@ export async function runProtocolFaultMatrix(tempRoot) {
     ];
     for (const [owner, boundary] of boundaries) {
         const root = path.join(tempRoot, `${owner}-${boundary}`);
-        const intent = {
-            executionId: `${owner}-${boundary}`,
-            inputDigest: sha256(Buffer.from('id,value\n1,2\n')),
-            language: 'python',
-            image: 'fixture@sha256:' + 'a'.repeat(64),
-            scriptDigest: sha256(Buffer.from('fixture')),
-        };
+        const executionId = `${owner}-${boundary}`;
+        const worker = await spawnBoundaryWorker(root, boundary, executionId);
+        const expectedCrash = boundary === 'after-artifact';
+        if (!expectedCrash && worker.code !== 0) {
+            throw new Error(`N3 boundary worker failed at ${boundary}: ${worker.stderr || worker.code}`);
+        }
         const store = new N3PublicationStore(root);
         await store.initialize();
-        if (boundary !== 'before-create') {
-            await store.createOrReplay({ ...intent, intentDigest: canonicalIntentDigest(intent) });
-        }
-        if (boundary === 'after-create') {
-            results.push({ owner, boundary, status: (await store.readState()).status });
-            continue;
-        }
-        if (boundary === 'before-create') {
-            results.push({ owner, boundary, status: 'not-created' });
-            continue;
-        }
-        const attempt = await store.startAttempt();
-        if (boundary === 'before-start' || boundary === 'after-start') {
-            results.push({ owner, boundary, status: attempt.status });
-            continue;
-        }
-        if (boundary === 'before-publish') {
-            results.push({ owner, boundary, status: (await store.readState()).status });
-            continue;
-        }
         if (boundary === 'after-artifact') {
-            try {
-                await store.publish(attempt.currentAttempt, Buffer.from('{"ok":true}\n'), { interruptAfterArtifact: true });
-            } catch {
-                // Simulated supervisor crash. Recovery below is the assertion.
-            }
             const recovered = await store.recoverPublication();
-            results.push({ owner, boundary, status: recovered.status, artifactCount: (await store.artifactNames()).length });
+            results.push({
+                owner,
+                boundary,
+                status: recovered.status,
+                artifactCount: (await store.artifactNames()).length,
+                isolated: true,
+                reopened: true,
+                workerPid: worker.pid,
+                workerExited: worker.code !== null || worker.signal !== null,
+            });
             continue;
         }
-        await store.publish(attempt.currentAttempt, Buffer.from('{"ok":true}\n'));
-        results.push({ owner, boundary, status: (await store.readState()).status });
+        const state = await store.readState();
+        results.push({
+            owner,
+            boundary,
+            status: state?.status ?? 'not-created',
+            isolated: true,
+            reopened: true,
+            workerPid: worker.pid,
+            workerExited: worker.code !== null || worker.signal !== null,
+        });
     }
     const cancellationRoot = path.join(tempRoot, 'cancellation-race');
     const cancellationStore = new N3PublicationStore(cancellationRoot);
@@ -407,4 +544,20 @@ export async function runProtocolFaultMatrix(tempRoot) {
         terminalOutcome: (await cancellationStore.readState()).terminalOutcome,
     });
     return results;
+}
+
+function isDirectRun() {
+    const entry = process.argv[1];
+    return entry !== undefined && path.resolve(entry) === PROTOCOL_MODULE;
+}
+
+if (isDirectRun() && process.argv.includes('--boundary-worker')) {
+    runBoundaryWorker({
+        root: argumentValue('--root'),
+        boundary: argumentValue('--boundary'),
+        executionId: argumentValue('--execution-id'),
+    }).catch(error => {
+        console.error(error instanceof Error ? error.message : error);
+        process.exitCode = 1;
+    });
 }

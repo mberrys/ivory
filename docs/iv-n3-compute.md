@@ -63,7 +63,8 @@ output. The valid fixture emits the same result shape used by the R probe.
 Evidence is written to the ignored path `artifacts/n3/evidence.json` and includes
 the resolved image, Docker `inspect` controls, input hashes before/after,
 canary outcomes, child termination, publication recovery, idempotency, and
-attempt fencing.
+attempt fencing. Required acceptance failures keep that bundle and then exit
+non-zero; Boolean fields in the evidence are not a successful verification.
 
 To measure image installation and warm launch on a pilot host:
 
