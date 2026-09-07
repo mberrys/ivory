@@ -122,6 +122,22 @@ const LAYERS = [
             'liquidify-react',
         ],
     },
+    {
+        name: '@ivory-tower/research-kernel',
+        dir: 'packages/ivory-tower-research-kernel/src',
+        forbidden: [
+            '@theia/',
+            '@ivory-tower/application',
+            '@ivory-tower/infrastructure',
+            '@ivory-tower/health',
+            'liquidify-react',
+            'pg',
+            '@aws-sdk/',
+            'graphile-worker',
+            'docling',
+        ],
+        exceptions: ['@theia/ivory-identity'],
+    },
 ];
 
 const IMPORT_PATTERN = /(?:import|export)\s+(?:type\s+)?(?:[\w*{}\s,]+\s+from\s+)?['"]([^'"]+)['"]/g;
@@ -153,7 +169,8 @@ function findViolations(layer) {
         while ((match = IMPORT_PATTERN.exec(content)) !== null) {
             const specifier = match[1];
             for (const forbidden of layer.forbidden) {
-                if (specifier.includes(forbidden)) {
+                const exception = (layer.exceptions ?? []).some(allowed => specifier === allowed || specifier.startsWith(`${allowed}/`));
+                if (!exception && specifier.includes(forbidden)) {
                     violations.push(`${layer.name}: ${path.relative(ROOT, file)} imports "${specifier}" (forbidden: ${forbidden})`);
                 }
             }

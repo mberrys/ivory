@@ -1,0 +1,29 @@
+{
+    "name": "@ivory-tower/research-kernel",
+    "version": "0.1.0",
+    "description": "Headless in-memory reference kernel for research identity and snapshot closure",
+    "main": "lib/node/index.js",
+    "types": "lib/node/index.d.ts",
+    "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0",
+    "files": [
+        "lib",
+        "src"
+    ],
+    "dependencies": {
+        "@theia/ivory-identity": "1.74.0"
+    },
+    "scripts": {
+        "build": "theiaext build",
+        "clean": "theiaext clean",
+        "compile": "theiaext compile",
+        "lint": "theiaext lint",
+        "test": "theiaext test",
+        "watch": "theiaext watch"
+    },
+    "devDependencies": {
+        "@theia/ext-scripts": "1.74.0"
+    },
+    "nyc": {
+        "extends": "../../configs/nyc.json"
+    }
+}
