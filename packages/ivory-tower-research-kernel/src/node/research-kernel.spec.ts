@@ -11,6 +11,7 @@ import { expect } from 'chai';
 import { createResearchClients } from './clients';
 import { buildAdvisingAgencyFixture } from './fixture';
 import { ExpectedHeadConflictError, ResearchKernel, ResearchKernelError } from './kernel';
+import { EvidenceLinkPayload, SnapshotMember } from './types';
 
 describe('N1 research identity kernel', () => {
     it('keeps the same command trace identical through cli and studio clients', () => {
@@ -107,4 +108,150 @@ describe('N1 research identity kernel', () => {
         expect(explanation.text).to.include('This is attribution, not endorsement.');
         expect(explanation.text).to.include('Maya said advising made the next step visible.');
     });
+
+    it('protects accepted revisions and snapshots from external mutation', () => {
+        const fixture = buildAdvisingAgencyFixture();
+        const originalQuote = 'Maya said advising made the next step visible.';
+        const digest = fixture.kernel.getRevision(fixture.fragment).digest;
+        const sequence = fixture.kernel.sequence;
+        const citation = fixture.kernel.resolveCitation(fixture.fragment, fixture.snapshot1.snapshotId);
+        mutateReturned(citation.selector as { quote: string }, selector => {
+            selector.quote = 'silently re-anchored quotation';
+        });
+        mutateReturned(fixture.kernel.getRevision(fixture.fragment).payload as { selector: { quote: string } }, payload => {
+            payload.selector.quote = 'mutated stored fragment';
+        });
+        expect(fixture.kernel.resolveCitation(fixture.fragment, fixture.snapshot1.snapshotId).quote).to.equal(originalQuote);
+        expect(fixture.kernel.getRevision(fixture.fragment).digest).to.equal(digest);
+        expect(fixture.kernel.sequence).to.equal(sequence);
+
+        const snapshot = fixture.kernel.getSnapshot(fixture.snapshot1.snapshotId);
+        const originalCount = snapshot.manifest.members.length;
+        const originalDigests = snapshot.manifest.members.map(member => member.revisionDigest);
+        mutateReturned(snapshot.manifest.members as SnapshotMember[], members => {
+            members.pop();
+            const first = members[0] as { revisionDigest: string } | undefined;
+            if (first) {
+                first.revisionDigest = 'tampered';
+            }
+        });
+        const stored = fixture.kernel.getSnapshot(fixture.snapshot1.snapshotId);
+        expect(stored.manifest.members).to.have.length(originalCount);
+        expect(stored.digest).to.equal(fixture.snapshot1.digest);
+        expect(stored.manifest.members.map(member => member.revisionDigest)).to.deep.equal(originalDigests);
+    });
+
+    it('rejects quotations and offsets that do not match a retained representation', () => {
+        const kernel = new ResearchKernel();
+        const sourceText = 'Maya said advising made the next step visible.';
+        const source = kernel.admitSource({ name: 'T1', bytes: sourceText, actor: 'Maya' });
+        const artifact = kernel.admitArtifact({
+            key: 'excerpt-matrix',
+            sourceRefs: [source],
+            output: 'T1 | visible next step | agency',
+            actor: 'Maya',
+        });
+        expect(() =>
+            kernel.createFragment({
+                sourceRef: source,
+                artifactRef: artifact,
+                selector: { kind: 'text', start: 0, end: 99999, quote: 'this quotation is absent from every representation' },
+                actor: 'Maya',
+                fragmentKey: 'out-of-range',
+            }),
+        ).to.throw('retained representation');
+        expect(() =>
+            kernel.createFragment({
+                sourceRef: source,
+                artifactRef: artifact,
+                selector: { kind: 'text', start: 0, end: 5, quote: 'XXXXX' },
+                actor: 'Maya',
+                fragmentKey: 'wrong-quote',
+            }),
+        ).to.throw('retained representation');
+        expect(() =>
+            kernel.createFragment({
+                sourceRef: source,
+                artifactRef: artifact,
+                selector: { kind: 'table', sheet: 'Excerpt', row: 2, column: 'agency', value: 'not-in-source-or-artifact' },
+                actor: 'Maya',
+                fragmentKey: 'missing-cell',
+            }),
+        ).to.throw('retained representation');
+        const fragment = kernel.createFragment({
+            sourceRef: source,
+            artifactRef: artifact,
+            selector: { kind: 'text', start: 0, end: sourceText.length, quote: sourceText },
+            actor: 'Maya',
+            fragmentKey: 'exact-source-span',
+        });
+        const resolved = kernel.resolveCitation(fragment);
+        expect(resolved.selector.kind).to.equal('text');
+        expect(resolved.quote).to.equal(sourceText);
+        if (resolved.selector.kind === 'text') {
+            expect(sourceText.slice(resolved.selector.start, resolved.selector.end)).to.equal(resolved.quote);
+        }
+    });
+
+    it('refuses to commit objects with dangling references', () => {
+        const fixture = buildAdvisingAgencyFixture();
+        const sequence = fixture.kernel.sequence;
+        const dangling = { projectId: fixture.kernel.projectId, objectId: 'frg_absent', revisionId: 'rev_absent' };
+        expect(() =>
+            fixture.kernel.annotate({
+                key: 'dangling-fragment',
+                fragmentRef: dangling,
+                codebookRef: fixture.codebook1,
+                codeId: 'agency',
+                actor: 'Maya',
+            }),
+        ).to.throw(ResearchKernelError);
+        expect(fixture.kernel.sequence).to.equal(sequence);
+        expect(fixture.kernel.getHead(dangling.objectId)).to.equal(undefined);
+        expect(() =>
+            fixture.kernel.freezeSnapshot({
+                label: 'cannot close over a ghost',
+                researcher: 'Maya',
+                selected: [fixture.t1],
+                context: [dangling],
+            }),
+        ).to.throw(ResearchKernelError);
+    });
+
+    it('rejects type mismatches at revision boundaries', () => {
+        const fixture = buildAdvisingAgencyFixture();
+        const sourceHead = fixture.kernel.getHead(fixture.t1.objectId);
+        expect(() =>
+            fixture.kernel.reviseClaim({
+                claimRef: fixture.t1Replacement,
+                expectedHead: fixture.t1Replacement.revisionId,
+                text: 'a claim revision must not land on a source history',
+                actor: 'Maya',
+            }),
+        ).to.throw(ResearchKernelError);
+        expect(fixture.kernel.getRevision(fixture.t1Replacement).objectType).to.equal('source');
+        expect(fixture.kernel.getHead(fixture.t1.objectId)).to.equal(sourceHead);
+        expect(() =>
+            fixture.kernel.previewCarryForward(fixture.claimA1, fixture.t1Replacement),
+        ).to.throw(ResearchKernelError);
+    });
+
+    it('records the carry-forward actor without rewriting link authorship', () => {
+        const fixture = buildAdvisingAgencyFixture();
+        const carried = fixture.kernel.getRevision(fixture.carriedLinks[0]);
+        const payload = carried.payload as EvidenceLinkPayload;
+        expect(payload.linkAuthor).to.equal('Jordan');
+        expect(fixture.kernel.getActivity(carried.activityId).actor).to.equal('Maya');
+        const original = fixture.kernel.getRevision(fixture.challengeA1);
+        expect((original.payload as EvidenceLinkPayload).linkAuthor).to.equal('Jordan');
+        expect(fixture.kernel.getActivity(original.activityId).actor).to.equal('Jordan');
+    });
 });
+
+function mutateReturned<T>(value: T, mutate: (value: T) => void): void {
+    try {
+        mutate(value);
+    } catch {
+        // Structural freeze may reject the write; stored state must still be unchanged.
+    }
+}

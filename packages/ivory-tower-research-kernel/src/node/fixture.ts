@@ -41,7 +41,8 @@ export interface AdvisingAgencyFixture {
 export function buildAdvisingAgencyFixture(clientOrKernel: ResearchClient | ResearchKernel = new ResearchKernel()): AdvisingAgencyFixture {
     const client = clientOrKernel instanceof ResearchKernel ? new ResearchClient(clientOrKernel, 'cli') : clientOrKernel;
     const kernel = client.kernel;
-    const t1 = client.admitSource({ name: 'T1 Maya interview', bytes: 'Maya said advising made the next step visible.', actor: 'Maya' });
+    const t1Text = 'Maya said advising made the next step visible.';
+    const t1 = client.admitSource({ name: 'T1 Maya interview', bytes: t1Text, actor: 'Maya' });
     const t2 = client.admitSource({
         name: 'T2 Jordan interview',
         bytes: 'Jordan described advising as negotiated agency.',
@@ -61,7 +62,7 @@ export function buildAdvisingAgencyFixture(clientOrKernel: ResearchClient | Rese
     const fragment = client.createFragment({
         sourceRef: t1,
         artifactRef: artifact,
-        selector: { kind: 'text', start: 0, end: 48, quote: 'Maya said advising made the next step visible.' },
+        selector: { kind: 'text', start: 0, end: t1Text.length, quote: t1Text },
         actor: 'Maya',
         fragmentKey: 't1-agency-span',
     });

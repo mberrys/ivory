@@ -214,6 +214,7 @@ export interface CreateEvidenceLinkInput {
     readonly rationale: string;
     readonly linkAuthor: string;
     readonly linkAuthorType?: 'human' | 'model';
+    readonly actor?: string;
     readonly [key: string]: unknown;
 }
 

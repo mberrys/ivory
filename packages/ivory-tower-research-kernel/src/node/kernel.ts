@@ -96,28 +96,15 @@ export class ResearchKernel {
     }
 
     getRevision(ref: ExactRef): RevisionRecord {
-        this.validateRef(ref);
-        const record = this.objects.get(ref.objectId)?.revisions.get(ref.revisionId);
-        if (!record) {
-            throw new ResearchKernelError(`unknown revision '${ref.revisionId}' for '${ref.objectId}'`);
-        }
-        return record;
+        return cloneValue(this.loadRevision(ref));
     }
 
     getActivity(activityId: string): ActivityRecord {
-        const activity = this.activities.get(activityId);
-        if (!activity) {
-            throw new ResearchKernelError(`unknown activity '${activityId}'`);
-        }
-        return activity;
+        return cloneValue(this.loadActivity(activityId));
     }
 
     getSnapshot(snapshotId: string): SnapshotRecord {
-        const snapshot = this.snapshots.get(snapshotId);
-        if (!snapshot) {
-            throw new ResearchKernelError(`unknown snapshot '${snapshotId}'`);
-        }
-        return snapshot;
+        return cloneValue(this.loadSnapshot(snapshotId));
     }
 
     admitSource(input: AdmitSourceInput): ExactRef {
@@ -141,8 +128,9 @@ export class ResearchKernel {
     }
 
     createFragment(input: CreateFragmentInput): ExactRef {
-        const source = this.getRevision(input.sourceRef).payload as SourcePayload;
-        this.getRevision(input.artifactRef);
+        const source = this.requireRevision<SourcePayload>(input.sourceRef, 'source').payload;
+        const artifact = this.requireRevision<ArtifactPayload>(input.artifactRef, 'artifact').payload;
+        this.assertSelectorMatches(input.selector, [this.decodeSourceText(source), artifact.output]);
         let selector: FragmentSelector;
         if (input.selector.kind === 'text') {
             const passage = derivePassageId({
@@ -155,7 +143,7 @@ export class ResearchKernel {
                 passageId: passage.id,
             } satisfies TextSelector;
         } else {
-            selector = input.selector satisfies TableSelector;
+            selector = { ...input.selector } satisfies TableSelector;
         }
         const objectId = deterministicId('frg', {
             projectId: this.projectId,
@@ -176,7 +164,7 @@ export class ResearchKernel {
     }
 
     reviseCodebook(input: ReviseCodebookInput): ExactRef {
-        const previous = this.getRevision(input.codebookRef).payload as CodebookPayload;
+        const previous = this.requireRevision<CodebookPayload>(input.codebookRef, 'codebook').payload;
         this.assertUniqueCodeIds(input.codes);
         const revisedIds = new Set(input.codes.map(code => code.id));
         for (const code of previous.codes) {
@@ -189,7 +177,8 @@ export class ResearchKernel {
     }
 
     annotate(input: AnnotateInput): ExactRef {
-        const codebook = this.getRevision(input.codebookRef).payload as CodebookPayload;
+        this.requireRevision<FragmentPayload>(input.fragmentRef, 'fragment');
+        const codebook = this.requireRevision<CodebookPayload>(input.codebookRef, 'codebook').payload;
         if (!codebook.codes.some(code => code.id === input.codeId)) {
             throw new ResearchKernelError(`code '${input.codeId}' is not present in codebook edition ${codebook.edition}`);
         }
@@ -217,7 +206,7 @@ export class ResearchKernel {
     }
 
     reviseClaim(input: ReviseClaimInput): ExactRef {
-        const previous = this.getRevision(input.claimRef).payload as ClaimPayload;
+        const previous = this.requireRevision<ClaimPayload>(input.claimRef, 'claim').payload;
         const payload: ClaimPayload = {
             text: input.text,
             author: previous.author,
@@ -229,9 +218,9 @@ export class ResearchKernel {
 
     createEvidenceLink(input: CreateEvidenceLinkInput): ExactRef {
         this.assertNoConfidence(input);
-        this.getRevision(input.claimRef);
+        this.requireRevision<ClaimPayload>(input.claimRef, 'claim');
         for (const target of input.targets) {
-            this.getRevision(target);
+            this.loadRevision(target);
         }
         const payload: EvidenceLinkPayload = {
             claimRef: input.claimRef,
@@ -242,7 +231,14 @@ export class ResearchKernel {
             linkAuthorType: input.linkAuthorType ?? 'human',
         };
         const objectId = deterministicId('evl', { projectId: this.projectId, key: input.key, ...payload });
-        return this.append('evidenceLink', objectId, payload, [input.claimRef, ...input.targets], input.linkAuthor, 'createEvidenceLink');
+        return this.append(
+            'evidenceLink',
+            objectId,
+            payload,
+            [input.claimRef, ...input.targets],
+            input.actor ?? input.linkAuthor,
+            'createEvidenceLink',
+        );
     }
 
     admitArtifact(input: AdmitArtifactInput): ExactRef {
@@ -250,7 +246,7 @@ export class ResearchKernel {
             throw new ResearchKernelError('an artifact must have at least one source reference');
         }
         const sourceVersionIds = input.sourceRefs.map(ref => {
-            const source = this.getRevision(ref).payload as SourcePayload;
+            const source = this.requireRevision<SourcePayload>(ref, 'source').payload;
             return source.sourceVersionId;
         });
         const executionId = deterministicId('exec', { projectId: this.projectId, key: input.key });
@@ -279,9 +275,9 @@ export class ResearchKernel {
     }
 
     previewCarryForward(from: ExactRef, to: ExactRef): CarryForwardPreview {
-        const oldClaim = this.getRevision(from);
-        this.getRevision(to);
-        if (sameRef(from, to) || oldClaim.objectType !== 'claim') {
+        this.requireRevision<ClaimPayload>(from, 'claim');
+        this.requireRevision<ClaimPayload>(to, 'claim');
+        if (sameRef(from, to)) {
             throw new ResearchKernelError('carry-forward requires two distinct revisions of a claim');
         }
         const links: ExactRef[] = [];
@@ -316,8 +312,10 @@ export class ResearchKernel {
     }
 
     freezeSnapshot(input: FreezeSnapshotInput): SnapshotRecord {
-        const selected = input.selected.map(item => (typeof item === 'string' ? this.headRefAtSequence(item, this.projectSequence) : item));
-        const context = [...(input.context ?? [])];
+        const selected = input.selected.map(item =>
+            cloneValue(typeof item === 'string' ? this.headRefAtSequence(item, this.projectSequence) : item),
+        );
+        const context = cloneValue([...(input.context ?? [])]);
         for (const ref of [...selected, ...context]) {
             this.validateRef(ref);
             if (this.getRevision(ref).projectSequence > this.projectSequence) {
@@ -371,33 +369,33 @@ export class ResearchKernel {
         };
         const digest = digestCanonical(manifest);
         const snapshotId = deterministicId('snp', { projectId: this.projectId, digest });
-        const snapshot: SnapshotRecord = {
+        const snapshot = freezeValue({
             snapshotId,
             digest,
-            manifest,
+            manifest: cloneValue(manifest),
             label: input.label,
             researcher: input.researcher,
             createdAt: input.createdAt ?? new Date().toISOString(),
-        };
+        } satisfies SnapshotRecord);
         this.snapshots.set(snapshotId, snapshot);
-        return snapshot;
+        return cloneValue(snapshot);
     }
 
     resolveCitation(ref: ExactRef, snapshotId?: string): CitationResolution {
         if (snapshotId) {
             this.assertSnapshotContains(snapshotId, ref);
         }
-        const fragment = this.getRevision(ref).payload as FragmentPayload;
-        const sourceRevision = this.getRevision(fragment.sourceRef).payload as SourcePayload;
+        const fragment = this.requireRevision<FragmentPayload>(ref, 'fragment').payload;
+        const sourceRevision = this.requireRevision<SourcePayload>(fragment.sourceRef, 'source').payload;
         const selector = fragment.selector;
         const quote = selector.kind === 'text' ? selector.quote : selector.value;
-        return {
+        return cloneValue({
             ref,
             quote,
             sourceVersionId: sourceRevision.sourceVersionId,
             selector,
             sourceName: sourceRevision.name,
-        };
+        });
     }
 
     explainClaim(snapshotId: string, claimRef: ExactRef): ClaimExplanation {
@@ -451,9 +449,9 @@ export class ResearchKernel {
     }
 
     addActivityEdge(activityId: string, edge: ActivityEdge): void {
-        const activity = this.getActivity(activityId);
+        const activity = this.loadActivity(activityId);
         this.validateRef(edge.target);
-        activity.edges.push({ ...edge });
+        activity.edges.push(cloneValue(edge));
     }
 
     private append<T>(
@@ -468,12 +466,19 @@ export class ResearchKernel {
         this.assertNoLatest(payload);
         exactRefs.forEach(ref => this.validateRef(ref));
         const existing = this.objects.get(objectId);
+        if (existing && existing.objectType !== objectType) {
+            throw new ResearchKernelError(
+                `cannot append a '${objectType}' revision onto '${existing.objectType}' object '${objectId}'`,
+            );
+        }
         if (existing && expectedHead !== existing.head) {
             throw new ExpectedHeadConflictError(objectId, expectedHead, existing.head);
         }
         if (!existing && expectedHead !== undefined) {
             throw new ExpectedHeadConflictError(objectId, expectedHead, undefined);
         }
+        const storedPayload = freezeValue(cloneValue(payload));
+        const storedRefs = freezeValue(cloneValue([...exactRefs]));
         this.projectSequence += 1;
         const predecessor = existing ? refFor(existing.revisions.get(existing.head)!, this.projectId) : undefined;
         const activityId = deterministicId('act', {
@@ -482,30 +487,37 @@ export class ResearchKernel {
             command,
             objectId,
             actor,
-            payload,
-            exactRefs,
+            payload: storedPayload,
+            exactRefs: storedRefs,
         });
         const revisionId = deterministicId('rev', {
             schemaVersion: REVISION_SCHEMA,
             objectId,
             predecessor,
-            payload,
-            exactRefs,
+            payload: storedPayload,
+            exactRefs: storedRefs,
             activityId,
         });
-        const revision: RevisionRecord<T> = {
+        const revision = freezeValue({
             revisionId,
             objectId,
             objectType,
             revisionNumber: existing ? existing.revisions.size + 1 : 1,
             predecessor,
-            payload,
-            exactRefs: [...exactRefs],
+            payload: storedPayload,
+            exactRefs: storedRefs,
             activityId,
             projectSequence: this.projectSequence,
             schemaVersion: REVISION_SCHEMA,
-            digest: digestCanonical({ schemaVersion: REVISION_SCHEMA, objectId, predecessor, payload, exactRefs, activityId }),
-        };
+            digest: digestCanonical({
+                schemaVersion: REVISION_SCHEMA,
+                objectId,
+                predecessor,
+                payload: storedPayload,
+                exactRefs: storedRefs,
+                activityId,
+            }),
+        } satisfies RevisionRecord<T>);
         const stored = existing ?? { objectId, objectType, head: revisionId, revisions: new Map<string, RevisionRecord>() };
         stored.revisions.set(revisionId, revision);
         stored.head = revisionId;
@@ -561,8 +573,69 @@ export class ResearchKernel {
     }
 
     private codebookEditionForAnnotation(annotationRef: ExactRef): number | undefined {
-        const annotation = this.getRevision(annotationRef).payload as AnnotationPayload;
-        return (this.getRevision(annotation.codebookRef).payload as CodebookPayload).edition;
+        const annotation = this.requireRevision<AnnotationPayload>(annotationRef, 'annotation').payload;
+        return this.requireRevision<CodebookPayload>(annotation.codebookRef, 'codebook').payload.edition;
+    }
+
+    private loadRevision(ref: ExactRef): RevisionRecord {
+        this.validateRef(ref);
+        const record = this.objects.get(ref.objectId)?.revisions.get(ref.revisionId);
+        if (!record) {
+            throw new ResearchKernelError(`unknown revision '${ref.revisionId}' for '${ref.objectId}'`);
+        }
+        return record;
+    }
+
+    private loadActivity(activityId: string): ActivityRecord {
+        const activity = this.activities.get(activityId);
+        if (!activity) {
+            throw new ResearchKernelError(`unknown activity '${activityId}'`);
+        }
+        return activity;
+    }
+
+    private loadSnapshot(snapshotId: string): SnapshotRecord {
+        const snapshot = this.snapshots.get(snapshotId);
+        if (!snapshot) {
+            throw new ResearchKernelError(`unknown snapshot '${snapshotId}'`);
+        }
+        return snapshot;
+    }
+
+    private requireRevision<T>(ref: ExactRef, objectType: RevisionRecord['objectType']): RevisionRecord<T> {
+        const record = this.loadRevision(ref);
+        if (record.objectType !== objectType) {
+            throw new ResearchKernelError(
+                `reference '${ref.objectId}@${ref.revisionId}' is a '${record.objectType}', expected '${objectType}'`,
+            );
+        }
+        return record as RevisionRecord<T>;
+    }
+
+    private decodeSourceText(payload: SourcePayload): string {
+        return new TextDecoder().decode(decodeBytes(payload.contentBase64));
+    }
+
+    private assertSelectorMatches(selector: Omit<TextSelector, 'passageId'> | TableSelector, representations: readonly string[]): void {
+        if (selector.kind === 'text') {
+            if (!Number.isInteger(selector.start) || !Number.isInteger(selector.end)) {
+                throw new ResearchKernelError(`fragment offsets must be integers, got [${selector.start}, ${selector.end})`);
+            }
+            const matched = representations.some(
+                text =>
+                    selector.start >= 0 &&
+                    selector.end <= text.length &&
+                    selector.start < selector.end &&
+                    text.slice(selector.start, selector.end) === selector.quote,
+            );
+            if (!matched) {
+                throw new ResearchKernelError('fragment quotation and offsets must match a retained representation');
+            }
+            return;
+        }
+        if (!selector.value || !representations.some(text => text.includes(selector.value))) {
+            throw new ResearchKernelError('fragment table value must match a retained representation');
+        }
     }
 
     private validateRef(ref: ExactRef): void {
@@ -570,7 +643,7 @@ export class ResearchKernel {
             throw new ResearchKernelError(`only exact project/object/revision references are accepted: ${canonicalize(ref)}`);
         }
         const object = this.objects.get(ref.objectId);
-        if (object && !object.revisions.has(ref.revisionId)) {
+        if (!object || !object.revisions.has(ref.revisionId)) {
             throw new ResearchKernelError(`unknown revision '${ref.revisionId}' for '${ref.objectId}'`);
         }
     }
@@ -622,4 +695,24 @@ function refKey(ref: ExactRef): string {
 
 function sameRef(left: ExactRef, right: ExactRef): boolean {
     return left.projectId === right.projectId && left.objectId === right.objectId && left.revisionId === right.revisionId;
+}
+
+function cloneValue<T>(value: T): T {
+    return structuredClone(value);
+}
+
+function freezeValue<T>(value: T): T {
+    if (value && typeof value === 'object') {
+        Object.freeze(value);
+        if (Array.isArray(value)) {
+            for (const item of value) {
+                freezeValue(item);
+            }
+        } else {
+            for (const child of Object.values(value as Record<string, unknown>)) {
+                freezeValue(child);
+            }
+        }
+    }
+    return value;
 }
