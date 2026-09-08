@@ -1,0 +1,89 @@
+{
+  "evidenceVersion": "n1-v2-evidence/1",
+  "experiment": "N1 - research identity, snapshot closure and interpretation semantics",
+  "contractVersion": "n1-revision/1",
+  "repositoryCommit": "0c6e7de41e787ccf7e46da9f18cacaad520b3868",
+  "repositoryBranch": "v2-n1-experiment",
+  "sourceDocuments": [
+    "Ivory Tower V1 High-Level Architecture and Implementation Plan.pdf: V2.1-V2.11 and N1",
+    "docs/n1-research-identity.md",
+    "packages/ivory-tower-research-kernel/src/node/fixtures/advising-agency-protocol.md"
+  ],
+  "platform": {
+    "os": "win32",
+    "release": "10.0.26200",
+    "arch": "x64",
+    "logicalCpuCount": 24,
+    "cpuModel": "12th Gen Intel(R) Core(TM) i9-12900KF",
+    "totalMemoryGiB": 63.8
+  },
+  "runtime": {
+    "node": "v24.16.0",
+    "v8": "13.6.233.17-node.49"
+  },
+  "fixture": {
+    "name": "advising-agency-golden-trace",
+    "digest": "719aff93f0f39b87f37a70556fe8fe184bb2d57f66d54dc82e753f7f13f157b9",
+    "projectId": "prj_fd46411aab561a1fa4bb24715fcb2123",
+    "finalProjectSequence": 18,
+    "snapshotMemberCounts": {
+      "S1": 12,
+      "S2": 17
+    }
+  },
+  "qualification": {
+    "command": "npm run verify:ivory-n1",
+    "configuration": {
+      "clientModes": [
+        "cli",
+        "studio"
+      ],
+      "humanResearchersRequired": 3,
+      "humanPassesRequired": 2
+    }
+  },
+  "observations": {
+    "criteria": {
+      "cliStudioParity": true,
+      "citationSurvivesSourceCorrection": true,
+      "oldSnapshotRemainsUnchanged": true,
+      "semanticClosureExcludesActivityBackLinks": true,
+      "carryForwardIsExplicit": true,
+      "attributionIsSeparateFromEndorsement": true,
+      "acceptedEvidenceCannotBeMutatedThroughReads": true,
+      "illegalReferencesAreRejected": true,
+      "typeCrossingRevisionsAreRejected": true,
+      "selectorsRequireRetainedMaterial": true
+    },
+    "timingsMs": {
+      "goldenTrace": 6.06,
+      "cliTrace": 2.49,
+      "studioTrace": 2.11,
+      "total": 93.79
+    },
+    "failures": []
+  },
+  "automatedPass": true,
+  "humanValidation": {
+    "status": "open",
+    "requiredResearchers": 3,
+    "requiredPasses": 2,
+    "observedResults": null,
+    "note": "The automated verifier does not invent researcher observations; run the supplied reader protocol separately."
+  },
+  "decision": {
+    "status": "provisional-architecture-pass",
+    "unlocked": [
+      "exact-reference schema",
+      "immutable revision semantics",
+      "semantic snapshot closure and context roles",
+      "explicit EvidenceLink carry-forward contract"
+    ],
+    "productionStatus": "reference-kernel-only"
+  },
+  "limitations": [
+    "The kernel is an in-memory reference model; persistence and durable round-trip belong to N2.",
+    "The verifier proves the automated trace only; the three-researcher interpretation gate remains open.",
+    "The experiment does not qualify representation remapping, PDF/OCR anchors, or production schema persistence."
+  ]
+}
