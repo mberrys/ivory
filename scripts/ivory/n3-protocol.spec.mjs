@@ -44,21 +44,31 @@ test('N3 protocol matrix recovers publication and exercises cancellation', async
         assert.equal(afterArtifact?.isolated, true);
         assert.equal(afterArtifact?.reopened, true);
         assert.equal(afterArtifact?.workerExited, true);
+        assert.equal(afterArtifact?.workerAbruptExit, true);
+        assert.equal(typeof afterArtifact?.recoveryElapsedMs, 'number');
         assert.notEqual(afterArtifact?.workerPid, process.pid);
         for (const result of results.filter(entry => entry.boundary !== 'cancellation-publication-race')) {
             assert.equal(result.isolated, true);
             assert.equal(result.reopened, true);
             assert.equal(result.workerExited, true);
+            assert.equal(result.workerAbruptExit, result.boundary !== 'before-create');
             assert.notEqual(result.workerPid, process.pid);
         }
         const cancellation = results.find(result => result.boundary === 'cancellation-publication-race');
-        assert.deepEqual(cancellation, {
+        assert.deepEqual({
+            owner: cancellation?.owner,
+            boundary: cancellation?.boundary,
+            status: cancellation?.status,
+            latePublicationRejected: cancellation?.latePublicationRejected,
+            terminalOutcome: cancellation?.terminalOutcome,
+        }, {
             owner: 'protocol',
             boundary: 'cancellation-publication-race',
             status: 'cancelled',
             latePublicationRejected: true,
             terminalOutcome: 'cancelled',
         });
+        assert.equal(typeof cancellation?.cancellationLatencyMs, 'number');
     } finally {
         await fs.rm(root, { recursive: true, force: true });
     }

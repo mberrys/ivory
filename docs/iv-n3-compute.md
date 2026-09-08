@@ -1,12 +1,42 @@
-# N3 — Governed computation and publication
+# N3 v2 - Governed computation and publication
 
-N3 is an experimental proof harness for the local Compute boundary. It answers a
-narrow question: can one captured table be processed in an OCI container while
-the supervisor enforces declared limits and publishes at most one current result
-despite cancellation, retries, crashes, and stale attempts?
+N3 v2 is an experimental proof harness for the local Compute boundary. It
+answers a narrow question: can one captured table be processed by a bounded
+runtime while the semantic execution protocol fences stale attempts, survives
+interruption, and lets Core publish at most one current result?
+
+The semantic protocol and the isolation adapter are separate decisions. N3
+retains attempt identity, cancellation, staged outputs, digest verification,
+and Core-only publication as the protocol. OCI/container technology is only the
+current runtime adapter.
 
 This is evidence tooling, not a production Compute adapter. It does not change
-the existing IV-14 execution API or claim that any operating system is supported.
+the existing IV-14 execution API or claim that any operating system is
+supported.
+
+## Status
+
+**Deferred post-1.0 / pre-cloud.** N3 does not block the current 1.0 scope.
+Its harness, protocol evidence, and acceptance criteria are retained for a
+future cloud Compute initiative. That initiative must first define its remote
+execution model; no N3 result authorizes or gates the current 1.0 release.
+
+## Retained v2 evidence
+
+Each invocation writes `artifacts/n3/evidence.json` unless an alternate
+`--artifact-root` is supplied. The record is versioned and includes:
+
+- the experiment and contract versions, repository commit, exact invocation,
+  platform/hardware/runtime versions, and fixture digests;
+- the declared result and container contracts, including all configured limits;
+- lifecycle observations, restart recovery and cancellation timings, runtime
+  observations, publication state, and hashed raw logs;
+- explicit acceptance observations, pass/fail criteria, the resulting
+  architecture decision, and unresolved limitations.
+
+Required acceptance failures retain the evidence bundle and return non-zero.
+Boolean fields in the evidence are observations, not a successful
+verification by themselves. A protocol-only record is not OCI runtime proof.
 
 ## Run the protocol checks
 
@@ -17,11 +47,11 @@ npm.cmd run test:ivory-n3
 npm.cmd run verify:ivory-n3 -- --protocol-only
 ```
 
-It recreates the durable state store after Core and supervisor interruptions at
-creation, start, publish, artifact-write, and completion boundaries. It also
-checks two clients sharing one intent, cancellation racing publication, and a
-late result from an obsolete attempt. State transitions use an atomic JSON
-replace and a deterministic artifact key:
+It reopens the durable state store after separate Core and supervisor workers
+exit at creation, start, publish, artifact-write, and completion boundaries.
+It also checks two clients sharing one intent, cancellation racing
+publication, and a late result from an obsolete attempt. The state transitions
+are:
 
 ```text
 queued -> running -> publishing -> succeeded
@@ -30,14 +60,12 @@ cancelled  cancelled   cancelled
 ```
 
 Only the current attempt may enter `publishing` or commit `succeeded`. A crash
-after the artifact rename is recoverable by digest; a stale or cancelled attempt
-cannot commit and produces no artifact.
+after the artifact rename is recoverable only when its expected digest matches;
+a stale or cancelled attempt cannot commit or leave an artifact.
 
 ## Run the OCI proof
 
-The image must be supplied as an immutable digest. Resolve the digest on the
-pilot platform and record the complete reference in the evidence bundle; a tag
-alone is rejected:
+The image must be supplied as an immutable digest. A tag alone is rejected:
 
 ```powershell
 $env:IVORY_N3_PYTHON_IMAGE = 'python:3.12-slim@sha256:<64-hex-digest>'
@@ -55,28 +83,19 @@ The container is configured with:
 | Processes | `--pids-limit 64` |
 | Resources | 256 MiB, one CPU, 256 file descriptors, 1 KiB file-size limit |
 | Filesystem | `/var/tmp` is the read-only input bind; `/tmp` is the only writable bind; `/dev/shm` is a small `noexec` tmpfs |
-| Supervisor output | 64 KiB captured-output ceiling, followed by forced container removal |
+| Supervisor output | 64 KiB captured-output ceiling followed by forced container removal |
 
 The hostile fixture attempts a canonical input write, a symlink/path escape,
-host-home access, network egress, a long-lived child process, and excessive
-output. The valid fixture emits the same result shape used by the R probe.
-Evidence is written to the ignored path `artifacts/n3/evidence.json` and includes
-the resolved image, Docker `inspect` controls, input hashes before/after,
-canary outcomes, child termination, publication recovery, idempotency, and
-attempt fencing. Required acceptance failures keep that bundle and then exit
-non-zero; Boolean fields in the evidence are not a successful verification.
+host-home access, network egress, a process escape, and excessive output. The
+valid fixture emits the declared exact result object `{mean,rowCount,sum}`.
+The supervisor accepts only a bounded JSON regular file; symlinks, special
+files, oversized output, extra keys, and invalid numeric values are rejected.
 
-To measure image installation and warm launch on a pilot host:
-
-```powershell
-npm.cmd run verify:ivory-n3 -- --measure --interrupt-publication
-```
-
-`coldInstall` reports the timed `docker pull` and whether the image was already
-cached. `warmLaunchMs` is the timed valid container launch after the image is
-present. A cached pull is not cold evidence; remove only this explicitly named
-pilot image before repeating that measurement if a genuine cold-install number
-is needed.
+The evidence records Docker-inspected controls, input hashes before and after,
+canary outcomes, child termination, publication recovery, idempotency, attempt
+fencing, result validation, and raw stdout/stderr digests. If Docker is
+unavailable, the command writes the protocol evidence and an explicit runtime
+limitation, then exits with status 2; that is not OCI qualification.
 
 ## R language repeat
 
@@ -88,25 +107,22 @@ $env:IVORY_N3_R_IMAGE = 'r-base:<version>@sha256:<64-hex-digest>'
 npm.cmd run verify:ivory-n3 -- --language r --interrupt-publication
 ```
 
-The R run uses the same captured CSV, read-only input mount, output contract,
-publication store, cancellation/fencing rules, and digest evidence. Python
-success alone does not unlock an R-capable adapter.
+Use a separate artifact root when retaining Python and R records from the same
+qualification session. The R run uses the same captured CSV, read-only input
+mount, exact result contract, publication store, cancellation/fencing rules,
+and digest evidence. Python success alone does not unlock an R-capable adapter.
 
-## Pilot gate and decision boundary
+## Decision boundary
 
-N3 remains open until a clean pilot record contains:
+N3 remains open until a retained qualification record contains:
 
 - denied required canaries, unchanged input bytes, terminated children, and
-  Docker-inspected controls rather than configuration intent;
+  runtime-inspected controls rather than configuration intent;
 - one terminal cancellation/publication outcome, one artifact per attempt, and
   recovery after publication interruption;
-- Python and small R results under the same protocol;
-- cold-install and warm-launch measurements on the proposed macOS Apple Silicon
-  target using a maintained local OCI runtime;
-- a five-person onboarding exercise in which at least four users enable Compute
-  from these instructions within 15 minutes, with any large download reported
-  separately.
+- independent Python and R results under the same protocol, with restart and
+  cancellation observations retained.
 
-Until those records exist, the supported OS, capability profile, runtime adapter,
-and production publication state machine remain decisions unlocked by N3 rather
-than decisions made by this prototype.
+Until those records exist, the supported OS, capability profile, runtime
+adapter, and production publication state machine remain decisions unlocked by
+N3 rather than decisions made by this prototype.

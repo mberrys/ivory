@@ -7,6 +7,8 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
     completeN3Verification,
+    parseN3Result,
+    readN3Result,
     requiredAcceptanceFailures,
 } from './n3-compute.mjs';
 
@@ -67,6 +69,30 @@ test('required acceptance failures ignore null not-applicable checks', () => {
         inputUnchanged: false,
         controlsEnforced: true,
     }), ['requiredCanariesDenied', 'inputUnchanged']);
+});
+
+test('N3 rejects malformed, oversized, and contract-breaking result bytes', () => {
+    assert.throws(() => parseN3Result(Buffer.from('not json')), /valid JSON/);
+    assert.throws(() => parseN3Result(Buffer.alloc(64 * 1024 + 1, 'x')), /result-size limit/);
+    assert.throws(() => parseN3Result(Buffer.from('{"rowCount": 1, "sum": 2, "mean": 2, "extra": true}')), /declared result contract/);
+    assert.throws(() => parseN3Result(Buffer.from('{"rowCount": 1.5, "sum": 2, "mean": 2}')), /invalid numeric value/);
+    assert.deepEqual(parseN3Result(Buffer.from('{"rowCount": 3, "sum": 60, "mean": 20}\n')), {
+        rowCount: 3,
+        sum: 60,
+        mean: 20,
+    });
+});
+
+test('N3 refuses a symlink in place of the container result', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ivory-n3-result-link-'));
+    try {
+        const target = path.join(root, 'target.json');
+        await fs.writeFile(target, '{"rowCount": 3, "sum": 60, "mean": 20}\n');
+        await fs.symlink(target, path.join(root, 'result.json'));
+        await assert.rejects(() => readN3Result(root), /regular file/);
+    } finally {
+        await fs.rm(root, { recursive: true, force: true });
+    }
 });
 
 test('failed acceptance checks fail verification without dropping the evidence bundle', async () => {
@@ -136,6 +162,12 @@ test('verify:ivory-n3 protocol-only stays green for honest protocol evidence', a
         ]);
         assert.equal(child.code, 0, child.stderr);
         const bundle = JSON.parse(await fs.readFile(path.join(artifactRoot, 'evidence.json'), 'utf8'));
+        assert.equal(bundle.schema, 'ivory-tower.n3-evidence');
+        assert.equal(bundle.experimentVersion, '2.0');
+        assert.match(bundle.gitCommit, /^[0-9a-f]{40}$/);
+        assert.deepEqual(bundle.configuration.resultContract.keys, ['mean', 'rowCount', 'sum']);
+        assert.equal(bundle.acceptanceCriteria.protocolLifecycleReopened.pass, true);
+        assert.equal(bundle.rawArtifacts[0].sha256.length, 64);
         const afterArtifact = bundle.protocolFaultMatrix.find(result => result.boundary === 'after-artifact');
         const beforeStart = bundle.protocolFaultMatrix.find(result => result.boundary === 'before-start');
         const afterStart = bundle.protocolFaultMatrix.find(result => result.boundary === 'after-start');

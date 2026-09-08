@@ -17,7 +17,26 @@ const FIXTURE_ROOT = path.join(ROOT, 'scripts', 'fixtures', 'n3');
 const ARTIFACT_ROOT = path.join(ROOT, 'artifacts', 'n3');
 const dockerCommand = process.platform === 'win32' ? 'docker.exe' : 'docker';
 const OUTPUT_LIMIT_BYTES = 64 * 1024;
+const RESULT_LIMIT_BYTES = 64 * 1024;
 const RUN_TIMEOUT_MS = 30_000;
+export const N3_EXPERIMENT_VERSION = '2.0';
+export const N3_RESULT_CONTRACT_VERSION = 'n3-result-v1';
+const N3_RESULT_KEYS = ['mean', 'rowCount', 'sum'];
+const N3_CONTAINER_CONFIGURATION = Object.freeze({
+    networkMode: 'none',
+    readOnlyRootfs: true,
+    user: '65532:65532',
+    capDrop: ['ALL'],
+    securityOpt: ['no-new-privileges:true'],
+    pidsLimit: 64,
+    memoryBytes: 256 * 1024 * 1024,
+    nanoCpus: 1_000_000_000,
+    nofile: 256,
+    fsize: 1024,
+    inputMount: '/var/tmp',
+    outputMount: '/tmp',
+    tmpfs: '/dev/shm:rw,noexec,nosuid,size=16m',
+});
 
 function argumentValue(name) {
     const index = process.argv.indexOf(name);
@@ -37,11 +56,83 @@ function docker(args, options = {}) {
 
 function dockerAvailable() {
     try {
-        docker(['info'], { stdio: 'ignore' });
-        return true;
+        const serverVersion = docker(['info', '--format', '{{.ServerVersion}}']).trim();
+        return /^\d+(?:\.\d+){1,2}(?:[-+].*)?$/u.test(serverVersion);
     } catch {
         return false;
     }
+}
+
+function currentGitCommit() {
+    try {
+        return execFileSync('git', ['rev-parse', 'HEAD'], {
+            cwd: ROOT,
+            encoding: 'utf8',
+            stdio: ['ignore', 'pipe', 'ignore'],
+        }).trim();
+    } catch {
+        return undefined;
+    }
+}
+
+function dockerVersion() {
+    try {
+        const version = JSON.parse(docker(['version', '--format', '{{json .}}']));
+        return {
+            client: version.Client === undefined || version.Client === null ? undefined : {
+                version: version.Client.Version,
+                apiVersion: version.Client.ApiVersion,
+                os: version.Client.Os,
+                arch: version.Client.Arch,
+            },
+            server: version.Server === undefined || version.Server === null ? undefined : {
+                version: version.Server.Version,
+                apiVersion: version.Server.ApiVersion,
+                os: version.Server.Os,
+                arch: version.Server.Arch,
+            },
+        };
+    } catch {
+        return undefined;
+    }
+}
+
+function platformEvidence() {
+    const cpus = os.cpus();
+    return {
+        platform: process.platform,
+        arch: process.arch,
+        release: os.release(),
+        version: os.version(),
+        cpuModel: cpus[0]?.model,
+        cpuCount: cpus.length,
+        totalMemoryBytes: os.totalmem(),
+        nodeVersion: process.version,
+    };
+}
+
+function invocationEvidence() {
+    return {
+        executable: process.execPath,
+        script: path.relative(ROOT, process.argv[1] ?? fileURLToPath(import.meta.url)).replaceAll(path.sep, '/'),
+        arguments: process.argv.slice(2),
+    };
+}
+
+function relativeArtifactPath(artifactRoot, target) {
+    return path.relative(artifactRoot, target).replaceAll(path.sep, '/');
+}
+
+async function writeRawArtifact(artifactRoot, name, content) {
+    const target = path.join(artifactRoot, name);
+    const bytes = Buffer.isBuffer(content) ? content : Buffer.from(content);
+    await fs.mkdir(path.dirname(target), { recursive: true });
+    await fs.writeFile(target, bytes);
+    return {
+        path: relativeArtifactPath(artifactRoot, target),
+        bytes: bytes.byteLength,
+        sha256: sha256(bytes),
+    };
 }
 
 async function runContainer({ name, image, language, mode, inputDirectory, outputDirectory }) {
@@ -55,14 +146,14 @@ async function runContainer({ name, image, language, mode, inputDirectory, outpu
         '--cap-drop', 'ALL',
         '--security-opt', 'no-new-privileges:true',
         '--user', '65532:65532',
-        '--pids-limit', '64',
+        '--pids-limit', String(N3_CONTAINER_CONFIGURATION.pidsLimit),
         '--memory', '256m',
         '--cpus', '1',
-        '--ulimit', 'nofile=256:256',
-        '--ulimit', 'fsize=1024:1024',
+        '--ulimit', `nofile=${N3_CONTAINER_CONFIGURATION.nofile}:${N3_CONTAINER_CONFIGURATION.nofile}`,
+        '--ulimit', `fsize=${N3_CONTAINER_CONFIGURATION.fsize}:${N3_CONTAINER_CONFIGURATION.fsize}`,
         '--mount', `type=bind,src=${inputDirectory},dst=/var/tmp,readonly`,
         '--mount', `type=bind,src=${outputDirectory},dst=/tmp`,
-        '--tmpfs', '/dev/shm:rw,noexec,nosuid,size=16m',
+        '--tmpfs', N3_CONTAINER_CONFIGURATION.tmpfs,
         image,
         ...command.filter(Boolean),
     ];
@@ -72,7 +163,8 @@ async function runContainer({ name, image, language, mode, inputDirectory, outpu
     let stderr = '';
     let capturedBytes = 0;
     let outputLimit = false;
-    let forcedStop = false;
+    let stopRequested = false;
+    let stopReason;
     let inspect;
     const inspectContainer = () => {
         try {
@@ -81,11 +173,12 @@ async function runContainer({ name, image, language, mode, inputDirectory, outpu
             return undefined;
         }
     };
-    const stopContainer = () => {
-        if (forcedStop) {
+    const stopContainer = reason => {
+        if (stopRequested) {
             return;
         }
-        forcedStop = true;
+        stopRequested = true;
+        stopReason = reason;
         try {
             docker(['rm', '-f', name], { stdio: 'ignore' });
         } catch {
@@ -104,7 +197,7 @@ async function runContainer({ name, image, language, mode, inputDirectory, outpu
         if (capturedBytes > OUTPUT_LIMIT_BYTES) {
             outputLimit = true;
             inspect ??= inspectContainer();
-            stopContainer();
+            stopContainer('output-limit');
             return;
         }
         if (target === 'stdout') {
@@ -115,31 +208,34 @@ async function runContainer({ name, image, language, mode, inputDirectory, outpu
     };
     child.stdout.on('data', chunk => capture('stdout', chunk));
     child.stderr.on('data', chunk => capture('stderr', chunk));
-    const timeout = setTimeout(() => stopContainer(), RUN_TIMEOUT_MS);
+    const timeout = setTimeout(() => stopContainer('timeout'), RUN_TIMEOUT_MS);
     const exitCode = await new Promise(resolve => child.once('close', resolve));
     clearTimeout(timeout);
     inspect ??= inspectContainer();
-    stopContainer();
+    stopContainer('normal-exit');
     removeContainer();
     const containerExists = inspectContainer() !== undefined;
+    const hostConfig = inspect?.[0]?.HostConfig;
     return {
         exitCode,
         elapsedMs: Date.now() - startedAt,
         stdout,
         stderr,
         outputLimit,
-        timedOut: forcedStop && !outputLimit,
+        stopReason,
+        timedOut: stopReason === 'timeout',
         childProcessesTerminated: !containerExists,
-        controls: inspect?.[0]?.HostConfig === undefined ? undefined : {
-            networkMode: inspect[0].HostConfig.NetworkMode,
-            readOnlyRootfs: inspect[0].HostConfig.ReadonlyRootfs,
+        controls: hostConfig === undefined ? undefined : {
+            networkMode: hostConfig.NetworkMode,
+            readOnlyRootfs: hostConfig.ReadonlyRootfs,
             user: inspect[0].Config.User,
-            capDrop: inspect[0].HostConfig.CapDrop,
-            securityOpt: inspect[0].HostConfig.SecurityOpt,
-            pidsLimit: inspect[0].HostConfig.PidsLimit,
-            memoryBytes: inspect[0].HostConfig.Memory,
-            nanoCpus: inspect[0].HostConfig.NanoCpus,
-            tmpfs: inspect[0].HostConfig.Tmpfs,
+            capDrop: hostConfig.CapDrop,
+            securityOpt: hostConfig.SecurityOpt,
+            pidsLimit: hostConfig.PidsLimit,
+            memoryBytes: hostConfig.Memory,
+            nanoCpus: hostConfig.NanoCpus,
+            ulimits: hostConfig.Ulimits,
+            tmpfs: hostConfig.Tmpfs,
             mounts: inspect[0].Mounts,
         },
     };
@@ -151,6 +247,8 @@ function controlsAreEnforced(controls) {
     const inputReadOnly = inputMount?.RW === false || inputMount?.ReadOnly === true;
     const outputWritable = outputMount?.RW === true && outputMount?.ReadOnly !== true;
     const tmpfs = controls?.tmpfs?.['/dev/shm'];
+    const nofile = controls?.ulimits?.find(limit => limit.Name === 'nofile');
+    const fsize = controls?.ulimits?.find(limit => limit.Name === 'fsize');
     return controls?.networkMode === 'none'
         && controls.readOnlyRootfs === true
         && controls.user === '65532:65532'
@@ -159,11 +257,51 @@ function controlsAreEnforced(controls) {
         && controls.pidsLimit === 64
         && controls.memoryBytes === 256 * 1024 * 1024
         && controls.nanoCpus === 1_000_000_000
+        && nofile?.Soft === 256
+        && nofile?.Hard === 256
+        && fsize?.Soft === 1024
+        && fsize?.Hard === 1024
         && inputReadOnly
         && outputWritable
         && typeof tmpfs === 'string'
         && tmpfs.includes('noexec')
         && tmpfs.includes('nosuid');
+}
+
+export function parseN3Result(bytes) {
+    if (bytes.byteLength === 0 || bytes.byteLength > RESULT_LIMIT_BYTES) {
+        throw new Error('N3 result is empty or exceeds the result-size limit.');
+    }
+    let result;
+    try {
+        result = JSON.parse(bytes.toString('utf8'));
+    } catch {
+        throw new Error('N3 result is not valid JSON.');
+    }
+    if (result === null || typeof result !== 'object' || Array.isArray(result)) {
+        throw new Error('N3 result must be a JSON object.');
+    }
+    if (Object.keys(result).sort().join(',') !== N3_RESULT_KEYS.join(',')) {
+        throw new Error('N3 result does not match the declared result contract.');
+    }
+    if (!Number.isInteger(result.rowCount) || result.rowCount < 0
+        || !Number.isFinite(result.sum) || !Number.isFinite(result.mean)) {
+        throw new Error('N3 result contains an invalid numeric value.');
+    }
+    return result;
+}
+
+export async function readN3Result(outputDirectory) {
+    const resultPath = path.join(outputDirectory, 'result.json');
+    const metadata = await fs.lstat(resultPath);
+    if (!metadata.isFile() || metadata.isSymbolicLink() || metadata.nlink !== 1) {
+        throw new Error('N3 result must be a single regular file, not a link or special file.');
+    }
+    if (metadata.size > RESULT_LIMIT_BYTES) {
+        throw new Error('N3 result exceeds the result-size limit.');
+    }
+    const bytes = await fs.readFile(resultPath);
+    return { bytes, result: parseN3Result(bytes) };
 }
 
 export function requiredAcceptanceFailures(acceptance) {
@@ -177,6 +315,60 @@ export async function writeEvidence(evidence, artifactRoot = ARTIFACT_ROOT) {
     const languageSuffix = evidence.language === undefined ? 'protocol' : evidence.language;
     await fs.writeFile(path.join(artifactRoot, `evidence-${languageSuffix}.json`), `${JSON.stringify(evidence, null, 2)}\n`);
     await fs.writeFile(path.join(artifactRoot, 'evidence.json'), `${JSON.stringify(evidence, null, 2)}\n`);
+}
+
+function protocolAcceptance(protocol) {
+    const lifecycle = protocol.filter(result => result.boundary !== 'cancellation-publication-race');
+    const afterArtifact = protocol.find(result => result.boundary === 'after-artifact');
+    const cancellation = protocol.find(result => result.boundary === 'cancellation-publication-race');
+    return {
+        protocolLifecycleReopened: lifecycle.length > 0 && lifecycle.every(result =>
+            result.isolated === true
+            && result.reopened === true
+            && result.workerExited === true
+            && (result.boundary === 'before-create' || result.workerAbruptExit === true)),
+        publicationRecoveryAfterRestart: afterArtifact?.status === 'succeeded' && afterArtifact.artifactCount === 1,
+        cancellationPublicationFenced: cancellation?.status === 'cancelled'
+            && cancellation.latePublicationRejected === true
+            && cancellation.terminalOutcome === 'cancelled',
+    };
+}
+
+function acceptanceCriteria(acceptance) {
+    return Object.fromEntries(Object.entries(acceptance ?? {}).map(([id, observed]) => [id, {
+        required: observed !== null,
+        observed,
+        pass: observed === null ? null : observed === true,
+    }]));
+}
+
+async function fixtureEvidence() {
+    const files = {
+        input: 'input.csv',
+        python: 'compute.py',
+        r: 'compute.R',
+    };
+    const entries = {};
+    for (const [name, file] of Object.entries(files)) {
+        const bytes = await fs.readFile(path.join(FIXTURE_ROOT, file));
+        entries[name] = {
+            path: path.relative(ROOT, path.join(FIXTURE_ROOT, file)).replaceAll(path.sep, '/'),
+            bytes: bytes.byteLength,
+            sha256: sha256(bytes),
+        };
+    }
+    return entries;
+}
+
+function protocolDecision() {
+    return {
+        status: 'semantic-protocol-pass-runtime-open',
+        decision: 'Retain the semantic execution protocol and keep isolation behind a replaceable runtime adapter.',
+        limitations: [
+            'Protocol evidence does not select a supported operating system or production isolation profile.',
+            'OCI runtime qualification requires real hostile canaries, runtime inspection, and language repeats.',
+        ],
+    };
 }
 
 export async function completeN3Verification(evidence, {
@@ -215,19 +407,65 @@ async function run() {
         process.exitCode = exitCode;
         return;
     }
+    const fixtures = await fixtureEvidence();
     const protocolDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'ivory-n3-protocol-'));
     const protocol = await runProtocolFaultMatrix(protocolDirectory);
+    const protocolAcceptanceResult = protocolAcceptance(protocol);
     const baseEvidence = {
+        schema: 'ivory-tower.n3-evidence',
+        experiment: 'N3',
+        experimentVersion: N3_EXPERIMENT_VERSION,
+        contractVersion: 'n3-semantic-execution-v2',
+        gitCommit: currentGitCommit(),
+        command: invocationEvidence(),
+        platform: platformEvidence(),
+        runtimeVersions: { node: process.version },
+        fixtureDigests: fixtures,
+        configuration: {
+            outputLimitBytes: OUTPUT_LIMIT_BYTES,
+            resultLimitBytes: RESULT_LIMIT_BYTES,
+            runTimeoutMs: RUN_TIMEOUT_MS,
+            resultContract: {
+                version: N3_RESULT_CONTRACT_VERSION,
+                keys: N3_RESULT_KEYS,
+            },
+            container: N3_CONTAINER_CONFIGURATION,
+            publicationInterruptionRequested: process.argv.includes('--interrupt-publication'),
+        },
         protocolFaultMatrix: protocol,
         languageNeutralProtocol: 'pending-python-and-r-confirmation',
-        supportedPilotTarget: 'macOS Apple Silicon with a maintained local OCI runtime; cohort confirmation required',
+        observations: {
+            protocol: {
+                boundaryCount: protocol.filter(result => result.boundary !== 'cancellation-publication-race').length,
+                restartRecoveryMs: protocol.find(result => result.boundary === 'after-artifact')?.recoveryElapsedMs,
+                cancellationLatencyMs: protocol.find(result => result.boundary === 'cancellation-publication-race')?.cancellationLatencyMs,
+            },
+        },
+        architectureDecision: protocolDecision(),
+        limitations: protocolDecision().limitations,
+        acceptance: protocolAcceptanceResult,
     };
+    baseEvidence.acceptanceCriteria = acceptanceCriteria(baseEvidence.acceptance);
+    baseEvidence.rawArtifacts = [await writeRawArtifact(
+        artifactRoot,
+        'logs/protocol-matrix.json',
+        `${JSON.stringify(protocol, null, 2)}\n`,
+    )];
     if (process.argv.includes('--protocol-only')) {
         const { exitCode } = await completeN3Verification(baseEvidence, { artifactRoot });
         process.exitCode = exitCode;
         return;
     }
     if (!dockerAvailable()) {
+        baseEvidence.runtime = { status: 'unavailable' };
+        baseEvidence.runtimeVersions.docker = undefined;
+        baseEvidence.limitations = [
+            ...baseEvidence.limitations,
+            'Docker daemon was unavailable for this invocation; OCI evidence was not collected.',
+        ];
+        baseEvidence.acceptance.runtimeAvailable = null;
+        baseEvidence.acceptanceCriteria = acceptanceCriteria(baseEvidence.acceptance);
+        await completeN3Verification(baseEvidence, { artifactRoot });
         console.error('Docker daemon is unavailable; N3 OCI runtime evidence cannot run. Protocol-only evidence passed.');
         process.exitCode = 2;
         return;
@@ -237,10 +475,26 @@ async function run() {
         throw new Error('--language must be python or r.');
     }
     const imageOption = language === 'python' ? '--python-image' : '--r-image';
-    const image = requireDigestImage(argumentValue(imageOption) ?? process.env[`IVORY_N3_${language.toUpperCase()}_IMAGE`], imageOption);
+    let image;
+    try {
+        image = requireDigestImage(argumentValue(imageOption) ?? process.env[`IVORY_N3_${language.toUpperCase()}_IMAGE`], imageOption);
+    } catch (error) {
+        baseEvidence.runtime = {
+            status: 'invalid-configuration',
+            error: error instanceof Error ? error.message : String(error),
+        };
+        baseEvidence.acceptance.runtimeAvailable = true;
+        baseEvidence.acceptance.imageDigestValid = false;
+        baseEvidence.acceptanceCriteria = acceptanceCriteria(baseEvidence.acceptance);
+        await completeN3Verification(baseEvidence, { artifactRoot });
+        process.exitCode = 1;
+        return;
+    }
     const coldInstall = process.argv.includes('--measure') ? measureColdInstall(image) : undefined;
     const inputBytes = await fs.readFile(path.join(FIXTURE_ROOT, 'input.csv'));
     const inputDigest = sha256(inputBytes);
+    const scriptPath = path.join(FIXTURE_ROOT, language === 'python' ? 'compute.py' : 'compute.R');
+    const scriptBytes = await fs.readFile(scriptPath);
     const runRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'ivory-n3-run-'));
     const inputDirectory = path.join(runRoot, 'input');
     const hostileOutputDirectory = path.join(runRoot, 'hostile-output');
@@ -261,7 +515,7 @@ async function run() {
         inputDigest,
         language,
         image,
-        scriptDigest: sha256(await fs.readFile(path.join(FIXTURE_ROOT, language === 'python' ? 'compute.py' : 'compute.R'))),
+        scriptDigest: sha256(scriptBytes),
     };
     intent.intentDigest = canonicalIntentDigest(intent);
     const store = new N3PublicationStore(path.join(runRoot, 'publication'));
@@ -269,93 +523,170 @@ async function run() {
     const firstClient = await store.createOrReplay(intent);
     const secondClient = await store.createOrReplay(intent);
     const attempt = await store.startAttempt();
-    const hostileEvidence = language === 'python' ? await runContainer({
-        name: `${executionId}-hostile`,
-        image,
-        language,
-        mode: 'hostile',
-        inputDirectory,
-        outputDirectory: hostileOutputDirectory,
-    }) : undefined;
-    const runEvidence = await runContainer({
-        name: `${executionId}-attempt-${attempt.currentAttempt}`,
-        image,
-        language,
-        mode: 'valid',
-        inputDirectory,
-        outputDirectory,
-    });
-    const afterInputDigest = sha256(await fs.readFile(path.join(inputDirectory, 'input.csv')));
-    const canaries = language === 'python' ? JSON.parse(await fs.readFile(path.join(hostileOutputDirectory, 'canaries.json'), 'utf8')) : [];
-    if (runEvidence.exitCode !== 0) {
-        throw new Error(`Valid ${language} run exited ${runEvidence.exitCode}: ${runEvidence.stderr}`);
-    }
-    const resultBytes = await fs.readFile(path.join(outputDirectory, 'result.json'));
+    let hostileEvidence;
+    let runEvidence;
+    let afterInputDigest;
+    let canaries = [];
+    let resultBytes;
+    let result;
+    let runtimeError;
     const interruptPublication = process.argv.includes('--interrupt-publication');
     let publicationInterrupted = false;
-    try {
-        await store.publish(attempt.currentAttempt, resultBytes, { interruptAfterArtifact: interruptPublication });
-    } catch {
-        publicationInterrupted = true;
-    }
-    if (publicationInterrupted) {
-        await store.recoverPublication();
-    }
-    const lateStore = new N3PublicationStore(path.join(runRoot, 'late-publication'));
-    await lateStore.initialize();
-    await lateStore.createOrReplay(intent);
-    const lateFirst = await lateStore.startAttempt();
-    const nextAttemptState = await lateStore.startAttempt();
-    const lateAttempt = lateFirst.currentAttempt;
+    let publicationError;
+    let recoveryState;
+    let lateStore;
+    let lateFirst;
+    let nextAttemptState;
+    let lateAttempt;
     let lateFenced = false;
+    let finalState;
     try {
-        await lateStore.publish(lateAttempt, Buffer.from('{"stale":true}\n'));
-    } catch {
-        lateFenced = true;
+        hostileEvidence = language === 'python' ? await runContainer({
+            name: `${executionId}-hostile`,
+            image,
+            language,
+            mode: 'hostile',
+            inputDirectory,
+            outputDirectory: hostileOutputDirectory,
+        }) : undefined;
+        runEvidence = await runContainer({
+            name: `${executionId}-attempt-${attempt.currentAttempt}`,
+            image,
+            language,
+            mode: 'valid',
+            inputDirectory,
+            outputDirectory,
+        });
+        afterInputDigest = sha256(await fs.readFile(path.join(inputDirectory, 'input.csv')));
+        if (language === 'python') {
+            canaries = JSON.parse(await fs.readFile(path.join(hostileOutputDirectory, 'canaries.json'), 'utf8'));
+        }
+        if (runEvidence.exitCode !== 0) {
+            throw new Error(`Valid ${language} run exited ${runEvidence.exitCode}: ${runEvidence.stderr}`);
+        }
+        ({ bytes: resultBytes, result } = await readN3Result(outputDirectory));
+        try {
+            await store.publish(attempt.currentAttempt, resultBytes, { interruptAfterArtifact: interruptPublication });
+        } catch (error) {
+            if (!interruptPublication) {
+                throw error;
+            }
+            publicationInterrupted = true;
+            publicationError = error instanceof Error ? error.message : String(error);
+        }
+        if (publicationInterrupted) {
+            recoveryState = await store.recoverPublication();
+        }
+        lateStore = new N3PublicationStore(path.join(runRoot, 'late-publication'));
+        await lateStore.initialize();
+        await lateStore.createOrReplay(intent);
+        lateFirst = await lateStore.startAttempt();
+        nextAttemptState = await lateStore.startAttempt();
+        lateAttempt = lateFirst.currentAttempt;
+        try {
+            await lateStore.publish(lateAttempt, Buffer.from('{"stale":true}\n'));
+        } catch {
+            lateFenced = true;
+        }
+        finalState = await store.readState();
+    } catch (error) {
+        runtimeError = error instanceof Error ? error.message : String(error);
+        afterInputDigest ??= await fs.readFile(path.join(inputDirectory, 'input.csv'))
+            .then(bytes => sha256(bytes))
+            .catch(() => undefined);
     }
-    const finalState = await store.readState();
+    const rawArtifacts = [...baseEvidence.rawArtifacts];
+    if (hostileEvidence !== undefined) {
+        rawArtifacts.push(await writeRawArtifact(artifactRoot, `logs/${language}-hostile.stdout.log`, hostileEvidence.stdout));
+        rawArtifacts.push(await writeRawArtifact(artifactRoot, `logs/${language}-hostile.stderr.log`, hostileEvidence.stderr));
+    }
+    if (runEvidence !== undefined) {
+        rawArtifacts.push(await writeRawArtifact(artifactRoot, `logs/${language}-run.stdout.log`, runEvidence.stdout));
+        rawArtifacts.push(await writeRawArtifact(artifactRoot, `logs/${language}-run.stderr.log`, runEvidence.stderr));
+    }
+    const inputUnchanged = afterInputDigest !== undefined && inputDigest === afterInputDigest;
+    const controlsEnforced = runEvidence === undefined ? false : controlsAreEnforced(runEvidence.controls)
+        && (language !== 'python' || controlsAreEnforced(hostileEvidence?.controls));
     const evidence = {
         ...baseEvidence,
         image,
         language,
         inputDigest,
         afterInputDigest,
-        inputUnchanged: inputDigest === afterInputDigest,
+        inputUnchanged,
+        scriptDigest: intent.scriptDigest,
         idempotency: { firstReplayed: firstClient.replayed, secondReplayed: secondClient.replayed },
+        runtimeVersions: { ...baseEvidence.runtimeVersions, docker: dockerVersion() },
+        rawArtifacts,
         runtime: {
-            exitCode: runEvidence.exitCode,
-            outputLimit: runEvidence.outputLimit,
-            childProcessesTerminated: runEvidence.childProcessesTerminated,
-            controlsEnforced: controlsAreEnforced(runEvidence.controls),
-            controls: runEvidence.controls,
-            elapsedMs: runEvidence.elapsedMs,
+            status: runtimeError === undefined ? 'observed' : 'failed',
+            error: runtimeError,
+            exitCode: runEvidence?.exitCode,
+            outputLimit: runEvidence?.outputLimit,
+            stopReason: runEvidence?.stopReason,
+            timedOut: runEvidence?.timedOut,
+            childProcessesTerminated: runEvidence?.childProcessesTerminated,
+            controlsEnforced,
+            controls: runEvidence?.controls,
+            elapsedMs: runEvidence?.elapsedMs,
             coldInstall,
-            warmLaunchMs: runEvidence.elapsedMs,
+            warmLaunchMs: runEvidence?.elapsedMs,
+            resultContractVersion: N3_RESULT_CONTRACT_VERSION,
+            result,
+            resultDigest: resultBytes === undefined ? undefined : sha256(resultBytes),
+            resultBytes: resultBytes?.byteLength,
             hostileCanaries: language === 'python' ? canaries : null,
             hostileOutputLimit: hostileEvidence?.outputLimit ?? false,
-            hostileChildProcessesTerminated: hostileEvidence?.childProcessesTerminated ?? true,
-            hostileControlsEnforced: hostileEvidence === undefined ? undefined : controlsAreEnforced(hostileEvidence.controls),
+            hostileStopReason: hostileEvidence?.stopReason,
+            hostileChildProcessesTerminated: hostileEvidence?.childProcessesTerminated,
+            hostileControlsEnforced: hostileEvidence === undefined ? null : controlsAreEnforced(hostileEvidence.controls),
         },
         publication: {
             interrupted: publicationInterrupted,
-            recovered: finalState.status === 'succeeded',
-            terminalOutcome: finalState.terminalOutcome,
-            artifactCount: (await store.artifactNames()).length,
-            lateAttempt: lateAttempt,
-            replacementAttempt: nextAttemptState.currentAttempt,
+            interruptionError: publicationError,
+            recovered: recoveryState?.status === 'succeeded' || finalState?.status === 'succeeded',
+            recoveryState,
+            terminalOutcome: finalState?.terminalOutcome,
+            artifactCount: await store.artifactNames(),
+            lateAttempt,
+            replacementAttempt: nextAttemptState?.currentAttempt,
             lateResultFenced: lateFenced,
-            latePublicationState: await lateStore.readState(),
+            latePublicationState: lateStore === undefined ? undefined : await lateStore.readState(),
         },
     };
-    evidence.acceptance = {
-        requiredCanariesDenied: language === 'python' ? canaries.filter(canary => canary.name !== 'child-process').every(canary => canary.denied === true) : null,
-        inputUnchanged: evidence.inputUnchanged,
-        childProcessesTerminated: language === 'python' ? hostileEvidence.childProcessesTerminated : null,
-        controlsEnforced: controlsAreEnforced(runEvidence.controls) && (language !== 'python' || controlsAreEnforced(hostileEvidence.controls)),
-        lateResultsFenced: evidence.publication.lateResultFenced,
-        oneTerminalPublicationOutcome: ['succeeded', 'failed', 'cancelled'].includes(finalState.status) && evidence.publication.artifactCount === 1,
-        validOutputNotAdmittedAsFailure: runEvidence.exitCode === 0 && finalState.status === 'succeeded',
+    evidence.publication.artifactCount = evidence.publication.artifactCount.length;
+    evidence.observations.runtime = {
+        elapsedMs: runEvidence?.elapsedMs,
+        warmLaunchMs: runEvidence?.elapsedMs,
+        outputBytesCaptured: (runEvidence?.stdout?.length ?? 0) + (runEvidence?.stderr?.length ?? 0),
+        resultBytes: resultBytes?.byteLength,
     };
+    const finalStatus = finalState?.status;
+    evidence.acceptance = {
+        ...baseEvidence.acceptance,
+        runtimeAvailable: true,
+        requiredCanariesDenied: language === 'python' ? canaries.filter(canary => canary.name !== 'child-process').length > 0
+            && canaries.filter(canary => canary.name !== 'child-process').every(canary => canary.denied === true) : null,
+        inputUnchanged: evidence.inputUnchanged,
+        childProcessesTerminated: language === 'python' ? hostileEvidence?.childProcessesTerminated === true : null,
+        controlsEnforced,
+        lateResultsFenced: evidence.publication.lateResultFenced,
+        oneTerminalPublicationOutcome: ['succeeded', 'failed', 'cancelled'].includes(finalStatus) && evidence.publication.artifactCount === 1,
+        publicationRecoveredAfterInterrupt: interruptPublication ? evidence.publication.recovered === true && evidence.publication.artifactCount === 1 : null,
+        resultOutputValidated: result !== undefined,
+        validOutputNotAdmittedAsFailure: runEvidence?.exitCode === 0 && finalStatus === 'succeeded',
+    };
+    evidence.acceptanceCriteria = acceptanceCriteria(evidence.acceptance);
+    evidence.architectureDecision = {
+        status: runtimeError === undefined ? 'runtime-observed-language-qualified-open' : 'runtime-qualification-failed',
+        decision: 'Retain the semantic execution protocol and keep isolation behind a replaceable runtime adapter.',
+        limitations: [
+            'This invocation does not select a supported operating system or production isolation profile.',
+            language === 'python' ? 'An independent R repeat is still required before declaring language-neutral protocol semantics.' : 'A corresponding Python run must be retained with the R evidence for language-neutral protocol semantics.',
+            ...(interruptPublication ? [] : ['Publication interruption recovery was not requested in this invocation.']),
+        ],
+    };
+    evidence.limitations = evidence.architectureDecision.limitations;
     const { exitCode } = await completeN3Verification(evidence, { artifactRoot });
     process.exitCode = exitCode;
 }

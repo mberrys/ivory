@@ -438,17 +438,23 @@ export async function runBoundaryWorker({ root, boundary, executionId }) {
     }
     await store.createOrReplay(intent);
     if (boundary === 'after-create' || boundary === 'before-start') {
-        return;
+        process.exit(70);
     }
     const attempt = await store.startAttempt();
     if (boundary === 'after-start' || boundary === 'before-publish') {
-        return;
+        process.exit(70);
     }
     if (boundary === 'after-artifact') {
-        await store.publish(attempt.currentAttempt, Buffer.from('{"ok":true}\n'), { interruptAfterArtifact: true });
-        return;
+        if (!(await store.beginPublication(attempt.currentAttempt))) {
+            throw new Error('N3 boundary worker could not begin publication.');
+        }
+        await store.writeArtifact(attempt.currentAttempt, Buffer.from('{"ok":true}\n'));
+        process.exit(70);
     }
     await store.publish(attempt.currentAttempt, Buffer.from('{"ok":true}\n'));
+    if (boundary === 'after-publish') {
+        process.exit(70);
+    }
 }
 
 function spawnBoundaryWorker(root, boundary, executionId) {
@@ -485,14 +491,17 @@ export async function runProtocolFaultMatrix(tempRoot) {
     for (const [owner, boundary] of boundaries) {
         const root = path.join(tempRoot, `${owner}-${boundary}`);
         const executionId = `${owner}-${boundary}`;
+        const startedAt = Date.now();
         const worker = await spawnBoundaryWorker(root, boundary, executionId);
-        const expectedCrash = boundary === 'after-artifact';
-        if (!expectedCrash && worker.code !== 0) {
+        const expectedCrash = boundary !== 'before-create';
+        if (worker.code !== (expectedCrash ? 70 : 0)) {
             throw new Error(`N3 boundary worker failed at ${boundary}: ${worker.stderr || worker.code}`);
         }
+        const workerElapsedMs = Date.now() - startedAt;
         const store = new N3PublicationStore(root);
         await store.initialize();
         if (boundary === 'after-artifact') {
+            const recoveryStartedAt = Date.now();
             const recovered = await store.recoverPublication();
             results.push({
                 owner,
@@ -503,6 +512,11 @@ export async function runProtocolFaultMatrix(tempRoot) {
                 reopened: true,
                 workerPid: worker.pid,
                 workerExited: worker.code !== null || worker.signal !== null,
+                workerAbruptExit: expectedCrash,
+                workerExitCode: worker.code,
+                workerSignal: worker.signal,
+                workerElapsedMs,
+                recoveryElapsedMs: Date.now() - recoveryStartedAt,
             });
             continue;
         }
@@ -515,6 +529,10 @@ export async function runProtocolFaultMatrix(tempRoot) {
             reopened: true,
             workerPid: worker.pid,
             workerExited: worker.code !== null || worker.signal !== null,
+            workerAbruptExit: expectedCrash,
+            workerExitCode: worker.code,
+            workerSignal: worker.signal,
+            workerElapsedMs,
         });
     }
     const cancellationRoot = path.join(tempRoot, 'cancellation-race');
@@ -529,7 +547,9 @@ export async function runProtocolFaultMatrix(tempRoot) {
         intentDigest: 'cancellation-race-intent',
     });
     const cancellationAttempt = await cancellationStore.startAttempt();
+    const cancellationStartedAt = Date.now();
     const cancelled = await cancellationStore.requestCancellation();
+    const cancellationLatencyMs = Date.now() - cancellationStartedAt;
     let latePublicationRejected = false;
     try {
         await cancellationStore.publish(cancellationAttempt.currentAttempt, Buffer.from('{"late":true}\n'));
@@ -542,6 +562,7 @@ export async function runProtocolFaultMatrix(tempRoot) {
         status: cancelled.status,
         latePublicationRejected,
         terminalOutcome: (await cancellationStore.readState()).terminalOutcome,
+        cancellationLatencyMs,
     });
     return results;
 }
