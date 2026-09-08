@@ -2,9 +2,33 @@
   "schemaVersion": 1,
   "experiment": "N4 exact fragment anchors and ingestion fidelity",
   "experimentVersion": "n4-v2",
-  "repositoryCommit": "1496877908bf5b25e2d0e4f93034c23e047b41df",
+  "repositoryCommit": "5f481481bac5150592cb1afe716a2dccae74981a",
   "command": "npm run verify:ivory-n4-v2",
-  "generatedAt": "2026-09-08T22:49:43.944Z",
+  "generatedAt": "2026-09-08T23:03:51.763Z",
+  "timing": {
+    "totalMs": 3117
+  },
+  "configuration": {
+    "anchorCountPerFixture": 6,
+    "minimumAnchorsPerFixture": 5,
+    "pullTimeoutMs": 1000,
+    "conversionTimeoutMs": 180000,
+    "policyVersion": "iv-policy/n4-v2",
+    "independentOracle": "unique normalized exact-quote occurrence; no production remapper calls",
+    "reviewPolicy": "review every disagreement and every ambiguous or unresolved result"
+  },
+  "runtime": {
+    "platform": {
+      "name": "win32",
+      "release": "10.0.26200",
+      "arch": "x64",
+      "cpuModel": "12th Gen Intel(R) Core(TM) i9-12900KF",
+      "cpuCount": 24,
+      "totalMemoryBytes": 68501536768
+    },
+    "node": "v24.16.0",
+    "dockerServer": "29.7.2"
+  },
   "status": "NO-GO",
   "fixtureManifest": [
     {
@@ -164,8 +188,8 @@
   "rawArtifacts": [],
   "rawLedger": {
     "path": "artifacts/n4/qualification-ledger.json",
-    "sha256": "628ed90ab97c798d86594ed5af3c9da9f0f72ef2fdf2d65a499500993a170175",
-    "bytes": 28766
+    "sha256": "9a886e775239783f6027d780ec2854ab9b3db02a09d4e054c1b31f72f0c75908",
+    "bytes": 28838
   },
   "architectureDecision": {
     "outcome": "NO-GO; do not promote converter or selector profile",
@@ -179,6 +203,7 @@
       "Raw Docling responses are retained under the gitignored artifacts/n4/raw directory and are linked by digest."
     ]
   },
+  "qualificationRunFailure": "one or more pinned Docling images could not be prepared",
   "failure": {
     "phase": "qualification",
     "message": "Command failed: C:\\Program Files\\nodejs\\node.exe scripts/qualify-n4.mjs"

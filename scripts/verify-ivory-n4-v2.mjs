@@ -58,6 +58,14 @@ function retain(ledger, failure) {
         command,
         generatedAt: ledger?.generatedAt ?? new Date().toISOString(),
         timing: ledger?.timing,
+        configuration: ledger?.configuration,
+        runtime: ledger?.runtime === undefined
+            ? undefined
+            : {
+                platform: ledger.runtime.platform,
+                node: ledger.runtime.node,
+                dockerServer: ledger.runtime.dockerServer,
+            },
         status: ledger?.status ?? 'NO-GO',
         fixtureManifest: ledger?.fixtureManifest ?? [],
         converters: (ledger?.converters ?? []).map(converter => ({
