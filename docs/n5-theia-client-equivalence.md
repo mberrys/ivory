@@ -41,6 +41,41 @@ From the repository root with the pinned Node/npm toolchain:
 
 ```powershell
 npm.cmd ci
+```
+
+### Windows prerequisite — MSVC Spectre-mitigated libraries
+
+`@vscode/windows-ca-certs@0.3.4` (optional native dependency of `@vscode/proxy-agent`
+under the `@theia/plugin-ext` subtree) sets `"SpectreMitigation": "Spectre"` in its
+`binding.gyp`, so `npm.cmd run build:n5` (the `theia rebuild:browser` step) requires
+the Spectre-mitigated MSVC libraries. Probe the install path, toolset, and Spectre
+directories:
+
+```powershell
+& "C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -products "*" -property installationPath
+& "C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -products "*" -find "VC/Tools/MSVC/*"
+& "C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -products "*" -find "VC/Tools/MSVC/*/lib/*/spectre"
+```
+
+The last command lists `lib/<arch>/spectre` directories; empty output means the
+component is missing. Map the probed toolset's `14.4X` to the full catalog component
+ID — the installer rejects the abbreviated `VC.14.4X.Spectre` form and requires the
+versioned `VC.14.4X.17.1Y.x86.x64.Spectre` ID from the catalog:
+
+```powershell
+& "C:/Program Files (x86)/Microsoft Visual Studio/Installer/setup.exe" modify `
+  --installPath "C:/Program Files/Microsoft Visual Studio/2022/BuildTools" `
+  --add Microsoft.VisualStudio.Component.VC.14.44.17.14.x86.x64.Spectre `
+  --quiet --norestart
+```
+
+This must run elevated (admin): a non-elevated run fails with installer exit code
+5007 ("Commands with --quiet or --passive should be run elevated from the
+beginning"). Re-run the third probe to confirm the directories exist before
+continuing. This machine's toolset is 14.44.35207 under Visual Studio Build Tools
+2022 17.14.35.
+
+```powershell
 python scripts/n5/extensions.py install
 npm.cmd run test:n5
 npm.cmd run build:n5
@@ -152,9 +187,16 @@ placeholder tests. Generated build and repository-check logs live under
 - N5 TypeScript compilation and lint passed; the browser bundle completed.
 - Eight synthetic transport/comparison tests and both boundary checks passed.
 - All seven VSIX archives and extracted contents verified against the lock.
-- Backend bundling is blocked by `@vscode/windows-ca-certs`. Rebuilding its
-  pinned 0.3.4 native module fails with MSB8040: the installed Visual Studio
-  toolset lacks Spectre-mitigated libraries. No certificate-handling bypass was added.
+- Backend bundling remains machine-blocked: the pinned 0.3.4 native module
+  (`@vscode/windows-ca-certs`, `"SpectreMitigation": "Spectre"`) rebuild fails
+  with MSB8040 because the installed Visual Studio Build Tools 2022 toolset
+  (14.44.35207) lacks the Spectre-mitigated libraries. A machine install of
+  `Microsoft.VisualStudio.Component.VC.14.44.17.14.x86.x64.Spectre` was attempted
+  on 2026-09-07 and failed with installer exit code 5007 (requires an elevated
+  admin run). Exact probe and install commands are recorded in Reproduce above.
+  The toolchain check now exits 1 with a remediation message until the component
+  is installed (`IVORY_SKIP_SPECTRE_CHECK=1` skips it). No certificate-handling
+  bypass was added.
 - Repository verification passed toolchain, dependency bootstrap, formatting,
   and boundaries, then stopped because this checkout references but does not
   define `verify:ivory-cutline`. The remaining aggregate checks did not run.
