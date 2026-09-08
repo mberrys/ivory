@@ -74,6 +74,7 @@ CREATE TABLE IF NOT EXISTS snapshots (
     snapshot_id TEXT PRIMARY KEY,
     at_seq BIGINT NOT NULL,
     member_revision_ids JSONB NOT NULL,
+    member_revision_ids_text TEXT,
     digest TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

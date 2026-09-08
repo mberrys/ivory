@@ -225,13 +225,14 @@ export class DurableStore {
             `SELECT r.revision_id, r.content_digest
              FROM heads h
              JOIN revisions r ON r.revision_id = h.revision_id
-             ORDER BY r.object_id`,
+             ORDER BY h.object_id`,
         );
         const memberIds = members.rows.map(row => row.revision_id);
         const digest = sha256Json({ seq, memberIds, content: members.rows.map(row => row.content_digest) });
         const snapshotId = randomUUID();
         await this.pg.query(
-            'INSERT INTO snapshots (snapshot_id, at_seq, member_revision_ids, digest) VALUES ($1, $2, $3::jsonb, $4)',
+            `INSERT INTO snapshots (snapshot_id, at_seq, member_revision_ids, member_revision_ids_text, digest)
+             VALUES ($1, $2, '[]'::jsonb, $3, $4)`,
             [snapshotId, seq, JSON.stringify(memberIds), digest],
         );
         return { snapshotId, atSeq: seq, memberCount: memberIds.length, digest };
@@ -316,6 +317,22 @@ export class DurableStore {
                 }
                 const maxSeq = dump.receipts.reduce((max, row) => Math.max(max, Number(row.project_seq)), 0);
                 await tx.query('UPDATE project_state SET project_seq = $1 WHERE singleton = TRUE', [maxSeq]);
+                for (const row of dump.snapshots ?? []) {
+                    const memberIdsText = row.member_revision_ids_text ?? JSON.stringify(row.member_revision_ids ?? []);
+                    await tx.query(
+                        `INSERT INTO snapshots (
+                            snapshot_id, at_seq, member_revision_ids, member_revision_ids_text, digest, created_at
+                        ) VALUES ($1, $2, $3::jsonb, $4, $5, $6) ON CONFLICT DO NOTHING`,
+                        [
+                            row.snapshot_id,
+                            row.at_seq,
+                            JSON.stringify(row.member_revision_ids ?? []),
+                            memberIdsText,
+                            row.digest,
+                            row.created_at,
+                        ],
+                    );
+                }
             });
             await dest.close();
             return { destRoot, projectSeq: manifest.projectSeq, blobCount: manifest.blobs.length };

@@ -17,6 +17,7 @@ test('semantic export/import preserves records and blob hashes', async () => {
         revisions: [{ objectId: 'doc-export', objectType: 'document', payload: { title: 'Kept', text: 'retained-body' } }],
         blobs: [{ bytes: Buffer.from('retained-bytes') }],
     });
+    const snapshot = await store.freezeUnchanged();
     await store.exportSemantic(exportDir);
     await store.close();
 
@@ -26,6 +27,12 @@ test('semantic export/import preserves records and blob hashes', async () => {
     const visible = await imported.getVisible('doc-export');
     assert.equal(visible.payload.title, 'Kept');
     assert.equal(visible.payload.text, 'retained-body');
+    const importedSnapshot = (await imported.pg.query(
+        'SELECT digest, member_revision_ids_text FROM snapshots WHERE snapshot_id = $1',
+        [snapshot.snapshotId],
+    )).rows[0];
+    assert.equal(importedSnapshot.digest, snapshot.digest);
+    assert.deepEqual(JSON.parse(importedSnapshot.member_revision_ids_text), [original.revisions[0].revisionId]);
     const replay = await imported.commit({
         idempotencyKey: 'export-1',
         expectedHeads: [{ objectId: 'doc-export' }],

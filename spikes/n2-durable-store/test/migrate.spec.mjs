@@ -38,7 +38,7 @@ test('interrupted migration recovers on reopen', async () => {
         const store = new DurableStore();
         await store.open(projectRoot);
         const versions = (await store.pg.query('SELECT version FROM schema_migrations ORDER BY version')).rows.map(row => row.version);
-        assert.deepEqual(versions, ['001_revision_activity.sql', '002_search.sql']);
+        assert.deepEqual(versions, ['001_revision_activity.sql', '002_search.sql', '003_snapshot_manifest_text.sql']);
         await store.close();
     } finally {
         await rm(projectRoot, { recursive: true, force: true });
