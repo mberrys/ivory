@@ -2,7 +2,7 @@
 
 import { Pool } from 'pg';
 
-export const IVORY_RUNTIME_MIGRATIONS = ['001_runtime_topology.sql', '002_source_rights.sql'] as const;
+export const IVORY_RUNTIME_MIGRATIONS = ['001_runtime_topology.sql', '002_source_rights.sql', '003_n4_qualification.sql'] as const;
 
 export async function isIvoryRuntimeReady(pool: Pool): Promise<boolean> {
     for (const version of IVORY_RUNTIME_MIGRATIONS) {

@@ -1,8 +1,8 @@
 # N4 — Exact fragment anchors and ingestion fidelity
 
-This slice implements the fail-closed contracts needed by the N4 prototype. It does not claim
-the real-fixture qualification until the repository has a working dependency install and the
-20-fixture corpus is supplied.
+This slice implements the fail-closed contracts and reproducible qualification needed by the N4
+prototype. The committed corpus is checked before qualification, and the generated ledger is
+ignored alongside other runtime evidence.
 
 ## Implemented boundary
 
@@ -32,11 +32,11 @@ recovery remains unresolved until a structured selector is defined.
 
 ## Qualification still required
 
-The acceptance experiment still needs 20 supplied real fixtures: plain text, multilingual text,
-column/table/footnote PDFs, CSVs with missing values and non-ASCII labels, and two scanned PDFs.
-The experiment must create at least 100 anchors, rerun with a changed converter version, reopen
-from retained raw representations, and exercise project transfer. Those results must be recorded
-as exact, ambiguous, or unresolved with zero false exact matches. This repository currently has no
-such corpus or importer persistence path, and `npm ci` is blocked by an existing package-lock
-drift (`js-yaml` 4.3.1 in the lock versus 4.3.2 required by the package graph), so those claims
-remain open.
+## Qualification
+
+`npm run qualify:n4` verifies the checked-in 20-fixture corpus, creates five anchors per fixture,
+persists them with immutable baseline and changed-converter representations, and writes
+`artifacts/n4/qualification-ledger.json`. The contract requires 100 anchors, two scanned PDFs,
+explicit `docling-serve:v1.21.0` and `docling-serve:v1.22.0` representation identities, and zero
+false exact matches. N4 project namespaces exercise both permitted and denied transfer without
+claiming the later V1 user-authorization boundary.

@@ -26,7 +26,7 @@ function queryFor(options: { postgres?: boolean; migrations?: readonly string[];
 }
 
 describe('evaluateIvoryReadiness', () => {
-    const allMigrations = ['001_runtime_topology.sql', '002_source_rights.sql'];
+    const allMigrations = ['001_runtime_topology.sql', '002_source_rights.sql', '003_n4_qualification.sql'];
 
     it('is ready when postgres, schema, queue, and object store pass and Docling is skipped', async () => {
         const report = await evaluateIvoryReadiness({

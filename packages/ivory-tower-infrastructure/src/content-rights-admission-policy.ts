@@ -9,7 +9,7 @@ import {
     RightsBasis as PolicyRightsBasis,
 } from '@ivory-tower/content-policy';
 
-const SUPPORTED_CONTENT_TYPES = new Set(['application/pdf', 'text/plain', 'text/markdown']);
+const SUPPORTED_CONTENT_TYPES = new Set(['application/pdf', 'text/plain', 'text/markdown', 'text/csv']);
 
 function toPolicyTopology(topology: DeploymentTopology): PolicyTopology {
     switch (topology) {

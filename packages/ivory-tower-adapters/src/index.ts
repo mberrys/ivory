@@ -3,3 +3,4 @@
 export * from './clock-port';
 export * from './execution-ports';
 export * from './research-protocol-ports';
+export * from './n4-qualification-ports';

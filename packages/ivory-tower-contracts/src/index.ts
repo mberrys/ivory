@@ -4,3 +4,4 @@ export * from './execution-contract';
 export * from './source-contract';
 export * from './research-protocol-contract';
 export * from './ingestion-fidelity-contract';
+export * from './n4-qualification-contract';

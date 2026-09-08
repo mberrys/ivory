@@ -3,3 +3,4 @@
 export * from './health-service';
 export * from './execution-service';
 export * from './research-protocol-service';
+export * from './n4-transfer-service';

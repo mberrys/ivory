@@ -1,0 +1,6 @@
+respondent_id,region,response_rate,follow_up
+001,North,0.73,yes
+002,South,,no
+003,East,0.61,
+004,West,0.88,yes
+005,North,,

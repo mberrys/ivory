@@ -1,11 +1,1 @@
-dev-packages/*/bin/*.js text eol=lf
-
-docs/**/*.md text eol=lf
-
-packages/ivory-tower-*/src/**/*.ts text eol=lf
-packages/ivory-tower-*/src/**/*.tsx text eol=lf
-packages/ivory-identity/src/**/*.ts text eol=lf
-packages/ivory-identity/src/**/*.tsx text eol=lf
-examples/ivory-tower-browser/**/*.ts text eol=lf
-examples/ivory-tower-browser/**/*.tsx text eol=lf
-examples/ivory-tower-browser/**/*.mjs text eol=lf
+fixtures/n4/pdf/*.pdf binary
