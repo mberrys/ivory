@@ -13,6 +13,16 @@ export interface N4RepresentationRecord {
     readonly createdAt: string;
 }
 
+/** A page-local coordinate retained with an anchor for post-conversion inspection. */
+export interface N4PageCoordinate {
+    readonly page: number;
+    readonly x: number;
+    readonly y: number;
+    readonly width: number;
+    readonly height: number;
+    readonly unit: 'pt' | 'px' | 'normalized';
+}
+
 /** An anchor is stored as selector digests so the persistence layer never duplicates source text. */
 export interface N4AnchorRecord {
     readonly id: string;
@@ -27,6 +37,8 @@ export interface N4AnchorRecord {
         readonly suffixDigest: string;
         readonly normalizationVersion: string;
     };
+    /** Optional for backwards-compatible records created before V2 layout retention. */
+    readonly coordinates?: readonly N4PageCoordinate[];
     readonly confidence: 'exact' | 'approximate';
     readonly createdAt: string;
 }

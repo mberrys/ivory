@@ -32,11 +32,18 @@ recovery remains unresolved until a structured selector is defined.
 
 ## Qualification
 
-`npm run qualify:n4` runs both immutable Docling converter images against every checked-in fixture,
-selects five anchors from each real A-side extraction, remaps them against B, and writes the full
-evidence ledger to `artifacts/n4/qualification-ledger.json`. The ledger contains input/output
-hashes, converter image digests, per-anchor observed and independent-oracle classifications, the
-3x3 confusion matrix, false-exact count, and any conversion or anchor-selection failures. A run
-is `qualified` only with 20 converted fixtures, at least 100 real anchors, no failures, and zero
-false-exact cells; otherwise it is explicitly `NO-GO`. N4 project namespaces exercise both
-permitted and denied transfer without claiming the later V1 user-authorization boundary.
+`npm run verify:ivory-n4-v2` first compiles the N4 dependency slice, then runs both immutable
+Docling converter images against every checked-in fixture. It selects six anchors from each real
+A-side extraction (at least five are required), persists the A/B representations and selectors,
+reopens them from the qualification store, and checks their visibility after permitted project
+transfer. The full ledger is written to `artifacts/n4/qualification-ledger.json`; the small
+retained evidence record is written to `docs/experiments/n4-v2-evidence.json`.
+
+The ledger contains input/output and raw-response hashes, converter image digests, runtime and
+pull diagnostics, per-anchor observed and independent-oracle classifications, the 3x3 confusion
+matrix, false-exact count, page-coordinate coverage, typed/raw CSV fidelity, and schema-valid
+extraction failures with retry/next-action fields. A run is `qualified` only with 20 attempted
+fixtures, two ready digest-pinned converters, at least 100 real anchors, exact reopen before and
+after transfer, inspectable PDF coordinates and quotes, valid CSV fidelity, actionable failures,
+and zero false-exact cells. Otherwise it is explicitly `NO-GO`. N4 project namespaces exercise
+both permitted and denied transfer without claiming the later V1 user-authorization boundary.

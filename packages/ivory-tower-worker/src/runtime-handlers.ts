@@ -60,6 +60,7 @@ export function createRuntimeExecutionHandlers(objectStore: ObjectStorePort, con
             artifactEtag: stored.etag,
             parserVersion: converted.parserVersion,
             normalizedPassages: converted.normalizedPassages,
+            ...(converted.structuredRepresentation === undefined ? {} : { structuredRepresentation: converted.structuredRepresentation }),
         };
     };
     return new Map([['convert', convert]]);

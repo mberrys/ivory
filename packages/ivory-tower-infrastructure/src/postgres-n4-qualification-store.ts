@@ -10,7 +10,8 @@ interface RepresentationRow {
 }
 interface AnchorRow {
     id: string; project_id: string; representation_id: string; source_version_id: string; artifact_id: string;
-    spans: N4AnchorRecord['spans']; quote: N4AnchorRecord['quote']; confidence: N4AnchorRecord['confidence']; created_at: Date;
+    spans: N4AnchorRecord['spans']; quote: N4AnchorRecord['quote']; coordinates: N4AnchorRecord['coordinates'];
+    confidence: N4AnchorRecord['confidence']; created_at: Date;
 }
 const representation = (row: RepresentationRow): N4RepresentationRecord => ({
     id: row.id, sourceVersionId: row.source_version_id, artifactId: row.artifact_id, contentHash: row.content_hash,
@@ -18,7 +19,8 @@ const representation = (row: RepresentationRow): N4RepresentationRecord => ({
 });
 const anchor = (row: AnchorRow): N4AnchorRecord => ({
     id: row.id, projectId: row.project_id, representationId: row.representation_id, sourceVersionId: row.source_version_id,
-    artifactId: row.artifact_id, spans: row.spans, quote: row.quote, confidence: row.confidence, createdAt: row.created_at.toISOString(),
+    artifactId: row.artifact_id, spans: row.spans, quote: row.quote, coordinates: row.coordinates ?? [],
+    confidence: row.confidence, createdAt: row.created_at.toISOString(),
 });
 
 /** PostgreSQL persistence for the reproducible N4 qualification run. */
@@ -50,13 +52,22 @@ export class PostgresN4QualificationStore implements N4QualificationStore {
     }
     async saveAnchor(value: N4AnchorRecord): Promise<N4AnchorRecord> {
         const result = await this.pool.query<AnchorRow>(
-            `INSERT INTO ivory_n4_anchors (id, project_id, representation_id, source_version_id, artifact_id, spans, quote, confidence, created_at)
-             VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7::jsonb,$8,$9) ON CONFLICT (id) DO UPDATE SET id = ivory_n4_anchors.id RETURNING *`,
-            [value.id, value.projectId, value.representationId, value.sourceVersionId, value.artifactId, JSON.stringify(value.spans), JSON.stringify(value.quote), value.confidence, value.createdAt]);
+            `INSERT INTO ivory_n4_anchors (id, project_id, representation_id, source_version_id, artifact_id, spans, quote, coordinates, confidence, created_at)
+             VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7::jsonb,$8::jsonb,$9,$10) ON CONFLICT (id) DO UPDATE SET id = ivory_n4_anchors.id RETURNING *`,
+            [value.id, value.projectId, value.representationId, value.sourceVersionId, value.artifactId, JSON.stringify(value.spans), JSON.stringify(value.quote), JSON.stringify(value.coordinates ?? []), value.confidence, value.createdAt]);
         const row = result.rows[0]; if (!row) throw new Error(`N4 anchor was not persisted: ${value.id}`); return anchor(row);
     }
     async listAnchors(projectId: string): Promise<readonly N4AnchorRecord[]> {
-        const result = await this.pool.query<AnchorRow>('SELECT * FROM ivory_n4_anchors WHERE project_id = $1 ORDER BY id', [projectId]); return result.rows.map(anchor);
+        const result = await this.pool.query<AnchorRow>(
+            `SELECT a.*
+             FROM ivory_n4_anchors a
+             JOIN ivory_n4_representations r ON r.id = a.representation_id
+             WHERE a.project_id = $1
+                OR r.content_hash IN (SELECT content_hash FROM ivory_n4_project_sources WHERE project_id = $1)
+             ORDER BY a.id`,
+            [projectId],
+        );
+        return result.rows.map(anchor);
     }
     async recordTransfer(input: { sourceProjectId: string; targetProjectId: string; contentHash: string; allowed: boolean; reason: string; occurredAt: string }): Promise<void> {
         const client = await this.pool.connect();

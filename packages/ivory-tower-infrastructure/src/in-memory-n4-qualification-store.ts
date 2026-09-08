@@ -49,7 +49,14 @@ export class InMemoryN4QualificationStore implements N4QualificationStore {
         this.anchors.set(anchor.id, copy(anchor)); return copy(anchor);
     }
     async listAnchors(projectId: string): Promise<readonly N4AnchorRecord[]> {
-        return [...this.anchors.values()].filter(anchor => anchor.projectId === projectId).map(copy);
+        const projectSourceHashes = this.projectSources.get(projectId) ?? new Set<string>();
+        return [...this.anchors.values()]
+            .filter(anchor => {
+                if (anchor.projectId === projectId) return true;
+                const representation = this.representations.get(anchor.representationId);
+                return representation !== undefined && projectSourceHashes.has(representation.contentHash);
+            })
+            .map(copy);
     }
     async recordTransfer(input: { sourceProjectId: string; targetProjectId: string; contentHash: string; allowed: boolean; reason: string; occurredAt: string }): Promise<void> {
         if (!this.projects.has(input.sourceProjectId) || !this.projects.has(input.targetProjectId)) throw new Error('N4 transfer requires existing projects.');

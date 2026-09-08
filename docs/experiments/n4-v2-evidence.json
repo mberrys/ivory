@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "experiment": "N4 exact fragment anchors and ingestion fidelity",
+  "experimentVersion": "n4-v2",
+  "repositoryCommit": "1496877908bf5b25e2d0e4f93034c23e047b41df",
+  "command": "npm run verify:ivory-n4-v2",
+  "generatedAt": "2026-09-08T22:49:43.944Z",
+  "status": "NO-GO",
+  "fixtureManifest": [
+    {
+      "path": "pdf/160F-2019.pdf",
+      "kind": "columns",
+      "sha256": "f41f0818365ffd14ca4e55c0556355193bd76632b970d60cc2dec554cac6f379"
+    },
+    {
+      "path": "pdf/22060_A1_01_Plans.pdf",
+      "kind": "columns",
+      "sha256": "bd0203ede39cfe101c7d1ea6555e1c9fc408247627a47de549ebf2590f1b887b"
+    },
+    {
+      "path": "pdf/90ms_rksj_h_sample.pdf",
+      "kind": "multilingual",
+      "sha256": "d50ad3b93685e9d6061f5cc9957c49ca232a0dd0771aad71e4a615f87f2674be"
+    },
+    {
+      "path": "pdf/ArabicCIDTrueType.pdf",
+      "kind": "multilingual",
+      "sha256": "1cad1de912ba29f89a6d8b08bc5b0f84382874ffedab2c8f9e05ef608c265bb1"
+    },
+    {
+      "path": "pdf/SimFang-variant.pdf",
+      "kind": "multilingual",
+      "sha256": "e6c6e3fb472f06a3d812bef23afc026e90b33497408122b61d577e0f7df49418"
+    },
+    {
+      "path": "pdf/XiaoBiaoSong.pdf",
+      "kind": "multilingual",
+      "sha256": "1ea20b84d94b90fa1ccb08bdd2e79e710071e0593fde6d547ab1cd4a3ebc0f88"
+    },
+    {
+      "path": "pdf/arial_unicode_ab_cidfont.pdf",
+      "kind": "multilingual",
+      "sha256": "049a4330710d8470896061acf7ee486735e94cef2769f6cc13fec3cb13bb65aa"
+    },
+    {
+      "path": "pdf/arial_unicode_en_cidfont.pdf",
+      "kind": "multilingual",
+      "sha256": "1c4a08108d8074f543c04e9b2ea2b93a842e2b29eb05ee9d99766f430fd365ab"
+    },
+    {
+      "path": "pdf/basicapi.pdf",
+      "kind": "plain",
+      "sha256": "925853d98d67d5dae7473c635f932958e1695ce1029d23b2ecd2531cb65f1f14"
+    },
+    {
+      "path": "pdf/TAMReview.pdf",
+      "kind": "plain",
+      "sha256": "a6db6d2f5e4f97e1e28a5919a875a40b89e38d0229b33cc023ca4d353f3ab3ec"
+    },
+    {
+      "path": "pdf/annotation-freetext.pdf",
+      "kind": "footnote",
+      "sha256": "318ed4bead93fa6ff023571b17ddca41e82fe2347b497ea24903a11e1892fb71"
+    },
+    {
+      "path": "pdf/annotation-link-text-popup.pdf",
+      "kind": "footnote",
+      "sha256": "06917202feda6b6bb8b57b048655f946f749bdff5a8bfcb35eb0116f38910312"
+    },
+    {
+      "path": "pdf/form_two_pages.pdf",
+      "kind": "table",
+      "sha256": "6d7c608d0102fa1e1b3cbc2c3b0a989783e90f84ff1a7fe7cbdb6dc2a1b60fbd"
+    },
+    {
+      "path": "pdf/file_pdfjs_form.pdf",
+      "kind": "table",
+      "sha256": "808af1e794952475e8af824ad1ee6ac41d6646de122e5ac91975e75b0951c80b"
+    },
+    {
+      "path": "pdf/bitmap-composite-and-xnor-text.pdf",
+      "kind": "scanned",
+      "sha256": "aba6249b83158532ad87ccf47ba69737c9ba2b787c2f815767d239e910564235"
+    },
+    {
+      "path": "pdf/bitmap-symbol-textbottomleft.pdf",
+      "kind": "scanned",
+      "sha256": "0bc02085b750d0413fa3360825cc23b5e5a449b2e3f08fa084c3b00b64e03683"
+    },
+    {
+      "path": "pdf/bitmap-symbol-textrefine.pdf",
+      "kind": "plain",
+      "sha256": "c6dc6a57d164c86c8aa59e6136f8b166a4697213ef6d5669bed6a7f6227bed0b"
+    },
+    {
+      "path": "pdf/bitmap-symbol-texttopright.pdf",
+      "kind": "plain",
+      "sha256": "e5b6eb678be01e99db7a6316fa99070bebf29489ae61054bdde04c9c26c6b9dd"
+    },
+    {
+      "path": "csv/open-survey-missingness.csv",
+      "kind": "csv",
+      "sha256": "d07d92346de4a90ea3eec4c49eeef68e9b210ba64df2ad809c06b2da215f11b7"
+    },
+    {
+      "path": "csv/open-multilingual-labels.csv",
+      "kind": "csv",
+      "sha256": "746f8c49a041988680d5dd9cb63cd20f8cc7c77f9dc4338148af06ad758f65a1"
+    }
+  ],
+  "converters": [
+    {
+      "label": "A",
+      "version": "v1.21.0",
+      "image": "quay.io/docling-project/docling-serve:v1.21.0@sha256:32b3de41f325f93c1dd35907cd9147fa35df9f7c5abc86eb2788b6bda7ce6d10",
+      "status": "failed"
+    },
+    {
+      "label": "B",
+      "version": "v1.22.0",
+      "image": "quay.io/docling-project/docling-serve:v1.22.0@sha256:8880b8f5a511b1d93edb22a2e2e7380461657a0401febb4e43f7e41ef9d9661c",
+      "status": "failed"
+    }
+  ],
+  "observations": {
+    "attemptedFixtures": 0,
+    "convertedFixtures": 0,
+    "anchorsFromA": 0,
+    "classificationMatrix": {
+      "exact": {
+        "exact": 0,
+        "ambiguous": 0,
+        "unresolved": 0
+      },
+      "ambiguous": {
+        "exact": 0,
+        "ambiguous": 0,
+        "unresolved": 0
+      },
+      "unresolved": {
+        "exact": 0,
+        "ambiguous": 0,
+        "unresolved": 0
+      }
+    },
+    "falseExact": 0,
+    "reviewQueueSize": 0
+  },
+  "criteria": {},
+  "persistence": {
+    "store": "InMemoryN4QualificationStore",
+    "baselineProjectId": "n4-v2-baseline",
+    "transferProjectId": "n4-v2-transfer",
+    "exactReopenChecks": 0,
+    "exactReopenFailures": [],
+    "afterTransferExactReopenChecks": 0,
+    "afterTransferReopenFailures": []
+  },
+  "transfer": {
+    "allowed": []
+  },
+  "failures": [],
+  "anchorSelectionFailures": [],
+  "rawArtifacts": [],
+  "rawLedger": {
+    "path": "artifacts/n4/qualification-ledger.json",
+    "sha256": "628ed90ab97c798d86594ed5af3c9da9f0f72ef2fdf2d65a499500993a170175",
+    "bytes": 28766
+  },
+  "architectureDecision": {
+    "outcome": "NO-GO; do not promote converter or selector profile",
+    "representationFormat": "raw source bytes plus markdown/text and retained Docling JSON layout output",
+    "selectorProfile": "exact quote plus prefix/suffix context; no ranking or silent fallback",
+    "supportedInputs": "plain, multilingual, columns/tables/footnotes, CSV typed rows, and explicit scanned/OCR handling",
+    "unresolvedLimitations": [
+      "The independent oracle is intentionally conservative: disagreements remain review work and are not silently accepted.",
+      "Scanned inputs are supported only when a converter returns text; otherwise the run records ocr_required with a next action.",
+      "The transfer exercise covers source-membership visibility and immutable anchor reuse, not the later V1 user/role authorization boundary.",
+      "Raw Docling responses are retained under the gitignored artifacts/n4/raw directory and are linked by digest."
+    ]
+  },
+  "failure": {
+    "phase": "qualification",
+    "message": "Command failed: C:\\Program Files\\nodejs\\node.exe scripts/qualify-n4.mjs"
+  }
+}

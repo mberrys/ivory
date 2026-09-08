@@ -135,6 +135,7 @@
     "test:ivory-tower": "lerna run test --scope \"@ivory-tower/*\" --scope \"@theia/ivory-*\" --stream",
     "test:ivory-runtime": "lerna run test --scope @ivory-tower/contracts --scope @ivory-tower/api --scope @ivory-tower/worker --stream",
     "qualify:n4": "node scripts/qualify-n4.mjs",
+    "verify:ivory-n4-v2": "node scripts/verify-ivory-n4-v2.mjs",
     "test:ivory-browser": "npm --workspace @ivory-tower/example-browser run test:playwright",
     "verify:ivory-tower": "npm run -s check:ivory-toolchain && npm run -s check:ivory-install && npm run -s format:check:ivory-tower && npm run -s check:ivory-boundaries && npm run -s verify:ivory-cutline && npm run -s verify:ivory-phase-gates && npm run -s test:ivory-cutline && npm run -s test:ivory-session-04 && npm run -s typecheck:ivory-tower && npm run -s lint:ivory-tower && lerna run test --scope \"@ivory-tower/*\" --scope \"@theia/ivory-*\" --stream && npm run -s build:ivory-tower && npm run -s test:ivory-browser && npm run -s dependency:policy && npm run -s secret:scan && git diff --check && git diff --exit-code",
     "test": "npm run -s test:theia && npm run -s electron test && npm run -s browser test",

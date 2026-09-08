@@ -40,10 +40,14 @@ describe('N4 qualification persistence', () => {
         await store.ensureProject(project('n4-a'));
         await store.ensureProject(project('n4-b'));
         await store.addSourceToProject('n4-a', hash);
+        await store.persistRepresentation(representation);
+        await store.saveAnchor(storedAnchor);
         await store.recordTransfer({ sourceProjectId: 'n4-a', targetProjectId: 'n4-b', contentHash: hash, allowed: false, reason: 'rights denied', occurredAt: now });
         expect(await store.listProjectSourceHashes('n4-b')).to.deep.equal([]);
+        expect(await store.listAnchors('n4-b')).to.deep.equal([]);
         await store.recordTransfer({ sourceProjectId: 'n4-a', targetProjectId: 'n4-b', contentHash: hash, allowed: true, reason: 'open licence', occurredAt: now });
         expect(await store.listProjectSourceHashes('n4-b')).to.deep.equal([hash]);
+        expect(await store.listAnchors('n4-b')).to.deep.equal([storedAnchor]);
         expect(store.transfers).to.have.length(2);
     });
 });

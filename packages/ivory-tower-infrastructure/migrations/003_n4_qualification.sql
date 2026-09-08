@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS ivory_n4_anchors (
     artifact_id TEXT NOT NULL,
     spans JSONB NOT NULL,
     quote JSONB NOT NULL,
+    coordinates JSONB NOT NULL DEFAULT '[]'::jsonb,
     confidence TEXT NOT NULL CHECK (confidence IN ('exact', 'approximate')),
     created_at TIMESTAMPTZ NOT NULL
 );
