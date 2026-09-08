@@ -41,6 +41,10 @@ export class N5Contribution extends AbstractViewContribution<N5Widget> implement
         action('ready', 'Check connection', () => this.client.ready(AbortSignal.timeout(30000)));
         action('get', 'Read execution status', id => this.client.get(this.requireId(id), AbortSignal.timeout(30000)));
         action('submit', 'Submit execution', (body, key) => this.client.submit(JSON.parse(body), key, AbortSignal.timeout(30000)));
+        action('open', 'Open research project', body => this.client.openProject(JSON.parse(body), AbortSignal.timeout(30000)));
+        action('cite', 'Resolve citation', body => this.client.resolveCitation(JSON.parse(body), AbortSignal.timeout(30000)));
+        action('run', 'Resolve run spec', body => this.client.requestRun(JSON.parse(body), AbortSignal.timeout(30000)));
+        action('edit', 'Submit project edit', (body, key) => this.client.submitEdit(JSON.parse(body), key, AbortSignal.timeout(30000)));
         action('stop', 'Disconnect', async () => {
             this.stream?.abort();
             return { connection: 'disconnected' };

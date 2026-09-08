@@ -11,6 +11,7 @@ export class N5Widget extends ReactWidget {
     private executionId = '';
     private key = '';
     private body = '{"kind":"validate","input":{},"contractVersion":1}';
+    private researchBody = '{"projectId":"n5-demo","revision":"rev-1"}';
     private result: unknown = 'Not connected';
 
     @postConstruct()
@@ -35,10 +36,25 @@ export class N5Widget extends ReactWidget {
             <div style={{ padding: 24 }}>
                 <h1>N5 research client</h1>
                 <p>
-                    Project, exact citation, resolved RunSpec, and competing edits are blocked: prerequisite service contracts are absent.
+                    Research actions are served by the fixture research service published by ivory-api.
                 </p>
-                <button disabled>Open project</button> <button disabled>Resolve citation</button> <button disabled>Request run</button>{' '}
-                <button disabled>Submit edit</button>
+                <button onClick={() => this.invoke('ivory.n5.open', this.researchBody)}>Open project</button>{' '}
+                <button onClick={() => this.invoke('ivory.n5.cite', this.researchBody)}>Resolve citation</button>{' '}
+                <button onClick={() => this.invoke('ivory.n5.run', this.researchBody)}>Request run</button>{' '}
+                <button onClick={() => this.invoke('ivory.n5.edit', this.researchBody, this.key)}>Submit edit</button>
+                <label>
+                    Research request JSON (edit requires baseRevision, sourcePath, and edit)
+                    <textarea
+                        aria-label="Research request JSON"
+                        rows={6}
+                        style={{ display: 'block', width: '100%' }}
+                        value={this.researchBody}
+                        onChange={event => {
+                            this.researchBody = event.target.value;
+                            this.update();
+                        }}
+                    />
+                </label>
                 <h2>Existing execution transport</h2>
                 <button onClick={() => this.invoke('ivory.n5.ready')}>Check connection</button>
                 <p>
@@ -58,7 +74,7 @@ export class N5Widget extends ReactWidget {
                 <button onClick={() => this.invoke('ivory.n5.stop')}>Disconnect</button>
                 <p>
                     <label>
-                        Idempotency key{' '}
+                        Idempotency key (executions and edits){' '}
                         <input
                             value={this.key}
                             onChange={event => {

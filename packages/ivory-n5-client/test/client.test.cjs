@@ -91,3 +91,23 @@ test('watch reconnects through status and replay without mutation', async () => 
     assert.ok(requests.every(request => request.method === 'GET'));
     assert.equal(messages.at(-1).value.status, 'succeeded');
 });
+
+test('research actions post to the published contract routes without dropping payloads', async () => {
+    const calls = [];
+    const client = new ExecutionClient('http://service', async (url, init) => {
+        calls.push({ url, ...init });
+        return Response.json({ ok: true });
+    });
+    await client.openProject({ projectId: 'n5-demo' });
+    await client.resolveCitation({ projectId: 'n5-demo', revision: 'rev-1', citationId: 'cite-research-py' });
+    await client.requestRun({ projectId: 'n5-demo', revision: 'rev-1' });
+    await client.submitEdit({ projectId: 'n5-demo', baseRevision: 'rev-1', sourcePath: 'research.py',
+        edit: { kind: 'replace', startOffset: 0, endOffset: 4, text: '# x\n' } }, 'edit-key');
+    assert.deepEqual(calls.map(call => call.url), [
+        'http://service/v1/projects/open', 'http://service/v1/citations/resolve',
+        'http://service/v1/runspecs/resolve', 'http://service/v1/projects/edits',
+    ]);
+    assert.equal(JSON.parse(calls[0].body).projectId, 'n5-demo');
+    assert.equal(calls[3].headers['Idempotency-Key'], 'edit-key');
+    assert.throws(() => client.submitEdit({}, ''), /Idempotency-Key/);
+});

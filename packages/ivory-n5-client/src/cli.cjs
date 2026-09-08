@@ -23,8 +23,16 @@ async function main() {
         for await (const event of client.events(argument, Number(key ?? 0), signal)) {
             console.log(JSON.stringify(event));
         }
+    } else if (command === 'open' && argument) {
+        console.log(JSON.stringify(await client.openProject(JSON.parse(readFileSync(argument, 'utf8')), signal)));
+    } else if (command === 'cite' && argument) {
+        console.log(JSON.stringify(await client.resolveCitation(JSON.parse(readFileSync(argument, 'utf8')), signal)));
+    } else if (command === 'run' && argument) {
+        console.log(JSON.stringify(await client.requestRun(JSON.parse(readFileSync(argument, 'utf8')), signal)));
+    } else if (command === 'edit' && argument && key) {
+        console.log(JSON.stringify(await client.submitEdit(JSON.parse(readFileSync(argument, 'utf8')), key, signal)));
     } else {
-        throw new Error('Usage: ivory-n5 ready | get ID | submit REQUEST.json KEY | events ID [AFTER]');
+        throw new Error('Usage: ivory-n5 ready | get ID | submit REQUEST.json KEY | events ID [AFTER] | open|cite|run REQUEST.json | edit REQUEST.json KEY');
     }
 }
 main().catch(error => {

@@ -9,10 +9,11 @@ ivory_request <- function(path, body = NULL, key = NULL) {
     req <- httr2::req_timeout(req, 30)
     req <- httr2::req_error(req, is_error = function(resp) FALSE)
     if (!is.null(body)) {
-        if (is.null(key) || !nzchar(trimws(key))) stop("Supply and retain an Idempotency-Key")
-        req <- httr2::req_headers(req, `Idempotency-Key` = key)
         if (!is.character(body) || length(body) != 1L) stop("Pass the complete request as JSON text")
         req <- httr2::req_body_raw(req, body, type = "application/json")
+        if (!is.null(key) && nzchar(trimws(key))) {
+            req <- httr2::req_headers(req, `Idempotency-Key` = key)
+        }
     }
     resp <- httr2::req_perform(req)
     payload <- httr2::resp_body_string(resp)
@@ -23,8 +24,16 @@ ivory_request <- function(path, body = NULL, key = NULL) {
     }
     payload
 }
-ivory_submit <- function(body, key) ivory_request("/v1/executions", body, key)
+ivory_require_key <- function(key) {
+    if (is.null(key) || !nzchar(trimws(key))) stop("Supply and retain an Idempotency-Key")
+    key
+}
+ivory_submit <- function(body, key) ivory_request("/v1/executions", body, ivory_require_key(key))
 ivory_get <- function(id) ivory_request(paste0("/v1/executions/", utils::URLencode(id, reserved = TRUE)))
+ivory_open <- function(body) ivory_request("/v1/projects/open", body)
+ivory_cite <- function(body) ivory_request("/v1/citations/resolve", body)
+ivory_run <- function(body) ivory_request("/v1/runspecs/resolve", body)
+ivory_edit <- function(body, key) ivory_request("/v1/projects/edits", body, ivory_require_key(key))
 
 if (sys.nframe() == 0L) {
     args <- commandArgs(trailingOnly = TRUE)
@@ -32,6 +41,11 @@ if (sys.nframe() == 0L) {
         ivory_get(args[2])
     } else if (length(args) == 3L && args[1] == "submit") {
         ivory_submit(paste(readLines(args[2], warn = FALSE, encoding = "UTF-8"), collapse = "\n"), args[3])
-    } else stop("Usage: ivory_n5.R ready | get ID | submit REQUEST.json KEY; N5 project/citation/RunSpec/edit contracts are blocked")
+    } else if (length(args) == 2L && args[1] %in% c("open", "cite", "run")) {
+        body <- paste(readLines(args[2], warn = FALSE, encoding = "UTF-8"), collapse = "\n")
+        switch(args[1], open = ivory_open(body), cite = ivory_cite(body), run = ivory_run(body))
+    } else if (length(args) == 3L && args[1] == "edit") {
+        ivory_edit(paste(readLines(args[2], warn = FALSE, encoding = "UTF-8"), collapse = "\n"), args[3])
+    } else stop("Usage: ivory_n5.R ready | get ID | submit REQUEST.json KEY | open|cite|run REQUEST.json | edit REQUEST.json KEY")
     cat(result, "\n")
 }

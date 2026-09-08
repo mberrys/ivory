@@ -11,7 +11,7 @@ class HttpError extends Error {
     }
 }
 
-const missingCapabilities = Object.freeze(['project', 'citation', 'resolvedRunSpec', 'competingEdits']);
+const missingCapabilities = Object.freeze([]);
 
 class ExecutionClient {
     constructor(baseUrl, fetcher = globalThis.fetch) {
@@ -50,6 +50,21 @@ class ExecutionClient {
         }
         // No automatic mutation retries. Caller retains the exact body and key after uncertainty.
         return this.request('/v1/executions', { method: 'POST', body, key, signal });
+    }
+    openProject(body, signal) {
+        return this.request('/v1/projects/open', { method: 'POST', body, signal });
+    }
+    resolveCitation(body, signal) {
+        return this.request('/v1/citations/resolve', { method: 'POST', body, signal });
+    }
+    requestRun(body, signal) {
+        return this.request('/v1/runspecs/resolve', { method: 'POST', body, signal });
+    }
+    submitEdit(body, key, signal) {
+        if (typeof key !== 'string' || !key.trim()) {
+            throw new Error('Supply and retain an Idempotency-Key before editing.');
+        }
+        return this.request('/v1/projects/edits', { method: 'POST', body, key, signal });
     }
 
     async *events(id, after = 0, signal) {
