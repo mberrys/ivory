@@ -29,7 +29,51 @@ function fingerprints(relative) {
     });
 }
 const contractReason =
-    'Prerequisite project/citation/resolved RunSpec/revision-edit service contracts absent; no substitute service was implemented';
+    'Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed';
+
+// Probe the live research service (if reachable). The service publishes the
+// research contracts, but the 6-step qualification protocol still requires real
+// cross-client evidence, so decision stays 'blocked' regardless of availability.
+async function probeService(base) {
+    const timeout = () => AbortSignal.timeout(3000);
+    const post = async (route, body) => {
+        const response = await fetch(`${base}${route}`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(body),
+            signal: timeout(),
+        });
+        return { ok: response.ok, status: response.status, body: await response.json().catch(() => undefined) };
+    };
+    try {
+        const live = await fetch(`${base}/health/live`, { signal: timeout() });
+        const ready = await fetch(`${base}/health/ready`, { signal: timeout() });
+        if (!live.ok || !ready.ok) {
+            return {
+                serviceVersion: null,
+                serviceUnavailable: true,
+                liveService: { available: false, reason: `service reachable but not ready (live ${live.status}, ready ${ready.status})` },
+            };
+        }
+        const liveBody = await live.json().catch(() => ({}));
+        const version = liveBody.version ?? liveBody.serviceVersion ?? liveBody.service ?? null;
+        const open = await post('/v1/projects/open', { projectId: 'n5-demo' });
+        const project = open.body;
+        const revision = project?.revision ?? 'rev-1';
+        const citation = await post('/v1/citations/resolve', { projectId: 'n5-demo', revision, citationId: 'cite-research-py' });
+        const runSpec = await post('/v1/runspecs/resolve', { projectId: 'n5-demo', revision });
+        const liveService = { available: true };
+        if (project !== undefined) { liveService.project = project; }
+        if (citation.body !== undefined) { liveService.citation = citation.body; }
+        if (runSpec.body !== undefined) { liveService.runSpec = runSpec.body; }
+        if (runSpec.body?.semanticResult !== undefined) { liveService.semanticResult = runSpec.body.semanticResult; }
+        return { serviceVersion: version, liveService };
+    } catch {
+        return { serviceVersion: null, serviceUnavailable: true, liveService: { available: false, reason: 'service not reachable' } };
+    }
+}
+
+const serviceProbe = await probeService(process.env.IVORY_N5_SERVICE_URL ?? 'http://127.0.0.1:4100');
 const report = {
     schemaVersion: 1,
     capturedAt: new Date().toISOString(),
@@ -38,7 +82,7 @@ const report = {
     platform: `${process.platform}/${process.arch}`,
     decision: 'blocked',
     sourceFingerprints: ['packages/ivory-n5-client', 'packages/ivory-n5-shell', 'examples/ivory-n5-browser', 'scripts/n5'].flatMap(fingerprints),
-    serviceVersion: null,
+    ...serviceProbe,
     prerequisite: blocked(contractReason),
     clients: Object.fromEntries(
         clients.map(client => [

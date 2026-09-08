@@ -1,6 +1,6 @@
 # N5 — Theia shell and external-client equivalence
 
-Status: **BLOCKED — partial prototype, no baseline approval**.
+Status: **PARTIAL — research contracts published and clients bound; qualification protocol and Windows Spectre install pending.**
 
 The isolated `@ivory-tower/n5-browser` application targets Windows/browser and
 Theia 1.74.0. The existing V1 application and its plugin-host prohibition remain
@@ -15,18 +15,22 @@ research-service lifecycle or persistence behavior. Source files remain ordinary
 editor files; they are not canonical research records.
 
 The current API publishes `/health/ready`, `/v1/executions`, execution status and
-execution events. It does **not** publish project-open, exact citation resolution,
-resolved RunSpec, or revision-based project-edit contracts. The corresponding
-widget actions are visibly disabled. An execution request is not called a RunSpec
-or used as a substitute for one. No project service, conflict semantics, citation
-anchor schema, or persistence layer has been invented in N5.
+execution events. It now also publishes the research contracts the N5 clients
+require: `POST /v1/projects/open` (project-open), `POST /v1/citations/resolve`
+(exact citation resolution), `POST /v1/runspecs/resolve` (resolved RunSpec), and
+`POST /v1/projects/edits` (revision-based project-edit with first-writer-wins
+conflict semantics), backed by an in-memory fixture research service with a
+`POST /v1/fixtures/reset` mechanism for equivalent initial project states. The
+four N5 clients (Theia widget, CLI, Python, and R helpers) are bound to these
+routes and the previously disabled widget actions are enabled. The service is an
+in-memory fixture (`InMemoryResearchService`), not a persistence layer; the
+6-step qualification protocol is still pending.
 
 The current contracts barrel imports domain code, so the transport carries opaque
 JSON without importing that barrel. The CLI and helpers preserve service response
-bodies, including conflict details. Once the prerequisite publishes its contracts,
-bind all four clients to them and replace the blocked controls. This prerequisite
-also needs a fixture/reset mechanism for equivalent initial project states and
-an operator-owned stop/start procedure for the one canonical service.
+bodies, including conflict details. An execution request is not called a RunSpec
+or used as a substitute for one. The operator-owned stop/start procedure for the
+one canonical service remains to be exercised with real cross-client evidence.
 
 Submission has no implicit retry: callers retain the request and idempotency key
 before sending and reuse both after uncertainty. Theia's read-only watcher refreshes
@@ -184,9 +188,27 @@ placeholder tests. Generated build and repository-check logs live under
 
 ### Local validation, 2026-09-07
 
-- N5 TypeScript compilation and lint passed; the browser bundle completed.
-- Eight synthetic transport/comparison tests and both boundary checks passed.
-- All seven VSIX archives and extracted contents verified against the lock.
+- `npm run -s verify:ivory-cutline` passes: `PASS  130 tracker issues validated`
+  (112 Required, 1 Conditional, 17 Post-V1), exit 0.
+- `npm run -s verify:ivory-phase-gates` emits the phase report and exits 0
+  (intentionally run without `--require-pass`; phases still report incomplete
+  Required/Conditional issues by design).
+- `npm run -s test:ivory-cutline` passes 7/7, exit 0.
+- `npm run -s test:ivory-runtime` passes — contracts 8, api 5 (including the
+  fixture-research-service routes and the 503 without the service), worker 3 —
+  exit 0.
+- `npm run -s test:n5` passes 10/10 plus `N5 client boundaries: OK`, exit 0.
+- `npm run typecheck:ivory-tower` compiles 56 projects, exit 0.
+- `npm run lint:ivory-tower` lints 11 projects, exit 0.
+- `npm run -s secret:scan` passes (`no sentinel value or credential pattern
+  found`), exit 0.
+- `npm run -s dependency:policy` still exits 1: the N5 browser and shell packages
+  depend on `@theia/*` packages with no entry in the dependency inventory and
+  fall outside the `format:check:ivory-tower` quality scope. This predates the
+  research-contract work and is not caused by it.
+- `node scripts/n5/evidence.mjs` exits 2 with `decision: blocked`,
+  `liveService.available: false` (ivory-api is not running on this machine), and
+  the protocol-pending reason; no qualification is claimed.
 - Backend bundling remains machine-blocked: the pinned 0.3.4 native module
   (`@vscode/windows-ca-certs`, `"SpectreMitigation": "Spectre"`) rebuild fails
   with MSB8040 because the installed Visual Studio Build Tools 2022 toolset
@@ -197,9 +219,26 @@ placeholder tests. Generated build and repository-check logs live under
   The toolchain check now exits 1 with a remediation message until the component
   is installed (`IVORY_SKIP_SPECTRE_CHECK=1` skips it). No certificate-handling
   bypass was added.
-- Repository verification passed toolchain, dependency bootstrap, formatting,
-  and boundaries, then stopped because this checkout references but does not
-  define `verify:ivory-cutline`. The remaining aggregate checks did not run.
+- The full gate `npm run -s verify:ivory-tower` stops at `check:ivory-toolchain`
+  on this machine. Its actual first failure is the Windows npm shim selecting
+  npm 11.17.0 instead of the pinned 11.13.0:
+
+  ```
+  Ivory Tower requires Node 24.16.0 and npm 11.13.0; found Node 24.16.0 and npm 11.17.0.
+  ```
+
+  With the pinned npm selected (`npm_config_prefix` pointed at the directory
+  holding the pinned npm, see below), the toolchain check then fails on the
+  Spectre prerequisite above — the component is still pending an elevated
+  install:
+
+  ```
+  Ivory Tower Windows backend bundling requires the MSVC Spectre-mitigated libraries.
+  Install the component, e.g.: Visual Studio Installer > Modify > Individual components > "MSVC v143 - VS 2022 C++ x64/x86 Spectre-mitigated libraries", or see docs/n5-theia-client-equivalence.md.
+  ```
+
+  Downstream steps (`build:ivory-tower`, `test:ivory-browser`) therefore did not
+  run.
 - The shell smoke test is provided as `npm run test:n5-browser`; it first
   requires a successful full build. Browser and language runtime cases remain blocked.
 - R and Quarto are absent from PATH. The Python helper test used an explicit
