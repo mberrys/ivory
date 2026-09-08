@@ -167,7 +167,8 @@ describe('@ivory-tower/api package', () => {
             try {
                 const base = `http://127.0.0.1:${(server.address() as { port: number }).port}`;
                 const reset = await fetch(`${base}/v1/fixtures/reset`, {
-                    method: 'POST', headers: { 'content-type': 'application/json' },
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
                     body: JSON.stringify({ projectId: 'n5-demo' }),
                 });
                 expect(reset.status).to.equal(200);
@@ -177,30 +178,36 @@ describe('@ivory-tower/api package', () => {
                 expect(Object.keys(resetBody.sourceHashes).length).to.be.greaterThan(0);
 
                 const open = await fetch(`${base}/v1/projects/open`, {
-                    method: 'POST', headers: { 'content-type': 'application/json' },
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
                     body: JSON.stringify({ projectId: 'n5-demo' }),
                 });
                 expect(open.status).to.equal(200);
                 expect((await open.json()) as { revision: string }).to.deep.include({ revision: 'rev-1' });
 
                 const cite = await fetch(`${base}/v1/citations/resolve`, {
-                    method: 'POST', headers: { 'content-type': 'application/json' },
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
                     body: JSON.stringify({ projectId: 'n5-demo', revision: 'rev-1', citationId: 'cite-research-py' }),
                 });
                 expect(cite.status).to.equal(200);
-                const citation = (await cite.json()) as { anchor: { sourcePath: string; passage: string; startOffset: number; endOffset: number; contentHash: string } };
+                const citation = (await cite.json()) as {
+                    anchor: { sourcePath: string; passage: string; startOffset: number; endOffset: number; contentHash: string };
+                };
                 expect(citation.anchor.sourcePath).to.equal('research.py');
                 expect(citation.anchor.passage).to.equal(citation.anchor.passage.slice(0, citation.anchor.passage.length));
                 expect(citation.anchor.contentHash).to.match(/^[a-f0-9]{64}$/);
 
                 const stale = await fetch(`${base}/v1/citations/resolve`, {
-                    method: 'POST', headers: { 'content-type': 'application/json' },
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
                     body: JSON.stringify({ projectId: 'n5-demo', revision: 'rev-999', citationId: 'cite-research-py' }),
                 });
                 expect(stale.status).to.equal(409);
 
                 const spec = await fetch(`${base}/v1/runspecs/resolve`, {
-                    method: 'POST', headers: { 'content-type': 'application/json' },
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
                     body: JSON.stringify({ projectId: 'n5-demo', revision: 'rev-1', protocolVersionId: 'proto-1' }),
                 });
                 expect(spec.status).to.equal(200);
@@ -212,7 +219,9 @@ describe('@ivory-tower/api package', () => {
                     method: 'POST',
                     headers: { 'content-type': 'application/json', 'idempotency-key': 'edit-1' },
                     body: JSON.stringify({
-                        projectId: 'n5-demo', baseRevision: 'rev-1', sourcePath: 'research.py',
+                        projectId: 'n5-demo',
+                        baseRevision: 'rev-1',
+                        sourcePath: 'research.py',
                         edit: { kind: 'replace', startOffset: 0, endOffset: 4, text: '# edited\n' },
                     }),
                 });
@@ -224,7 +233,9 @@ describe('@ivory-tower/api package', () => {
                     method: 'POST',
                     headers: { 'content-type': 'application/json', 'idempotency-key': 'edit-2' },
                     body: JSON.stringify({
-                        projectId: 'n5-demo', baseRevision: 'rev-1', sourcePath: 'research.py',
+                        projectId: 'n5-demo',
+                        baseRevision: 'rev-1',
+                        sourcePath: 'research.py',
                         edit: { kind: 'replace', startOffset: 0, endOffset: 4, text: '# other\n' },
                     }),
                 });
@@ -238,7 +249,9 @@ describe('@ivory-tower/api package', () => {
                     method: 'POST',
                     headers: { 'content-type': 'application/json', 'idempotency-key': 'edit-1' },
                     body: JSON.stringify({
-                        projectId: 'n5-demo', baseRevision: 'rev-1', sourcePath: 'research.py',
+                        projectId: 'n5-demo',
+                        baseRevision: 'rev-1',
+                        sourcePath: 'research.py',
                         edit: { kind: 'replace', startOffset: 0, endOffset: 4, text: '# edited\n' },
                     }),
                 });
@@ -258,7 +271,8 @@ describe('@ivory-tower/api package', () => {
             await new Promise<void>(resolve => server.listen(0, '127.0.0.1', () => resolve()));
             try {
                 const response = await fetch(`http://127.0.0.1:${(server.address() as { port: number }).port}/v1/projects/open`, {
-                    method: 'POST', headers: { 'content-type': 'application/json' },
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
                     body: JSON.stringify({ projectId: 'n5-demo' }),
                 });
                 expect(response.status).to.equal(503);

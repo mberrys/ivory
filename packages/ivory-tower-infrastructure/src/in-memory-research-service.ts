@@ -63,7 +63,11 @@ export class InMemoryResearchService {
     }
 
     reset(fixture: FixtureName = 'all'): {
-        projectId: string; revision: string; entryPaths: string[]; sourceHashes: Record<string, string>; resetAt: string;
+        projectId: string;
+        revision: string;
+        entryPaths: string[];
+        sourceHashes: Record<string, string>;
+        resetAt: string;
     } {
         const files = new Map<string, FixtureFile>();
         const sourceHashes: Record<string, string> = {};
@@ -93,8 +97,10 @@ export class InMemoryResearchService {
         return { projectId: this.projectId, revision: 'rev-1', entryPaths, sourceHashes, resetAt: this.clock().toISOString() };
     }
 
-    open(projectId: string, revision: string | undefined):
-        { projectId: string; revision: string; headRevision: string; openedAt: string; entryPaths: string[] } {
+    open(
+        projectId: string,
+        revision: string | undefined,
+    ): { projectId: string; revision: string; headRevision: string; openedAt: string; entryPaths: string[] } {
         const state = this.requireState(projectId);
         const requested = revision ?? state.headRevision;
         if (requested !== state.headRevision) {
@@ -113,8 +119,15 @@ export class InMemoryResearchService {
         };
     }
 
-    resolveCitation(projectId: string, revision: string, citationId: string): {
-        citationId: string; projectId: string; resolvedAt: string; anchor: Citation;
+    resolveCitation(
+        projectId: string,
+        revision: string,
+        citationId: string,
+    ): {
+        citationId: string;
+        projectId: string;
+        resolvedAt: string;
+        anchor: Citation;
     } {
         const state = this.requireState(projectId);
         if (revision !== state.headRevision) {
@@ -145,11 +158,23 @@ export class InMemoryResearchService {
         return this.environment;
     }
 
-    resolveRunSpec(projectId: string, revision: string, protocolVersionId: string | undefined): {
-        runId: string; resolvedRunSpec: {
-            runId: string; projectId: string; revision: string; protocolVersionRef?: unknown; sourceSetVersion: string;
-            environment: Record<string, string>; commands: string[]; resolvedAt: string;
-        }; semanticResult: { status: string; output: string[] };
+    resolveRunSpec(
+        projectId: string,
+        revision: string,
+        protocolVersionId: string | undefined,
+    ): {
+        runId: string;
+        resolvedRunSpec: {
+            runId: string;
+            projectId: string;
+            revision: string;
+            protocolVersionRef?: unknown;
+            sourceSetVersion: string;
+            environment: Record<string, string>;
+            commands: string[];
+            resolvedAt: string;
+        };
+        semanticResult: { status: string; output: string[] };
     } {
         const state = this.requireState(projectId);
         if (revision !== state.headRevision) {
@@ -159,7 +184,10 @@ export class InMemoryResearchService {
             };
             throw error;
         }
-        const runId = `run-${createHash('sha256').update(`${projectId}|${revision}|${protocolVersionId ?? ''}`).digest('hex').slice(0, 16)}`;
+        const runId = `run-${createHash('sha256')
+            .update(`${projectId}|${revision}|${protocolVersionId ?? ''}`)
+            .digest('hex')
+            .slice(0, 16)}`;
         return {
             runId,
             resolvedRunSpec: {
@@ -178,9 +206,13 @@ export class InMemoryResearchService {
         };
     }
 
-    submitEdit(projectId: string, baseRevision: string, sourcePath: string,
+    submitEdit(
+        projectId: string,
+        baseRevision: string,
+        sourcePath: string,
         edit: { kind: 'replace' | 'insert' | 'delete'; startOffset: number; endOffset: number; text: string },
-        idempotencyKey: string): { replayed: boolean; record: unknown } {
+        idempotencyKey: string,
+    ): { replayed: boolean; record: unknown } {
         const state = this.requireState(projectId);
         const replay = state.editReplays.get(idempotencyKey);
         if (replay !== undefined) {
@@ -188,7 +220,10 @@ export class InMemoryResearchService {
         }
         const file = state.files.get(sourcePath);
         if (file === undefined) {
-            const error: { code: string; message: string } = { code: 'source_not_found', message: `Source ${sourcePath} is not in the fixture project.` };
+            const error: { code: string; message: string } = {
+                code: 'source_not_found',
+                message: `Source ${sourcePath} is not in the fixture project.`,
+            };
             throw error;
         }
         if (baseRevision !== state.headRevision) {
@@ -202,8 +237,16 @@ export class InMemoryResearchService {
             throw conflict;
         }
         const { startOffset, endOffset, text, kind } = edit;
-        if (startOffset < 0 || endOffset < startOffset || endOffset > file.bytes.length || (kind === 'replace' && startOffset === endOffset && text.length === 0)) {
-            const error: { code: string; message: string } = { code: 'invalid_edit_range', message: 'Edit offsets are out of range for the current bytes.' };
+        if (
+            startOffset < 0 ||
+            endOffset < startOffset ||
+            endOffset > file.bytes.length ||
+            (kind === 'replace' && startOffset === endOffset && text.length === 0)
+        ) {
+            const error: { code: string; message: string } = {
+                code: 'invalid_edit_range',
+                message: 'Edit offsets are out of range for the current bytes.',
+            };
             throw error;
         }
         let bytes: string;
@@ -225,7 +268,10 @@ export class InMemoryResearchService {
 
     private requireState(projectId: string): ResearchState {
         if (this.state === undefined || this.state.projectId !== projectId) {
-            const error: { code: string; message: string } = { code: 'project_not_found', message: `Project ${projectId} is not present; call POST /v1/fixtures/reset first.` };
+            const error: { code: string; message: string } = {
+                code: 'project_not_found',
+                message: `Project ${projectId} is not present; call POST /v1/fixtures/reset first.`,
+            };
             throw error;
         }
         return this.state;
