@@ -1,0 +1,13 @@
+{
+  "name": "ivory-n2-durable-store",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "description": "Disposable N2 PGlite + CAS-blob durability spike. Not a production adapter.",
+  "dependencies": {
+    "@electric-sql/pglite": "0.3.16"
+  }
+}
