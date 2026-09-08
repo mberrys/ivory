@@ -21,9 +21,30 @@ import {
     sourceMetadataSchema,
     SourceUploadResponse,
     toExecutionResponse,
+    citationResolutionRequestSchema,
+    citationResolutionResponseSchema,
+    fixtureResetRequestSchema,
+    fixtureResetResponseSchema,
+    projectEditRequestSchema,
+    projectEditResponseSchema,
+    projectEditConflictSchema,
+    projectOpenRequestSchema,
+    projectOpenResponseSchema,
+    runRequestSchema,
+    runSpecResolutionResponseSchema,
 } from '@ivory-tower/contracts';
 import { isTerminalExecutionStatus } from '@ivory-tower/domain';
 import { captureIvoryException } from '@ivory-tower/infrastructure';
+
+export interface ResearchServicePort {
+    reset(fixture?: 'research.py' | 'research.R' | 'research.qmd' | 'conditional.ipynb' | 'all'): unknown;
+    open(projectId: string, revision: string | undefined): unknown;
+    resolveCitation(projectId: string, revision: string, citationId: string): unknown;
+    resolveRunSpec(projectId: string, revision: string, protocolVersionId: string | undefined): unknown;
+    submitEdit(projectId: string, baseRevision: string, sourcePath: string,
+        edit: { kind: 'replace' | 'insert' | 'delete'; startOffset: number; endOffset: number; text: string },
+        idempotencyKey: string): { replayed: boolean; record: unknown };
+}
 
 export interface ApiServerDependencies {
     readonly executionService: ExecutionService;
@@ -34,6 +55,7 @@ export interface ApiServerDependencies {
     readonly egress?: EgressPolicyPort;
     readonly ids?: ExecutionIdPort;
     readonly clock?: ClockPort;
+    readonly research?: ResearchServicePort;
     readonly readiness?: () => Promise<boolean>;
     readonly maxBodyBytes?: number;
 }
@@ -91,6 +113,16 @@ function sendError(response: ServerResponse, error: unknown): void {
         sendJson(response, error.statusCode, { error: { code: error.code, message: error.message } });
         return;
     }
+    if (error instanceof Object && 'code' in error && 'message' in error) {
+        const body = error as { code: string; message: string };
+        const status = body.code === 'revision_conflict' || body.code === 'citation_stale' || body.code === 'revision_stale'
+            ? 409
+            : body.code === 'citation_not_found' || body.code === 'project_not_found' || body.code === 'source_not_found'
+                ? 404
+                : 422;
+        sendJson(response, status, { error: { code: body.code, message: body.message } });
+        return;
+    }
     sendJson(response, 500, { error: { code: 'internal_error', message: 'The request could not be completed.' } });
 }
 
@@ -128,6 +160,21 @@ function extractExecutionId(pathname: string): string | undefined {
 function extractEventExecutionId(pathname: string): string | undefined {
     const match = /^\/v1\/executions\/([^/]+)\/events$/.exec(pathname);
     return match?.[1];
+}
+
+function requireResearch(dependencies: ApiServerDependencies): ResearchServicePort {
+    if (dependencies.research === undefined) {
+        throw new ApiError(503, 'research_service_unavailable', 'The research service is not configured for this runtime.');
+    }
+    return dependencies.research;
+}
+
+function requireIdempotencyKey(request: IncomingMessage): string {
+    const key = request.headers['idempotency-key'];
+    if (typeof key !== 'string' || key.length === 0) {
+        throw new ApiError(400, 'missing_idempotency_key', 'An Idempotency-Key header is required.');
+    }
+    return key;
 }
 
 function writeEvent(response: ServerResponse, event: { id: string; type: string; payload: unknown }): void {
@@ -206,10 +253,7 @@ export function createApiServer(dependencies: ApiServerDependencies): Server {
                 if (!parsed.success) {
                     throw new ApiError(400, 'invalid_request', 'The execution request does not match the versioned contract.');
                 }
-                const idempotencyKey = request.headers['idempotency-key'];
-                if (typeof idempotencyKey !== 'string' || idempotencyKey.length === 0) {
-                    throw new ApiError(400, 'missing_idempotency_key', 'An Idempotency-Key header is required.');
-                }
+                const idempotencyKey = requireIdempotencyKey(request);
                 const result = await dependencies.executionService.create(parsed.data as CreateExecutionRequest, idempotencyKey);
                 sendJson(response, result.replayed ? 200 : 202, toExecutionResponse(result.record), {
                     location: `/v1/executions/${result.record.id}`,
@@ -259,6 +303,66 @@ export function createApiServer(dependencies: ApiServerDependencies): Server {
                     throw new ApiError(404, 'execution_not_found', 'Execution was not found.');
                 }
                 sendJson(response, 202, toExecutionResponse(record), { 'cache-control': 'no-store' });
+                return;
+            }
+            if (method === 'POST' && url.pathname === '/v1/fixtures/reset') {
+                const research = requireResearch(dependencies);
+                const parsed = fixtureResetRequestSchema.safeParse(parseJson(await readBody(request, maximumBytes)));
+                if (!parsed.success) {
+                    throw new ApiError(400, 'invalid_request', 'The fixture reset request does not match the versioned contract.');
+                }
+                sendJson(response, 200, fixtureResetResponseSchema.parse(research.reset(parsed.data.fixture)), { 'cache-control': 'no-store' });
+                return;
+            }
+            if (method === 'POST' && url.pathname === '/v1/projects/open') {
+                const research = requireResearch(dependencies);
+                const parsed = projectOpenRequestSchema.safeParse(parseJson(await readBody(request, maximumBytes)));
+                if (!parsed.success) {
+                    throw new ApiError(400, 'invalid_request', 'The project-open request does not match the versioned contract.');
+                }
+                sendJson(response, 200, projectOpenResponseSchema.parse(research.open(parsed.data.projectId, parsed.data.revision)), { 'cache-control': 'no-store' });
+                return;
+            }
+            if (method === 'POST' && url.pathname === '/v1/citations/resolve') {
+                const research = requireResearch(dependencies);
+                const parsed = citationResolutionRequestSchema.safeParse(parseJson(await readBody(request, maximumBytes)));
+                if (!parsed.success) {
+                    throw new ApiError(400, 'invalid_request', 'The citation resolution request does not match the versioned contract.');
+                }
+                sendJson(response, 200, citationResolutionResponseSchema.parse(
+                    research.resolveCitation(parsed.data.projectId, parsed.data.revision, parsed.data.citationId)), { 'cache-control': 'no-store' });
+                return;
+            }
+            if (method === 'POST' && url.pathname === '/v1/runspecs/resolve') {
+                const research = requireResearch(dependencies);
+                const parsed = runRequestSchema.safeParse(parseJson(await readBody(request, maximumBytes)));
+                if (!parsed.success) {
+                    throw new ApiError(400, 'invalid_request', 'The run-spec resolution request does not match the versioned contract.');
+                }
+                sendJson(response, 200, runSpecResolutionResponseSchema.parse(
+                    research.resolveRunSpec(parsed.data.projectId, parsed.data.revision, parsed.data.protocolVersionId)), { 'cache-control': 'no-store' });
+                return;
+            }
+            if (method === 'POST' && url.pathname === '/v1/projects/edits') {
+                const research = requireResearch(dependencies);
+                const parsed = projectEditRequestSchema.safeParse(parseJson(await readBody(request, maximumBytes)));
+                if (!parsed.success) {
+                    throw new ApiError(400, 'invalid_request', 'The project edit request does not match the versioned contract.');
+                }
+                const idempotencyKey = requireIdempotencyKey(request);
+                let result: { replayed: boolean; record: unknown };
+                try {
+                    result = research.submitEdit(parsed.data.projectId, parsed.data.baseRevision, parsed.data.sourcePath, parsed.data.edit, idempotencyKey);
+                } catch (error) {
+                    if (error instanceof Object && 'code' in error && (error as { code: string }).code === 'revision_conflict') {
+                        const conflict = error as { code: string; baseRevision: string; headRevision: string;
+                            authoritative: unknown; rejectedRequest: unknown };
+                        sendJson(response, 409, projectEditConflictSchema.parse(conflict), { 'cache-control': 'no-store' });
+                        return;
+                    }
+                    throw error;
+                }
+                sendJson(response, result.replayed ? 202 : 200, projectEditResponseSchema.parse(result.record), { 'cache-control': 'no-store' });
                 return;
             }
             throw new ApiError(404, 'route_not_found', 'Route was not found.');

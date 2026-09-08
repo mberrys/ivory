@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 
+import * as path from 'node:path';
 import { Pool } from 'pg';
 import { ExecutionService } from '@ivory-tower/application';
 import {
@@ -7,6 +8,7 @@ import {
     ContentRightsAdmissionPolicy,
     FailClosedEgressPolicy,
     FilesystemObjectStore,
+    InMemoryResearchService,
     PostgresExecutionStore,
     S3CompatibleObjectStore,
     SystemClockAdapter,
@@ -52,6 +54,9 @@ export async function startApi(): Promise<void> {
         egress,
         ids: new SystemExecutionIdAdapter(),
         clock,
+        research: new InMemoryResearchService({
+            fixturesDir: process.env.IVORY_N5_FIXTURES_DIR ?? path.resolve(__dirname, '../../../examples/ivory-n5-browser/fixtures'),
+        }),
         readiness: async () => {
             try {
                 await pool.query('SELECT 1');
