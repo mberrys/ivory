@@ -32,7 +32,9 @@ async function main() {
     } else if (command === 'edit' && argument && key) {
         console.log(JSON.stringify(await client.submitEdit(JSON.parse(readFileSync(argument, 'utf8')), key, signal)));
     } else {
-        throw new Error('Usage: ivory-n5 ready | get ID | submit REQUEST.json KEY | events ID [AFTER] | open|cite|run REQUEST.json | edit REQUEST.json KEY');
+        throw new Error(
+            'Usage: ivory-n5 ready | get ID | submit REQUEST.json KEY | events ID [AFTER] | open|cite|run REQUEST.json | edit REQUEST.json KEY',
+        );
     }
 }
 main().catch(error => {

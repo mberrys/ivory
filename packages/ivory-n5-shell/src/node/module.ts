@@ -27,7 +27,9 @@ export default new ContainerModule((bind, _unbind, _isBound, rebind) => {
                 const allowed =
                     (req.method === 'GET' && /^\/(health\/ready|v1\/executions\/[^/]+(?:\/events)?)$/.test(url.pathname)) ||
                     (req.method === 'POST' &&
-                        /^\/(v1\/executions|v1\/projects\/open|v1\/citations\/resolve|v1\/runspecs\/resolve|v1\/projects\/edits|v1\/fixtures\/reset)$/.test(url.pathname));
+                        /^\/(v1\/executions|v1\/projects\/open|v1\/citations\/resolve|v1\/runspecs\/resolve|v1\/projects\/edits|v1\/fixtures\/reset)$/.test(
+                            url.pathname,
+                        ));
                 if (!allowed || url.origin !== base.origin) {
                     res.sendStatus(404);
                     return;

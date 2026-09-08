@@ -35,9 +35,7 @@ export class N5Widget extends ReactWidget {
         return (
             <div style={{ padding: 24 }}>
                 <h1>N5 research client</h1>
-                <p>
-                    Research actions are served by the fixture research service published by ivory-api.
-                </p>
+                <p>Research actions are served by the fixture research service published by ivory-api.</p>
                 <button onClick={() => this.invoke('ivory.n5.open', this.researchBody)}>Open project</button>{' '}
                 <button onClick={() => this.invoke('ivory.n5.cite', this.researchBody)}>Resolve citation</button>{' '}
                 <button onClick={() => this.invoke('ivory.n5.run', this.researchBody)}>Request run</button>{' '}
