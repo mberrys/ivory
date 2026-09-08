@@ -30,13 +30,13 @@ recovery remains unresolved until a structured selector is defined.
 - [`ingestion-fidelity-contract.ts`](../packages/ivory-tower-contracts/src/ingestion-fidelity-contract.ts)
   — raw/table/failure schemas.
 
-## Qualification still required
-
 ## Qualification
 
-`npm run qualify:n4` verifies the checked-in 20-fixture corpus, creates five anchors per fixture,
-persists them with immutable baseline and changed-converter representations, and writes
-`artifacts/n4/qualification-ledger.json`. The contract requires 100 anchors, two scanned PDFs,
-explicit `docling-serve:v1.21.0` and `docling-serve:v1.22.0` representation identities, and zero
-false exact matches. N4 project namespaces exercise both permitted and denied transfer without
-claiming the later V1 user-authorization boundary.
+`npm run qualify:n4` runs both immutable Docling converter images against every checked-in fixture,
+selects five anchors from each real A-side extraction, remaps them against B, and writes the full
+evidence ledger to `artifacts/n4/qualification-ledger.json`. The ledger contains input/output
+hashes, converter image digests, per-anchor observed and independent-oracle classifications, the
+3x3 confusion matrix, false-exact count, and any conversion or anchor-selection failures. A run
+is `qualified` only with 20 converted fixtures, at least 100 real anchors, no failures, and zero
+false-exact cells; otherwise it is explicitly `NO-GO`. N4 project namespaces exercise both
+permitted and denied transfer without claiming the later V1 user-authorization boundary.
