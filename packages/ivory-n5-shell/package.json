@@ -1,0 +1,16 @@
+{
+  "name": "@ivory-tower/n5-shell",
+  "version": "0.1.0",
+  "private": true,
+  "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0",
+  "dependencies": {
+    "@ivory-tower/n5-client": "0.1.0",
+    "@theia/core": "1.74.0",
+    "@theia/plugin-ext": "1.74.0",
+    "@theia/plugin-ext-vscode": "1.74.0",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": { "@theia/ext-scripts": "1.74.0" },
+  "theiaExtensions": [{ "frontend": "lib/browser/module", "backend": "lib/node/module" }],
+  "scripts": { "build": "theiaext build", "compile": "theiaext compile", "lint": "theiaext lint" }
+}

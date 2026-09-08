@@ -1,0 +1,66 @@
+{
+  "compilerOptions": {
+    "composite": true
+  },
+  "include": [],
+  "extends": "../../configs/base.tsconfig.json",
+  "references": [
+    {
+      "path": "../../dev-packages/cli"
+    },
+    {
+      "path": "../../packages/core"
+    },
+    {
+      "path": "../../packages/editor"
+    },
+    {
+      "path": "../../packages/filesystem"
+    },
+    {
+      "path": "../../packages/ivory-n5-shell"
+    },
+    {
+      "path": "../../packages/markers"
+    },
+    {
+      "path": "../../packages/messages"
+    },
+    {
+      "path": "../../packages/monaco"
+    },
+    {
+      "path": "../../packages/navigator"
+    },
+    {
+      "path": "../../packages/output"
+    },
+    {
+      "path": "../../packages/plugin-ext"
+    },
+    {
+      "path": "../../packages/plugin-ext-vscode"
+    },
+    {
+      "path": "../../packages/preferences"
+    },
+    {
+      "path": "../../packages/process"
+    },
+    {
+      "path": "../../packages/task"
+    },
+    {
+      "path": "../../packages/terminal"
+    },
+    {
+      "path": "../../packages/userstorage"
+    },
+    {
+      "path": "../../packages/variable-resolver"
+    },
+    {
+      "path": "../../packages/workspace"
+    }
+  ]
+}

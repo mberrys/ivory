@@ -1,0 +1,10 @@
+{
+  "name": "@ivory-tower/n5-client",
+  "version": "0.1.0",
+  "private": true,
+  "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0",
+  "main": "src/client.cjs",
+  "types": "src/client.d.ts",
+  "bin": { "ivory-n5": "src/cli.cjs" },
+  "scripts": { "test": "node --test test/*.test.cjs" }
+}
