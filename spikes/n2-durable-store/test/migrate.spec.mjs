@@ -33,7 +33,7 @@ test('interrupted migration recovers on reopen', async () => {
     });
     try {
         await waitForFile(ready, 60_000);
-        killProcess(child.pid);
+        await killProcess(child.pid);
         await new Promise(resolve => child.once('exit', resolve));
         const store = new DurableStore();
         await store.open(projectRoot);

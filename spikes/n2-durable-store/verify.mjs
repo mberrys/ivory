@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { mkdir, writeFile, rm, readdir, mkdtemp, readFile } from 'node:fs/promises';
+import { mkdir, writeFile, rm, readdir, mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawn } from 'node:child_process';
@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { DurableStore } from './src/durable-store.mjs';
 import { recordHardware, memorySnapshot } from './src/hardware.mjs';
 import { runInterruptStorm } from './src/interrupt-harness.mjs';
+import { evaluateStormResults } from './src/storm-results.mjs';
 import { loadScaleFixture, measureMetadata, measureSearch, measureSnapshot } from './src/scale.mjs';
 
 const ROOT = join(fileURLToPath(new URL('../..', import.meta.url)));
@@ -41,7 +42,6 @@ function runNodeTest() {
 }
 
 const hardware = recordHardware();
-const previous = await loadExistingEvidence();
 const evidence = {
     spike: 'N2',
     issue: 'MB-592',
@@ -50,12 +50,10 @@ const evidence = {
     relaxedDurability: false,
     postgresDialectCommitment: 'dev already ships ivory-migrate + postgres-execution-store + Graphile Worker',
     sqliteComparison: 'not run unless PGlite integrity gate fails',
-    tests: previous.tests ?? {},
-    interruptStorm: previous.interruptStorm,
-    scale: previous.scale,
-    exportImport: previous.exportImport,
-    durabilityEnvelope: previous.durabilityEnvelope,
-    decision: previous.decision,
+    tests: { skipped: true, measuredThisRun: false },
+    interruptStorm: { skipped: true, measuredThisRun: false, results: [] },
+    scale: { skipped: true, measuredThisRun: false },
+    exportImport: { skipped: true, measuredThisRun: false },
 };
 
 let failed = false;
@@ -63,7 +61,7 @@ let failed = false;
 try {
     if (!has('--skip-tests')) {
         await runNodeTest();
-        evidence.tests = { passed: true };
+        evidence.tests = { passed: true, measuredThisRun: true, skipped: false };
     }
 
     if (!has('--skip-storm')) {
@@ -80,14 +78,25 @@ try {
                     }
                 },
             });
+            const flags = evaluateStormResults(results);
             evidence.interruptStorm = {
-                cycles,
+                cycles: results.length,
                 elapsedMs: Date.now() - started,
-                acknowledgedNeverLost: true,
-                oneEffectPerKey: true,
-                noVisibleUninstalledBlob: true,
+                ...flags,
+                measuredThisRun: true,
+                skipped: false,
+                results,
                 faults: [...new Set(results.map(row => row.fault))],
             };
+            if (
+                !flags.measuredFromResults
+                || !flags.acknowledgedNeverLost
+                || !flags.oneEffectPerKey
+                || !flags.noVisibleUninstalledBlob
+                || !flags.childrenExitedBeforeReopen
+            ) {
+                failed = true;
+            }
         } finally {
             await rm(projectRoot, { recursive: true, force: true });
         }
@@ -116,7 +125,13 @@ try {
         await dest.close();
         await rm(projectRoot, { recursive: true, force: true });
         await rm(destRoot, { recursive: true, force: true });
-        evidence.exportImport = { preserved: true, blobCount: exported.blobCount, projectSeq: exported.projectSeq };
+        evidence.exportImport = {
+            preserved: true,
+            blobCount: exported.blobCount,
+            projectSeq: exported.projectSeq,
+            measuredThisRun: true,
+            skipped: false,
+        };
     }
 
     if (!has('--skip-scale')) {
@@ -152,6 +167,8 @@ try {
             metadataPass: metadata.p95 < 200,
             searchPass: search.ms < 1000,
             snapshotPass: snapshot.ms < 2000,
+            measuredThisRun: true,
+            skipped: false,
         };
         await rm(projectRoot, { recursive: true, force: true });
         if (!evidence.scale.metadataPass || !evidence.scale.searchPass || !evidence.scale.snapshotPass) {
@@ -166,13 +183,29 @@ try {
     evidence.backupProcedure = 'Acquire the exclusive writer lock, CHECKPOINT, PGlite dumpDataDir plus a copy of objects/sha256, restore into a fresh path, verify, then open.';
     evidence.migrationStrategy = 'Forward-only SQL files, one transaction per file (apply + schema_migrations row). Exclusive writer lock. Interrupted migration resumes remaining files; it does not rewrite immutable payload hashes.';
     evidence.storagePort = 'DurableStore in spikes/n2-durable-store/src/durable-store.mjs';
-    if (!failed && evidence.interruptStorm?.acknowledgedNeverLost) {
+
+    const stormFlags = evaluateStormResults(evidence.interruptStorm.results);
+    const qualificationPieces = evidence.tests.measuredThisRun === true
+        && stormFlags.measuredFromResults
+        && stormFlags.acknowledgedNeverLost
+        && stormFlags.oneEffectPerKey
+        && stormFlags.noVisibleUninstalledBlob
+        && stormFlags.childrenExitedBeforeReopen
+        && evidence.exportImport.measuredThisRun === true
+        && evidence.exportImport.preserved === true
+        && evidence.scale.measuredThisRun === true;
+    if (!qualificationPieces) {
+        failed = true;
+    }
+    if (!failed) {
         evidence.decision = {
             engine: 'pglite',
             status: evidence.scale && (!evidence.scale.metadataPass || !evidence.scale.searchPass || !evidence.scale.snapshotPass)
                 ? 'integrity-pass-performance-fix'
-                : 'pglite-default',
+                : 'pglite-measured-cas-scale-unproven',
         };
+    } else if (evidence.decision === undefined) {
+        evidence.decision = { engine: 'undecided', status: 'incomplete-or-unproven' };
     }
 } catch (error) {
     failed = true;
@@ -185,12 +218,4 @@ await writeFile(join(ARTIFACT, 'evidence.json'), JSON.stringify(evidence, null, 
 process.stdout.write(`${JSON.stringify({ ok: !failed, artifact: join(ARTIFACT, 'evidence.json'), decision: evidence.decision }, null, 2)}\n`);
 if (failed) {
     process.exitCode = 1;
-}
-
-async function loadExistingEvidence() {
-    try {
-        return JSON.parse(await readFile(join(ARTIFACT, 'evidence.json'), 'utf8'));
-    } catch {
-        return {};
-    }
 }
