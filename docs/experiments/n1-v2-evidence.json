@@ -68,8 +68,23 @@
     "status": "open",
     "requiredResearchers": 3,
     "requiredPasses": 2,
-    "observedResults": null,
-    "note": "The automated verifier does not invent researcher observations; run the supplied reader protocol separately."
+    "observedResults": {
+      "kind": "pointer",
+      "doesNotCloseThisExperiment": true,
+      "room": "Ivory Tower",
+      "exercisedBranch": "pre-dev-n1-port",
+      "exercisedCommit": "1b28fbb8b7b54cd006992d29a82f1c1ba6039b27",
+      "thisFileKernel": "0c6e7de41e787ccf7e46da9f18cacaad520b3868",
+      "fixture": "buildAdvisingAgencyFixture / advising-agency-protocol",
+      "recorded": "2026-09-08",
+      "seats": [
+        {"seat": "Athena", "result": "pass", "provenanceNotEndorsement": true, "silentReanchor": false, "citationSurvival": true, "carryForwardSeparate": true},
+        {"seat": "Devon", "result": "pass", "provenanceNotEndorsement": true, "silentReanchor": false, "citationSurvival": true, "carryForwardSeparate": true},
+        {"seat": "Norm", "result": "pass", "provenanceNotEndorsement": true, "silentReanchor": false, "citationSurvival": true, "carryForwardSeparate": true}
+      ],
+      "verdict": "Human qualification passed 3/3 on pre-dev-n1-port @ 1b28fbb8 (bar >= 2). Pointer only. The exercised kernel is not this file's repositoryCommit, so this does not close N1 on v2-n1-experiment and does not close N2."
+    },
+    "note": "observedResults points at the Ivory Tower 3/3 on pre-dev-n1-port @ 1b28fbb8. Status stays open: that exercise did not run this file's kernel (0c6e7de4). Norm has not signed a close on v2-n1-experiment."
   },
   "decision": {
     "status": "provisional-architecture-pass",
