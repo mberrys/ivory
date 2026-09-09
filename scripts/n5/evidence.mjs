@@ -1,4 +1,5 @@
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { cpus, totalmem, release } from 'node:os';
 import { mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
@@ -24,8 +25,17 @@ function fingerprints(relative) {
         if (entry.isDirectory()) {
             return ['node_modules', 'lib', 'plugins', 'src-gen', '__pycache__'].includes(entry.name) ? [] : fingerprints(name);
         }
-        if (/tsbuildinfo$|^gen-|\.log$/.test(entry.name)) { return []; }
-        return [{ path: name, sha256: createHash('sha256').update(readFileSync(path.join(root, name))).digest('hex') }];
+        if (/tsbuildinfo$|^gen-|\.log$/.test(entry.name)) {
+            return [];
+        }
+        return [
+            {
+                path: name,
+                sha256: createHash('sha256')
+                    .update(readFileSync(path.join(root, name)))
+                    .digest('hex'),
+            },
+        ];
     });
 }
 const contractReason =
@@ -59,14 +69,25 @@ async function probeService(base) {
         const version = liveBody.version ?? liveBody.serviceVersion ?? liveBody.service ?? null;
         const open = await post('/v1/projects/open', { projectId: 'n5-demo' });
         const project = open.body;
-        const revision = project?.revision ?? 'rev-1';
+        if (!open.ok || typeof project?.revision !== 'string') {
+            return { serviceVersion: version, liveService: { available: false, project: open, reason: 'Project open failed' } };
+        }
+        const revision = project.revision;
         const citation = await post('/v1/citations/resolve', { projectId: 'n5-demo', revision, citationId: 'cite-research-py' });
         const runSpec = await post('/v1/runspecs/resolve', { projectId: 'n5-demo', revision });
-        const liveService = { available: true };
-        if (project !== undefined) { liveService.project = project; }
-        if (citation.body !== undefined) { liveService.citation = citation.body; }
-        if (runSpec.body !== undefined) { liveService.runSpec = runSpec.body; }
-        if (runSpec.body?.semanticResult !== undefined) { liveService.semanticResult = runSpec.body.semanticResult; }
+        const liveService = { available: citation.ok && runSpec.ok, responses: { open, citation, runSpec } };
+        if (project !== undefined) {
+            liveService.project = project;
+        }
+        if (citation.body !== undefined) {
+            liveService.citation = citation.body;
+        }
+        if (runSpec.body !== undefined) {
+            liveService.runSpec = runSpec.body;
+        }
+        if (runSpec.body?.semanticResult !== undefined) {
+            liveService.semanticResult = runSpec.body.semanticResult;
+        }
         return { serviceVersion: version, liveService };
     } catch {
         return { serviceVersion: null, serviceUnavailable: true, liveService: { available: false, reason: 'service not reachable' } };
@@ -74,14 +95,39 @@ async function probeService(base) {
 }
 
 const serviceProbe = await probeService(process.env.IVORY_N5_SERVICE_URL ?? 'http://127.0.0.1:4100');
+const contractCommand = ['--test', 'scripts/n5/v2-contract.test.mjs', 'scripts/n5/compare.test.mjs'];
+const started = performance.now();
+const contractRun = spawnSync(process.execPath, contractCommand, { cwd: root, encoding: 'utf8', timeout: 60000 });
 const report = {
-    schemaVersion: 1,
+    schemaVersion: 2,
+    experimentVersion: 'n5-architecture-v2',
+    command: 'node scripts/n5/evidence.mjs',
+    configuration: { serviceOrigin: process.env.IVORY_N5_SERVICE_URL ?? 'http://127.0.0.1:4100' },
+    machine: { osRelease: release(), cpu: cpus()[0]?.model, logicalCpus: cpus().length, memoryBytes: totalmem() },
+    contractEvidence: {
+        scope: 'Core fixture contracts only; no live client or durability qualification',
+        command: ['node', ...contractCommand].join(' '),
+        elapsedMs: performance.now() - started,
+        status: contractRun.status === 0 ? 'passed' : 'failed',
+        exitCode: contractRun.status,
+        stdout: contractRun.stdout,
+        stderr: contractRun.stderr,
+        error: contractRun.error?.message,
+    },
     capturedAt: new Date().toISOString(),
     baseCommit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
     workingTree: execFileSync('git', ['status', '--short'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim(),
     platform: `${process.platform}/${process.arch}`,
     decision: 'blocked',
-    sourceFingerprints: ['packages/ivory-n5-client', 'packages/ivory-n5-shell', 'examples/ivory-n5-browser', 'scripts/n5'].flatMap(fingerprints),
+    sourceFingerprints: [
+        'packages/ivory-n5-client',
+        'packages/ivory-n5-shell',
+        'examples/ivory-n5-browser',
+        'scripts/n5',
+        'packages/ivory-tower-infrastructure/src',
+        'packages/ivory-tower-api/src',
+        'packages/ivory-tower-contracts/src',
+    ].flatMap(fingerprints),
     ...serviceProbe,
     prerequisite: blocked(contractReason),
     clients: Object.fromEntries(

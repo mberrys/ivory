@@ -1,0 +1,616 @@
+{
+  "schemaVersion": 2,
+  "experimentVersion": "n5-architecture-v2",
+  "command": "node scripts/n5/evidence.mjs",
+  "configuration": {
+    "serviceOrigin": "http://127.0.0.1:4100"
+  },
+  "machine": {
+    "osRelease": "10.0.26200",
+    "cpu": "12th Gen Intel(R) Core(TM) i9-12900KF",
+    "logicalCpus": 24,
+    "memoryBytes": 68501536768
+  },
+  "contractEvidence": {
+    "scope": "Core fixture contracts only; no live client or durability qualification",
+    "command": "node --test scripts/n5/v2-contract.test.mjs scripts/n5/compare.test.mjs",
+    "elapsedMs": 182.9893,
+    "status": "passed",
+    "exitCode": 0,
+    "stdout": "✔ requires all real-client observations (0.6351ms)\n✔ V2 unexecuted fixture results cannot qualify client equivalence (0.1286ms)\n✔ permits only metadata outside the complete content projections to differ (0.6975ms)\n(node:52904) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/micha/.codex/worktrees/a1f0/ivory-tower/packages/ivory-tower-infrastructure/src/in-memory-research-service.ts is not specified and it doesn't parse as CommonJS.\nReparsing as ES module because module syntax was detected. This incurs a performance overhead.\nTo eliminate this warning, add \"type\": \"module\" to \\\\?\\C:\\Users\\micha\\.codex\\worktrees\\a1f0\\ivory-tower\\packages\\ivory-tower-infrastructure\\package.json.\n(Use `node --trace-warnings ...` to show where the warning was created)\n✔ equivalent fixture resets produce identical complete RunSpecs (13.3004ms)\n✔ V2 accepted edits replay exactly and reject changed input under the same key (2.4213ms)\n✔ V2 historical citations and resolved inputs remain immutable after edits (1.7957ms)\n✔ V2 competing edit contract: theia then cli (1.7221ms)\n✔ V2 competing edit contract: theia then r (1.4054ms)\n✔ V2 competing edit contract: theia then python (1.6614ms)\n✔ V2 competing edit contract: cli then theia (2.5951ms)\n✔ V2 competing edit contract: cli then r (2.1713ms)\n✔ V2 competing edit contract: cli then python (2.2395ms)\n✔ V2 competing edit contract: r then theia (1.5375ms)\n✔ V2 competing edit contract: r then cli (1.6191ms)\n✔ V2 competing edit contract: r then python (1.4373ms)\n✔ V2 competing edit contract: python then theia (2.0221ms)\n✔ V2 competing edit contract: python then cli (1.5332ms)\n✔ V2 competing edit contract: python then r (1.2896ms)\n✔ V2 invalid edits cannot advance the project (1.662ms)\nℹ tests 19\nℹ suites 0\nℹ pass 19\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 140.513\n",
+    "stderr": ""
+  },
+  "capturedAt": "2026-09-09T04:06:50.102Z",
+  "baseCommit": "0a902217d8a7c0978ea3f59e5aa223fe77e227f1",
+  "workingTree": "M docs/n5-theia-client-equivalence.md\n M packages/ivory-tower-api/src/api-server.ts\n M packages/ivory-tower-contracts/src/research-contracts.ts\n M packages/ivory-tower-infrastructure/src/in-memory-research-service.ts\n M scripts/n5/compare.mjs\n M scripts/n5/compare.test.mjs\n M scripts/n5/evidence.mjs\n?? .codex/\n?? scripts/n5/v2-contract.test.mjs",
+  "platform": "win32/x64",
+  "decision": "blocked",
+  "sourceFingerprints": [
+    {
+      "path": "packages/ivory-n5-client/helpers/ivory_n5.py",
+      "sha256": "af99249c7067c444ec17ca82af50d24c0e09a7005a250898d3c8d9edc5a5ff43"
+    },
+    {
+      "path": "packages/ivory-n5-client/helpers/ivory_n5.R",
+      "sha256": "5f7418e3ed46d8426f6befbe6ed26a9b63e7b3d4c42a300599ff0656921fd88e"
+    },
+    {
+      "path": "packages/ivory-n5-client/package.json",
+      "sha256": "79983ada84863f8177a8d912b8d88f701854abaff84b1a60348fa9be7f7fa80d"
+    },
+    {
+      "path": "packages/ivory-n5-client/src/cli.cjs",
+      "sha256": "4e999dbec1dafeb2fa33b84cace8957c1c51a4793d0f894e7c87865d1d67b8fd"
+    },
+    {
+      "path": "packages/ivory-n5-client/src/client.cjs",
+      "sha256": "a5cb1dc511e12ebef1cb020728d9a11820b6f483c3dd6868a630264c2fe04520"
+    },
+    {
+      "path": "packages/ivory-n5-client/src/client.d.ts",
+      "sha256": "82e60721f11332018d1b46dc7ae3c4e3d5d2d0b90a3017f41efd974fa9a8d2bb"
+    },
+    {
+      "path": "packages/ivory-n5-client/test/client.test.cjs",
+      "sha256": "50ec193da62d2090c1e7c5d95c5b95e293bac3d29b3dad99a117db1fb1753ee1"
+    },
+    {
+      "path": "packages/ivory-n5-client/test/helpers.test.cjs",
+      "sha256": "7fcf415ba397450bf67488b3b287c86f9fa930d798d396fe8684e4027b011868"
+    },
+    {
+      "path": "packages/ivory-n5-shell/.eslintrc.js",
+      "sha256": "16a542dd753d300c46086de970c48acec4d3c359d9e6dbb87217e6bb6bbac297"
+    },
+    {
+      "path": "packages/ivory-n5-shell/package.json",
+      "sha256": "dc6d13928172a860530ddb37060da8bc25c3e7668e2b5e07f0dd9a4ee81cb9d6"
+    },
+    {
+      "path": "packages/ivory-n5-shell/src/browser/contribution.ts",
+      "sha256": "c21d4c7944b221493882cd813dbeffad10714848131f4b364540378f4551dbd0"
+    },
+    {
+      "path": "packages/ivory-n5-shell/src/browser/module.ts",
+      "sha256": "bc07f981dabdf02a6e0b47d4e0ba064bf50baec10b7ac11958cdd3e0c663ec58"
+    },
+    {
+      "path": "packages/ivory-n5-shell/src/browser/widget.tsx",
+      "sha256": "45880842cf54a23bdf04a9738b68165d70d52ff1ef91f972ac58a6f534b198fc"
+    },
+    {
+      "path": "packages/ivory-n5-shell/src/node/module.ts",
+      "sha256": "0407e05c6c1646731a40319a78bf21fa559207dfa53632a56b7b729e1b29bc03"
+    },
+    {
+      "path": "packages/ivory-n5-shell/src/node/scanner.ts",
+      "sha256": "657be0c016c9c55d780c50690d628a16dc61ba4a91c220981d4bd2762c4bf232"
+    },
+    {
+      "path": "packages/ivory-n5-shell/tsconfig.json",
+      "sha256": "90ea9b7b93e3ef553debf9185566e67864cb46fa5a452a967939cc607494e882"
+    },
+    {
+      "path": "examples/ivory-n5-browser/esbuild.mjs",
+      "sha256": "c424360810a63968b8fa45eeb7f4a18c19a7c2b4fa71df348a076b1ebecb4f47"
+    },
+    {
+      "path": "examples/ivory-n5-browser/extensions.lock.json",
+      "sha256": "70e1206e5cd9316e15cc49a91f85028b811335df26a3d9715939007430f7a93e"
+    },
+    {
+      "path": "examples/ivory-n5-browser/fixtures/conditional.ipynb",
+      "sha256": "494e55ea07958d5c627e601722950b1afb134f8ac4078fec18f72523697fa958"
+    },
+    {
+      "path": "examples/ivory-n5-browser/fixtures/python-diagnostic.py",
+      "sha256": "bb5cf2189042b6d333897ff7b62001b80f2a13ea63075a3731109eef8e54509c"
+    },
+    {
+      "path": "examples/ivory-n5-browser/fixtures/r-diagnostic.R",
+      "sha256": "fe5e1e37979b32051b53753fec7b51d2360b490c9f5e524919b0c801fadffe66"
+    },
+    {
+      "path": "examples/ivory-n5-browser/fixtures/research.py",
+      "sha256": "96ac4cbd6307e20e23740eb3795f3b61804685800ae2a1feda10d847ebda2b7e"
+    },
+    {
+      "path": "examples/ivory-n5-browser/fixtures/research.qmd",
+      "sha256": "17a1f06cdcb5db89dad2e8a805a0661621e9de6d9994148a4487ee2ef8a14234"
+    },
+    {
+      "path": "examples/ivory-n5-browser/fixtures/research.R",
+      "sha256": "08d9dab03964105440fe5871de3f86282706b90daa1d8c65001aada2a5432604"
+    },
+    {
+      "path": "examples/ivory-n5-browser/package.json",
+      "sha256": "48fdfb1c065da0c7b5d34fe5d5dfcb044f030a9854e379440765c330ce0f396f"
+    },
+    {
+      "path": "examples/ivory-n5-browser/playwright.config.ts",
+      "sha256": "32bdfd0843ef83d7be36db482f9b8d3214b2b65e4315e74a2bb7b1cd1566bf19"
+    },
+    {
+      "path": "examples/ivory-n5-browser/tests/shell.spec.ts",
+      "sha256": "64743450faf1fe00401945bb23a46f790c1a0c75869c5b6886c1e18903b18cba"
+    },
+    {
+      "path": "examples/ivory-n5-browser/tsconfig.json",
+      "sha256": "11c87a5e9d41d0307aed1e45805fdaa0e6bfbdc4d58b2bba6918b6f2cf925069"
+    },
+    {
+      "path": "scripts/n5/check-boundaries.mjs",
+      "sha256": "9b0637e08713aae64eef0a2034c7d84b4f124a48dae0e4594a15ca79bef1ef61"
+    },
+    {
+      "path": "scripts/n5/compare.mjs",
+      "sha256": "0239c82aa9a52bf670a034eded0cc82e08a35c8443dab7f3ff8a1fb9b9e86317"
+    },
+    {
+      "path": "scripts/n5/compare.test.mjs",
+      "sha256": "9a7c888c11a5393cc6e6806fa2115360babbfde765c8003bf8657902dcdf54ba"
+    },
+    {
+      "path": "scripts/n5/evidence.mjs",
+      "sha256": "99c82a80af7b24a0e1f2d495c39c45e685f9b422f198dcd885ca2306b660b4c0"
+    },
+    {
+      "path": "scripts/n5/extensions.mjs",
+      "sha256": "9c344347ca41c7393a903ef99b8db27c5c596a852261ca60ea81e60099fa5502"
+    },
+    {
+      "path": "scripts/n5/extensions.py",
+      "sha256": "66487f1e17a4ca796afc512b2b63de7e9ce9a074a8bdde1b309a1101910a4b78"
+    },
+    {
+      "path": "scripts/n5/v2-contract.test.mjs",
+      "sha256": "905a81d8414e62451356073c8f265411ad12f9f279fe03935b57fd091cd4140a"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/admission-egress-policy.spec.ts",
+      "sha256": "545a20066b65a3fef749f43da6cf28f883670a5a0bd0c602baf3392932a92a20"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/admission-policy.ts",
+      "sha256": "96748db5c30505593f3b658cfb218047d4a26d3bd5e21a4faea59b0a744296e0"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/content-aware-egress-policy.ts",
+      "sha256": "9fe366fe558913f2eda9859e5b0a6963dec7037cab73159874da8bb982317aaa"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/content-rights-admission-policy.ts",
+      "sha256": "ae548e596eab59e16a6f50c2b4bcad39972a3c5898864f3fe8621eb7d5decccf"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/docling-http-conversion-adapter.ts",
+      "sha256": "061f28bca3c985ef15c01004318cd73714f0f7bbaed32b31a0eb65dc5dca84a0"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/egress-policy.ts",
+      "sha256": "cbb6b3d20267f24ee769d52329338339476c41f0236f191ba4b40101894f3dff"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/environment.ts",
+      "sha256": "63387a745868ce1adfb977fce5f9e1342ffc8dfd1038c9b9848d75fe212cb263"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/execution-id-adapter.ts",
+      "sha256": "70105df1b033be57ab4f4193f3ba713e34f360fb1fe468c7add1e8e215977bd5"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/filesystem-object-store.ts",
+      "sha256": "b48c27242bcfbb202ac5c04740161a35329cca051aeeffd964f6969b9711f49d"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/graphile-worker-adapter.ts",
+      "sha256": "f9332a1de721195f92d352c1c7a9eda975371ccfb44741a84ccfd145772c324c"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/in-memory-execution-store.spec.ts",
+      "sha256": "ca597f3cd9212e0458cab6d18dd0bf476ab9bbbf4755233601915a3283c9fc8e"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/in-memory-execution-store.ts",
+      "sha256": "5827ca48fd4e25107eca570be748e0f2d8f8e2451760efc0af6cf3401cd42d28"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/in-memory-research-protocol-store.ts",
+      "sha256": "2a1790df318528944d1bc0c7b93602ab7b8dfa3bc8c2426d1a445018e3754ef5"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/in-memory-research-service.ts",
+      "sha256": "5fb8cf4ae695b0089c5bcff1c1f11bb3d7ebf06ba33808b341d2dced12a139df"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/in-memory-source-record-store.ts",
+      "sha256": "77131d287ebdf340e9fbe878d767b8389a12fcca5c259de070486a7720f8aa3c"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/index.ts",
+      "sha256": "8823a0adbfe8b5e230bd191e76169d28d176957efa0f504d4b80a11f2ae77b13"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/node/migrate.ts",
+      "sha256": "7550619c4600894a3d0010c6ae54d0c95b033e30415c217382a6b27a9149be82"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/package.spec.ts",
+      "sha256": "93af17b44ddea7eaab6f892a477846b3783df82ab6411338439c28b5acdeb556"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/postgres-execution-store.ts",
+      "sha256": "434d76d17f036d5d81c73e54b0892a2bfe9f8b58fa7f3785940822afc9d397f3"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/s3-object-store.ts",
+      "sha256": "28537ddc3459cca5e5b2cf30f95c04c5ffbd60ac9ecf52ebca4527be39682e3e"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/schema-readiness.ts",
+      "sha256": "4e9e99c450f0611268d67dee624db818639e0007f66ebb4c23286fcb180e0384"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/sentry.spec.ts",
+      "sha256": "47d8e35da18281da9d898ce251dafbaddc73b099d86d2107c2f1fb3544ebf92c"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/sentry.ts",
+      "sha256": "7329fa2c7d436671a353d9ba38ee952deeb7b2d0b816ce089ab3d2b89fcfb599"
+    },
+    {
+      "path": "packages/ivory-tower-infrastructure/src/system-clock-adapter.ts",
+      "sha256": "1d59d0a1c7e8ff2b0a107abd516c3c0a17fc7e0c4a960235ba8c26685a841ed9"
+    },
+    {
+      "path": "packages/ivory-tower-api/src/api-server.ts",
+      "sha256": "95a93f0f39cab8f80cc0fe7caaab03f20c92891cd5c865ab19daa5cc2a3b4a3f"
+    },
+    {
+      "path": "packages/ivory-tower-api/src/index.ts",
+      "sha256": "65269c3cda1f83dd722c103e67692502fb99f7adc06477123d7437370afc963c"
+    },
+    {
+      "path": "packages/ivory-tower-api/src/package.spec.ts",
+      "sha256": "59f5695749c48f3555d48977cd874fc8169e5d8ec4004a82ea79fbd11cba3ddb"
+    },
+    {
+      "path": "packages/ivory-tower-api/src/start.ts",
+      "sha256": "d2d58e7a082b5e1e40f9c4763ac5c890ef5a4fa90b6f16d5d59cbba345df155d"
+    },
+    {
+      "path": "packages/ivory-tower-contracts/src/execution-contract.ts",
+      "sha256": "223a22ecb943964a3d6bf366fb7c1d26043419f1f9b7a265187a7ba72ffb3541"
+    },
+    {
+      "path": "packages/ivory-tower-contracts/src/index.ts",
+      "sha256": "2096ef4d7d6a6ad4dd1d4efe94cd1b1c9403d40c639520953d39b201e0e3e2cb"
+    },
+    {
+      "path": "packages/ivory-tower-contracts/src/package.spec.ts",
+      "sha256": "670ac7b15d667c519546e82cfffe19c1e35818ce41489e08e6dfb3e75f8d560c"
+    },
+    {
+      "path": "packages/ivory-tower-contracts/src/research-contract.spec.ts",
+      "sha256": "d9c99ab8d34a578ba6dbc68c1d4f88295ca61d039644f69a19049f6b576855b2"
+    },
+    {
+      "path": "packages/ivory-tower-contracts/src/research-contracts.ts",
+      "sha256": "69dea6b50bc2a72c62fa637ef78834ee98b038ac95965509077f28979a0c12e1"
+    },
+    {
+      "path": "packages/ivory-tower-contracts/src/research-protocol-contract.ts",
+      "sha256": "44190d90eb5c9d79248118e762a8ad39debb6620f91c59793b0a0ec351bae57d"
+    },
+    {
+      "path": "packages/ivory-tower-contracts/src/source-contract.ts",
+      "sha256": "7f14cb8cc5817464b9b2f03ea9969ec958b3ae655023b9f8d81769ef52182642"
+    }
+  ],
+  "serviceVersion": null,
+  "serviceUnavailable": true,
+  "liveService": {
+    "available": false,
+    "reason": "service not reachable"
+  },
+  "prerequisite": {
+    "status": "blocked",
+    "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+  },
+  "clients": {
+    "theia": {
+      "project": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      },
+      "citation": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      },
+      "runSpec": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      },
+      "semanticResult": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      }
+    },
+    "cli": {
+      "project": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      },
+      "citation": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      },
+      "runSpec": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      },
+      "semanticResult": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      }
+    },
+    "r": {
+      "project": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      },
+      "citation": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      },
+      "runSpec": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      },
+      "semanticResult": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      }
+    },
+    "python": {
+      "project": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      },
+      "citation": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      },
+      "runSpec": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      },
+      "semanticResult": {
+        "status": "blocked",
+        "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+      }
+    }
+  },
+  "orderedConflicts": [
+    {
+      "first": "theia",
+      "second": "cli",
+      "status": "blocked",
+      "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+    },
+    {
+      "first": "theia",
+      "second": "r",
+      "status": "blocked",
+      "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+    },
+    {
+      "first": "theia",
+      "second": "python",
+      "status": "blocked",
+      "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+    },
+    {
+      "first": "cli",
+      "second": "theia",
+      "status": "blocked",
+      "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+    },
+    {
+      "first": "cli",
+      "second": "r",
+      "status": "blocked",
+      "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+    },
+    {
+      "first": "cli",
+      "second": "python",
+      "status": "blocked",
+      "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+    },
+    {
+      "first": "r",
+      "second": "theia",
+      "status": "blocked",
+      "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+    },
+    {
+      "first": "r",
+      "second": "cli",
+      "status": "blocked",
+      "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+    },
+    {
+      "first": "r",
+      "second": "python",
+      "status": "blocked",
+      "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+    },
+    {
+      "first": "python",
+      "second": "theia",
+      "status": "blocked",
+      "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+    },
+    {
+      "first": "python",
+      "second": "cli",
+      "status": "blocked",
+      "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+    },
+    {
+      "first": "python",
+      "second": "r",
+      "status": "blocked",
+      "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+    }
+  ],
+  "restart": {
+    "status": "blocked",
+    "reason": "Requires canonical service and writer/process evidence; transport unit tests are not restart qualification"
+  },
+  "exactNavigation": {
+    "status": "blocked",
+    "reason": "Qualification protocol pending: client-variety comparisons, 12 ordered edit pairs, restart, exact navigation, and language workflows are not yet executed"
+  },
+  "languageWorkflows": {
+    "status": "blocked",
+    "reason": "Requires built application, activated extensions, and observed editor behaviors"
+  },
+  "notebook": {
+    "status": "conditional-not-tested",
+    "included": false,
+    "reason": "No notebook/kernel extension included in mandatory candidate"
+  },
+  "runtimes": {
+    "node": {
+      "status": "available",
+      "version": "v24.16.0"
+    },
+    "python": {
+      "status": "available",
+      "version": "Python 3.12.14"
+    },
+    "r": {
+      "status": "blocked",
+      "reason": "Rscript unavailable or version probe failed"
+    },
+    "quarto": {
+      "status": "blocked",
+      "reason": "quarto unavailable or version probe failed"
+    }
+  },
+  "dependenciesInstalled": false,
+  "extensions": {
+    "schemaVersion": 1,
+    "theiaVersion": "1.74.0",
+    "supportedVscodeApi": "1.130.0",
+    "extensions": [
+      {
+        "id": "REditorSupport.r",
+        "version": "2.8.8",
+        "url": "https://open-vsx.org/api/REditorSupport/r/2.8.8/file/REditorSupport.r-2.8.8.vsix",
+        "sha256": "9add9b7aceda1dc0072cc9e048b5bfcc8de4488ccd2802ea5fe834517a3ce2e2",
+        "license": "SEE LICENSE IN LICENSE",
+        "licenseUrl": "https://open-vsx.org/api/REditorSupport/r/2.8.8/file/LICENSE.txt",
+        "engines": {
+          "vscode": "^1.75.0"
+        },
+        "dependencies": [
+          "REditorSupport.r-syntax"
+        ],
+        "optionalPackExcluded": [],
+        "manifestUrl": "https://open-vsx.org/api/REditorSupport/r/2.8.8/file/package.json"
+      },
+      {
+        "id": "REditorSupport.r-syntax",
+        "version": "0.1.4",
+        "url": "https://open-vsx.org/api/REditorSupport/r-syntax/0.1.4/file/REditorSupport.r-syntax-0.1.4.vsix",
+        "sha256": "110af62e93b38c240ce2ea5c0f89a0b5fe58e9c6ba5400fe3175547324846eba",
+        "license": "SEE LICENSE IN LICENSE",
+        "licenseUrl": "https://open-vsx.org/api/REditorSupport/r-syntax/0.1.4/file/LICENSE.txt",
+        "engines": {
+          "vscode": "^1.90.0"
+        },
+        "dependencies": [],
+        "optionalPackExcluded": [],
+        "manifestUrl": "https://open-vsx.org/api/REditorSupport/r-syntax/0.1.4/file/package.json"
+      },
+      {
+        "id": "ms-python.python",
+        "version": "2026.2.0",
+        "url": "https://open-vsx.org/api/ms-python/python/2026.2.0/file/ms-python.python-2026.2.0.vsix",
+        "sha256": "f958e2df01d4eb4cdd4455728afd0576c0de9a8bd892e1a5e2603f612d1004f6",
+        "license": "MIT",
+        "licenseUrl": "https://open-vsx.org/api/ms-python/python/2026.2.0/file/LICENSE.txt",
+        "engines": {
+          "vscode": "^1.95.0"
+        },
+        "dependencies": [],
+        "optionalPackExcluded": [
+          "ms-python.vscode-pylance",
+          "ms-python.debugpy",
+          "ms-python.vscode-python-envs"
+        ],
+        "manifestUrl": "https://open-vsx.org/api/ms-python/python/2026.2.0/file/package.json"
+      },
+      {
+        "id": "detachhead.basedpyright",
+        "version": "1.40.0",
+        "url": "https://open-vsx.org/api/detachhead/basedpyright/1.40.0/file/detachhead.basedpyright-1.40.0.vsix",
+        "sha256": "67e47122039ab2a687dd31e470eaa282093efefe7ad20f502c76331b8d058333",
+        "license": "MIT",
+        "licenseUrl": "https://open-vsx.org/api/detachhead/basedpyright/1.40.0/file/LICENSE.txt",
+        "engines": {
+          "vscode": "^1.101.0"
+        },
+        "dependencies": [],
+        "optionalPackExcluded": [],
+        "manifestUrl": "https://open-vsx.org/api/detachhead/basedpyright/1.40.0/file/package.json"
+      },
+      {
+        "id": "quarto.quarto",
+        "version": "1.137.0",
+        "url": "https://open-vsx.org/api/quarto/quarto/1.137.0/file/quarto.quarto-1.137.0.vsix",
+        "sha256": "179b5f14eeae729839ae459d826a16c9e452451db94200f9faa308f5effb6ffd",
+        "license": "MIT",
+        "licenseUrl": "https://open-vsx.org/api/quarto/quarto/1.137.0/file/LICENSE.txt",
+        "engines": {
+          "vscode": "^1.75.0",
+          "positron": "^2026.04.1"
+        },
+        "dependencies": [],
+        "optionalPackExcluded": [],
+        "manifestUrl": "https://open-vsx.org/api/quarto/quarto/1.137.0/file/package.json"
+      },
+      {
+        "id": "vscode.python",
+        "version": "1.95.3",
+        "url": "https://open-vsx.org/api/vscode/python/1.95.3/file/vscode.python-1.95.3.vsix",
+        "sha256": "37c2a0cdfa668bd4dc37265d7d172300a20350098651b1843ee220a30c5e2d88",
+        "license": "SEE LICENSE IN LICENSE-vscode.txt",
+        "licenseUrl": "https://open-vsx.org/api/vscode/python/1.95.3/file/LICENSE-vscode.txt",
+        "engines": {
+          "vscode": "*"
+        },
+        "dependencies": [],
+        "optionalPackExcluded": [],
+        "manifestUrl": "https://open-vsx.org/api/vscode/python/1.95.3/file/package.json"
+      },
+      {
+        "id": "vscode.yaml",
+        "version": "1.95.3",
+        "url": "https://open-vsx.org/api/vscode/yaml/1.95.3/file/vscode.yaml-1.95.3.vsix",
+        "sha256": "1c60f93adad36f20de0696bc75f8b3829f3fc4c760f4d8022ec9f934436bbeb0",
+        "license": "SEE LICENSE IN LICENSE-vscode.txt",
+        "licenseUrl": "https://open-vsx.org/api/vscode/yaml/1.95.3/file/LICENSE-vscode.txt",
+        "engines": {
+          "vscode": "*"
+        },
+        "dependencies": [],
+        "optionalPackExcluded": [],
+        "manifestUrl": "https://open-vsx.org/api/vscode/yaml/1.95.3/file/package.json"
+      }
+    ]
+  }
+}

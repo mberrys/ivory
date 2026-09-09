@@ -7,7 +7,7 @@ export function compareClients(records) {
     if (
         !Array.isArray(records) ||
         records.length !== clients.length ||
-        clients.some(client => records.filter(r => r.client === client).length !== 1)
+        clients.some(client => records.filter(r => r?.client === client).length !== 1)
     ) {
         return { status: 'blocked', reason: 'Exactly one observation from each of Theia, CLI, R and Python is required' };
     }
@@ -18,7 +18,9 @@ export function compareClients(records) {
                 !Object.hasOwn(record, 'semanticResult') ||
                 record.resolvedRunSpec === null ||
                 record.resolvedRunSpec === undefined ||
-                record.semanticResult === undefined,
+                record.semanticResult === undefined ||
+                record.semanticResult === null ||
+                record.semanticResult.status === 'not-executed',
         )
     ) {
         return { status: 'blocked', reason: 'Resolved RunSpec and semantic result observations are required' };

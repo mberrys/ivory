@@ -27,7 +27,8 @@ interface ResearchState {
     entryPaths: string[];
     files: Map<string, FixtureFile>;
     citations: Map<string, Citation>;
-    editReplays: Map<string, unknown>;
+    editReplays: Map<string, { digest: string; record: unknown }>;
+    revisions: Map<string, Map<string, FixtureFile>>;
 }
 
 export interface InMemoryResearchServiceOptions {
@@ -92,7 +93,15 @@ export class InMemoryResearchService {
                 contentHash: file.contentHash,
             });
         }
-        this.state = { projectId: this.projectId, headRevision: 'rev-1', entryPaths, files, citations, editReplays: new Map() };
+        this.state = {
+            projectId: this.projectId,
+            headRevision: 'rev-1',
+            entryPaths,
+            files,
+            citations,
+            editReplays: new Map(),
+            revisions: new Map([['rev-1', new Map(files)]]),
+        };
         this.editIndex = 0;
         return { projectId: this.projectId, revision: 'rev-1', entryPaths, sourceHashes, resetAt: this.clock().toISOString() };
     }
@@ -103,16 +112,16 @@ export class InMemoryResearchService {
     ): { projectId: string; revision: string; headRevision: string; openedAt: string; entryPaths: string[] } {
         const state = this.requireState(projectId);
         const requested = revision ?? state.headRevision;
-        if (requested !== state.headRevision) {
+        if (!state.revisions.has(requested)) {
             const error: { code: string; message: string } = {
                 code: 'revision_stale',
-                message: `Revision ${requested} is not the head revision ${state.headRevision}; no nearby/latest source substitution is performed.`,
+                message: `Revision ${requested} is not retained; no nearby/latest source substitution is performed.`,
             };
             throw error;
         }
         return {
             projectId: state.projectId,
-            revision: state.headRevision,
+            revision: requested,
             headRevision: state.headRevision,
             openedAt: this.clock().toISOString(),
             entryPaths: [...state.entryPaths],
@@ -130,10 +139,10 @@ export class InMemoryResearchService {
         anchor: Citation;
     } {
         const state = this.requireState(projectId);
-        if (revision !== state.headRevision) {
+        if (!state.revisions.has(revision)) {
             const error: { code: string; message: string } = {
                 code: 'citation_stale',
-                message: `Citation resolution requires the head revision ${state.headRevision}, not ${revision}.`,
+                message: `Citation revision ${revision} is not retained.`,
             };
             throw error;
         }
@@ -172,20 +181,26 @@ export class InMemoryResearchService {
             sourceSetVersion: string;
             environment: Record<string, string>;
             commands: string[];
-            resolvedAt: string;
         };
         semanticResult: { status: string; output: string[] };
     } {
         const state = this.requireState(projectId);
-        if (revision !== state.headRevision) {
+        if (!state.revisions.has(revision)) {
             const error: { code: string; message: string } = {
                 code: 'revision_stale',
-                message: `RunSpec resolution requires the head revision ${state.headRevision}, not ${revision}.`,
+                message: `RunSpec revision ${revision} is not retained.`,
             };
             throw error;
         }
+        const sourceSetVersion = sha256(
+            JSON.stringify(
+                [...state.revisions.get(revision)!]
+                    .sort(([left], [right]) => left.localeCompare(right))
+                    .map(([name, file]) => [name, file.revision, file.contentHash]),
+            ),
+        );
         const runId = `run-${createHash('sha256')
-            .update(`${projectId}|${revision}|${protocolVersionId ?? ''}`)
+            .update(JSON.stringify([projectId, revision, protocolVersionId ?? null, sourceSetVersion, this.requireEnvironment()]))
             .digest('hex')
             .slice(0, 16)}`;
         return {
@@ -197,12 +212,11 @@ export class InMemoryResearchService {
                 ...(protocolVersionId === undefined
                     ? {}
                     : { protocolVersionRef: { protocolId: protocolVersionId, protocolVersionId, stage: 'specified', branchId: 'main' } }),
-                sourceSetVersion: `fixtures-${state.headRevision}`,
-                environment: this.requireEnvironment(),
+                sourceSetVersion,
+                environment: { ...this.requireEnvironment() },
                 commands: ['python research.py', 'Rscript research.R', 'quarto render research.qmd'],
-                resolvedAt: this.clock().toISOString(),
             },
-            semanticResult: { status: 'succeeded', output: ['9'] },
+            semanticResult: { status: 'not-executed', output: [] },
         };
     }
 
@@ -214,9 +228,15 @@ export class InMemoryResearchService {
         idempotencyKey: string,
     ): { replayed: boolean; record: unknown } {
         const state = this.requireState(projectId);
+        const digest = sha256(
+            JSON.stringify([projectId, baseRevision, sourcePath, edit.kind, edit.startOffset, edit.endOffset, edit.text]),
+        );
         const replay = state.editReplays.get(idempotencyKey);
         if (replay !== undefined) {
-            return { replayed: true, record: replay };
+            if (replay.digest !== digest) {
+                throw { code: 'idempotency_conflict', message: 'An accepted edit key cannot be reused with different inputs.' };
+            }
+            return { replayed: true, record: structuredClone(replay.record) };
         }
         const file = state.files.get(sourcePath);
         if (file === undefined) {
@@ -238,6 +258,11 @@ export class InMemoryResearchService {
         }
         const { startOffset, endOffset, text, kind } = edit;
         if (
+            !Number.isSafeInteger(startOffset) ||
+            !Number.isSafeInteger(endOffset) ||
+            !['replace', 'insert', 'delete'].includes(kind) ||
+            (kind === 'insert' && startOffset !== endOffset) ||
+            (kind === 'delete' && text !== '') ||
             startOffset < 0 ||
             endOffset < startOffset ||
             endOffset > file.bytes.length ||
@@ -261,8 +286,9 @@ export class InMemoryResearchService {
         const newRevision = `rev-${this.editIndex + 1}`;
         state.files.set(sourcePath, { revision: newRevision, bytes, contentHash: sha256(bytes) });
         state.headRevision = newRevision;
+        state.revisions.set(newRevision, new Map(state.files));
         const response = { projectId, sourcePath, baseRevision, newRevision, appliedAt: this.clock().toISOString() };
-        state.editReplays.set(idempotencyKey, response);
+        state.editReplays.set(idempotencyKey, { digest, record: structuredClone(response) });
         return { replayed: false, record: response };
     }
 

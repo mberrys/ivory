@@ -2,6 +2,47 @@
 
 Status: **PARTIAL — research contracts published and clients bound; qualification protocol and Windows Spectre install pending.**
 
+## Architecture V2 implementation — 2026-09-08
+
+The [Architecture V2 plan](https://app.notion.com/p/3d19cb079ddb81759776d14859458685)
+retains one canonical Core authority and replaceable clients. This revision hardens
+the existing fixture service; it does not introduce another kernel or storage engine.
+
+- Accepted edits bind their idempotency key to exact request content. An identical
+  retry returns the original receipt; changed content returns HTTP 409
+  `idempotency_conflict`. Expected-head conflicts still prevent lost edits.
+- Historical fixture revisions remain readable after edits. Original citations
+  continue to resolve their retained source revision, bytes, digest and anchor.
+  Unknown revisions fail explicitly; citations are never moved to newer bytes.
+- Resolved RunSpecs retain deterministic content for a revision and include a
+  digest of its exact source names, revisions and content hashes. No client
+  computes research state. Resolution reports `not-executed`, rather than inventing
+  a successful run; the evidence comparator blocks these unexecuted results.
+- Direct Core tests cover immutable historical reads, input-bound retries, invalid
+  edits and all twelve ordered competing-edit cases. Client names in these tests
+  label contract cases, not live observations from installed applications.
+
+Run `node --test scripts/n5/v2-contract.test.mjs scripts/n5/compare.test.mjs`
+with Node 24 (native TypeScript stripping). The tests are also included by
+`npm run test:n5`. This dependency-free contract gate does not replace the full
+repository TypeScript, API integration or browser gates.
+
+Local validation: **27/27 N5 tests passed**, including CLI/Python wire tests with
+the bundled Python interpreter; client boundary checks and `git diff --check`
+passed. The retained [V2 evidence record](n5-v2-evidence.json) includes the base
+commit, implementation fingerprints, machine/runtime information, command, raw
+contract-test output and measured duration. Overall qualification remains blocked.
+Workspace dependencies are absent in this checkout, so the full build and API
+integration gate were not run. RunSpec wall-clock resolution time was removed
+from the semantic projection so equivalent resets compare without stripping fields.
+
+**Qualification remains open:** state and receipts are in memory and disappear on
+service restart. Durable restart/receipt-loss proof depends on the canonical
+persistence implementation. Live clean-machine Theia/R/Python/CLI equivalence,
+language activation, exact navigation, version/license observations and the
+curated extension support decision still require the protocol below. Notebook
+execution remains conditional. No production durability or runtime pass is claimed.
+
 The isolated `@ivory-tower/n5-browser` application targets Windows/browser and
 Theia 1.74.0. The existing V1 application and its plugin-host prohibition remain
 unchanged. No desktop or cross-platform qualification is claimed.

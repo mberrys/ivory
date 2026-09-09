@@ -120,7 +120,10 @@ function sendError(response: ServerResponse, error: unknown): void {
     if (error instanceof Object && 'code' in error && 'message' in error) {
         const body = error as { code: string; message: string };
         const status =
-            body.code === 'revision_conflict' || body.code === 'citation_stale' || body.code === 'revision_stale'
+            body.code === 'revision_conflict' ||
+            body.code === 'citation_stale' ||
+            body.code === 'revision_stale' ||
+            body.code === 'idempotency_conflict'
                 ? 409
                 : body.code === 'citation_not_found' || body.code === 'project_not_found' || body.code === 'source_not_found'
                   ? 404

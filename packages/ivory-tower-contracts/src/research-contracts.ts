@@ -76,7 +76,6 @@ export const resolvedRunSpecSchema = z.object({
     sourceSetVersion: nonEmpty,
     environment: z.record(z.string().min(1), z.string()),
     commands: z.array(nonEmpty),
-    resolvedAt: z.string().datetime(),
 });
 export const runSpecResolutionResponseSchema = z.object({
     runId: nonEmpty,

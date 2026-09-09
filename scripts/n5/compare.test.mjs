@@ -14,6 +14,13 @@ test('requires all real-client observations', () => {
     input[0].resolvedRunSpec = null;
     assert.equal(compareClients(input).status, 'blocked');
 });
+
+test('V2 unexecuted fixture results cannot qualify client equivalence', () => {
+    const input = records();
+    for (const record of input) record.semanticResult = { status: 'not-executed', output: [] };
+    assert.equal(compareClients(input).status, 'blocked');
+    assert.equal(compareClients([null, null, null, null]).status, 'blocked');
+});
 test('permits only metadata outside the complete content projections to differ', () => {
     assert.equal(compareClients(records()).status, 'passed');
     for (const field of ['sourceVersion', 'timestamp', 'environment']) {
