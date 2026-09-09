@@ -3,7 +3,7 @@
   "experiment": "N2 durable store, blob admission and recovery",
   "issue": "MB-592",
   "contract": "durable-admission-semantic-commit/1",
-  "repositoryCommit": "f30f44873945056d90d6fc2f99eca998c195f447",
+  "repositoryCommit": "3bdf470652e68df201d50ef0dda3829acbba554e",
   "repositoryBranch": "v2-n2-experiment",
   "sourceDocuments": [
     "docs/iv-n2-durable-store.md",
@@ -354,5 +354,5 @@
     "The result is one machine observation; it is not a cross-platform or hardware-power-loss qualification.",
     "The raw verifier artifact is ignored and is retained here by digest; rerun the exact qualification command without --record-only to regenerate it."
   ],
-  "generatedAt": "2026-09-09T17:06:38.458Z"
+  "generatedAt": "2026-09-09T17:06:59.646Z"
 }
