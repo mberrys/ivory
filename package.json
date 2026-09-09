@@ -127,6 +127,8 @@
     "start:browser-only": "cd examples/browser-only && npm run start",
     "start:electron": "cd examples/electron && npm run start",
     "test:ivory-n2": "node --test spikes/n2-durable-store/test/*.spec.mjs",
+    "test:ivory-n6": "node spikes/n6-portable-reproduction/test.mjs",
+    "verify:ivory-n6": "node spikes/n6-portable-reproduction/verify.mjs",
     "verify:ivory-n2": "node spikes/n2-durable-store/verify.mjs",
     "verify:ivory-n2-v2": "node scripts/verify-ivory-n2-v2.mjs",
     "test:ivory-tower": "lerna run test --scope \"@ivory-tower/*\" --scope \"@theia/ivory-*\" --stream",

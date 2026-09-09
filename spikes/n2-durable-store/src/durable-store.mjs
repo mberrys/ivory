@@ -247,7 +247,8 @@ export class DurableStore {
         const tables = ['objects', 'revisions', 'heads', 'activities', 'receipts', 'edges', 'blob_refs', 'snapshots'];
         const dump = {};
         for (const table of tables) {
-            dump[table] = (await this.pg.query(`SELECT * FROM ${table}`)).rows;
+            dump[table] = (await this.pg.query(`SELECT * FROM ${table}`)).rows
+                .sort((a, b) => JSON.stringify(a) < JSON.stringify(b) ? -1 : JSON.stringify(a) > JSON.stringify(b) ? 1 : 0);
         }
         await writeFile(join(exportDir, 'records', 'state.json'), JSON.stringify(dump, null, 2), 'utf8');
         const blobDigests = dump.blob_refs.map(row => row.digest);
@@ -291,7 +292,7 @@ export class DurableStore {
                         row.activity_id, row.operation, row.actor, row.created_at,
                     ]);
                 }
-                for (const row of dump.revisions) {
+                for (const row of orderRevisions(dump.revisions)) {
                     await tx.query(
                         `INSERT INTO revisions (
                             revision_id, object_id, predecessor_id, schema_version, payload, content_digest, blob_digest, activity_id, created_at
@@ -313,6 +314,12 @@ export class DurableStore {
                     await tx.query(
                         'INSERT INTO receipts (receipt_id, idempotency_key, activity_id, project_seq, acknowledged_at) VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING',
                         [row.receipt_id, row.idempotency_key, row.activity_id, row.project_seq, row.acknowledged_at],
+                    );
+                }
+                for (const row of dump.edges ?? []) {
+                    await tx.query(
+                        'INSERT INTO edges (edge_id, activity_id, role, from_revision_id, to_revision_id) VALUES ($1, $2, $3, $4, $5)',
+                        [row.edge_id, row.activity_id, row.role, row.from_revision_id, row.to_revision_id],
                     );
                 }
                 const maxSeq = dump.receipts.reduce((max, row) => Math.max(max, Number(row.project_seq)), 0);
@@ -416,6 +423,23 @@ async function detectPgTrgm(pg) {
 
 function sha256Json(value) {
     return createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+// Export order is canonical, not necessarily predecessor order.
+function orderRevisions(rows) {
+    const remaining = new Map(rows.map(row => [row.revision_id, row]));
+    const ordered = [];
+    const admitted = new Set();
+    while (remaining.size) {
+        const ready = [...remaining.values()].filter(row => !row.predecessor_id || admitted.has(row.predecessor_id));
+        if (!ready.length) { throw new Error('Missing or cyclic revision predecessor'); }
+        for (const row of ready) {
+            ordered.push(row);
+            admitted.add(row.revision_id);
+            remaining.delete(row.revision_id);
+        }
+    }
+    return ordered;
 }
 
 function receiptFromRow(row) {

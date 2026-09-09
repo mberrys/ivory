@@ -1,0 +1,23 @@
+---
+title: "Synthetic advising study — N6"
+format:
+  html:
+    embed-resources: true
+    toc: true
+execute:
+  enabled: false
+---
+
+All 30 interviews and survey responses are fictional qualification fixtures.
+
+## Argument
+
+Advising can enable choice, while some participants describe constrained choice.
+Supporting and challenging links express interpretation. Link authorship records
+attribution and does not imply endorsement by the claim author.
+
+{{< include ../results/evidence.md >}}
+
+## Analytical results
+
+{{< include ../results/analysis.md >}}
