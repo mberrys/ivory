@@ -3,6 +3,8 @@ import { mkdir } from 'node:fs/promises';
 import { open } from 'node:fs/promises';
 import { join } from 'node:path';
 
+export const SPARSE_ZERO_PLACEHOLDER = 'sparse-zero-placeholder';
+
 export async function loadScaleFixture(store, { documents = 1000, annotations = 100_000, blobBytes = 10 * 1024 * 1024 * 1024 } = {}) {
     const started = Date.now();
     for (let index = 0; index < documents; index += 1) {
@@ -56,7 +58,25 @@ export async function loadScaleFixture(store, { documents = 1000, annotations = 
         'INSERT INTO blob_refs (digest, byte_size) VALUES ($1, $2) ON CONFLICT DO NOTHING',
         [digest, blobBytes],
     );
-    return { documents, annotations, blobBytes, loadMs: Date.now() - started, largeDigest: digest };
+    const largeBlob = {
+        kind: SPARSE_ZERO_PLACEHOLDER,
+        logicalByteSize: blobBytes,
+        physicalBytesCopied: 0,
+        casAdmissionPath: false,
+        contentAddressedScaleProof: false,
+        digestSource: 'sha256-of-zeros-in-memory',
+        createdAs: 'sparse-file-truncate',
+        digest,
+    };
+    return {
+        documents,
+        annotations,
+        blobBytes,
+        loadMs: Date.now() - started,
+        largeDigest: digest,
+        largeBlob,
+        measuredThisRun: true,
+    };
 }
 
 async function createSparseFile(path, size) {
@@ -76,6 +96,34 @@ export function sha256OfZeros(size) {
         remaining -= n;
     }
     return hash.digest('hex');
+}
+
+export function describeLargeBlob(scale = {}) {
+    const explicit = scale.largeBlob ?? {};
+    const logicalByteSize = scale.blobBytes ?? explicit.logicalByteSize;
+    const kind = explicit.kind ?? (logicalByteSize !== undefined ? SPARSE_ZERO_PLACEHOLDER : 'unspecified');
+    const isSparseZeros = kind === SPARSE_ZERO_PLACEHOLDER;
+    const casAdmissionPath = !isSparseZeros && explicit.casAdmissionPath === true;
+    const physicalBytesCopied = isSparseZeros ? 0 : explicit.physicalBytesCopied;
+    const contentAddressedScaleProof = !isSparseZeros
+        && casAdmissionPath
+        && Number.isFinite(logicalByteSize)
+        && logicalByteSize > 0
+        && physicalBytesCopied === logicalByteSize;
+    return {
+        kind,
+        logicalByteSize,
+        physicalBytesCopied,
+        casAdmissionPath,
+        contentAddressedScaleProof,
+        digest: scale.largeDigest ?? explicit.digest,
+        digestSource: explicit.digestSource ?? (isSparseZeros ? 'sha256-of-zeros-in-memory' : undefined),
+        inferred: explicit.kind === undefined && isSparseZeros,
+    };
+}
+
+export function isContentAddressedScaleProof(scale = {}) {
+    return describeLargeBlob(scale).contentAddressedScaleProof === true;
 }
 
 export async function measureMetadata(store, samples = 40) {
