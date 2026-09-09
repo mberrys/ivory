@@ -1,23 +1,34 @@
 {
-  "evidenceVersion": "n2-v2-evidence/1",
+  "evidenceVersion": "n2-v2-evidence/2",
   "experiment": "N2 durable store, blob admission and recovery",
   "issue": "MB-592",
   "contract": "durable-admission-semantic-commit/1",
-  "repositoryCommit": "8f36a3a213e75c9a876c79f5b0ad71b75c74fd78",
+  "repositoryCommit": "f30f44873945056d90d6fc2f99eca998c195f447",
   "repositoryBranch": "v2-n2-experiment",
   "sourceDocuments": [
     "docs/iv-n2-durable-store.md",
     "Ivory Tower V1 High-Level Architecture and Implementation Plan.pdf"
   ],
   "exactQualificationCommand": "npm.cmd run verify:ivory-n2-v2 -- --cycles 1000",
+  "qualificationCommandExecuted": false,
+  "recordOnly": true,
   "invocation": [
     "--record-only"
   ],
   "configuration": {
-    "cycles": 1000,
+    "cycles": 0,
     "documents": 1000,
     "annotations": 100000,
-    "externallyStoredBytes": 10737418240,
+    "largeBlob": {
+      "kind": "sparse-zero-placeholder",
+      "logicalByteSize": 10737418240,
+      "physicalBytesCopied": 0,
+      "casAdmissionPath": false,
+      "contentAddressedScaleProof": false,
+      "digest": "732377e7f4a2abdc13ddfa1eb4c9c497fd2a2b294674d056cf51581b47dd586d",
+      "digestSource": "sha256-of-zeros-in-memory",
+      "inferred": true
+    },
     "relaxedDurability": false,
     "metadataBudgetMs": 200,
     "sourceSearchBudgetMs": 1000,
@@ -38,23 +49,23 @@
   },
   "fixture": {
     "root": "spikes/n2-durable-store",
-    "digest": "06f5b3c9442f5c6fbb16fc84f5af2f4589d9776d01db4397006967f77edc6905",
+    "digest": "1f340844d6c8f47ed547ac7173a9f8fc213a56416f1269e278cac9cb247f1511",
     "files": [
       {
         "path": "spikes/n2-durable-store/package-lock.json",
-        "sha256": "4b385289dec32bf3ea84e819db87e80b6d80e656f63f917b41165f753a436a83"
+        "sha256": "84498b30bfc998f990401f368aae500242f2e5f785f954047b4f71c89f290d38"
       },
       {
         "path": "spikes/n2-durable-store/package.json",
-        "sha256": "21826a35965dc0f6452ef92efdd6a52dcaf0eb001fdfc0d5bbc48c008870fed1"
+        "sha256": "33ca7c91cb03d1cb6e1c490a197bfe059726841a0e3c9aabd4216dad3cbda2ab"
       },
       {
         "path": "spikes/n2-durable-store/sql/001_revision_activity.sql",
-        "sha256": "5f7d5548a6cc2425975a5f8dcc045b882192d736774fdabba56c771bfe9aea49"
+        "sha256": "6841dce8d4a84dbb81cc828f473153b5b01e982f73b6187cf4fd2a917404ade2"
       },
       {
         "path": "spikes/n2-durable-store/sql/002_search.sql",
-        "sha256": "0281b232535d6b1476e517827dd335c6edbf8b0ef5a781a37a572d1d7fd4ada9"
+        "sha256": "5f68945ce2c845f3eba3e28b690b3d7c79c45e83c6ac58767116601b388701be"
       },
       {
         "path": "spikes/n2-durable-store/sql/003_snapshot_manifest_text.sql",
@@ -62,51 +73,59 @@
       },
       {
         "path": "spikes/n2-durable-store/src/blob-admission.mjs",
-        "sha256": "fe2126d37255b76a7003a43f0417298917bf59139bd9ccf87ce97b32a004eb05"
+        "sha256": "98fd95c976943ee2a9820ee557619a51d630d07d47665654a361d088ab6a7cdf"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/child-exit.mjs",
+        "sha256": "916b6885ade969908c4c70d3534a0a4c441b290f22725f3fbad61f2d92e17cce"
       },
       {
         "path": "spikes/n2-durable-store/src/child.mjs",
-        "sha256": "600bc19a89d0ec005b2f2cfa2768855ec6e0384e5b964584cc6976d22895a2c3"
+        "sha256": "15eaf88bdc1e689a2c3de9cc6c5e64905d23b72004feb9527025b26de49af20e"
       },
       {
         "path": "spikes/n2-durable-store/src/durable-store.mjs",
-        "sha256": "3d8784ec38d59c06125549745466100b620cd9929856781534cf9df111363148"
+        "sha256": "837b36ceb35a33d30042c9689a8bcd5c466d5570a54d88d499723f28767c9d2c"
       },
       {
         "path": "spikes/n2-durable-store/src/errors.mjs",
-        "sha256": "78d0ac8592a54c4859e7e29dc56510fe7f187aed0cc6f8d0680f69ca5b53e274"
+        "sha256": "30541dac2a6d4257ab54231d3b6c4d17666907ad94534062175a1c5985552512"
       },
       {
         "path": "spikes/n2-durable-store/src/fault.mjs",
-        "sha256": "b6479a410b853446afba33782b5edabbf3a70cb241ff7babadc5dce91be59c0b"
+        "sha256": "42a74de924a970dbe787696850c4735444c087800ebd70c2f6e58e0b62afc96c"
       },
       {
         "path": "spikes/n2-durable-store/src/hardware.mjs",
-        "sha256": "43bb4f5d341196e61a4c46623487b8a9ec8afcb3c423ac4f7d9d5e056b431225"
+        "sha256": "e2d2682c93423a2a505f19eb1644b509979ed91184b92572659398a9bd21e19b"
       },
       {
         "path": "spikes/n2-durable-store/src/interrupt-harness.mjs",
-        "sha256": "f654d5a3569687585dbc146deadd034954ec756bd2a6dbb047795e0f4151eb61"
+        "sha256": "dcb4bc22e0b8be7312a1c0cbe2b49246c3478456692459ea762bd58cf774f31b"
       },
       {
         "path": "spikes/n2-durable-store/src/lock.mjs",
-        "sha256": "1ed61395a7c402f2551b80c463bc653e1469790d5ce7efb7a24acf8554573399"
+        "sha256": "d80c83f8743b6c86b103871eeb4ef7ef391b605d61ae7eff854f88532318529a"
       },
       {
         "path": "spikes/n2-durable-store/src/migrate.mjs",
-        "sha256": "1517cf335a841426d1a968f3fec54022a8b99440e7aa2e64435638d9146eaef0"
+        "sha256": "d504e59c399cf4a4e9b880479c1b7693cfd7dfe0b5b899a24db4b0a873433d5d"
       },
       {
         "path": "spikes/n2-durable-store/src/paths.mjs",
-        "sha256": "11344815fc75aa570e1d4542ea6eb6875877aeb3170b734a8a065963f6e914b5"
+        "sha256": "60916e9992755f573ac80fcd81109ac0e4a8f3a76dc32709ca4d537eac85de53"
       },
       {
         "path": "spikes/n2-durable-store/src/scale.mjs",
-        "sha256": "e0ef08642a04341e37eaf99beac93739454a563fb401c8236d6d956486f72da3"
+        "sha256": "29aab18040ba2c21bbf378e8cde50dfc36392199a39bfb90e50e08711d02f0b0"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/storm-results.mjs",
+        "sha256": "c2e22aa3af127d2c7e37a40199e5e4d597e83effe04e2f3a05c5ff3b89db049e"
       },
       {
         "path": "spikes/n2-durable-store/test/commit.spec.mjs",
-        "sha256": "9c0b637e24b3da3b9455c87edfec779d95efd949db999a118186a67b659c9e82"
+        "sha256": "6c87d03d271f89ddef71f22f05119a1ccd288779a0245f03f6edd9e666d7d67f"
       },
       {
         "path": "spikes/n2-durable-store/test/export.spec.mjs",
@@ -114,25 +133,41 @@
       },
       {
         "path": "spikes/n2-durable-store/test/hostile.spec.mjs",
-        "sha256": "29b22677b76145389b351e8e842668d9d2f9993f55ac73f713cdf7cda6c2206f"
+        "sha256": "1c929aed67138898cf2019c8808ef79d8e9ff9aabe8a4d552db4ececd89aa1fb"
       },
       {
         "path": "spikes/n2-durable-store/test/interrupt.spec.mjs",
-        "sha256": "e7a14542c9639cbc541be9bd72f2095a4e1ab804690cb35d4410151b3645e031"
+        "sha256": "2a9470ad39d9cfbed9b807f1b3dce135d3450d60e22a350e6866ebb3b2d76944"
       },
       {
         "path": "spikes/n2-durable-store/test/migrate.spec.mjs",
-        "sha256": "f2ac394fe5efddcc759abacd2d5e5b28d1fa56a7154e178e809098e67f54cc8e"
+        "sha256": "9c3006d9b86268aa2e002b6ed6b67cf6d7a16651c2cd232c2863e65045615fc4"
+      },
+      {
+        "path": "spikes/n2-durable-store/test/scale-label.spec.mjs",
+        "sha256": "fcddd6ba46d100cbb7e8c5eaa7f88581a4a9fe2f69c9a561de982611a7913da3"
+      },
+      {
+        "path": "spikes/n2-durable-store/test/storm-results.spec.mjs",
+        "sha256": "1ad986c59680d4f987ad9c14d1f4b23e0bf504385ca56d06a64e9663339039d7"
+      },
+      {
+        "path": "spikes/n2-durable-store/test/v2-evidence.spec.mjs",
+        "sha256": "f7e0bcaa18b437b8f8092f7a0db3fe1b6e2710444c692b7099de35c727347e39"
+      },
+      {
+        "path": "spikes/n2-durable-store/test/wait-exit.spec.mjs",
+        "sha256": "a63f7708f4885ba3ffe1bad9a67903bccda4dfb3a1ac3749cb3d0fa507257d24"
       },
       {
         "path": "spikes/n2-durable-store/verify.mjs",
-        "sha256": "bf5dad6eccf31d8ac0673c16dfbee876ea39403317d9834e641366cab2bfee5c"
+        "sha256": "32390bf1f609175f3ed782c34adb07966b51fd69afd2a0f362af52f344497e32"
       }
     ]
   },
   "rawArtifact": {
     "path": "artifacts/n2/evidence.json",
-    "sha256": "7d67f2732a69a55a5c371c398da44f625f81ccc4a4b3850535a0b2438c24b31a",
+    "sha256": "e9b3916f3a3c516bf09f0d3f7ef9738d754c735850e10b146f28c9103a2b7c37",
     "tracked": false
   },
   "observations": {
@@ -142,9 +177,9 @@
     "interruptionStorm": {
       "cycles": 1000,
       "elapsedMs": 1593769,
-      "acknowledgedNeverLost": true,
-      "oneEffectPerKey": true,
-      "noVisibleUninstalledBlob": true,
+      "acknowledgedNeverLost": false,
+      "oneEffectPerKey": false,
+      "noVisibleUninstalledBlob": false,
       "faults": [
         "beforeBlobInstall",
         "afterBlobInstall",
@@ -154,7 +189,11 @@
         "afterOutboxDelivery",
         "beforeOutputPublish",
         "afterOutputPublish"
-      ]
+      ],
+      "childrenExitedBeforeReopen": false,
+      "measuredFromResults": false,
+      "resultCount": 0,
+      "claimedBooleansIgnoredWithoutResults": true
     },
     "exportImport": {
       "preserved": true,
@@ -190,55 +229,81 @@
       "snapshotBudgetMs": 2000,
       "metadataPass": true,
       "searchPass": true,
-      "snapshotPass": true
+      "snapshotPass": true,
+      "largeBlob": {
+        "kind": "sparse-zero-placeholder",
+        "logicalByteSize": 10737418240,
+        "physicalBytesCopied": 0,
+        "casAdmissionPath": false,
+        "contentAddressedScaleProof": false,
+        "digest": "732377e7f4a2abdc13ddfa1eb4c9c497fd2a2b294674d056cf51581b47dd586d",
+        "digestSource": "sha256-of-zeros-in-memory",
+        "inferred": true
+      }
     },
     "engineCandidate": "pglite"
   },
   "criteria": {
     "verifierCompleted": {
-      "observed": 0,
-      "required": 0,
-      "pass": true
+      "observed": "not-run",
+      "required": "live verifier process exit 0",
+      "skipped": true,
+      "skipReason": "--record-only",
+      "pass": false
     },
     "interruptionCycles": {
-      "observed": 1000,
+      "observed": 0,
       "required": 1000,
-      "pass": true
+      "measuredFromResults": false,
+      "pass": false
     },
     "acknowledgedCommitsNeverLost": {
-      "observed": true,
+      "observed": false,
       "required": true,
-      "pass": true
+      "measuredFromResults": false,
+      "resultCount": 0,
+      "pass": false
     },
     "oneSemanticEffectPerIdempotencyKey": {
-      "observed": true,
+      "observed": false,
       "required": true,
-      "pass": true
+      "measuredFromResults": false,
+      "resultCount": 0,
+      "pass": false
     },
     "noVisibleReferenceToUninstalledBlob": {
-      "observed": true,
+      "observed": false,
       "required": true,
-      "pass": true
+      "measuredFromResults": false,
+      "resultCount": 0,
+      "pass": false
+    },
+    "interruptChildExitedBeforeReopen": {
+      "observed": false,
+      "required": true,
+      "measuredFromResults": false,
+      "resultCount": 0,
+      "pass": false
     },
     "semanticExportImport": {
-      "observed": true,
+      "observed": false,
       "required": true,
-      "pass": true
+      "pass": false
     },
     "metadataP95": {
       "observedMs": 1.4945,
       "budgetMs": 200,
-      "pass": true
+      "pass": false
     },
     "sourceSearch": {
       "observedMs": 297.2695,
       "budgetMs": 1000,
-      "pass": true
+      "pass": false
     },
     "unchangedSnapshot": {
       "observedMs": 365.8337,
       "budgetMs": 2000,
-      "pass": true
+      "pass": false
     },
     "startupAndMemoryRecorded": {
       "observed": {
@@ -256,22 +321,38 @@
           "external": 200283819
         }
       },
-      "pass": true
+      "pass": false
+    },
+    "contentAddressedScaleProof": {
+      "observed": {
+        "kind": "sparse-zero-placeholder",
+        "logicalByteSize": 10737418240,
+        "physicalBytesCopied": 0,
+        "casAdmissionPath": false,
+        "contentAddressedScaleProof": false,
+        "digest": "732377e7f4a2abdc13ddfa1eb4c9c497fd2a2b294674d056cf51581b47dd586d",
+        "digestSource": "sha256-of-zeros-in-memory",
+        "inferred": true
+      },
+      "required": "content-addressed admission of the configured large blob; sparse zeros are not sufficient",
+      "pass": false
     }
   },
-  "automatedPass": true,
+  "automatedPass": false,
   "decision": {
-    "architectureStatus": "protocol-pass-engine-decision-provisional",
+    "architectureStatus": "incomplete-verifier-skipped",
     "engine": "pglite",
-    "engineEvidenceStatus": "pglite-default-on-recorded-reference-machine",
+    "engineEvidenceStatus": "not-qualified",
     "productionDependency": "Final production persistence implementation waits for selected-engine sign-off.",
     "sqliteComparison": "not run unless PGlite integrity gate fails"
   },
   "limitations": [
+    "This invocation used --record-only: the live verifier did not run, verifierCompleted cannot pass, and automatedPass cannot be claimed from a wrap of a prior artifact.",
     "Tested envelope: unclean process termination (taskkill /F or SIGKILL) of a Node process using PGlite NodeFS on NTFS, then reopen. This does not prove survival of hardware power loss, USB yank, firmware crashes, or live cloud-drive sync of an open store.",
-    "The scale fixture uses a sparse 10 GB content-addressed file; it measures metadata/search/snapshot behavior without copying 10 GB of physical bytes.",
-    "The result is one Windows NTFS reference-machine observation; it is not a cross-platform or hardware-power-loss qualification.",
-    "The raw verifier artifact is ignored and is retained here by digest; rerun the exact command to regenerate it."
+    "Storm success criteria are recomputed from interruptStorm.results. Claimed booleans without per-cycle results cannot pass, and skipped/prior-artifact storm sections are not treated as freshly measured.",
+    "The large-blob fixture is sparse-zero-placeholder (logicalByteSize=10737418240, physicalBytesCopied=0, casAdmissionPath=false, digestSource=sha256-of-zeros-in-memory). It is not a content-addressed admission of 10 GiB of payload and is not a completed 10 GB CAS scale proof. Metadata/search/snapshot timings measure the SQL path only.",
+    "The result is one machine observation; it is not a cross-platform or hardware-power-loss qualification.",
+    "The raw verifier artifact is ignored and is retained here by digest; rerun the exact qualification command without --record-only to regenerate it."
   ],
-  "generatedAt": "2026-09-08T22:16:49.102Z"
+  "generatedAt": "2026-09-09T17:06:38.458Z"
 }

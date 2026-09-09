@@ -1,7 +1,10 @@
 # N2 V2 reference-machine qualification
 
-Status: protocol pass; engine decision provisional. The retained record is
-[`n2-v2-evidence.json`](./n2-v2-evidence.json).
+Status: **not a protocol pass**. The retained wrap is
+[`n2-v2-evidence.json`](./n2-v2-evidence.json). Historical Windows observations
+are kept as observations only. `--record-only` cannot complete the verifier
+gate; storm flags require per-cycle `results`; the 10 GiB fixture is a sparse
+zero placeholder and fails `contentAddressedScaleProof`.
 
 ## Question and boundary
 
@@ -13,8 +16,8 @@ machine?
 
 This remains a disposable reference implementation behind the narrow storage
 port. It does not establish a filesystem/database two-phase commit, a second
-production engine, hardware power-loss durability, or a cross-platform support
-claim.
+production engine, hardware power-loss durability, a cross-platform support
+claim, or a 10 GB content-addressed scale proof.
 
 ## V2 changes from the original spike
 
@@ -29,6 +32,10 @@ claim.
 - The V2 evidence wrapper records the repository commit, platform/runtime,
   fixture file digests, exact command/configuration, raw-artifact digest,
   measured observations, criteria, decision, and limitations.
+- `--record-only` records `verifierCompleted` as skipped and refuses
+  `automatedPass`. Storm criteria recompute from `interruptStorm.results`.
+  Sparse zeros are a failing `contentAddressedScaleProof` criterion, not a
+  CAS scale pass.
 
 ## Qualification command
 
@@ -44,40 +51,44 @@ Run the full V2 qualification:
 npm.cmd run verify:ivory-n2-v2 -- --cycles 1000
 ```
 
-The wrapper invokes the existing 18-test harness, the 1,000 process-abort /
-reopen cycles, semantic export/import, and the required scale fixture of
-1,000 documents, 100,000 annotations, and 10 GB of externally stored
-material. It writes the ignored raw artifact at `artifacts/n2/evidence.json`
-and the retained V2 record at `docs/experiments/n2-v2-evidence.json`.
+The wrapper invokes the existing test harness, the 1,000 process-abort /
+reopen cycles, semantic export/import, and the scale fixture of 1,000
+documents, 100,000 annotations, plus a sparse 10 GiB zero-file placeholder
+(not a CAS admission). It writes the ignored raw artifact at
+`artifacts/n2/evidence.json` and the retained V2 record at
+`docs/experiments/n2-v2-evidence.json`.
 
-Use `--record-only` only to rebuild the retained record from an already
-completed raw verifier artifact; it does not substitute for the qualification
-run.
+`--record-only` rebuilds the retained JSON from an existing raw artifact. It
+does not run the verifier, cannot set `verifierCompleted.pass`, cannot set
+`automatedPass: true`, and exits non-zero. It is not a qualification run.
 
 ## Declared criteria
 
-The run passes only when all of the following are observed:
+A qualification claim passes only when all of the following are observed
+in the criteria object (not merely in limitations prose):
 
-- at least 1,000 interruption/reopen cycles across blob admission, database
-  commit, outbox delivery, and output publication transitions;
-- no acknowledged commit is lost, no idempotency key creates two semantic
-  effects, and no visible revision references an uninstalled blob;
-- semantic export/import preserves retained records, snapshot member
-  manifests, and blob hashes;
-- metadata p95 is below 200 ms, source search is below one second, and an
-  unchanged snapshot is below two seconds at the required scale;
-- startup and memory observations are present in the retained record.
+- the live verifier process ran and exited 0 (`--record-only` cannot satisfy
+  this);
+- at least 1,000 interruption/reopen **results** (not a claimed cycle count);
+- storm flags computed from those results: no acknowledged commit lost, one
+  semantic effect per idempotency key, no visible uninstalled blob, and the
+  child actually exited before reopen;
+- semantic export/import measured on this run;
+- metadata p95 below 200 ms, source search below one second, and an unchanged
+  snapshot below two seconds, measured on this run;
+- startup and memory observations present;
+- `contentAddressedScaleProof` is a real CAS admission of the configured
+  large blob. The current sparse `sha256(zeros)` placeholder **fails** this
+  criterion.
 
 ## Decision and limitations
 
-The recorded Windows reference-machine run passes the automated criteria with
-PGlite 0.3.16 and `relaxedDurability: false`. PGlite remains the provisional
-engine candidate; SQLite was not compared because the PGlite integrity gate
-passed, and production persistence still waits for architecture-owner engine
-sign-off.
+The retained wrap is incomplete: it does not claim protocol pass. PGlite
+remains an engine candidate only where integrity was actually measured; the
+sparse 10 GiB file is not a content-addressed scale proof. Production
+persistence still waits for architecture-owner engine sign-off.
 
 The tested durability envelope is unclean Node process termination followed by
-reopen on Windows NTFS. The 10 GB fixture is sparse, so it measures the
-metadata/search/snapshot path rather than a physical 10 GB copy. The result is
-one reference-machine observation, not a universal platform or power-loss
+reopen. Interrupt wait must not proceed while the child is still alive. The
+result is one machine observation, not a universal platform or power-loss
 claim.
