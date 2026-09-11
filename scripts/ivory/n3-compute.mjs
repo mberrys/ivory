@@ -173,6 +173,7 @@ async function runContainer({ name, image, language, mode, inputDirectory, outpu
             return undefined;
         }
     };
+    let afterStopInspect;
     const stopContainer = reason => {
         if (stopRequested) {
             return;
@@ -180,16 +181,17 @@ async function runContainer({ name, image, language, mode, inputDirectory, outpu
         stopRequested = true;
         stopReason = reason;
         try {
-            docker(['rm', '-f', name], { stdio: 'ignore' });
+            docker(['kill', name], { stdio: 'ignore' });
         } catch {
-            // The container may have exited between the limit signal and cleanup.
+            // The container may already have exited; the inspection below is the observation.
         }
+        afterStopInspect ??= inspectContainer();
     };
     const removeContainer = () => {
         try {
             docker(['rm', '-f', name], { stdio: 'ignore' });
         } catch {
-            // The container may already have been removed by an output-limit stop.
+            // The container may already have been removed by a previous cleanup attempt.
         }
     };
     const capture = (target, chunk) => {
@@ -213,8 +215,8 @@ async function runContainer({ name, image, language, mode, inputDirectory, outpu
     clearTimeout(timeout);
     inspect ??= inspectContainer();
     stopContainer('normal-exit');
+    afterStopInspect ??= inspectContainer();
     removeContainer();
-    const containerExists = inspectContainer() !== undefined;
     const hostConfig = inspect?.[0]?.HostConfig;
     return {
         exitCode,
@@ -224,10 +226,16 @@ async function runContainer({ name, image, language, mode, inputDirectory, outpu
         outputLimit,
         stopReason,
         timedOut: stopReason === 'timeout',
-        childProcessesTerminated: !containerExists,
+        childProcessesTerminated: terminationObserved({ beforeStop: inspect?.[0], afterStop: afterStopInspect?.[0] }),
+        termination: {
+            stopReason,
+            beforeStop: inspect?.[0]?.State,
+            afterStop: afterStopInspect?.[0]?.State,
+        },
         controls: hostConfig === undefined ? undefined : {
             networkMode: hostConfig.NetworkMode,
             readOnlyRootfs: hostConfig.ReadonlyRootfs,
+            privileged: hostConfig.Privileged,
             user: inspect[0].Config.User,
             capDrop: hostConfig.CapDrop,
             securityOpt: hostConfig.SecurityOpt,
@@ -296,6 +304,14 @@ export function noPrivilegedEscalation(controls) {
         && controls.securityOpt?.includes('no-new-privileges:true') === true
         && controls.user === N3_CONTAINER_CONFIGURATION.user
         && mountsSocket === false;
+}
+
+export function terminationObserved(snapshots) {
+    const afterStop = snapshots?.afterStop;
+    if (afterStop === undefined || afterStop === null) {
+        return false;
+    }
+    return afterStop.State?.Running === false && afterStop.State?.Pid === 0;
 }
 
 export function parseN3Result(bytes) {

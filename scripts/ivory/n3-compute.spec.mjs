@@ -12,6 +12,7 @@ import {
     parseN3Result,
     readN3Result,
     requiredAcceptanceFailures,
+    terminationObserved,
 } from './n3-compute.mjs';
 
 const computeModule = fileURLToPath(new URL('./n3-compute.mjs', import.meta.url));
@@ -180,4 +181,77 @@ test('verify:ivory-n3 protocol-only stays green for honest protocol evidence', a
     } finally {
         await fs.rm(artifactRoot, { recursive: true, force: true });
     }
+});
+
+test('N3 requires exactly the declared mount surface and no privileged escalation', () => {
+    const declared = {
+        networkMode: 'none',
+        readOnlyRootfs: true,
+        user: '65532:65532',
+        capDrop: ['ALL'],
+        securityOpt: ['no-new-privileges:true'],
+        privileged: false,
+        mounts: [
+            { Destination: '/var/tmp', Source: 'C:/Temp/ivory-n3-run-x/input', RW: false, ReadOnly: true },
+            { Destination: '/tmp', Source: 'C:/Temp/ivory-n3-run-x/output', RW: true },
+        ],
+    };
+    assert.equal(minimalMountSurface(declared), true);
+    assert.equal(noPrivilegedEscalation(declared), true);
+
+    // A third mount is an escape surface even if every declared control still reads correctly.
+    assert.equal(minimalMountSurface({
+        ...declared,
+        mounts: [...declared.mounts, { Destination: '/host-home', Source: 'C:/Users/micha', RW: true }],
+    }), false);
+
+    // The docker socket mounted anywhere inside the container is an escape surface.
+    assert.equal(minimalMountSurface({
+        ...declared,
+        mounts: [{ ...declared.mounts[0] }, { Destination: '/var/run/docker.sock', RW: true }],
+    }), false);
+    assert.equal(noPrivilegedEscalation({
+        ...declared,
+        mounts: [...declared.mounts, { Destination: '/var/run/docker.sock', RW: true }],
+    }), false);
+
+    // Privileged mode and a writable input bind both fail closed.
+    assert.equal(noPrivilegedEscalation({ ...declared, privileged: true }), false);
+    assert.equal(minimalMountSurface({
+        ...declared,
+        mounts: [{ Destination: '/var/tmp', RW: true }, declared.mounts[1]],
+    }), false);
+
+    // Missing inspect data is never treated as a pass.
+    assert.equal(minimalMountSurface(undefined), false);
+    assert.equal(noPrivilegedEscalation(undefined), false);
+});
+
+test('N3 termination observation requires an actual stopped container state', () => {
+    // Honest hostile case: the supervisor killed a running container whose child was alive.
+    assert.equal(terminationObserved({
+        beforeStop: { State: { Running: true, Pid: 4711, ExitCode: 137 } },
+        afterStop: { State: { Running: false, Pid: 0, ExitCode: 137 } },
+    }), true);
+
+    // Honest normal-exit case: the process finished on its own.
+    assert.equal(terminationObserved({
+        beforeStop: { State: { Running: true, Pid: 4712, ExitCode: 0 } },
+        afterStop: { State: { Running: false, Pid: 0, ExitCode: 0 } },
+    }), true);
+
+    // A container that was removed before it could be observed is not evidence.
+    assert.equal(terminationObserved({
+        beforeStop: { State: { Running: true, Pid: 4713 } },
+        afterStop: undefined,
+    }), false);
+
+    // A container still running after the supervisor's kill is a failure.
+    assert.equal(terminationObserved({
+        beforeStop: { State: { Running: true, Pid: 4714 } },
+        afterStop: { State: { Running: true, Pid: 4714 } },
+    }), false);
+
+    // No inspect snapshot at all is never a pass.
+    assert.equal(terminationObserved(undefined), false);
 });
