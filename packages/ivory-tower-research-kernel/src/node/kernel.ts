@@ -16,6 +16,8 @@ import {
 } from '@theia/ivory-identity/lib/node/identity';
 import { canonicalize, decodeBytes, deterministicId, digestCanonical, encodeBytes } from './canonical';
 import {
+    AcceptAgentProposalInput,
+    AgentProposalReceipt,
     ActivityEdge,
     ActivityRecord,
     AdmitArtifactInput,
@@ -79,9 +81,10 @@ export class ExpectedHeadConflictError extends ResearchKernelError {
 export class ResearchKernel {
     readonly projectId: string;
     private projectSequence = 0;
-    private readonly objects = new Map<string, StoredObject>();
-    private readonly activities = new Map<string, ActivityRecord>();
+    private objects = new Map<string, StoredObject>();
+    private activities = new Map<string, ActivityRecord>();
     private readonly snapshots = new Map<string, SnapshotRecord>();
+    private proposalReceipts = new Map<string, AgentProposalReceipt>();
 
     constructor(projectId: string = DEFAULT_PROJECT_ID) {
         this.projectId = projectId;
@@ -89,6 +92,54 @@ export class ResearchKernel {
 
     get sequence(): number {
         return this.projectSequence;
+    }
+
+    /** Stage the complete bounded effect before publishing any state. No await or external I/O. */
+    acceptAgentProposal(input: AcceptAgentProposalInput): AgentProposalReceipt {
+        const requestDigest = digestCanonical(input);
+        const existing = this.proposalReceipts.get(input.idempotencyKey);
+        if (existing) {
+            if (existing.requestDigest !== requestDigest) {
+                throw new ResearchKernelError('idempotency_conflict');
+            }
+            return cloneValue(existing);
+        }
+        if (!/^[a-f0-9]{64}$/.test(input.proposalDigest) ||
+            [input.idempotencyKey, input.researcher, input.provider, input.model, input.text, input.rationale].some(value => !value.trim()) ||
+            !['supports', 'challenges'].includes(input.role)) {
+            throw new ResearchKernelError('invalid_proposal');
+        }
+        this.requireRevision<ClaimPayload>(input.expectedClaim, 'claim');
+        if (this.getHead(input.expectedClaim.objectId) !== input.expectedClaim.revisionId) {
+            throw new ResearchKernelError('stale_proposal');
+        }
+        this.resolveCitation(input.fragmentRef);
+        const staged = new ResearchKernel(this.projectId);
+        staged.projectSequence = this.projectSequence;
+        staged.objects = new Map([...this.objects].map(([key, value]) =>
+            [key, { ...value, revisions: new Map(value.revisions) }]));
+        staged.activities = new Map(this.activities);
+        const author = `model:${input.provider}:${input.model}`;
+        const activityId = deterministicId('act', { projectId: this.projectId, requestDigest });
+        const claimRef = staged.append('claim', deterministicId('clm', { proposal: input.proposalDigest }), {
+            text: input.text, author, authorType: 'model', status: 'accepted',
+        } satisfies ClaimPayload, [input.fragmentRef], input.researcher, 'acceptAgentProposal', undefined, activityId);
+        const linkRef = staged.append('evidenceLink', deterministicId('evl', { proposal: input.proposalDigest }), {
+            claimRef, targets: [input.fragmentRef], role: input.role, rationale: input.rationale,
+            linkAuthor: author, linkAuthorType: 'model',
+        } satisfies EvidenceLinkPayload, [claimRef, input.fragmentRef], input.researcher, 'acceptAgentProposal', undefined, activityId);
+        staged.activities.set(activityId, {
+            activityId, command: 'acceptAgentProposal', actor: input.researcher, projectSequence: staged.sequence,
+            edges: [{ kind: 'context', target: input.expectedClaim }, { kind: 'input', target: input.fragmentRef }],
+            proposal: { digest: input.proposalDigest, provider: input.provider, model: input.model },
+        });
+        const receipt = freezeValue({ requestDigest, claimRef, linkRef, activityId });
+        const receipts = new Map(this.proposalReceipts).set(input.idempotencyKey, receipt);
+        this.objects = staged.objects;
+        this.activities = staged.activities;
+        this.projectSequence = staged.projectSequence;
+        this.proposalReceipts = receipts;
+        return cloneValue(receipt);
     }
 
     getHead(objectId: string): string | undefined {
@@ -462,6 +513,7 @@ export class ResearchKernel {
         actor: string,
         command: string,
         expectedHead?: string,
+        sharedActivityId?: string,
     ): ExactRef {
         this.assertNoLatest(payload);
         exactRefs.forEach(ref => this.validateRef(ref));
@@ -481,7 +533,7 @@ export class ResearchKernel {
         const storedRefs = freezeValue(cloneValue([...exactRefs]));
         this.projectSequence += 1;
         const predecessor = existing ? refFor(existing.revisions.get(existing.head)!, this.projectId) : undefined;
-        const activityId = deterministicId('act', {
+        const activityId = sharedActivityId ?? deterministicId('act', {
             projectId: this.projectId,
             projectSequence: this.projectSequence,
             command,

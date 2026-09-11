@@ -1,0 +1,5 @@
+{
+  "extends": "../../configs/base.tsconfig",
+  "compilerOptions": { "rootDir": "src", "outDir": "lib", "types": ["node"], "noEmitOnError": true },
+  "include": ["src"]
+}

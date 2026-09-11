@@ -42,6 +42,28 @@ export interface ActivityRecord {
     readonly actor: string;
     readonly projectSequence: number;
     readonly edges: ActivityEdge[];
+    readonly proposal?: { readonly digest: string; readonly provider: string; readonly model: string };
+}
+
+/** Trusted Core input; never exposed as an agent tool. */
+export interface AcceptAgentProposalInput {
+    readonly proposalDigest: string;
+    readonly idempotencyKey: string;
+    readonly researcher: string;
+    readonly provider: string;
+    readonly model: string;
+    readonly expectedClaim: ExactRef;
+    readonly text: string;
+    readonly fragmentRef: ExactRef;
+    readonly role: 'supports' | 'challenges';
+    readonly rationale: string;
+}
+
+export interface AgentProposalReceipt {
+    readonly requestDigest: string;
+    readonly claimRef: ExactRef;
+    readonly linkRef: ExactRef;
+    readonly activityId: string;
 }
 
 export interface SourcePayload {

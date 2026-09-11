@@ -1,0 +1,15 @@
+{
+  "version": "n7-fixture/1",
+  "provenance": "Authored synthetic provider fixture; not a recording of a live model.",
+  "candidate": {
+    "text": "The synthetic interview describes a clearer next step.",
+    "fragmentRef": {
+      "projectId": "prj_n7_synthetic",
+      "objectId": "frg_e7d649a1136f83376fecd7ed82a29d4b",
+      "revisionId": "rev_a3731ae7562101583b2b3c519413fc15"
+    },
+    "excerptDigest": "215119b35c9ad941982bd2566ed8d6611f7ac3e1a2f4775babae4dfa0d014cea",
+    "role": "supports",
+    "rationale": "The exact excerpt describes clarified action."
+  }
+}
