@@ -38,3 +38,10 @@ license-check-summary.txt*
 .playwright-mcp/*
 /.theia/chatSessions
 .tmp.cfg
+
+# Ivory Tower spike evidence (IV-19); generated, never committed.
+# The retained, reviewable copy lives in docs/experiments/.
+artifacts/
+
+# Hermes plan-mode scratch space.
+.hermes/
