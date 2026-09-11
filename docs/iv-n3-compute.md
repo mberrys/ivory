@@ -164,3 +164,19 @@ N3 remains open until a retained qualification record contains:
 Until those records exist, the supported OS, capability profile, runtime
 adapter, and production publication state machine remain decisions unlocked by
 N3 rather than decisions made by this prototype.
+
+### If Compute has genuinely moved out of V1
+
+The alternative resolution is that Compute left V1 scope. That is a product
+decision, not an experiment result, and it must be recorded **before** it is
+reflected here:
+
+1. Amend the V1 plan of record — the Notion page `Ivory Tower V1 High-Level
+   Architecture and Implementation Plan` and the mirrored Linear document
+   `Architectural spikes N1–N7` — so N3 and the isolation runtime/platform row
+   no longer gate V1.
+2. Only then change this document's status, citing that amendment by revision
+   and date.
+
+Until step 1 exists, this branch operates against the V1 requirement above. A
+lower requirement recorded only in this repository file is not a decision.
