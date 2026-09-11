@@ -748,6 +748,8 @@ async function run() {
         inputUnchanged: evidence.inputUnchanged,
         childProcessesTerminated: language === 'python' ? hostileEvidence?.childProcessesTerminated === true : null,
         controlsEnforced,
+        mountSurfaceMinimal: mountSurfaceMinimal(runEvidence?.controls),
+        noPrivilegedEscalation: noPrivilegedEscalation(runEvidence?.controls),
         lateResultsFenced: evidence.publication.lateResultFenced,
         oneTerminalPublicationOutcome: ['succeeded', 'failed', 'cancelled'].includes(finalStatus) && evidence.publication.artifactCount === 1,
         publicationRecoveredAfterInterrupt: interruptPublication ? evidence.publication.recovered === true && evidence.publication.artifactCount === 1 : null,
@@ -762,6 +764,8 @@ async function run() {
             'This invocation does not select a supported operating system or production isolation profile.',
             language === 'python' ? 'An independent R repeat is still required before declaring language-neutral protocol semantics.' : 'A corresponding Python run must be retained with the R evidence for language-neutral protocol semantics.',
             ...(interruptPublication ? [] : ['Publication interruption recovery was not requested in this invocation.']),
+            'Required canaries that report basis "absence" corroborate the mount-surface check; they are not independent proof of enforcement.',
+            'Container termination is observed via docker inspect before removal; a container removed before inspection fails the check.',
         ],
     };
     evidence.limitations = evidence.architectureDecision.limitations;

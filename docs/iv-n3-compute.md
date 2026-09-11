@@ -114,6 +114,20 @@ valid fixture emits the declared exact result object `{mean,rowCount,sum}`.
 The supervisor accepts only a bounded JSON regular file; symlinks, special
 files, oversized output, extra keys, and invalid numeric values are rejected.
 
+Two observations exist because a canary that passes is not by itself evidence.
+`host-home-read` and `process-escape` are **absence probes**: they record
+`basis: "absence"`, which proves only that the resource was not mounted. The
+enforcement claim for the same threats is carried by `mountSurfaceMinimal`
+(exactly two mounts, at the declared destinations, with the input read-only and
+the output writable) and `noPrivilegedEscalation` (unprivileged user,
+`--cap-drop ALL`, `no-new-privileges`, and no container socket mounted), both
+read from `docker inspect` on the live container.
+
+`childProcessesTerminated` is observed by inspecting the container **before**
+removal and requires `State.Running === false` and `State.Pid === 0` after the
+supervisor's kill. A container that disappears before it can be inspected fails
+the check.
+
 The evidence records Docker-inspected controls, input hashes before and after,
 canary outcomes, child termination, publication recovery, idempotency, attempt
 fencing, result validation, and raw stdout/stderr digests. If Docker is
