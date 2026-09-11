@@ -16,11 +16,12 @@ supported.
 
 ## Status
 
-**V1 gate — runtime qualification open.** N3 is one of the V1 architectural
-spikes and its runtime qualification is what unlocks the Compute runtime
-adapter, the supported pilot OS, the capability profile, and the production
-publication state machine. The canonical V1 plan records the current state as
-*"Semantic execution protocol pass. Runtime qualification open"*, lists the
+**V1 gate — runtime qualified on the recorded platform.** N3 is one of the V1
+architectural spikes and its runtime qualification is what unlocks the Compute
+runtime adapter, the supported pilot OS, the capability profile, and the
+production publication state machine. The canonical V1 plan records the
+requirement as the *"Semantic execution protocol pass"* plus a runtime
+qualification that was still open when this experiment was written, lists the
 isolation runtime/platform as **OPEN—GATED N3**, and states the consequence
 plainly: *"Core ResultEnvelope acceptance can proceed; production runtime
 shipping cannot."*
@@ -33,11 +34,17 @@ Authority:
   *Ivory*).
 
 What is proven today is the semantic execution protocol — the fault-injection
-matrix and `npm.cmd run verify:ivory-n3 -- --protocol-only`. The OCI runtime
-gate is **not** proven until a retained record exists at
-[`docs/experiments/n3-evidence.json`](experiments/n3-evidence.json). See
-[Decision boundary](#decision-boundary) for the exact remaining list, and
-[Supported platform](#supported-platform) before claiming any OS is supported.
+matrix and `npm.cmd run verify:ivory-n3 -- --protocol-only` — **and** the OCI
+runtime gate, recorded in
+[`docs/experiments/n3-evidence.json`](experiments/n3-evidence.json)
+(`status: runtime-qualified`, Python and R, no failed acceptance checks,
+cold-install and warm-launch measurements retained).
+
+An implementation detail worth recording: the document must *stop* claiming the
+runtime qualification is still open in the same commit that adds the retained
+record. `scripts/ivory/n3-retained.spec.mjs` enforces that the two never
+disagree — with no retained record it requires the document to state the gate is
+open, and with one it validates the record's contents.
 
 Do not defer N3 to a later release without amending the V1 plan first. An
 earlier revision of this file declared N3 deferred past 1.0 and claimed it did
@@ -115,9 +122,18 @@ The supervisor accepts only a bounded JSON regular file; symlinks, special
 files, oversized output, extra keys, and invalid numeric values are rejected.
 
 Two observations exist because a canary that passes is not by itself evidence.
-`host-home-read` and `process-escape` are **absence probes**: they record
-`basis: "absence"`, which proves only that the resource was not mounted. The
-enforcement claim for the same threats is carried by `mountSurfaceMinimal`
+Each canary records a `basis` derived from the failing `errno`: an enforcement
+basis (`read-only-filesystem`, `permission-denied`, `network-unreachable`, …) or
+`absence`, meaning the resource was simply not reachable. The required canaries
+— `canonical-file-write`, `path-symlink-escape`, `network-egress` — are accepted
+only with an enforcement basis. A resolver failure
+(`name-resolution-unavailable`) is recorded but **not** accepted, because "no
+route" is the stronger claim.
+
+`host-home-read` and `process-escape` are recorded escape probes: their basis may
+be enforcement (on the Python image, `/root/.ssh/id_rsa` exists and is refused
+with `permission-denied`) or `absence`. Neither is treated as proof on its own.
+The enforcement claim for those threats is carried by `mountSurfaceMinimal`
 (exactly two mounts, at the declared destinations, with the input read-only and
 the output writable) and `noPrivilegedEscalation` (unprivileged user,
 `--cap-drop ALL`, `no-new-privileges`, and no container socket mounted), both
@@ -166,18 +182,21 @@ support-matrix decision, is a release-blocking misstatement.
 
 ## Decision boundary
 
-N3 remains open until a retained qualification record contains:
+N3 is closed for **protocol semantics** and for the **OCI runtime proof on the
+recorded platform**. What remains open, and what each item unlocks:
 
-- denied required canaries, unchanged input bytes, terminated children, and
-  runtime-inspected controls rather than configuration intent;
-- one terminal cancellation/publication outcome, one artifact per attempt, and
-  recovery after publication interruption;
-- independent Python and R results under the same protocol, with restart and
-  cancellation observations retained.
+| Item | State | Unlocks |
+| --- | --- | --- |
+| Semantic execution protocol (fencing, cancellation, recovery, idempotency, publication) | **closed** | Core publication contract; N6a cross-boundary gate |
+| OCI runtime controls observed as enforced (canaries, mount surface, privilege, termination) | **closed** on Windows 11 x64 + Docker Desktop (Linux containers) | runtime adapter choice: a replaceable OCI adapter |
+| Python and R under one protocol | **closed**, language-neutral result verified in the retained record | language-neutral execution semantics |
+| Cold-install and warm-launch measurements | **closed** on the recorded platform | provisioning cost for that platform |
+| Supported pilot OS / support matrix | **open** — `supportMatrix: open-pending-onboarding` | which operating systems may ship as "supported" |
+| Onboarding observation (provisional target: four of five users within 15 minutes) | **open** — no record yet | input to the support-matrix decision only |
 
-Until those records exist, the supported OS, capability profile, runtime
-adapter, and production publication state machine remain decisions unlocked by
-N3 rather than decisions made by this prototype.
+`Open` items are not "failed". They are the reason every platform remains
+unqualified and why the support matrix cannot be declared. Other operating
+systems gain support through the same evidence, not assertion.
 
 ### If Compute has genuinely moved out of V1
 
