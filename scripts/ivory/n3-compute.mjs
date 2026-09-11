@@ -268,6 +268,36 @@ function controlsAreEnforced(controls) {
         && tmpfs.includes('nosuid');
 }
 
+export function minimalMountSurface(controls) {
+    const mounts = controls?.mounts;
+    if (!Array.isArray(mounts) || mounts.length !== 2) {
+        return false;
+    }
+    const byDestination = new Map(mounts.map(mount => [mount.Destination, mount]));
+    if (byDestination.size !== mounts.length) {
+        return false;
+    }
+    const readOnly = mount => mount?.RW === false || mount?.ReadOnly === true;
+    const writable = mount => mount?.RW === true && mount?.ReadOnly !== true;
+    return byDestination.has(N3_CONTAINER_CONFIGURATION.inputMount)
+        && byDestination.has(N3_CONTAINER_CONFIGURATION.outputMount)
+        && readOnly(byDestination.get(N3_CONTAINER_CONFIGURATION.inputMount))
+        && writable(byDestination.get(N3_CONTAINER_CONFIGURATION.outputMount));
+}
+
+export function noPrivilegedEscalation(controls) {
+    if (controls === undefined || controls === null) {
+        return false;
+    }
+    const socketDestinations = new Set(['/var/run/docker.sock', '/run/docker.sock', '/var/run/docker.sock.raw']);
+    const mountsSocket = (controls.mounts ?? []).some(mount => socketDestinations.has(mount.Destination));
+    return controls.privileged === false
+        && controls.capDrop?.includes('ALL') === true
+        && controls.securityOpt?.includes('no-new-privileges:true') === true
+        && controls.user === N3_CONTAINER_CONFIGURATION.user
+        && mountsSocket === false;
+}
+
 export function parseN3Result(bytes) {
     if (bytes.byteLength === 0 || bytes.byteLength > RESULT_LIMIT_BYTES) {
         throw new Error('N3 result is empty or exceeds the result-size limit.');

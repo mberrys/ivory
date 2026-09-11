@@ -7,6 +7,8 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
     completeN3Verification,
+    minimalMountSurface,
+    noPrivilegedEscalation,
     parseN3Result,
     readN3Result,
     requiredAcceptanceFailures,
