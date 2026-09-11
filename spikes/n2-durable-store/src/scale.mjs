@@ -1,11 +1,18 @@
 import { createHash } from 'node:crypto';
-import { mkdir } from 'node:fs/promises';
-import { open } from 'node:fs/promises';
+import { mkdir, open } from 'node:fs/promises';
 import { join } from 'node:path';
 
 export const SPARSE_ZERO_PLACEHOLDER = 'sparse-zero-placeholder';
+export const CAS_ADMITTED_BYTES = 'cas-admitted-bytes';
 
-export async function loadScaleFixture(store, { documents = 1000, annotations = 100_000, blobBytes = 10 * 1024 * 1024 * 1024 } = {}) {
+/**
+ * Metadata/search/snapshot scale fixture. The large blob is NOT created here: the real
+ * 10 GiB payload is admitted through CasBlobAdmission.admitFile by cas-scale.mjs, which
+ * records physicalBytesCopied and a largeBlob descriptor. The sparse-zero placeholder
+ * below exists only as an explicit dev shortcut (`sparseBlobBytes`) and can never satisfy
+ * a content-addressed scale proof.
+ */
+export async function loadScaleFixture(store, { documents = 1000, annotations = 100_000, sparseBlobBytes } = {}) {
     const started = Date.now();
     for (let index = 0; index < documents; index += 1) {
         const text = `Document ${index} searchable-token-${index % 17} qualitative transcript.`;
@@ -48,35 +55,45 @@ export async function loadScaleFixture(store, { documents = 1000, annotations = 
         );
     }
 
-    await mkdir(store.layout.staging, { recursive: true });
-    await mkdir(store.layout.objects, { recursive: true });
-    const digest = sha256OfZeros(blobBytes);
-    const dest = join(store.layout.objects, digest.slice(0, 2), digest);
-    await mkdir(join(store.layout.objects, digest.slice(0, 2)), { recursive: true });
-    await createSparseFile(dest, blobBytes);
-    await store.pg.query(
-        'INSERT INTO blob_refs (digest, byte_size) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-        [digest, blobBytes],
-    );
-    const largeBlob = {
-        kind: SPARSE_ZERO_PLACEHOLDER,
-        logicalByteSize: blobBytes,
-        physicalBytesCopied: 0,
-        casAdmissionPath: false,
-        contentAddressedScaleProof: false,
-        digestSource: 'sha256-of-zeros-in-memory',
-        createdAs: 'sparse-file-truncate',
-        digest,
-    };
-    return {
-        documents,
-        annotations,
-        blobBytes,
-        loadMs: Date.now() - started,
-        largeDigest: digest,
-        largeBlob,
-        measuredThisRun: true,
-    };
+    if (sparseBlobBytes !== undefined) {
+        // Dev-only shortcut. Never qualifies: no payload bytes are copied, so the CAS
+        // admission path is not exercised. Labelled explicitly so the gate can reject it.
+        await mkdir(store.layout.staging, { recursive: true });
+        await mkdir(store.layout.objects, { recursive: true });
+        const digest = sha256OfZeros(sparseBlobBytes);
+        const dest = join(store.layout.objects, digest.slice(0, 2), digest);
+        await mkdir(join(store.layout.objects, digest.slice(0, 2)), { recursive: true });
+        await createSparseFile(dest, sparseBlobBytes);
+        await store.pg.query(
+            'INSERT INTO blob_refs (digest, byte_size) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+            [digest, sparseBlobBytes],
+        );
+        const largeBlob = {
+            kind: SPARSE_ZERO_PLACEHOLDER,
+            logicalByteSize: sparseBlobBytes,
+            physicalBytesCopied: 0,
+            casAdmissionPath: false,
+            contentAddressedScaleProof: false,
+            digestSource: 'sha256-of-zeros-in-memory',
+            createdAs: 'sparse-file-truncate',
+            digest,
+        };
+        return {
+            documents,
+            annotations,
+            loadMs: Date.now() - started,
+            sparsePlaceholder: true,
+            blobBytes: sparseBlobBytes,
+            largeDigest: digest,
+            largeBlob,
+            physicalBytesCopied: 0,
+            casAdmissionPath: false,
+            casVerificationPath: false,
+            casBindingVerified: false,
+        };
+    }
+
+    return { documents, annotations, loadMs: Date.now() - started, sparsePlaceholder: false };
 }
 
 async function createSparseFile(path, size) {
@@ -98,6 +115,7 @@ export function sha256OfZeros(size) {
     return hash.digest('hex');
 }
 
+/** Labels the large-blob fixture of a scale observation, however it was produced. */
 export function describeLargeBlob(scale = {}) {
     const explicit = scale.largeBlob ?? {};
     const logicalByteSize = scale.blobBytes ?? explicit.logicalByteSize;
