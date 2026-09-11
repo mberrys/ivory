@@ -414,7 +414,7 @@ async function detectPgTrgm(pg) {
     }
 }
 
-function sha256Json(value) {
+export function sha256Json(value) {
     return createHash('sha256').update(JSON.stringify(value)).digest('hex');
 }
 

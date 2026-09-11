@@ -6,7 +6,7 @@ import test from 'node:test';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { DurableStore } from '../src/durable-store.mjs';
-import { killProcess } from '../src/interrupt-harness.mjs';
+import { killProcess, waitForChildExit } from '../src/interrupt-harness.mjs';
 import { stat } from 'node:fs/promises';
 
 const CHILD = fileURLToPath(new URL('../src/child.mjs', import.meta.url));
@@ -34,7 +34,9 @@ test('interrupted migration recovers on reopen', async () => {
     try {
         await waitForFile(ready, 60_000);
         await killProcess(child.pid);
-        await new Promise(resolve => child.once('exit', resolve));
+        // waitForChildExit tolerates the child having aborted and exited before this point;
+        // a bare once('exit') listener would never fire and the test would hang.
+        await waitForChildExit(child);
         const store = new DurableStore();
         await store.open(projectRoot);
         const versions = (await store.pg.query('SELECT version FROM schema_migrations ORDER BY version')).rows.map(row => row.version);
