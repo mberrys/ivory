@@ -6,6 +6,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
+    canaryOutcome,
     completeN3Verification,
     minimalMountSurface,
     noPrivilegedEscalation,
@@ -254,4 +255,35 @@ test('N3 termination observation requires an actual stopped container state', ()
 
     // No inspect snapshot at all is never a pass.
     assert.equal(terminationObserved(undefined), false);
+});
+
+test('N3 accepts only enforcement-basis denials for the required canaries', () => {
+    const enforced = [
+        { name: 'canonical-file-write', denied: true, basis: 'read-only-filesystem', errno: 30 },
+        { name: 'path-symlink-escape', denied: true, basis: 'read-only-filesystem', errno: 30 },
+        { name: 'network-egress', denied: true, basis: 'network-unreachable', errno: 101 },
+        { name: 'host-home-read', denied: true, basis: 'absence', errno: 2 },
+        { name: 'process-escape', denied: true, basis: 'absence', errno: 2 },
+        { name: 'child-process', denied: null, basis: 'supervisor-observed', childPid: 12 },
+    ];
+    const outcome = canaryOutcome(enforced);
+    assert.equal(outcome.requiredEnforced, true);
+    assert.equal(outcome.absenceProbesRecorded, true);
+    assert.deepEqual(outcome.missing, []);
+
+    // An "absence" denial for a required canary is not enforcement evidence.
+    assert.equal(canaryOutcome(enforced.map(canary => canary.name === 'network-egress'
+        ? { ...canary, basis: 'absence', errno: 2 }
+        : canary)).requiredEnforced, false);
+
+    // A missing required canary fails closed.
+    assert.deepEqual(canaryOutcome(enforced.filter(canary => canary.name !== 'path-symlink-escape')).missing,
+        ['path-symlink-escape']);
+
+    // A canary that was not denied at all fails.
+    assert.equal(canaryOutcome(enforced.map(canary => canary.name === 'canonical-file-write'
+        ? { ...canary, denied: false, basis: 'not-denied' }
+        : canary)).requiredEnforced, false);
+
+    assert.equal(canaryOutcome(undefined).requiredEnforced, false);
 });

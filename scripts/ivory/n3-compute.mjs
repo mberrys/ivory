@@ -314,6 +314,37 @@ export function terminationObserved(snapshots) {
     return afterStop.State?.Running === false && afterStop.State?.Pid === 0;
 }
 
+const REQUIRED_CANARY_BASES = Object.freeze({
+    'canonical-file-write': ['read-only-filesystem', 'permission-denied', 'operation-not-permitted'],
+    'path-symlink-escape': ['read-only-filesystem', 'permission-denied', 'operation-not-permitted'],
+    'network-egress': ['network-unreachable', 'network-down', 'host-unreachable'],
+});
+const ABSENCE_PROBES = Object.freeze(['host-home-read', 'process-escape']);
+
+export function canaryOutcome(canaries) {
+    const byName = new Map((canaries ?? []).map(canary => [canary.name, canary]));
+    const missing = Object.keys(REQUIRED_CANARY_BASES).filter(name => !byName.has(name));
+    const observed = Object.entries(REQUIRED_CANARY_BASES).map(([name, bases]) => {
+        const canary = byName.get(name);
+        return {
+            name,
+            denied: canary?.denied === true,
+            basis: canary?.basis,
+            enforced: canary?.denied === true && bases.includes(canary.basis) === true,
+        };
+    });
+    const absenceProbesRecorded = ABSENCE_PROBES.every(name => {
+        const canary = byName.get(name);
+        return canary?.denied === true && canary.basis === 'absence';
+    });
+    return {
+        requiredEnforced: missing.length === 0 && observed.every(entry => entry.enforced),
+        absenceProbesRecorded,
+        missing,
+        observed,
+    };
+}
+
 export function parseN3Result(bytes) {
     if (bytes.byteLength === 0 || bytes.byteLength > RESULT_LIMIT_BYTES) {
         throw new Error('N3 result is empty or exceeds the result-size limit.');
@@ -682,6 +713,7 @@ async function run() {
             resultDigest: resultBytes === undefined ? undefined : sha256(resultBytes),
             resultBytes: resultBytes?.byteLength,
             hostileCanaries: language === 'python' ? canaries : null,
+            hostileCanaryOutcome: language === 'python' ? canaryOutcome(canaries) : null,
             hostileOutputLimit: hostileEvidence?.outputLimit ?? false,
             hostileStopReason: hostileEvidence?.stopReason,
             hostileChildProcessesTerminated: hostileEvidence?.childProcessesTerminated,
@@ -711,8 +743,8 @@ async function run() {
     evidence.acceptance = {
         ...baseEvidence.acceptance,
         runtimeAvailable: true,
-        requiredCanariesDenied: language === 'python' ? canaries.filter(canary => canary.name !== 'child-process').length > 0
-            && canaries.filter(canary => canary.name !== 'child-process').every(canary => canary.denied === true) : null,
+        requiredCanariesDenied: language === 'python' ? canaryOutcome(canaries).requiredEnforced : null,
+        absenceProbesRecorded: language === 'python' ? canaryOutcome(canaries).absenceProbesRecorded : null,
         inputUnchanged: evidence.inputUnchanged,
         childProcessesTerminated: language === 'python' ? hostileEvidence?.childProcessesTerminated === true : null,
         controlsEnforced,

@@ -1,3 +1,4 @@
+import errno
 import json
 import os
 import socket
@@ -10,13 +11,34 @@ from pathlib import Path
 INPUT = Path("/var/tmp/input.csv")
 OUTPUT = Path("/tmp")
 
+# errno -> the control that refused the action. Anything else (notably ENOENT)
+# is recorded as "absence": the resource was not reachable at all, which is
+# corroborating evidence only, never proof of enforcement.
+ENFORCED_BASIS = {
+    errno.EROFS: "read-only-filesystem",
+    errno.EACCES: "permission-denied",
+    errno.EPERM: "operation-not-permitted",
+    errno.ENETUNREACH: "network-unreachable",
+    errno.ENETDOWN: "network-down",
+    errno.EHOSTUNREACH: "host-unreachable",
+}
+
 
 def attempt(name, action):
     try:
         action()
     except BaseException as error:  # The fixture records denial; it must not hide a canary pass.
-        return {"name": name, "denied": True, "error": type(error).__name__}
-    return {"name": name, "denied": False}
+        basis = "absence"
+        if isinstance(error, OSError) and error.errno in ENFORCED_BASIS:
+            basis = ENFORCED_BASIS[error.errno]
+        return {
+            "name": name,
+            "denied": True,
+            "basis": basis,
+            "error": type(error).__name__,
+            "errno": getattr(error, "errno", None),
+        }
+    return {"name": name, "denied": False, "basis": "not-denied"}
 
 
 def hostile():
@@ -29,6 +51,7 @@ def hostile():
         link.write_text("escape\n")
 
     canaries.append(attempt("path-symlink-escape", symlink_escape))
+
     def host_home_read():
         for candidate in ("/host-home/.ssh/id_rsa", "/root/.ssh/id_rsa"):
             try:
@@ -45,8 +68,13 @@ def hostile():
 
     canaries.append(attempt("network-egress", network_egress))
     canaries.append(attempt("process-escape", lambda: Path("/var/run/docker.sock").read_bytes()))
+
+    # This canary cannot deny itself; only the supervisor can terminate the child.
+    # It therefore reports no denial and is judged solely by the supervisor's
+    # termination observation recorded in the evidence bundle.
     child = subprocess.Popen(["sh", "-c", "sleep 120"])
-    canaries.append({"name": "child-process", "denied": True, "childPid": child.pid, "termination": "supervisor-required"})
+    canaries.append({"name": "child-process", "denied": None, "basis": "supervisor-observed", "childPid": child.pid})
+
     report = OUTPUT / "canaries.json"
     with report.open("w") as handle:
         handle.write(json.dumps(canaries) + "\n")
