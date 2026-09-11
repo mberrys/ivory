@@ -16,10 +16,33 @@ supported.
 
 ## Status
 
-**Deferred post-1.0 / pre-cloud.** N3 does not block the current 1.0 scope.
-Its harness, protocol evidence, and acceptance criteria are retained for a
-future cloud Compute initiative. That initiative must first define its remote
-execution model; no N3 result authorizes or gates the current 1.0 release.
+**V1 gate — runtime qualification open.** N3 is one of the V1 architectural
+spikes and its runtime qualification is what unlocks the Compute runtime
+adapter, the supported pilot OS, the capability profile, and the production
+publication state machine. The canonical V1 plan records the current state as
+*"Semantic execution protocol pass. Runtime qualification open"*, lists the
+isolation runtime/platform as **OPEN—GATED N3**, and states the consequence
+plainly: *"Core ResultEnvelope acceptance can proceed; production runtime
+shipping cannot."*
+
+Authority:
+
+- `Ivory Tower V1 High-Level Architecture and Implementation Plan`
+  (Notion, 4 September 2026, Architecture V2 update 8 September 2026),
+  mirrored as the Linear document `Architectural spikes N1–N7` (project
+  *Ivory*).
+
+What is proven today is the semantic execution protocol — the fault-injection
+matrix and `npm.cmd run verify:ivory-n3 -- --protocol-only`. The OCI runtime
+gate is **not** proven until a retained record exists at
+[`docs/experiments/n3-evidence.json`](experiments/n3-evidence.json). See
+[Decision boundary](#decision-boundary) for the exact remaining list, and
+[Supported platform](#supported-platform) before claiming any OS is supported.
+
+Do not defer N3 to a later release without amending the V1 plan first. An
+earlier revision of this file declared N3 deferred past 1.0 and claimed it did
+"not block the current 1.0 scope"; no repository, Notion, or Linear authority
+supports that claim, and it is why this section now names its source.
 
 ## Retained v2 evidence
 
