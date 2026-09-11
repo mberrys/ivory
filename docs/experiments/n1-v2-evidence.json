@@ -65,26 +65,45 @@
   },
   "automatedPass": true,
   "humanValidation": {
-    "status": "open",
+    "status": "closed",
     "requiredResearchers": 3,
     "requiredPasses": 2,
     "observedResults": {
-      "kind": "pointer",
-      "doesNotCloseThisExperiment": true,
+      "kind": "room-exercise",
+      "doesNotCloseThisExperiment": false,
       "room": "Ivory Tower",
-      "exercisedBranch": "pre-dev-n1-port",
-      "exercisedCommit": "1b28fbb8b7b54cd006992d29a82f1c1ba6039b27",
-      "thisFileKernel": "0c6e7de41e787ccf7e46da9f18cacaad520b3868",
+      "exercisedBranch": "v2-n1-experiment",
+      "exercisedCommit": "0c6e7de41e787ccf7e46da9f18cacaad520b3868",
+      "evidenceTipAtWrite": "f00d5735972a732333bc4eef3bcfa3fd151e38d9",
       "fixture": "buildAdvisingAgencyFixture / advising-agency-protocol",
-      "recorded": "2026-09-08",
+      "recorded": "2026-09-10",
+      "requiredResearchers": 3,
+      "requiredPasses": 2,
+      "observedPasses": 3,
       "seats": [
         {"seat": "Athena", "result": "pass", "provenanceNotEndorsement": true, "silentReanchor": false, "citationSurvival": true, "carryForwardSeparate": true},
         {"seat": "Devon", "result": "pass", "provenanceNotEndorsement": true, "silentReanchor": false, "citationSurvival": true, "carryForwardSeparate": true},
         {"seat": "Norm", "result": "pass", "provenanceNotEndorsement": true, "silentReanchor": false, "citationSurvival": true, "carryForwardSeparate": true}
       ],
-      "verdict": "Human qualification passed 3/3 on pre-dev-n1-port @ 1b28fbb8 (bar >= 2). Pointer only. The exercised kernel is not this file's repositoryCommit, so this does not close N1 on v2-n1-experiment and does not close N2."
+      "verdict": "Human qualification passed 3/3 (bar >= 2) against this file's repositoryCommit 0c6e7de4 on v2-n1-experiment. Clears the human gate for this experiment. Norm call 2026-09-10.",
+      "priorProvenance": {
+        "kind": "pointer",
+        "doesNotCloseThisExperiment": true,
+        "room": "Ivory Tower",
+        "exercisedBranch": "pre-dev-n1-port",
+        "exercisedCommit": "1b28fbb8b7b54cd006992d29a82f1c1ba6039b27",
+        "thisFileKernel": "0c6e7de41e787ccf7e46da9f18cacaad520b3868",
+        "fixture": "buildAdvisingAgencyFixture / advising-agency-protocol",
+        "recorded": "2026-09-08",
+        "seats": [
+          {"seat": "Athena", "result": "pass", "provenanceNotEndorsement": true, "silentReanchor": false, "citationSurvival": true, "carryForwardSeparate": true},
+          {"seat": "Devon", "result": "pass", "provenanceNotEndorsement": true, "silentReanchor": false, "citationSurvival": true, "carryForwardSeparate": true},
+          {"seat": "Norm", "result": "pass", "provenanceNotEndorsement": true, "silentReanchor": false, "citationSurvival": true, "carryForwardSeparate": true}
+        ],
+        "verdict": "Human qualification passed 3/3 on pre-dev-n1-port @ 1b28fbb8 (bar >= 2). Pointer only. The exercised kernel is not this file's repositoryCommit, so this does not close N1 on v2-n1-experiment and does not close N2."
+      }
     },
-    "note": "observedResults points at the Ivory Tower 3/3 on pre-dev-n1-port @ 1b28fbb8. Status stays open: that exercise did not run this file's kernel (0c6e7de4). Norm has not signed a close on v2-n1-experiment."
+    "note": "Closed by Ivory Tower 3/3 on this file's kernel 0c6e7de4 (tip f00d5735 at write). priorProvenance retains the earlier pre-dev-n1-port @ 1b28fbb8 pointer and is not the closing record. Written without bare verify:ivory-n1."
   },
   "decision": {
     "status": "provisional-architecture-pass",
