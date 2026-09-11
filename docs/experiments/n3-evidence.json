@@ -1,8 +1,8 @@
 {
   "schema": "ivory-n3-evidence/1",
   "status": "runtime-qualified",
-  "retainedAt": "2026-09-11T03:46:16.613Z",
-  "gitCommit": "96c997c73f9391fd20d322834f72c30e31734563",
+  "retainedAt": "2026-09-11T03:51:06.886Z",
+  "gitCommit": "e21cd613ee49f206c3e82aef2d00499bb60f5386",
   "platform": {
     "platform": "win32",
     "arch": "x64",
@@ -40,7 +40,7 @@
     "experiment": "N3",
     "experimentVersion": "2.0",
     "contractVersion": "n3-semantic-execution-v2",
-    "gitCommit": "96c997c73f9391fd20d322834f72c30e31734563",
+    "gitCommit": "e21cd613ee49f206c3e82aef2d00499bb60f5386",
     "command": {
       "executable": "C:/Program Files/nodejs/node.exe",
       "script": "scripts/ivory/n3-compute.mjs",
@@ -135,12 +135,12 @@
         "status": "not-created",
         "isolated": true,
         "reopened": true,
-        "workerPid": 2184,
+        "workerPid": 8652,
         "workerExited": true,
         "workerAbruptExit": false,
         "workerExitCode": 0,
         "workerSignal": null,
-        "workerElapsedMs": 46
+        "workerElapsedMs": 45
       },
       {
         "owner": "core",
@@ -148,12 +148,12 @@
         "status": "queued",
         "isolated": true,
         "reopened": true,
-        "workerPid": 30688,
+        "workerPid": 25400,
         "workerExited": true,
         "workerAbruptExit": true,
         "workerExitCode": 70,
         "workerSignal": null,
-        "workerElapsedMs": 96
+        "workerElapsedMs": 164
       },
       {
         "owner": "supervisor",
@@ -161,12 +161,12 @@
         "status": "queued",
         "isolated": true,
         "reopened": true,
-        "workerPid": 35276,
+        "workerPid": 24972,
         "workerExited": true,
         "workerAbruptExit": true,
         "workerExitCode": 70,
         "workerSignal": null,
-        "workerElapsedMs": 77
+        "workerElapsedMs": 82
       },
       {
         "owner": "supervisor",
@@ -174,12 +174,12 @@
         "status": "running",
         "isolated": true,
         "reopened": true,
-        "workerPid": 29148,
+        "workerPid": 24388,
         "workerExited": true,
         "workerAbruptExit": true,
         "workerExitCode": 70,
         "workerSignal": null,
-        "workerElapsedMs": 117
+        "workerElapsedMs": 111
       },
       {
         "owner": "supervisor",
@@ -187,12 +187,12 @@
         "status": "running",
         "isolated": true,
         "reopened": true,
-        "workerPid": 4784,
+        "workerPid": 3460,
         "workerExited": true,
         "workerAbruptExit": true,
         "workerExitCode": 70,
         "workerSignal": null,
-        "workerElapsedMs": 112
+        "workerElapsedMs": 115
       },
       {
         "owner": "supervisor",
@@ -201,13 +201,13 @@
         "artifactCount": 1,
         "isolated": true,
         "reopened": true,
-        "workerPid": 30424,
+        "workerPid": 35332,
         "workerExited": true,
         "workerAbruptExit": true,
         "workerExitCode": 70,
         "workerSignal": null,
-        "workerElapsedMs": 253,
-        "recoveryElapsedMs": 38
+        "workerElapsedMs": 232,
+        "recoveryElapsedMs": 20
       },
       {
         "owner": "core",
@@ -215,12 +215,12 @@
         "status": "succeeded",
         "isolated": true,
         "reopened": true,
-        "workerPid": 29112,
+        "workerPid": 28184,
         "workerExited": true,
         "workerAbruptExit": true,
         "workerExitCode": 70,
         "workerSignal": null,
-        "workerElapsedMs": 237
+        "workerElapsedMs": 414
       },
       {
         "owner": "protocol",
@@ -228,19 +228,19 @@
         "status": "cancelled",
         "latePublicationRejected": true,
         "terminalOutcome": "cancelled",
-        "cancellationLatencyMs": 99
+        "cancellationLatencyMs": 34
       }
     ],
     "languageNeutralProtocol": "pending-python-and-r-confirmation",
     "observations": {
       "protocol": {
         "boundaryCount": 7,
-        "restartRecoveryMs": 38,
-        "cancellationLatencyMs": 99
+        "restartRecoveryMs": 20,
+        "cancellationLatencyMs": 34
       },
       "runtime": {
-        "elapsedMs": 2480,
-        "warmLaunchMs": 2480,
+        "elapsedMs": 3283,
+        "warmLaunchMs": 3283,
         "outputBytesCaptured": 19,
         "resultBytes": 41
       }
@@ -364,13 +364,13 @@
     "rawArtifacts": [
       {
         "path": "logs/protocol-matrix.json",
-        "bytes": 2331,
-        "sha256": "add6fee17f7c5269bb07f18b68cbce1ba726df9fee448d7293bafef7b1787d05"
+        "bytes": 2332,
+        "sha256": "266bb5fa6c22538037dc8b620742858c973981a4d824154044c3f4f8e9b13779"
       },
       {
         "path": "logs/python-hostile.stdout.log",
-        "bytes": 32768,
-        "sha256": "3b76ffded784b06d5ed1c2daacebf4f4454ad2a383a1b409292243ddf06cde74"
+        "bytes": 65536,
+        "sha256": "62692c2cac59bcccf94dcceea9abf6e659445a0477ff95b09a7b45d1808acd86"
       },
       {
         "path": "logs/python-hostile.stderr.log",
@@ -417,8 +417,8 @@
           "Pid": 0,
           "ExitCode": 0,
           "Error": "",
-          "StartedAt": "2026-09-11T03:43:23.377048331Z",
-          "FinishedAt": "2026-09-11T03:43:23.805075525Z"
+          "StartedAt": "2026-09-11T03:49:11.896181969Z",
+          "FinishedAt": "2026-09-11T03:49:13.348666251Z"
         },
         "afterStop": {
           "Status": "exited",
@@ -430,8 +430,8 @@
           "Pid": 0,
           "ExitCode": 0,
           "Error": "",
-          "StartedAt": "2026-09-11T03:43:23.377048331Z",
-          "FinishedAt": "2026-09-11T03:43:23.805075525Z"
+          "StartedAt": "2026-09-11T03:49:11.896181969Z",
+          "FinishedAt": "2026-09-11T03:49:13.348666251Z"
         }
       },
       "controlsEnforced": true,
@@ -467,7 +467,7 @@
         "mounts": [
           {
             "Type": "bind",
-            "Source": "<tmp>/ivory-n3-run-lqcXy7/input",
+            "Source": "<tmp>/ivory-n3-run-NETwez/input",
             "Destination": "/var/tmp",
             "Mode": "",
             "RW": false,
@@ -475,7 +475,7 @@
           },
           {
             "Type": "bind",
-            "Source": "<tmp>/ivory-n3-run-lqcXy7/output",
+            "Source": "<tmp>/ivory-n3-run-NETwez/output",
             "Destination": "/tmp",
             "Mode": "",
             "RW": true,
@@ -483,12 +483,12 @@
           }
         ]
       },
-      "elapsedMs": 2480,
+      "elapsedMs": 3283,
       "coldInstall": {
-        "elapsedMs": 19116,
+        "elapsedMs": 17581,
         "imageWasCachedBeforePull": false
       },
-      "warmLaunchMs": 2480,
+      "warmLaunchMs": 3283,
       "resultContractVersion": "n3-result-v1",
       "result": {
         "mean": 20,
@@ -577,10 +577,10 @@
           "Restarting": false,
           "OOMKilled": false,
           "Dead": false,
-          "Pid": 1153,
+          "Pid": 1466,
           "ExitCode": 0,
           "Error": "",
-          "StartedAt": "2026-09-11T03:43:21.041796224Z",
+          "StartedAt": "2026-09-11T03:49:08.14374837Z",
           "FinishedAt": "0001-01-01T00:00:00Z"
         },
         "afterStop": {
@@ -593,8 +593,8 @@
           "Pid": 0,
           "ExitCode": 137,
           "Error": "",
-          "StartedAt": "2026-09-11T03:43:21.041796224Z",
-          "FinishedAt": "2026-09-11T03:43:21.64465298Z"
+          "StartedAt": "2026-09-11T03:49:08.14374837Z",
+          "FinishedAt": "2026-09-11T03:49:10.157794439Z"
         }
       },
       "hostileControlsEnforced": true
@@ -605,17 +605,17 @@
       "recovered": true,
       "recoveryState": {
         "version": 1,
-        "executionId": "n3-mtwevh9h",
+        "executionId": "n3-mtwf2xjv",
         "intentDigest": "4d5b5100b0785f2432a5d070d904995be0eca20cfc16486cba5ccea18e2deb90",
         "inputDigest": "91d578bf3955cfc669362766e81d14d49bff4474efb0675c758476d2580ffdd7",
         "language": "python",
         "image": "python@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea",
         "status": "succeeded",
         "currentAttempt": 1,
-        "createdAt": "2026-09-11T03:43:18.828Z",
-        "updatedAt": "2026-09-11T03:43:24.972Z",
+        "createdAt": "2026-09-11T03:49:06.528Z",
+        "updatedAt": "2026-09-11T03:49:14.349Z",
         "terminalOutcome": "succeeded",
-        "artifactKey": "artifacts/n3-mtwevh9h-attempt-1.json",
+        "artifactKey": "artifacts/n3-mtwf2xjv-attempt-1.json",
         "artifactDigest": "1d44db2dd93ca7d73614d1c7b09fe3cd91bb3a3770d2b1a05b1b9b7a047d8ecb"
       },
       "terminalOutcome": "succeeded",
@@ -625,15 +625,15 @@
       "lateResultFenced": true,
       "latePublicationState": {
         "version": 1,
-        "executionId": "n3-mtwevh9h",
+        "executionId": "n3-mtwf2xjv",
         "intentDigest": "4d5b5100b0785f2432a5d070d904995be0eca20cfc16486cba5ccea18e2deb90",
         "inputDigest": "91d578bf3955cfc669362766e81d14d49bff4474efb0675c758476d2580ffdd7",
         "language": "python",
         "image": "python@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea",
         "status": "running",
         "currentAttempt": 2,
-        "createdAt": "2026-09-11T03:43:25.009Z",
-        "updatedAt": "2026-09-11T03:43:25.115Z"
+        "createdAt": "2026-09-11T03:49:14.380Z",
+        "updatedAt": "2026-09-11T03:49:14.485Z"
       }
     }
   },
@@ -642,7 +642,7 @@
     "experiment": "N3",
     "experimentVersion": "2.0",
     "contractVersion": "n3-semantic-execution-v2",
-    "gitCommit": "96c997c73f9391fd20d322834f72c30e31734563",
+    "gitCommit": "e21cd613ee49f206c3e82aef2d00499bb60f5386",
     "command": {
       "executable": "C:/Program Files/nodejs/node.exe",
       "script": "scripts/ivory/n3-compute.mjs",
@@ -739,12 +739,12 @@
         "status": "not-created",
         "isolated": true,
         "reopened": true,
-        "workerPid": 34892,
+        "workerPid": 21876,
         "workerExited": true,
         "workerAbruptExit": false,
         "workerExitCode": 0,
         "workerSignal": null,
-        "workerElapsedMs": 77
+        "workerElapsedMs": 48
       },
       {
         "owner": "core",
@@ -752,12 +752,12 @@
         "status": "queued",
         "isolated": true,
         "reopened": true,
-        "workerPid": 30304,
+        "workerPid": 9384,
         "workerExited": true,
         "workerAbruptExit": true,
         "workerExitCode": 70,
         "workerSignal": null,
-        "workerElapsedMs": 270
+        "workerElapsedMs": 103
       },
       {
         "owner": "supervisor",
@@ -765,12 +765,12 @@
         "status": "queued",
         "isolated": true,
         "reopened": true,
-        "workerPid": 33360,
+        "workerPid": 19356,
         "workerExited": true,
         "workerAbruptExit": true,
         "workerExitCode": 70,
         "workerSignal": null,
-        "workerElapsedMs": 278
+        "workerElapsedMs": 98
       },
       {
         "owner": "supervisor",
@@ -778,12 +778,12 @@
         "status": "running",
         "isolated": true,
         "reopened": true,
-        "workerPid": 4536,
+        "workerPid": 28408,
         "workerExited": true,
         "workerAbruptExit": true,
         "workerExitCode": 70,
         "workerSignal": null,
-        "workerElapsedMs": 1146
+        "workerElapsedMs": 148
       },
       {
         "owner": "supervisor",
@@ -791,12 +791,12 @@
         "status": "running",
         "isolated": true,
         "reopened": true,
-        "workerPid": 7380,
+        "workerPid": 35724,
         "workerExited": true,
         "workerAbruptExit": true,
         "workerExitCode": 70,
         "workerSignal": null,
-        "workerElapsedMs": 241
+        "workerElapsedMs": 119
       },
       {
         "owner": "supervisor",
@@ -805,13 +805,13 @@
         "artifactCount": 1,
         "isolated": true,
         "reopened": true,
-        "workerPid": 29020,
+        "workerPid": 10536,
         "workerExited": true,
         "workerAbruptExit": true,
         "workerExitCode": 70,
         "workerSignal": null,
-        "workerElapsedMs": 464,
-        "recoveryElapsedMs": 67
+        "workerElapsedMs": 324,
+        "recoveryElapsedMs": 19
       },
       {
         "owner": "core",
@@ -819,12 +819,12 @@
         "status": "succeeded",
         "isolated": true,
         "reopened": true,
-        "workerPid": 32876,
+        "workerPid": 35116,
         "workerExited": true,
         "workerAbruptExit": true,
         "workerExitCode": 70,
         "workerSignal": null,
-        "workerElapsedMs": 342
+        "workerElapsedMs": 234
       },
       {
         "owner": "protocol",
@@ -832,19 +832,19 @@
         "status": "cancelled",
         "latePublicationRejected": true,
         "terminalOutcome": "cancelled",
-        "cancellationLatencyMs": 89
+        "cancellationLatencyMs": 70
       }
     ],
     "languageNeutralProtocol": "pending-python-and-r-confirmation",
     "observations": {
       "protocol": {
         "boundaryCount": 7,
-        "restartRecoveryMs": 67,
-        "cancellationLatencyMs": 89
+        "restartRecoveryMs": 19,
+        "cancellationLatencyMs": 70
       },
       "runtime": {
-        "elapsedMs": 8071,
-        "warmLaunchMs": 8071,
+        "elapsedMs": 4865,
+        "warmLaunchMs": 4865,
         "outputBytesCaptured": 19,
         "resultBytes": 35
       }
@@ -968,8 +968,8 @@
     "rawArtifacts": [
       {
         "path": "logs/protocol-matrix.json",
-        "bytes": 2334,
-        "sha256": "2d70e1179faf514f567e8a3d854cddc5e72c913d1025f66a9ea6345966e46f1a"
+        "bytes": 2333,
+        "sha256": "378560420a38394b0e0405ae70ebb1cadcf72a291b56ca5a41c8c2267adedc35"
       },
       {
         "path": "logs/r-run.stdout.log",
@@ -1011,8 +1011,8 @@
           "Pid": 0,
           "ExitCode": 0,
           "Error": "",
-          "StartedAt": "2026-09-11T03:46:04.31005517Z",
-          "FinishedAt": "2026-09-11T03:46:05.749804749Z"
+          "StartedAt": "2026-09-11T03:50:59.855840693Z",
+          "FinishedAt": "2026-09-11T03:51:00.391318337Z"
         },
         "afterStop": {
           "Status": "exited",
@@ -1024,8 +1024,8 @@
           "Pid": 0,
           "ExitCode": 0,
           "Error": "",
-          "StartedAt": "2026-09-11T03:46:04.31005517Z",
-          "FinishedAt": "2026-09-11T03:46:05.749804749Z"
+          "StartedAt": "2026-09-11T03:50:59.855840693Z",
+          "FinishedAt": "2026-09-11T03:51:00.391318337Z"
         }
       },
       "controlsEnforced": true,
@@ -1061,28 +1061,28 @@
         "mounts": [
           {
             "Type": "bind",
-            "Source": "<tmp>/ivory-n3-run-tMftyQ/input",
-            "Destination": "/var/tmp",
-            "Mode": "",
-            "RW": false,
-            "Propagation": "rprivate"
-          },
-          {
-            "Type": "bind",
-            "Source": "<tmp>/ivory-n3-run-tMftyQ/output",
+            "Source": "<tmp>/ivory-n3-run-DZuBEg/output",
             "Destination": "/tmp",
             "Mode": "",
             "RW": true,
             "Propagation": "rprivate"
+          },
+          {
+            "Type": "bind",
+            "Source": "<tmp>/ivory-n3-run-DZuBEg/input",
+            "Destination": "/var/tmp",
+            "Mode": "",
+            "RW": false,
+            "Propagation": "rprivate"
           }
         ]
       },
-      "elapsedMs": 8071,
+      "elapsedMs": 4865,
       "coldInstall": {
-        "elapsedMs": 106331,
+        "elapsedMs": 97311,
         "imageWasCachedBeforePull": false
       },
-      "warmLaunchMs": 8071,
+      "warmLaunchMs": 4865,
       "resultContractVersion": "n3-result-v1",
       "result": {
         "mean": 20,
@@ -1102,17 +1102,17 @@
       "recovered": true,
       "recoveryState": {
         "version": 1,
-        "executionId": "n3-mtweywip",
+        "executionId": "n3-mtwf59zp",
         "intentDigest": "4ff169e8022839c3a10ffbe8cf7cc9332bb6e4b136e1ee02189d95b4609d57da",
         "inputDigest": "91d578bf3955cfc669362766e81d14d49bff4474efb0675c758476d2580ffdd7",
         "language": "r",
         "image": "r-base@sha256:e7032f2f6fd273ee944a717b436bc66d1a89b1b90a9bbcaafcf1318d68a7d8b2",
         "status": "succeeded",
         "currentAttempt": 1,
-        "createdAt": "2026-09-11T03:45:58.566Z",
-        "updatedAt": "2026-09-11T03:46:07.104Z",
+        "createdAt": "2026-09-11T03:50:55.960Z",
+        "updatedAt": "2026-09-11T03:51:01.146Z",
         "terminalOutcome": "succeeded",
-        "artifactKey": "artifacts/n3-mtweywip-attempt-1.json",
+        "artifactKey": "artifacts/n3-mtwf59zp-attempt-1.json",
         "artifactDigest": "135b6aa1ae9e3102f2236617ae9c75bcebe384931692bac3b6a54a489802514d"
       },
       "terminalOutcome": "succeeded",
@@ -1122,15 +1122,15 @@
       "lateResultFenced": true,
       "latePublicationState": {
         "version": 1,
-        "executionId": "n3-mtweywip",
+        "executionId": "n3-mtwf59zp",
         "intentDigest": "4ff169e8022839c3a10ffbe8cf7cc9332bb6e4b136e1ee02189d95b4609d57da",
         "inputDigest": "91d578bf3955cfc669362766e81d14d49bff4474efb0675c758476d2580ffdd7",
         "language": "r",
         "image": "r-base@sha256:e7032f2f6fd273ee944a717b436bc66d1a89b1b90a9bbcaafcf1318d68a7d8b2",
         "status": "running",
         "currentAttempt": 2,
-        "createdAt": "2026-09-11T03:46:07.162Z",
-        "updatedAt": "2026-09-11T03:46:07.339Z"
+        "createdAt": "2026-09-11T03:51:01.163Z",
+        "updatedAt": "2026-09-11T03:51:01.219Z"
       }
     }
   }

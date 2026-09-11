@@ -54,7 +54,10 @@ supports that claim, and it is why this section now names its source.
 ## Retained v2 evidence
 
 Each invocation writes `artifacts/n3/evidence.json` unless an alternate
-`--artifact-root` is supplied. The record is versioned and includes:
+`--artifact-root` is supplied. Generated output is gitignored; the retained,
+sanitized copy of a qualification session lives in
+[`docs/experiments/n3-evidence.json`](experiments/n3-evidence.json). The record
+is versioned and includes:
 
 - the experiment and contract versions, repository commit, exact invocation,
   platform/hardware/runtime versions, and fixture digests;
