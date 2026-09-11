@@ -135,6 +135,21 @@ qualification session. The R run uses the same captured CSV, read-only input
 mount, exact result contract, publication store, cancellation/fencing rules,
 and digest evidence. Python success alone does not unlock an R-capable adapter.
 
+## Supported platform
+
+The pilot platform is **not yet decided**. Evidence collected on Windows 11 x64
+with Docker Desktop (Linux containers) proves the protocol and the declared
+controls on that platform; it does not qualify macOS or Linux.
+
+The canonical V1 plan's default pilot target is macOS on Apple Silicon with a
+maintained local container runtime, subject to Phase 0 cohort confirmation, and
+it states that other operating systems gain support "through the same evidence,
+not assertion".
+
+Until the retained record carries a `supportMatrix` decision, every platform
+stays unqualified. Reporting Windows evidence as macOS support, or as a
+support-matrix decision, is a release-blocking misstatement.
+
 ## Decision boundary
 
 N3 remains open until a retained qualification record contains:
