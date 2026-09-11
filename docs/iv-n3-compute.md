@@ -195,11 +195,22 @@ recorded platform**. What remains open, and what each item unlocks:
 | Python and R under one protocol | **closed**, language-neutral result verified in the retained record | language-neutral execution semantics |
 | Cold-install and warm-launch measurements | **closed** on the recorded platform | provisioning cost for that platform |
 | Supported pilot OS / support matrix | **open** — `supportMatrix: open-pending-onboarding` | which operating systems may ship as "supported" |
-| Onboarding observation (provisional target: four of five users within 15 minutes) | **open** — no record yet | input to the support-matrix decision only |
+| Onboarding observation (provisional target: four of five users within 15 minutes) | **open** — protocol and record defined, no participants recorded yet | input to the support-matrix decision only |
 
 `Open` items are not "failed". They are the reason every platform remains
 unqualified and why the support matrix cannot be declared. Other operating
 systems gain support through the same evidence, not assertion.
+
+The onboarding step is executable as soon as five users are available: the
+protocol is
+[`docs/experiments/n3-onboarding-protocol.md`](experiments/n3-onboarding-protocol.md),
+the record is
+[`docs/experiments/n3-onboarding-record.json`](experiments/n3-onboarding-record.json),
+and `npm.cmd run verify:ivory-n3-onboarding` reports `not-applicable` while the
+record is empty. Filling the record and re-running
+`npm.cmd run retain:ivory-n3 -- --python … --r … --onboarding <record>` is the
+only thing that can move `supportMatrix` to `pilot-decided`, and
+`scripts/ivory/n3-retained.spec.mjs` fails if the two files disagree.
 
 ### If Compute has genuinely moved out of V1
 

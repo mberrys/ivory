@@ -108,6 +108,44 @@ test('retain:ivory-n3 writes a qualified record and exits 2 for protocol-only in
         const secondRecord = await fs.readFile(outPath, 'utf8');
         assert.equal(secondRecord.includes(os.homedir().replaceAll('\\', '/')), false);
         assert.match(secondRecord, /<home>\/bin\/node\.exe/);
+
+        // An observed onboarding record is the only thing that decides the support matrix.
+        const onboardingPath = path.join(root, 'onboarding.json');
+        await fs.writeFile(onboardingPath, `${JSON.stringify({
+            schema: 'ivory-n3-onboarding/1',
+            instructionsVersion: 'docs/experiments/n3-onboarding-protocol.md@abc1234',
+            platform: 'windows-11-x64-docker-desktop-linux',
+            participants: [1, 2, 3, 4, 5].map(index => ({
+                id: `p${index}`,
+                date: '2026-09-14',
+                outcome: index === 5 ? 'blocked' : 'enabled',
+                enabledWithinMinutes: index === 5 ? 22 : 10 + index,
+                largeDownloadBytes: 0,
+            })),
+        }, null, 2)}\n`);
+        await fs.writeFile(pythonPath, `${JSON.stringify(passingEvidence('python'), null, 2)}\n`);
+        const decided = await spawnNode([
+            retainModule, '--python', pythonPath, '--r', rPath, '--onboarding', onboardingPath, '--out', outPath,
+        ]);
+        assert.equal(decided.code, 0, decided.stderr);
+        const decidedRecord = JSON.parse(await fs.readFile(outPath, 'utf8'));
+        assert.equal(decidedRecord.decision.supportMatrix, 'pilot-decided');
+        assert.equal(decidedRecord.onboarding.observed, true);
+        assert.equal(decidedRecord.onboarding.acceptance.withinTarget, 4);
+
+        // An empty onboarding record leaves the support matrix open.
+        await fs.writeFile(onboardingPath, `${JSON.stringify({
+            schema: 'ivory-n3-onboarding/1',
+            participants: [],
+        }, null, 2)}\n`);
+        const undecided = await spawnNode([
+            retainModule, '--python', pythonPath, '--r', rPath, '--onboarding', onboardingPath, '--out', outPath,
+        ]);
+        assert.equal(undecided.code, 0, undecided.stderr);
+        const undecidedRecord = JSON.parse(await fs.readFile(outPath, 'utf8'));
+        assert.equal(undecidedRecord.decision.supportMatrix, 'open-pending-onboarding');
+        assert.equal(undecidedRecord.onboarding.observed, false);
+        assert.equal(undecidedRecord.onboarding.acceptance, null);
     } finally {
         await fs.rm(root, { recursive: true, force: true });
     }

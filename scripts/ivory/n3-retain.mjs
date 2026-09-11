@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { requiredAcceptanceFailures } from './n3-compute.mjs';
+import { onboardingAcceptance } from './n3-onboarding.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -91,11 +92,22 @@ async function main() {
     const rPath = argumentValue('--r');
     const outPath = argumentValue('--out') ?? path.join(ROOT, 'docs', 'experiments', 'n3-evidence.json');
     if (pythonPath === undefined || rPath === undefined) {
-        throw new Error('Usage: n3-retain.mjs --python <python evidence.json> --r <r evidence.json> [--out <path>]');
+        throw new Error('Usage: n3-retain.mjs --python <python evidence.json> --r <r evidence.json> [--onboarding <record.json>] [--out <path>]');
     }
     const python = JSON.parse(await fs.readFile(path.resolve(ROOT, pythonPath), 'utf8'));
     const r = JSON.parse(await fs.readFile(path.resolve(ROOT, rPath), 'utf8'));
-    const record = buildRecord({ python, r });
+    const onboardingPath = argumentValue('--onboarding');
+    let onboarding;
+    if (onboardingPath !== undefined) {
+        const raw = JSON.parse(await fs.readFile(path.resolve(ROOT, onboardingPath), 'utf8'));
+        const acceptance = onboardingAcceptance(raw);
+        onboarding = {
+            record: sanitize(raw, { root: ROOT }),
+            observed: acceptance?.observed === true,
+            acceptance,
+        };
+    }
+    const record = buildRecord({ python, r, onboarding });
     const target = path.resolve(ROOT, outPath);
     await fs.mkdir(path.dirname(target), { recursive: true });
     await fs.writeFile(target, `${JSON.stringify(record, null, 2)}\n`);

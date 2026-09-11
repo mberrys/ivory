@@ -1,7 +1,7 @@
 {
   "schema": "ivory-n3-evidence/1",
   "status": "runtime-qualified",
-  "retainedAt": "2026-09-11T03:51:06.886Z",
+  "retainedAt": "2026-09-11T05:02:17.473Z",
   "gitCommit": "e21cd613ee49f206c3e82aef2d00499bb60f5386",
   "platform": {
     "platform": "win32",
@@ -34,7 +34,18 @@
     "supportMatrix": "open-pending-onboarding",
     "publicationStateMachine": "retained-semantic-protocol"
   },
-  "onboarding": null,
+  "onboarding": {
+    "record": {
+      "schema": "ivory-n3-onboarding/1",
+      "recordedAt": null,
+      "instructionsVersion": "docs/experiments/n3-onboarding-protocol.md@unreleased",
+      "platform": "windows-11-x64-docker-desktop-linux",
+      "participants": [],
+      "notes": "Empty until the exercise runs. verify:ivory-n3-onboarding reports this as not-applicable (exit 0) while it stays empty, and exits 1 once participants are recorded without meeting the four-of-five target."
+    },
+    "observed": false,
+    "acceptance": null
+  },
   "python": {
     "schema": "ivory-tower.n3-evidence",
     "experiment": "N3",
