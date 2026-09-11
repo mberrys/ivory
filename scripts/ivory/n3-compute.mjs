@@ -319,7 +319,14 @@ const REQUIRED_CANARY_BASES = Object.freeze({
     'path-symlink-escape': ['read-only-filesystem', 'permission-denied', 'operation-not-permitted'],
     'network-egress': ['network-unreachable', 'network-down', 'host-unreachable'],
 });
-const ABSENCE_PROBES = Object.freeze(['host-home-read', 'process-escape']);
+// Escape probes are recorded, not scored for enforcement: whether they are
+// refused by a control or simply unreachable is an observation, and both must
+// appear with an explicit basis rather than a bare "denied".
+const ESCAPE_PROBES = Object.freeze(['host-home-read', 'process-escape']);
+const EXPLICIT_CANARY_BASES = new Set([
+    ...Object.values(REQUIRED_CANARY_BASES).flat(),
+    'absence',
+]);
 
 export function canaryOutcome(canaries) {
     const byName = new Map((canaries ?? []).map(canary => [canary.name, canary]));
@@ -333,13 +340,13 @@ export function canaryOutcome(canaries) {
             enforced: canary?.denied === true && bases.includes(canary.basis) === true,
         };
     });
-    const absenceProbesRecorded = ABSENCE_PROBES.every(name => {
+    const escapeProbesRecorded = ESCAPE_PROBES.every(name => {
         const canary = byName.get(name);
-        return canary?.denied === true && canary.basis === 'absence';
+        return canary?.denied === true && EXPLICIT_CANARY_BASES.has(canary.basis);
     });
     return {
         requiredEnforced: missing.length === 0 && observed.every(entry => entry.enforced),
-        absenceProbesRecorded,
+        escapeProbesRecorded,
         missing,
         observed,
     };
@@ -703,6 +710,7 @@ async function run() {
             stopReason: runEvidence?.stopReason,
             timedOut: runEvidence?.timedOut,
             childProcessesTerminated: runEvidence?.childProcessesTerminated,
+            termination: runEvidence?.termination,
             controlsEnforced,
             controls: runEvidence?.controls,
             elapsedMs: runEvidence?.elapsedMs,
@@ -717,6 +725,7 @@ async function run() {
             hostileOutputLimit: hostileEvidence?.outputLimit ?? false,
             hostileStopReason: hostileEvidence?.stopReason,
             hostileChildProcessesTerminated: hostileEvidence?.childProcessesTerminated,
+            hostileTermination: hostileEvidence?.termination,
             hostileControlsEnforced: hostileEvidence === undefined ? null : controlsAreEnforced(hostileEvidence.controls),
         },
         publication: {
@@ -744,11 +753,11 @@ async function run() {
         ...baseEvidence.acceptance,
         runtimeAvailable: true,
         requiredCanariesDenied: language === 'python' ? canaryOutcome(canaries).requiredEnforced : null,
-        absenceProbesRecorded: language === 'python' ? canaryOutcome(canaries).absenceProbesRecorded : null,
+        escapeProbesRecorded: language === 'python' ? canaryOutcome(canaries).escapeProbesRecorded : null,
         inputUnchanged: evidence.inputUnchanged,
         childProcessesTerminated: language === 'python' ? hostileEvidence?.childProcessesTerminated === true : null,
         controlsEnforced,
-        mountSurfaceMinimal: mountSurfaceMinimal(runEvidence?.controls),
+        mountSurfaceMinimal: minimalMountSurface(runEvidence?.controls),
         noPrivilegedEscalation: noPrivilegedEscalation(runEvidence?.controls),
         lateResultsFenced: evidence.publication.lateResultFenced,
         oneTerminalPublicationOutcome: ['succeeded', 'failed', 'cancelled'].includes(finalStatus) && evidence.publication.artifactCount === 1,
@@ -764,7 +773,7 @@ async function run() {
             'This invocation does not select a supported operating system or production isolation profile.',
             language === 'python' ? 'An independent R repeat is still required before declaring language-neutral protocol semantics.' : 'A corresponding Python run must be retained with the R evidence for language-neutral protocol semantics.',
             ...(interruptPublication ? [] : ['Publication interruption recovery was not requested in this invocation.']),
-            'Required canaries that report basis "absence" corroborate the mount-surface check; they are not independent proof of enforcement.',
+            'Required canaries that report a non-enforcement basis corroborate the mount-surface check; they are not independent proof of enforcement.',
             'Container termination is observed via docker inspect before removal; a container removed before inspection fails the check.',
         ],
     };

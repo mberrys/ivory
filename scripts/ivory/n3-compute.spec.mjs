@@ -262,18 +262,23 @@ test('N3 accepts only enforcement-basis denials for the required canaries', () =
         { name: 'canonical-file-write', denied: true, basis: 'read-only-filesystem', errno: 30 },
         { name: 'path-symlink-escape', denied: true, basis: 'read-only-filesystem', errno: 30 },
         { name: 'network-egress', denied: true, basis: 'network-unreachable', errno: 101 },
-        { name: 'host-home-read', denied: true, basis: 'absence', errno: 2 },
+        { name: 'host-home-read', denied: true, basis: 'permission-denied', errno: 13 },
         { name: 'process-escape', denied: true, basis: 'absence', errno: 2 },
         { name: 'child-process', denied: null, basis: 'supervisor-observed', childPid: 12 },
     ];
     const outcome = canaryOutcome(enforced);
     assert.equal(outcome.requiredEnforced, true);
-    assert.equal(outcome.absenceProbesRecorded, true);
+    assert.equal(outcome.escapeProbesRecorded, true);
     assert.deepEqual(outcome.missing, []);
 
     // An "absence" denial for a required canary is not enforcement evidence.
     assert.equal(canaryOutcome(enforced.map(canary => canary.name === 'network-egress'
         ? { ...canary, basis: 'absence', errno: 2 }
+        : canary)).requiredEnforced, false);
+
+    // A resolver failure is recorded but is not accepted as enforcement either.
+    assert.equal(canaryOutcome(enforced.map(canary => canary.name === 'network-egress'
+        ? { ...canary, basis: 'name-resolution-unavailable', errno: -3 }
         : canary)).requiredEnforced, false);
 
     // A missing required canary fails closed.
@@ -285,5 +290,11 @@ test('N3 accepts only enforcement-basis denials for the required canaries', () =
         ? { ...canary, denied: false, basis: 'not-denied' }
         : canary)).requiredEnforced, false);
 
+    // An escape probe with no explicit basis is a recording defect.
+    assert.equal(canaryOutcome(enforced.map(canary => canary.name === 'process-escape'
+        ? { ...canary, basis: undefined }
+        : canary)).escapeProbesRecorded, false);
+
     assert.equal(canaryOutcome(undefined).requiredEnforced, false);
+    assert.equal(canaryOutcome(undefined).escapeProbesRecorded, false);
 });
