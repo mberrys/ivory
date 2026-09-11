@@ -29,7 +29,11 @@ def attempt(name, action):
         action()
     except BaseException as error:  # The fixture records denial; it must not hide a canary pass.
         basis = "absence"
-        if isinstance(error, OSError) and error.errno in ENFORCED_BASIS:
+        if isinstance(error, socket.gaierror):
+            # A resolver failure is a network denial, but a weaker one than a
+            # routing refusal: the supervisor does not accept it as enforcement.
+            basis = "name-resolution-unavailable"
+        elif isinstance(error, OSError) and error.errno in ENFORCED_BASIS:
             basis = ENFORCED_BASIS[error.errno]
         return {
             "name": name,
@@ -63,7 +67,9 @@ def hostile():
     canaries.append(attempt("host-home-read", host_home_read))
 
     def network_egress():
-        with socket.create_connection(("example.com", 80), timeout=2):
+        # A literal address, so the denial is a routing refusal rather than a
+        # name-resolution failure. "No route" is the stronger observation.
+        with socket.create_connection(("1.1.1.1", 443), timeout=2):
             pass
 
     canaries.append(attempt("network-egress", network_egress))
