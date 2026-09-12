@@ -10,6 +10,9 @@
   ],
   "references": [
     {
+      "path": "../ivory-identity"
+    },
+    {
       "path": "../ivory-tower-adapters"
     },
     {
@@ -20,9 +23,6 @@
     },
     {
       "path": "../ivory-tower-domain"
-    },
-    {
-      "path": "../ivory-identity"
     }
   ]
 }

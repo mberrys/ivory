@@ -108,6 +108,10 @@ const LAYERS = [
             '@ivory-tower/health',
             'liquidify-react',
         ],
+        // The N4 corpus-qualification spec consumes the ivory identity kernel's fragment-anchor API and
+        // its fixtures. `@theia/ivory-identity` is an ivory package, not Theia platform code; the
+        // research-kernel layer carries the same exception.
+        exceptions: ['@theia/ivory-identity'],
     },
     {
         name: '@ivory-tower/health',
