@@ -7,9 +7,17 @@ import { N4QualificationStore, SourceRecordPort } from '@ivory-tower/adapters';
  * does not model users, roles, or general project authorization.
  */
 export class N4TransferService {
-    constructor(private readonly sources: SourceRecordPort, private readonly store: N4QualificationStore) {}
+    constructor(
+        private readonly sources: SourceRecordPort,
+        private readonly store: N4QualificationStore,
+    ) {}
 
-    async transfer(input: { sourceProjectId: string; targetProjectId: string; contentHash: string; occurredAt: string }): Promise<{ allowed: boolean; reason: string }> {
+    async transfer(input: {
+        sourceProjectId: string;
+        targetProjectId: string;
+        contentHash: string;
+        occurredAt: string;
+    }): Promise<{ allowed: boolean; reason: string }> {
         const source = await this.sources.getByContentHash(input.contentHash);
         const allowed = source?.transferPermitted === true;
         const reason = source === undefined ? 'No admitted source matches the supplied content hash.' : source.transferReason;

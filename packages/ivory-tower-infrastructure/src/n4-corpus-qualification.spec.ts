@@ -8,8 +8,15 @@ import { BASELINE_INPUTS, runPipeline } from '@theia/ivory-identity/lib/node/tes
 import { expect } from 'chai';
 import { InMemoryN4QualificationStore } from './in-memory-n4-qualification-store';
 
-interface Fixture { path: string; kind: string; sha256: string; }
-interface Manifest { schemaVersion: number; fixtures: Fixture[]; }
+interface Fixture {
+    path: string;
+    kind: string;
+    sha256: string;
+}
+interface Manifest {
+    schemaVersion: number;
+    fixtures: Fixture[];
+}
 const root = resolve(__dirname, '../../..');
 const corpusRoot = resolve(root, 'fixtures/n4');
 const manifest = JSON.parse(readFileSync(resolve(corpusRoot, 'manifest.json'), 'utf8')) as Manifest;
@@ -41,20 +48,58 @@ describe('N4 corpus qualification contract', () => {
             const baselineId = `rep-${contentHash.slice(0, 12)}-v121`;
             const upgradedId = `rep-${contentHash.slice(0, 12)}-v122`;
             await store.addSourceToProject('n4-baseline', contentHash);
-            await store.persistRepresentation({ id: baselineId, sourceVersionId: baselineIdentity.sourceVersionId, artifactId: baselineIdentity.extractionArtifactId, contentHash, objectKey: `conversions/${contentHash}/v121.md`, contentType: 'text/markdown', converterRef: 'docling-serve:v1.21.0', text: baselineText, createdAt: now });
-            await store.persistRepresentation({ id: upgradedId, sourceVersionId: upgradedIdentity.sourceVersionId, artifactId: upgradedIdentity.extractionArtifactId, contentHash, objectKey: `conversions/${contentHash}/v122.md`, contentType: 'text/markdown', converterRef: 'docling-serve:v1.22.0', text: baselineText, createdAt: now });
+            await store.persistRepresentation({
+                id: baselineId,
+                sourceVersionId: baselineIdentity.sourceVersionId,
+                artifactId: baselineIdentity.extractionArtifactId,
+                contentHash,
+                objectKey: `conversions/${contentHash}/v121.md`,
+                contentType: 'text/markdown',
+                converterRef: 'docling-serve:v1.21.0',
+                text: baselineText,
+                createdAt: now,
+            });
+            await store.persistRepresentation({
+                id: upgradedId,
+                sourceVersionId: upgradedIdentity.sourceVersionId,
+                artifactId: upgradedIdentity.extractionArtifactId,
+                contentHash,
+                objectKey: `conversions/${contentHash}/v122.md`,
+                contentType: 'text/markdown',
+                converterRef: 'docling-serve:v1.22.0',
+                text: baselineText,
+                createdAt: now,
+            });
             for (let index = 0; index < 5; index += 1) {
                 const exact = `Fixture ${fixture.path} anchor ${index + 1}.`;
                 const start = baselineText.indexOf(exact);
-                const previous = { sourceVersionId: baselineIdentity.sourceVersionId, artifactId: baselineIdentity.extractionArtifactId, text: baselineText };
-                const next = { sourceVersionId: upgradedIdentity.sourceVersionId, artifactId: upgradedIdentity.extractionArtifactId, text: baselineText };
+                const previous = {
+                    sourceVersionId: baselineIdentity.sourceVersionId,
+                    artifactId: baselineIdentity.extractionArtifactId,
+                    text: baselineText,
+                };
+                const next = {
+                    sourceVersionId: upgradedIdentity.sourceVersionId,
+                    artifactId: upgradedIdentity.extractionArtifactId,
+                    text: baselineText,
+                };
                 const anchor = createFragmentAnchor(previous, [{ start, end: start + exact.length }]);
                 const result = remapFragmentAnchor(anchor, previous, next);
                 expect(result.outcome).to.equal('exact');
                 expect(result.anchor?.confidence).to.equal('approximate');
                 expect(result.candidates).to.have.length(1);
                 expect(result.candidates[0].inspectable.exact).to.equal(exact);
-                await store.saveAnchor({ id: `${baselineId}-${index}`, projectId: 'n4-baseline', representationId: baselineId, sourceVersionId: anchor.sourceVersionId, artifactId: anchor.artifactId, spans: anchor.spans, quote: anchor.quote, confidence: anchor.confidence, createdAt: now });
+                await store.saveAnchor({
+                    id: `${baselineId}-${index}`,
+                    projectId: 'n4-baseline',
+                    representationId: baselineId,
+                    sourceVersionId: anchor.sourceVersionId,
+                    artifactId: anchor.artifactId,
+                    spans: anchor.spans,
+                    quote: anchor.quote,
+                    confidence: anchor.confidence,
+                    createdAt: now,
+                });
                 count += 1;
             }
         }

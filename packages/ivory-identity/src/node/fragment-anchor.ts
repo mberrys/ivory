@@ -1,7 +1,14 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 
 import { computeQuoteSelector, derivePassageId } from './identity';
-import { AnchorConfidence, PassageAnchorError, QuoteSelector, TextSpan, normalizeSelectorText, validateSpans } from '../common/passage-anchor';
+import {
+    AnchorConfidence,
+    PassageAnchorError,
+    QuoteSelector,
+    TextSpan,
+    normalizeSelectorText,
+    validateSpans,
+} from '../common/passage-anchor';
 
 /** A page-local position that can be displayed without re-running extraction. */
 export interface PageCoordinate {
@@ -247,13 +254,7 @@ function normalizeWithBoundaries(text: string): NormalizedText {
 }
 
 /** Maps each normalized character onto the original UTF-16 range that produced it. */
-function mapNormalizedTokenOffsets(
-    origin: number,
-    originalToken: string,
-    token: string,
-    starts: number[],
-    ends: number[],
-): void {
+function mapNormalizedTokenOffsets(origin: number, originalToken: string, token: string, starts: number[], ends: number[]): void {
     if (token.length === originalToken.length) {
         for (let index = 0; index < token.length; index += 1) {
             starts.push(origin + index);

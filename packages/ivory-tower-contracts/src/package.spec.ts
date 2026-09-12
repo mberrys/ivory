@@ -54,22 +54,26 @@ describe('@ivory-tower/contracts package', () => {
     });
 
     it('rejects a missing value that has been silently coerced to a typed value', () => {
-        expect(() => tableRepresentationSchema.parse({
-            sourceVersionId: 'sv_source-version',
-            tableOrdinal: 0,
-            headers: ['count'],
-            rows: [{
-                rowId: 'row:0:1',
-                sourceRowNumber: 1,
-                cells: [{ column: 'count', rawText: '', missingness: 'missing', value: { kind: 'number', value: 0 } }],
-            }],
-            rawRepresentation: {
+        expect(() =>
+            tableRepresentationSchema.parse({
                 sourceVersionId: 'sv_source-version',
-                contentHash: 'b'.repeat(64),
-                objectKey: 'sources/raw.csv',
-                contentType: 'text/csv',
-                byteLength: 1,
-            },
-        })).to.throw();
+                tableOrdinal: 0,
+                headers: ['count'],
+                rows: [
+                    {
+                        rowId: 'row:0:1',
+                        sourceRowNumber: 1,
+                        cells: [{ column: 'count', rawText: '', missingness: 'missing', value: { kind: 'number', value: 0 } }],
+                    },
+                ],
+                rawRepresentation: {
+                    sourceVersionId: 'sv_source-version',
+                    contentHash: 'b'.repeat(64),
+                    objectKey: 'sources/raw.csv',
+                    contentType: 'text/csv',
+                    byteLength: 1,
+                },
+            }),
+        ).to.throw();
     });
 });

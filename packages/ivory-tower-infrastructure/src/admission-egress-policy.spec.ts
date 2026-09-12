@@ -27,10 +27,17 @@ describe('ContentRightsAdmissionPolicy', () => {
 
     it('admits open CSV so missingness and non-ASCII labels can be retained by the N4 importer', async () => {
         const policy = new ContentRightsAdmissionPolicy('vendorHosted');
-        const decision = await policy.admit({
-            filename: 'échantillon.csv', contentType: 'text/csv', license: 'CC-BY-4.0', authorizationEvidence: 'open license',
-            contentClass: 'openLicensed', acquisitionRoute: 'openRepository',
-        }, 'abc123');
+        const decision = await policy.admit(
+            {
+                filename: 'échantillon.csv',
+                contentType: 'text/csv',
+                license: 'CC-BY-4.0',
+                authorizationEvidence: 'open license',
+                contentClass: 'openLicensed',
+                acquisitionRoute: 'openRepository',
+            },
+            'abc123',
+        );
         expect(decision.allowed).to.equal(true);
     });
 

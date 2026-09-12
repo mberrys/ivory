@@ -104,9 +104,13 @@ export class ResearchKernel {
             }
             return cloneValue(existing);
         }
-        if (!/^[a-f0-9]{64}$/.test(input.proposalDigest) ||
-            [input.idempotencyKey, input.researcher, input.provider, input.model, input.text, input.rationale].some(value => !value.trim()) ||
-            !['supports', 'challenges'].includes(input.role)) {
+        if (
+            !/^[a-f0-9]{64}$/.test(input.proposalDigest) ||
+            [input.idempotencyKey, input.researcher, input.provider, input.model, input.text, input.rationale].some(
+                value => !value.trim(),
+            ) ||
+            !['supports', 'challenges'].includes(input.role)
+        ) {
             throw new ResearchKernelError('invalid_proposal');
         }
         this.requireRevision<ClaimPayload>(input.expectedClaim, 'claim');
@@ -116,21 +120,51 @@ export class ResearchKernel {
         this.resolveCitation(input.fragmentRef);
         const staged = new ResearchKernel(this.projectId);
         staged.projectSequence = this.projectSequence;
-        staged.objects = new Map([...this.objects].map(([key, value]) =>
-            [key, { ...value, revisions: new Map(value.revisions) }]));
+        staged.objects = new Map([...this.objects].map(([key, value]) => [key, { ...value, revisions: new Map(value.revisions) }]));
         staged.activities = new Map(this.activities);
         const author = `model:${input.provider}:${input.model}`;
         const activityId = deterministicId('act', { projectId: this.projectId, requestDigest });
-        const claimRef = staged.append('claim', deterministicId('clm', { proposal: input.proposalDigest }), {
-            text: input.text, author, authorType: 'model', status: 'accepted',
-        } satisfies ClaimPayload, [input.fragmentRef], input.researcher, 'acceptAgentProposal', undefined, activityId);
-        const linkRef = staged.append('evidenceLink', deterministicId('evl', { proposal: input.proposalDigest }), {
-            claimRef, targets: [input.fragmentRef], role: input.role, rationale: input.rationale,
-            linkAuthor: author, linkAuthorType: 'model',
-        } satisfies EvidenceLinkPayload, [claimRef, input.fragmentRef], input.researcher, 'acceptAgentProposal', undefined, activityId);
+        const claimRef = staged.append(
+            'claim',
+            deterministicId('clm', { proposal: input.proposalDigest }),
+            {
+                text: input.text,
+                author,
+                authorType: 'model',
+                status: 'accepted',
+            } satisfies ClaimPayload,
+            [input.fragmentRef],
+            input.researcher,
+            'acceptAgentProposal',
+            undefined,
+            activityId,
+        );
+        const linkRef = staged.append(
+            'evidenceLink',
+            deterministicId('evl', { proposal: input.proposalDigest }),
+            {
+                claimRef,
+                targets: [input.fragmentRef],
+                role: input.role,
+                rationale: input.rationale,
+                linkAuthor: author,
+                linkAuthorType: 'model',
+            } satisfies EvidenceLinkPayload,
+            [claimRef, input.fragmentRef],
+            input.researcher,
+            'acceptAgentProposal',
+            undefined,
+            activityId,
+        );
         staged.activities.set(activityId, {
-            activityId, command: 'acceptAgentProposal', actor: input.researcher, projectSequence: staged.sequence,
-            edges: [{ kind: 'context', target: input.expectedClaim }, { kind: 'input', target: input.fragmentRef }],
+            activityId,
+            command: 'acceptAgentProposal',
+            actor: input.researcher,
+            projectSequence: staged.sequence,
+            edges: [
+                { kind: 'context', target: input.expectedClaim },
+                { kind: 'input', target: input.fragmentRef },
+            ],
             proposal: { digest: input.proposalDigest, provider: input.provider, model: input.model },
         });
         const receipt = freezeValue({ requestDigest, claimRef, linkRef, activityId });
@@ -519,9 +553,7 @@ export class ResearchKernel {
         exactRefs.forEach(ref => this.validateRef(ref));
         const existing = this.objects.get(objectId);
         if (existing && existing.objectType !== objectType) {
-            throw new ResearchKernelError(
-                `cannot append a '${objectType}' revision onto '${existing.objectType}' object '${objectId}'`,
-            );
+            throw new ResearchKernelError(`cannot append a '${objectType}' revision onto '${existing.objectType}' object '${objectId}'`);
         }
         if (existing && expectedHead !== existing.head) {
             throw new ExpectedHeadConflictError(objectId, expectedHead, existing.head);
@@ -533,15 +565,17 @@ export class ResearchKernel {
         const storedRefs = freezeValue(cloneValue([...exactRefs]));
         this.projectSequence += 1;
         const predecessor = existing ? refFor(existing.revisions.get(existing.head)!, this.projectId) : undefined;
-        const activityId = sharedActivityId ?? deterministicId('act', {
-            projectId: this.projectId,
-            projectSequence: this.projectSequence,
-            command,
-            objectId,
-            actor,
-            payload: storedPayload,
-            exactRefs: storedRefs,
-        });
+        const activityId =
+            sharedActivityId ??
+            deterministicId('act', {
+                projectId: this.projectId,
+                projectSequence: this.projectSequence,
+                command,
+                objectId,
+                actor,
+                payload: storedPayload,
+                exactRefs: storedRefs,
+            });
         const revisionId = deterministicId('rev', {
             schemaVersion: REVISION_SCHEMA,
             objectId,

@@ -231,9 +231,7 @@ describe('N1 research identity kernel', () => {
         ).to.throw(ResearchKernelError);
         expect(fixture.kernel.getRevision(fixture.t1Replacement).objectType).to.equal('source');
         expect(fixture.kernel.getHead(fixture.t1.objectId)).to.equal(sourceHead);
-        expect(() =>
-            fixture.kernel.previewCarryForward(fixture.claimA1, fixture.t1Replacement),
-        ).to.throw(ResearchKernelError);
+        expect(() => fixture.kernel.previewCarryForward(fixture.claimA1, fixture.t1Replacement)).to.throw(ResearchKernelError);
     });
 
     it('records the carry-forward actor without rewriting link authorship', () => {
