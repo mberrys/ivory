@@ -1,0 +1,471 @@
+{
+  "evidenceVersion": "n2-v2-evidence/2",
+  "experiment": "N2 durable store, blob admission and recovery",
+  "issue": "MB-592",
+  "contract": "durable-admission-semantic-commit/1",
+  "repositoryCommit": "7ed5b5f09ac0362ff6a6ee770392ab644cdd3053",
+  "repositoryBranch": "v2-n2-experiment",
+  "sourceDocuments": [
+    "docs/iv-n2-durable-store.md",
+    "Ivory Tower V1 High-Level Architecture and Implementation Plan.pdf"
+  ],
+  "exactQualificationCommand": "npm.cmd run verify:ivory-n2-v2 -- --cycles 1000",
+  "invocation": [
+    "--cycles",
+    "1000"
+  ],
+  "qualification": {
+    "status": "passed",
+    "recordOnly": false,
+    "verifierExitCode": 0,
+    "verifierStartedFromCommit": "7ed5b5f09ac0362ff6a6ee770392ab644cdd3053",
+    "failedCriteria": []
+  },
+  "configuration": {
+    "cycles": 1000,
+    "documents": 1000,
+    "annotations": 100000,
+    "externallyStoredBytes": 10737418240,
+    "relaxedDurability": false,
+    "metadataBudgetMs": 200,
+    "sourceSearchBudgetMs": 1000,
+    "unchangedSnapshotBudgetMs": 2000
+  },
+  "platform": {
+    "platform": "win32",
+    "release": "10.0.26200",
+    "arch": "x64",
+    "hostname": "mbx",
+    "cpuModel": "12th Gen Intel(R) Core(TM) i9-12900KF",
+    "cpuCount": 24,
+    "totalMemBytes": 68501532672,
+    "node": "v24.16.0",
+    "pgliteVersion": "0.3.16",
+    "cwd": "C:\\.dev\\repos\\ivory-tower\\.worktrees\\v2-n2-experiment",
+    "recordedAt": "2026-09-11T05:16:25.746Z"
+  },
+  "fixture": {
+    "root": "spikes/n2-durable-store",
+    "digest": "9cd2374a828b6f149aaa01197633f48343f9109377200a8a9250f9ce3d122aab",
+    "files": [
+      {
+        "path": "spikes/n2-durable-store/package-lock.json",
+        "sha256": "4b385289dec32bf3ea84e819db87e80b6d80e656f63f917b41165f753a436a83"
+      },
+      {
+        "path": "spikes/n2-durable-store/package.json",
+        "sha256": "21826a35965dc0f6452ef92efdd6a52dcaf0eb001fdfc0d5bbc48c008870fed1"
+      },
+      {
+        "path": "spikes/n2-durable-store/sql/001_revision_activity.sql",
+        "sha256": "5f7d5548a6cc2425975a5f8dcc045b882192d736774fdabba56c771bfe9aea49"
+      },
+      {
+        "path": "spikes/n2-durable-store/sql/002_search.sql",
+        "sha256": "0281b232535d6b1476e517827dd335c6edbf8b0ef5a781a37a572d1d7fd4ada9"
+      },
+      {
+        "path": "spikes/n2-durable-store/sql/003_snapshot_manifest_text.sql",
+        "sha256": "4f5d5e68e6c431f40dd38ecc668c44864c01aa7aeb5eca4250292860fd6d0306"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/blob-admission.mjs",
+        "sha256": "fe2126d37255b76a7003a43f0417298917bf59139bd9ccf87ce97b32a004eb05"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/cas-scale.mjs",
+        "sha256": "afaaa315d4953640cb1183de2579a8bbdaa854fd5becaf6648e7c1824d31da83"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/child-exit.mjs",
+        "sha256": "27d8b929188ab7ade6652fd1c8698ec868f7ba5ee490afa7e8dd7d8a406d514f"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/child.mjs",
+        "sha256": "600bc19a89d0ec005b2f2cfa2768855ec6e0384e5b964584cc6976d22895a2c3"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/durable-store.mjs",
+        "sha256": "0f6c5b64728e4c076a85e0d0b4fa6730f3ec053d1669dd89974aee310a38d092"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/errors.mjs",
+        "sha256": "78d0ac8592a54c4859e7e29dc56510fe7f187aed0cc6f8d0680f69ca5b53e274"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/fault.mjs",
+        "sha256": "b6479a410b853446afba33782b5edabbf3a70cb241ff7babadc5dce91be59c0b"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/fixture-digest.mjs",
+        "sha256": "4e500906dc29e938b6973eba02c434837064234ac27ca812cb242c1ad206276c"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/hardware.mjs",
+        "sha256": "43bb4f5d341196e61a4c46623487b8a9ec8afcb3c423ac4f7d9d5e056b431225"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/interrupt-harness.mjs",
+        "sha256": "78d855d7ebaf9e74478bc2bff7b9fb1811c51153bf5f241b22da49c4261f96a2"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/lock.mjs",
+        "sha256": "1ed61395a7c402f2551b80c463bc653e1469790d5ce7efb7a24acf8554573399"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/migrate.mjs",
+        "sha256": "1517cf335a841426d1a968f3fec54022a8b99440e7aa2e64435638d9146eaef0"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/paths.mjs",
+        "sha256": "11344815fc75aa570e1d4542ea6eb6875877aeb3170b734a8a065963f6e914b5"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/scale.mjs",
+        "sha256": "613628d84eec7d88bd939ac054e16fe4a9b4dcca042dccc5733e482332a0c82a"
+      },
+      {
+        "path": "spikes/n2-durable-store/src/storm-ledger.mjs",
+        "sha256": "2850a8e159005e78cea94f6a1ccd7b7662009fda0af50fa98eb0f8deab236d62"
+      },
+      {
+        "path": "spikes/n2-durable-store/test/commit.spec.mjs",
+        "sha256": "9c0b637e24b3da3b9455c87edfec779d95efd949db999a118186a67b659c9e82"
+      },
+      {
+        "path": "spikes/n2-durable-store/test/export.spec.mjs",
+        "sha256": "49d113881a45dd2abbfa5d06dcf2b3aa9c73e79eee08ab107abd2db806ab0d95"
+      },
+      {
+        "path": "spikes/n2-durable-store/test/hostile.spec.mjs",
+        "sha256": "29b22677b76145389b351e8e842668d9d2f9993f55ac73f713cdf7cda6c2206f"
+      },
+      {
+        "path": "spikes/n2-durable-store/test/interrupt.spec.mjs",
+        "sha256": "e7a14542c9639cbc541be9bd72f2095a4e1ab804690cb35d4410151b3645e031"
+      },
+      {
+        "path": "spikes/n2-durable-store/test/migrate.spec.mjs",
+        "sha256": "87750f4629e8dd9606b01db8306640ea92f2bcb94f2fd79d51d29b90e3285825"
+      },
+      {
+        "path": "spikes/n2-durable-store/test/n2-v2-criteria.spec.mjs",
+        "sha256": "e4f58634c6b1cd63f233a7f96651375a14710240b066e334995cf49cef219277"
+      },
+      {
+        "path": "spikes/n2-durable-store/test/scale-label.spec.mjs",
+        "sha256": "05333e2c62c266a6dcd6523302753e631fb540b94ab908efb85a9f0ce734349d"
+      },
+      {
+        "path": "spikes/n2-durable-store/test/storm-ledger.spec.mjs",
+        "sha256": "01689c89b9cb8e1829afbc94c15b2af567ed23f9dec3e830815c30892594730e"
+      },
+      {
+        "path": "spikes/n2-durable-store/test/wait-exit.spec.mjs",
+        "sha256": "be091b554c3499f4dc47146764551aebf6dca78358bcdd4baab96e5c80537442"
+      },
+      {
+        "path": "spikes/n2-durable-store/verify.mjs",
+        "sha256": "73c702b048a20a8d7ca4d86b706de08c905a4eda677d088f1ca58d8da674f284"
+      }
+    ]
+  },
+  "rawArtifact": {
+    "path": "artifacts/n2/evidence.json",
+    "sha256": "81a51bec2c4b42701700acbf314ac631fc5e145df019313959e65ec6f1539d69",
+    "tracked": false
+  },
+  "stormCycleLedger": {
+    "path": "docs/experiments/n2-v2-storm-cycles.json",
+    "sha256": "024615ffc6410f86d957b07b7e02ea8adb94fc21f4bf18cc1c1d5df9237e8477",
+    "rowCount": 1000,
+    "rawLedgerSha256": "0095f9ef7fe1aa11a4d53b608deb2cb7ba0b1bc4d1ebf068599bf99b437fd313"
+  },
+  "observations": {
+    "tests": {
+      "passed": true
+    },
+    "interruptionStorm": {
+      "cycles": 1000,
+      "elapsedMs": 1809648,
+      "measuredFromResults": true,
+      "resultCount": 1000,
+      "failedResultCount": 0,
+      "firstFailureIndex": null,
+      "acknowledgedCount": 625,
+      "unacknowledgedCount": 375,
+      "childrenExitedBeforeReopen": true,
+      "acknowledgedNeverLost": true,
+      "oneEffectPerKey": true,
+      "noVisibleUninstalledBlob": true,
+      "faults": [
+        "afterBlobInstall",
+        "afterDbCommit",
+        "afterOutboxDelivery",
+        "afterOutputPublish",
+        "beforeBlobInstall",
+        "beforeDbCommit",
+        "beforeOutboxDelivery",
+        "beforeOutputPublish"
+      ],
+      "ledgerPath": "artifacts/n2/storm-cycles.jsonl",
+      "ledgerSha256": "0095f9ef7fe1aa11a4d53b608deb2cb7ba0b1bc4d1ebf068599bf99b437fd313"
+    },
+    "stormSummaryDerived": {
+      "resultCount": 1000,
+      "measuredFromResults": true,
+      "failedResultCount": 0,
+      "firstFailureIndex": null,
+      "acknowledgedCount": 625,
+      "unacknowledgedCount": 375,
+      "faults": [
+        "afterBlobInstall",
+        "afterDbCommit",
+        "afterOutboxDelivery",
+        "afterOutputPublish",
+        "beforeBlobInstall",
+        "beforeDbCommit",
+        "beforeOutboxDelivery",
+        "beforeOutputPublish"
+      ],
+      "acknowledgedNeverLost": true,
+      "oneEffectPerKey": true,
+      "noVisibleUninstalledBlob": true,
+      "childrenExitedBeforeReopen": true
+    },
+    "exportImport": {
+      "preserved": true,
+      "blobCount": 1,
+      "projectSeq": 1
+    },
+    "scale": {
+      "documents": 1000,
+      "annotations": 100000,
+      "loadMs": 139271,
+      "sparsePlaceholder": false,
+      "blobBytes": 10737418240,
+      "largeDigest": "3f4105f8c04b77f95882fd493b4b25cc5aebe9ca23cd379b514227f32bd649f5",
+      "largeBlob": {
+        "kind": "cas-admitted-bytes",
+        "logicalByteSize": 10737418240,
+        "physicalBytesCopied": 10737418240,
+        "casAdmissionPath": true,
+        "contentAddressedScaleProof": true,
+        "digestSource": "sha256-of-pattern-file",
+        "createdAs": "cas-stage-fsync-rename",
+        "digest": "3f4105f8c04b77f95882fd493b4b25cc5aebe9ca23cd379b514227f32bd649f5"
+      },
+      "casAdmissionPath": true,
+      "casVerificationPath": true,
+      "physicalBytesCopied": 10737418240,
+      "casVerifiedBytes": 10737418240,
+      "casStagingLeftover": false,
+      "casSourceRemoved": true,
+      "casSourceWriteMs": 32390,
+      "casSourceDigestMs": 10586,
+      "casAdmissionMs": 48713,
+      "casVerifyMs": 10174,
+      "freeBytesBefore": 636640198656,
+      "freeBytesAfter": 625902641152,
+      "freeBytesDelta": 10737557504,
+      "nonSparseProof": "the installed file re-hashed to the digest of the generated non-zero pattern; a sparse hole reads back as zeros and would fail that hash",
+      "casBindingVerified": true,
+      "casBindingMs": 78437,
+      "openMs": 2280,
+      "memoryAfterOpen": {
+        "rss": 434679808,
+        "heapUsed": 20310384,
+        "heapTotal": 153907200,
+        "external": 192151606
+      },
+      "memoryAfterScale": {
+        "rss": 529264640,
+        "heapUsed": 16761704,
+        "heapTotal": 28340224,
+        "external": 197370999
+      },
+      "metadataP95Ms": 1.546,
+      "metadataP50Ms": 1.2625,
+      "searchMs": 297.4214,
+      "searchHits": 50,
+      "snapshotMs": 399.0662,
+      "metadataBudgetMs": 200,
+      "searchBudgetMs": 1000,
+      "snapshotBudgetMs": 2000,
+      "metadataPass": true,
+      "searchPass": true,
+      "snapshotPass": true
+    },
+    "engineCandidate": "pglite"
+  },
+  "criteria": {
+    "fullVerifierRunCompleted": {
+      "observed": 0,
+      "required": "a full verifier invocation that exits 0",
+      "pass": true
+    },
+    "allSectionsRan": {
+      "observed": {
+        "tests": "ran",
+        "storm": "ran",
+        "export": "ran",
+        "scale": "ran"
+      },
+      "required": [
+        "tests: ran",
+        "storm: ran",
+        "export: ran",
+        "scale: ran"
+      ],
+      "pass": true
+    },
+    "verifierCommitMatchesHead": {
+      "observed": "7ed5b5f09ac0362ff6a6ee770392ab644cdd3053",
+      "required": "7ed5b5f09ac0362ff6a6ee770392ab644cdd3053",
+      "pass": true
+    },
+    "fixtureUnchanged": {
+      "observed": "9cd2374a828b6f149aaa01197633f48343f9109377200a8a9250f9ce3d122aab",
+      "required": "9cd2374a828b6f149aaa01197633f48343f9109377200a8a9250f9ce3d122aab",
+      "pass": true
+    },
+    "stormMeasuredFromResults": {
+      "observed": true,
+      "required": true,
+      "pass": true
+    },
+    "stormResultCount": {
+      "observed": 1000,
+      "required": 1000,
+      "ledgerRowCount": 1000,
+      "pass": true
+    },
+    "stormResultLedgerRetained": {
+      "observed": 1000,
+      "required": 1000,
+      "digestMatches": true,
+      "pass": true
+    },
+    "acknowledgedCommitsNeverLost": {
+      "observed": true,
+      "recorded": true,
+      "pass": true
+    },
+    "oneSemanticEffectPerIdempotencyKey": {
+      "observed": true,
+      "recorded": true,
+      "pass": true
+    },
+    "noVisibleReferenceToUninstalledBlob": {
+      "observed": true,
+      "recorded": true,
+      "pass": true
+    },
+    "noFailedStormCycles": {
+      "observed": 0,
+      "required": 0,
+      "firstFailureIndex": null,
+      "pass": true
+    },
+    "bothAcknowledgementPathsExercised": {
+      "observed": {
+        "acknowledged": 625,
+        "unacknowledged": 375
+      },
+      "required": {
+        "acknowledged": ">= 1",
+        "unacknowledged": ">= 1"
+      },
+      "pass": true
+    },
+    "childrenExitedBeforeReopen": {
+      "observed": true,
+      "recorded": true,
+      "pass": true
+    },
+    "casPhysicalAdmission": {
+      "observed": {
+        "sparsePlaceholder": false,
+        "casAdmissionPath": true,
+        "casVerificationPath": true,
+        "physicalBytesCopied": 10737418240,
+        "casVerifiedBytes": 10737418240,
+        "casStagingLeftover": false
+      },
+      "required": {
+        "sparsePlaceholder": false,
+        "casAdmissionPath": true,
+        "casVerificationPath": true,
+        "physicalBytesCopied": 10737418240,
+        "casStagingLeftover": false
+      },
+      "pass": true
+    },
+    "casBlobBoundToVisibleRevision": {
+      "observed": true,
+      "required": true,
+      "pass": true
+    },
+    "casScaleClassifierAgrees": {
+      "observed": true,
+      "required": true,
+      "largeBlobKind": "cas-admitted-bytes",
+      "pass": true
+    },
+    "semanticExportImport": {
+      "observed": true,
+      "required": true,
+      "pass": true
+    },
+    "metadataP95": {
+      "observedMs": 1.546,
+      "budgetMs": 200,
+      "pass": true
+    },
+    "sourceSearch": {
+      "observedMs": 297.4214,
+      "budgetMs": 1000,
+      "pass": true
+    },
+    "unchangedSnapshot": {
+      "observedMs": 399.0662,
+      "budgetMs": 2000,
+      "pass": true
+    },
+    "startupAndMemoryRecorded": {
+      "observed": {
+        "startupMs": 2280,
+        "memoryAfterOpen": {
+          "rss": 434679808,
+          "heapUsed": 20310384,
+          "heapTotal": 153907200,
+          "external": 192151606
+        },
+        "memoryAfterScale": {
+          "rss": 529264640,
+          "heapUsed": 16761704,
+          "heapTotal": 28340224,
+          "external": 197370999
+        }
+      },
+      "pass": true
+    }
+  },
+  "automatedPass": true,
+  "decision": {
+    "architectureStatus": "protocol-pass-engine-decision-provisional",
+    "engine": "pglite",
+    "engineEvidenceStatus": "pglite-default-on-recorded-reference-machine",
+    "engineDecisionUnlocked": true,
+    "productionDependency": "Final production persistence implementation waits for selected-engine sign-off.",
+    "sqliteComparison": "not run unless PGlite integrity gate fails"
+  },
+  "limitations": [
+    "Tested envelope: unclean process termination (taskkill /F or SIGKILL) of a Node process using PGlite NodeFS on NTFS, then reopen. This does not prove survival of hardware power loss, USB yank, firmware crashes, or live cloud-drive sync of an open store.",
+    "The externally stored fixture is admitted physically through CasBlobAdmission.admitFile at the configured size; the run reports physicalBytesCopied, casVerifiedBytes and free-space delta for the actual reference machine.",
+    "The result is one Windows NTFS reference-machine observation; it is not a cross-platform or hardware-power-loss qualification.",
+    "The raw verifier artifact and the raw JSONL ledger are ignored by git; the retained per-cycle ledger is committed and bound to the raw artifact by sha256.",
+    "A record-only invocation rebuilds the retained record from an existing artifact and can never produce a passing qualification."
+  ],
+  "generatedAt": "2026-09-11T05:52:55.436Z"
+}
