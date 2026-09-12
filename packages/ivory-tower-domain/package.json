@@ -1,0 +1,26 @@
+{
+  "name": "@ivory-tower/domain",
+  "version": "0.1.0",
+  "description": "Ivory Tower \u2014 domain model (no platform dependencies)",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "scripts": {
+    "build": "theiaext build",
+    "clean": "theiaext clean",
+    "compile": "theiaext compile",
+    "lint": "theiaext lint",
+    "test": "theiaext test",
+    "watch": "theiaext watch"
+  },
+  "devDependencies": {
+    "@theia/ext-scripts": "1.75.0"
+  },
+  "nyc": {
+    "extends": "../../configs/nyc.json"
+  }
+}

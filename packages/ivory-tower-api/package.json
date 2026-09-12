@@ -1,0 +1,36 @@
+{
+  "name": "@ivory-tower/api",
+  "version": "0.1.0",
+  "description": "Ivory Tower \u2014 standalone versioned HTTP and SSE API",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "dependencies": {
+    "@ivory-tower/adapters": "0.1.0",
+    "@ivory-tower/application": "0.1.0",
+    "@ivory-tower/contracts": "0.1.0",
+    "@ivory-tower/infrastructure": "0.1.0",
+    "@ivory-tower/domain": "0.1.0",
+    "pg": "8.16.3"
+  },
+  "scripts": {
+    "build": "theiaext build",
+    "clean": "theiaext clean",
+    "compile": "theiaext compile",
+    "lint": "theiaext lint",
+    "start": "node lib/start.js",
+    "test": "theiaext test",
+    "watch": "theiaext watch"
+  },
+  "devDependencies": {
+    "@theia/ext-scripts": "1.75.0",
+    "@types/pg": "^8.15.5"
+  },
+  "nyc": {
+    "extends": "../../configs/nyc.json"
+  }
+}

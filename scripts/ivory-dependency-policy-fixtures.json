@@ -1,0 +1,44 @@
+[
+  {
+    "name": "prohibited-license",
+    "gate": "dependency-policy",
+    "description": "a deployable whose closure reaches a GPL-3.0-only package",
+    "expect": "carries the prohibited licence"
+  },
+  {
+    "name": "unapproved-network-dependency",
+    "gate": "dependency-policy",
+    "description": "a network-capable dependency the inventory reviewed and refused",
+    "expect": "which the dependency inventory does not allow"
+  },
+  {
+    "name": "missing-inventory-entry",
+    "gate": "dependency-policy",
+    "description": "a direct dependency with no recorded purpose, owner, or data boundary",
+    "expect": "has no entry in the dependency inventory"
+  },
+  {
+    "name": "floating-image-tag",
+    "gate": "dependency-policy",
+    "description": "a production image on a mutable tag",
+    "expect": "references the mutable image tag"
+  },
+  {
+    "name": "expired-exception",
+    "gate": "dependency-policy",
+    "description": "a licence exception whose review window has lapsed",
+    "expect": "expired on"
+  },
+  {
+    "name": "omitted-from-quality-scope",
+    "gate": "dependency-policy",
+    "description": "an Ivory-owned package that no required gate script covers",
+    "expect": "is outside the quality scope of"
+  },
+  {
+    "name": "sentinel-secret",
+    "gate": "secret-scan",
+    "description": "a committed sentinel value standing in for a leaked credential",
+    "expect": "contains the Ivory secret sentinel"
+  }
+]

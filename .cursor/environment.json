@@ -1,0 +1,29 @@
+{
+  "name": "Ivory Tower",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "install": "npm install && bash scripts/ivory-cloud-setup.sh",
+  "start": "sudo service docker start && bash scripts/ivory-cloud-boot.sh",
+  "terminals": [
+    {
+      "name": "ivory-api",
+      "command": "npm run start:ivory-api",
+      "description": "Ivory HTTP/SSE API on PORT (default 4100)."
+    },
+    {
+      "name": "ivory-worker",
+      "command": "npm run start:ivory-worker",
+      "description": "Graphile Worker process for durable Ivory executions."
+    }
+  ],
+  "ports": [
+    { "name": "ivory-api", "port": 4100 },
+    { "name": "theia-ivory-browser", "port": 3000 },
+    { "name": "postgres", "port": 5432 },
+    { "name": "minio", "port": 9000 },
+    { "name": "minio-console", "port": 9001 },
+    { "name": "docling", "port": 5001 }
+  ]
+}

@@ -1,0 +1,19 @@
+[
+  { "layer": "@theia/ivory-identity", "import": "@theia/core" },
+  { "layer": "@theia/ivory-identity", "import": "@ivory-tower/domain" },
+  { "layer": "@ivory-tower/contracts", "import": "@theia/core" },
+  { "layer": "@ivory-tower/contracts", "import": "pg" },
+  { "layer": "@ivory-tower/contracts", "import": "@aws-sdk/client-s3" },
+  { "layer": "@ivory-tower/contracts", "import": "graphile-worker" },
+  { "layer": "@ivory-tower/contracts", "import": "docling-serve" },
+  { "layer": "@ivory-tower/contracts", "import": "liquidify-react" },
+  { "layer": "@ivory-tower/application", "import": "@theia/core" },
+  { "layer": "@ivory-tower/application", "import": "pg" },
+  { "layer": "@ivory-tower/application", "import": "@aws-sdk/client-s3" },
+  { "layer": "@ivory-tower/application", "import": "graphile-worker" },
+  { "layer": "@ivory-tower/application", "import": "docling-serve" },
+  { "layer": "@ivory-tower/application", "import": "liquidify-react" },
+  { "layer": "@ivory-tower/health", "import": "@ivory-tower/infrastructure" },
+  { "layer": "@ivory-tower/health", "import": "liquidify-react" },
+  { "layer": "@theia/ivory-identity", "import": "pg" }
+]

@@ -281,4 +281,53 @@ export class GettingStartedContribution extends AbstractViewContribution<Getting
             }
         );
     }
+
+    registerColors(colors: ColorRegistry): void {
+        colors.register(
+            {
+                id: 'walkthrough.stepTitle.foreground',
+                defaults: { dark: 'foreground', light: 'foreground', hcDark: 'foreground', hcLight: 'foreground' },
+                description: 'Foreground color of walkthrough step titles.'
+            },
+            {
+                id: 'walkthrough.progress.foreground',
+                defaults: {
+                    dark: Color.transparent('foreground', 0.7),
+                    light: Color.transparent('foreground', 0.7),
+                    hcDark: 'foreground',
+                    hcLight: 'foreground'
+                },
+                description: 'Foreground color for walkthrough progress indicators.'
+            },
+            {
+                id: 'walkthrough.card.background',
+                defaults: {
+                    // A foreground tint stays subtle and lightens on dark themes instead of darkening them.
+                    dark: Color.transparent('foreground', 0.04),
+                    light: Color.transparent('foreground', 0.04)
+                },
+                description: 'Background color of the walkthrough cards on the Welcome page.'
+            },
+            {
+                id: 'walkthrough.progress.background',
+                defaults: {
+                    dark: Color.transparent('foreground', 0.2),
+                    light: Color.transparent('foreground', 0.2),
+                    hcDark: 'contrastBorder',
+                    hcLight: 'contrastBorder'
+                },
+                description: 'Background color of the walkthrough progress bar.'
+            },
+            {
+                id: 'walkthrough.stepCompleted.foreground',
+                defaults: {
+                    dark: 'successBackground',
+                    light: 'successBackground',
+                    hcDark: 'successBackground',
+                    hcLight: 'successBackground'
+                },
+                description: 'Foreground color of the indicator marking a walkthrough step as completed.'
+            }
+        );
+    }
 }

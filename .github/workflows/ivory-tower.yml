@@ -1,0 +1,121 @@
+name: Ivory Tower quality gate
+
+on:
+  push:
+    branches: [stable, dev]
+  pull_request:
+    branches: [stable, dev]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, ubuntu-22.04]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up pinned Node toolchain
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: npm.cmd ci
+      - name: Install dependencies (Unix)
+        if: runner.os != 'Windows'
+        run: npm ci
+      - name: Verify the Theia extension-script bootstrap contract (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: npm.cmd run check:ivory-install
+      - name: Verify the Theia extension-script bootstrap contract (Unix)
+        if: runner.os != 'Windows'
+        run: npm run check:ivory-install
+      - name: Install Playwright browser (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: npx.cmd playwright install chromium
+      - name: Install Playwright browser (Ubuntu)
+        if: runner.os != 'Windows'
+        run: npx playwright install --with-deps chromium
+      - name: Run the required Ivory Tower gate (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: npm.cmd run verify:ivory-tower
+      - name: Run the required Ivory Tower gate (Unix)
+        if: runner.os != 'Windows'
+        run: npm run verify:ivory-tower
+      - name: Build inherited Theia Electron target (Windows compatibility gate)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: npm.cmd run build:electron
+
+  governance:
+    name: Dependency governance evidence (IV-19)
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up pinned Node toolchain
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Verify the Theia extension-script bootstrap contract
+        run: npm run check:ivory-install
+      - name: Dependency, licence, pinning, and fixture gate
+        run: npm run dependency:policy
+      - name: Secret sentinel scan
+        run: npm run secret:scan
+      - name: Generate SBOMs
+        run: npm run sbom:generate
+      - name: Generate third-party notices
+        run: npm run notices:generate
+      - name: Upload governance evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: ivory-governance-evidence-${{ github.sha }}
+          path: artifacts/**
+          if-no-files-found: error
+
+  runtime:
+    name: Runtime and migration recovery (Session 04)
+    needs: verify
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up pinned Node toolchain
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install dependencies from the lockfile
+        run: npm ci
+      - name: Verify the Theia extension-script bootstrap contract
+        run: npm run check:ivory-install
+      - name: Verify runtime, N-1 migration, and recovery contract
+        run: npm run verify:ivory-session-04
+      - name: Collect sanitized runtime diagnostics on failure
+        if: failure()
+        run: |
+          if [ -f artifacts/session-04/compose.log ]; then
+            test ! -s artifacts/session-04/compose.log || ! grep -q 'ivory-development-only' artifacts/session-04/compose.log
+          fi
+      - name: Upload runtime diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ivory-session-04-runtime-${{ github.sha }}
+          path: artifacts/session-04/**
+          if-no-files-found: warn

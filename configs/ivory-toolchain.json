@@ -1,0 +1,5 @@
+{
+  "node": "24.16.0",
+  "npm": "11.13.0",
+  "upstreamEngineDeclaration": ">=22"
+}

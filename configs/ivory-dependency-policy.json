@@ -1,0 +1,396 @@
+{
+  "policyVersion": "1",
+  "owner": "Engineering",
+  "issue": "IV-19",
+  "documentation": "docs/iv-19-dependency-governance.md",
+
+  "licenseClasses": {
+    "allowed": [
+      "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0",
+      "MIT",
+      "Apache-2.0",
+      "BSD-2-Clause",
+      "BSD-3-Clause",
+      "ISC",
+      "MPL-2.0",
+      "0BSD",
+      "BlueOak-1.0.0",
+      "CC0-1.0",
+      "Unlicense",
+      "WTFPL",
+      "OFL-1.1",
+      "Python-2.0"
+    ],
+    "reviewRequired": [
+      "LGPL-2.1+",
+      "LGPL-2.1-only",
+      "LGPL-2.1-or-later",
+      "LGPL-3.0-only",
+      "LGPL-3.0-or-later",
+      "CC-BY-3.0",
+      "CC-BY-4.0",
+      "EPL-1.0",
+      "EPL-2.0"
+    ],
+    "prohibited": [
+      "GPL-2.0-only",
+      "GPL-2.0-or-later",
+      "GPL-3.0-only",
+      "GPL-3.0-or-later",
+      "AGPL-3.0-only",
+      "AGPL-3.0-or-later",
+      "SSPL-1.0",
+      "BUSL-1.1",
+      "Elastic-2.0",
+      "CC-BY-NC-4.0",
+      "CC-BY-NC-SA-4.0",
+      "UNLICENSED"
+    ]
+  },
+
+  "defaults": {
+    "unknownLicense": "deny",
+    "networkCapable": "deny",
+    "versionPolicy": "exact",
+    "uninventoriedDirectDependency": "deny"
+  },
+
+  "qualityScope": {
+    "packageNamePatterns": ["@ivory-tower/*", "@theia/ivory-*"],
+    "requiredScripts": [
+      "format:check:ivory-tower",
+      "typecheck:ivory-tower",
+      "lint:ivory-tower",
+      "test:ivory-tower",
+      "dependency:policy"
+    ]
+  },
+
+  "deployables": {
+    "ivory-api": { "workspace": "packages/ivory-tower-api", "package": "@ivory-tower/api" },
+    "ivory-worker": { "workspace": "packages/ivory-tower-worker", "package": "@ivory-tower/worker" },
+    "ivory-browser": { "workspace": "examples/ivory-tower-browser", "package": "@ivory-tower/example-browser" }
+  },
+
+  "packages": {
+    "@aws-sdk/client-s3": {
+      "allowed": true,
+      "scope": "server-storage",
+      "purpose": "S3-compatible immutable object storage adapter for source bytes (ADR-002).",
+      "owner": "Engineering",
+      "license": "Apache-2.0",
+      "networkCapable": true,
+      "native": false,
+      "dataBoundary": "source bytes and derived artifacts, written to the project-authorized bucket only; no third-party transmission",
+      "sourceContentCrossesBoundary": true,
+      "versionPolicy": "exact",
+      "replacementPath": "any S3-compatible SDK behind ObjectStore in @ivory-tower/adapters"
+    },
+    "@sentry/node": {
+      "allowed": true,
+      "scope": "server-observability",
+      "purpose": "Optional server-side error and performance reporting; disabled unless SENTRY_DSN is set.",
+      "owner": "Engineering",
+      "license": "MIT",
+      "networkCapable": true,
+      "native": false,
+      "dataBoundary": "scrubbed operational metadata only; no passage text, source bytes, claims, or researcher notes",
+      "sourceContentCrossesBoundary": false,
+      "versionPolicy": "exact",
+      "replacementPath": "OpenTelemetry exporter behind the same @ivory-tower/infrastructure sentry module"
+    },
+    "graphile-worker": {
+      "allowed": true,
+      "scope": "server-queue",
+      "purpose": "PostgreSQL-backed durable job queue (ADR-002 queue boundary).",
+      "owner": "Engineering",
+      "license": "MIT",
+      "networkCapable": true,
+      "native": false,
+      "dataBoundary": "job payloads inside the project database; no external egress",
+      "sourceContentCrossesBoundary": false,
+      "versionPolicy": "exact",
+      "replacementPath": "any durable queue behind JobQueue in @ivory-tower/adapters"
+    },
+    "pg": {
+      "allowed": true,
+      "scope": "server-database",
+      "purpose": "PostgreSQL client for the canonical store and pgvector hybrid search.",
+      "owner": "Engineering",
+      "license": "MIT",
+      "networkCapable": true,
+      "native": false,
+      "dataBoundary": "canonical research state inside the project database; no external egress",
+      "sourceContentCrossesBoundary": true,
+      "versionPolicy": "exact",
+      "replacementPath": "no realistic substitute; PostgreSQL is a decided dependency (ADR-002)"
+    },
+    "zod": {
+      "allowed": true,
+      "scope": "shared-contracts",
+      "purpose": "Runtime validation of versioned HTTP and job contracts in @ivory-tower/contracts.",
+      "owner": "Engineering",
+      "license": "MIT",
+      "networkCapable": false,
+      "native": false,
+      "dataBoundary": "in-process validation only",
+      "sourceContentCrossesBoundary": false,
+      "versionPolicy": "range",
+      "replacementPath": "any schema validator behind the contract module's exported parsers"
+    },
+    "tslib": {
+      "allowed": true,
+      "scope": "build-runtime",
+      "purpose": "TypeScript helper runtime required by emitted Theia extension code.",
+      "owner": "Engineering",
+      "license": "0BSD",
+      "networkCapable": false,
+      "native": false,
+      "dataBoundary": "none",
+      "sourceContentCrossesBoundary": false,
+      "versionPolicy": "range",
+      "replacementPath": "compiler option change (importHelpers: false)"
+    },
+    "@types/pg": {
+      "allowed": true,
+      "scope": "build-types",
+      "purpose": "Type declarations for pg; build-time only, never bundled.",
+      "owner": "Engineering",
+      "license": "MIT",
+      "networkCapable": false,
+      "native": false,
+      "dataBoundary": "none",
+      "sourceContentCrossesBoundary": false,
+      "versionPolicy": "range",
+      "replacementPath": "first-party declarations"
+    },
+    "@playwright/test": {
+      "allowed": true,
+      "scope": "build-test",
+      "purpose": "Browser test runner for the Ivory health-view smoke test; downloads browsers at install time.",
+      "owner": "Engineering",
+      "license": "Apache-2.0",
+      "networkCapable": true,
+      "native": false,
+      "dataBoundary": "test-time only; never shipped in a deployable",
+      "sourceContentCrossesBoundary": false,
+      "versionPolicy": "exact",
+      "replacementPath": "any browser automation runner for examples/ivory-tower-browser tests"
+    },
+    "@theia/core": {
+      "allowed": true,
+      "scope": "platform",
+      "purpose": "Theia workbench shell (ADR-001). This repository is a source fork of Theia.",
+      "owner": "Engineering",
+      "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0",
+      "networkCapable": true,
+      "native": false,
+      "dataBoundary": "workbench chrome only; Ivory domain state stays behind the IV-18 typed API",
+      "sourceContentCrossesBoundary": false,
+      "versionPolicy": "exact",
+      "replacementPath": "none in V1; ADR-001 is a binding platform decision"
+    },
+    "@theia/filesystem": { "allowed": true, "scope": "platform", "purpose": "Theia filesystem contribution used by the Ivory browser assembly.", "owner": "Engineering", "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0", "networkCapable": false, "native": false, "dataBoundary": "workbench chrome only", "sourceContentCrossesBoundary": false, "versionPolicy": "exact", "replacementPath": "none in V1 (ADR-001)" },
+    "@theia/messages": { "allowed": true, "scope": "platform", "purpose": "Theia notification contribution used by the Ivory browser assembly.", "owner": "Engineering", "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0", "networkCapable": false, "native": false, "dataBoundary": "workbench chrome only", "sourceContentCrossesBoundary": false, "versionPolicy": "exact", "replacementPath": "none in V1 (ADR-001)" },
+    "@theia/preferences": { "allowed": true, "scope": "platform", "purpose": "Theia preference contribution used by the Ivory browser assembly.", "owner": "Engineering", "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0", "networkCapable": false, "native": false, "dataBoundary": "workbench chrome only", "sourceContentCrossesBoundary": false, "versionPolicy": "exact", "replacementPath": "none in V1 (ADR-001)" },
+    "@theia/process": { "allowed": true, "scope": "platform", "purpose": "Theia process contribution required by the browser backend assembly.", "owner": "Engineering", "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0", "networkCapable": false, "native": true, "dataBoundary": "workbench chrome only", "sourceContentCrossesBoundary": false, "versionPolicy": "exact", "replacementPath": "none in V1 (ADR-001)" },
+    "@theia/workspace": { "allowed": true, "scope": "platform", "purpose": "Theia workspace contribution used by the Ivory browser assembly.", "owner": "Engineering", "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0", "networkCapable": false, "native": false, "dataBoundary": "workbench chrome only", "sourceContentCrossesBoundary": false, "versionPolicy": "exact", "replacementPath": "none in V1 (ADR-001)" },
+    "@theia/cli": { "allowed": true, "scope": "build-tooling", "purpose": "Theia application build and start tooling; build-time only.", "owner": "Engineering", "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0", "networkCapable": true, "native": false, "dataBoundary": "build-time only; never shipped", "sourceContentCrossesBoundary": false, "versionPolicy": "exact", "replacementPath": "none in V1 (ADR-001)" },
+    "@theia/ext-scripts": { "allowed": true, "scope": "build-tooling", "purpose": "Theia per-package build, lint, and test script wrapper; build-time only.", "owner": "Engineering", "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0", "networkCapable": false, "native": false, "dataBoundary": "build-time only; never shipped", "sourceContentCrossesBoundary": false, "versionPolicy": "exact", "replacementPath": "none in V1 (ADR-001)" }
+  },
+
+  "images": {
+    "docling": {
+      "ref": "quay.io/docling-project/docling-serve:v1.21.0@sha256:32b3de41f325f93c1dd35907cd9147fa35df9f7c5abc86eb2788b6bda7ce6d10",
+      "environment": "runtime",
+      "digestRequired": true,
+      "purpose": "Docling conversion worker behind the versioned conversion port.",
+      "owner": "Engineering",
+      "supportedMirror": "ghcr.io/docling-project/docling-serve, only after resolving the same v1.21.0 manifest list and recording the mirror digest"
+    },
+    "postgres": {
+      "ref": "pgvector/pgvector:pg16@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "environment": "local",
+      "digestRequired": true,
+      "purpose": "Local PostgreSQL + pgvector for the development Compose profile.",
+      "owner": "Engineering"
+    },
+    "object-store": {
+      "ref": "quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1@sha256:e08497cde44985e0c36cacd391c9723831293d789d569cc967685f2fe17a7463",
+      "environment": "local",
+      "digestRequired": true,
+      "purpose": "Local S3-compatible object store for the development Compose profile.",
+      "owner": "Engineering"
+    },
+    "object-store-init": {
+      "ref": "quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z@sha256:eb4ea9884b77704230e2423e9004d2fa738dc272876b9cc41a297d29443b8780",
+      "environment": "local",
+      "digestRequired": true,
+      "purpose": "One-shot bucket creation for the local Compose profile.",
+      "owner": "Engineering"
+    }
+  },
+
+  "mutableTagPatterns": ["latest", "main", "master", "edge", "stable", "dev", "nightly"],
+
+  "secretScan": {
+    "sentinel": "IVORY_SENTINEL_SECRET_DO_NOT_COMMIT_4f2b8c1d9e",
+    "localDevelopmentPasswords": ["ivory", "ivory-development-only", "postgres", "password"],
+    "note": "Critical patterns are scanned across the whole repository. The remaining patterns are scanned over the Ivory-owned surface only; upstream Theia hygiene is not this gate's subject. Runtime log, telemetry, and audit-shaped redaction is the IV-22 contract in docs/iv-22-deployment-secrets.md.",
+    "criticalPatterns": ["sentinel", "aws-access-key", "private-key", "github-token", "sentry-dsn"],
+    "scanPaths": [
+      "packages/ivory-*/**",
+      "examples/ivory-tower-browser/**",
+      "scripts/**",
+      "infra/**",
+      "configs/**",
+      "docs/**",
+      ".env.example",
+      ".github/workflows/ivory-tower.yml",
+      "package.json",
+      "AGENTS.md",
+      "CLAUDE.md"
+    ],
+    "allowlist": [
+      {
+        "path": ".env.example",
+        "reason": "Documented template of empty placeholders and local development defaults; contains no live credential.",
+        "owner": "Engineering",
+        "patterns": ["postgres-url"]
+      },
+      {
+        "path": "infra/docker-compose.yml",
+        "reason": "Local Compose profile credentials (ivory / ivory-development-only) that never leave a developer machine.",
+        "owner": "Engineering",
+        "patterns": ["postgres-url"]
+      },
+      {
+        "path": "scripts/verify-ivory-runtime.mjs",
+        "reason": "Local runtime verification harness using the same Compose development credentials.",
+        "owner": "Engineering",
+        "patterns": ["postgres-url"]
+      },
+      {
+        "path": "scripts/verify-ivory-session-04.mjs",
+        "reason": "Local Session 04 runtime and migration-recovery verifier using the same Compose development credentials.",
+        "owner": "Engineering",
+        "patterns": ["postgres-url"]
+      },
+      {
+        "path": "packages/ivory-tower-infrastructure/src/sentry.spec.ts",
+        "reason": "Fabricated connection string used to assert that Sentry scrubs database URLs out of event payloads; the test would be meaningless without a password-shaped value.",
+        "owner": "Engineering",
+        "patterns": ["postgres-url"]
+      },
+      {
+        "path": "packages/ivory-tower-infrastructure/src/package.spec.ts",
+        "reason": "Environment validation test asserting that a fabricated connection string is rejected before startup.",
+        "owner": "Engineering",
+        "patterns": ["postgres-url"]
+      },
+      {
+        "path": "packages/ivory-tower-infrastructure/src/deployment-profiles.spec.ts",
+        "reason": "Profile-contract tests plant non-local postgres URLs to prove staging/production reject local defaults and accept injected secrets.",
+        "owner": "Engineering",
+        "patterns": ["postgres-url"]
+      },
+      {
+        "path": "packages/ivory-tower-infrastructure/src/redact.spec.ts",
+        "reason": "Adversarial redaction tests plant database URLs and Bearer tokens so the shared redactor is proven, not described.",
+        "owner": "Engineering",
+        "patterns": ["postgres-url"]
+      },
+      {
+        "path": "packages/ivory-tower-api/src/package.spec.ts",
+        "reason": "HTTP 500 test plants a database URL in an thrown Error to prove the generic internal_error body does not echo it.",
+        "owner": "Engineering",
+        "patterns": ["postgres-url"]
+      },
+      {
+        "path": "scripts/fixtures/dependency-policy/sentinel-secret/deploy.env",
+        "reason": "Adversarial fixture that must contain a credential-shaped assignment so `npm run dependency:policy` can prove the secret scan still rejects it. The value is the fixture's own sentinel, not a credential, and the fixture is scanned under its own policy where nothing is allowlisted.",
+        "owner": "Engineering",
+        "patterns": ["credential-assignment"]
+      },
+      {
+        "path": "configs/ivory-dependency-policy.json",
+        "reason": "Declares the sentinel value that the scanner searches for.",
+        "owner": "Engineering",
+        "patterns": ["sentinel"]
+      }
+    ]
+  },
+
+  "dataTerms": {
+    "note": "Model licences and external scholarly-data terms are recorded separately from software licences. A software licence is never authorization to ingest scholarly content (IV-19 professor lens); admission is governed by IV-20/IV-83 and docs/iv-128-content-rights.md.",
+    "modelAssets": [],
+    "scholarlyDataTerms": [
+      { "source": "PMC Open Access subset", "termsRecordedIn": "docs/iv-128-content-rights.md", "v1Status": "safe-open allowlist", "softwareLicenseApplies": false },
+      { "source": "arXiv", "termsRecordedIn": "docs/iv-128-content-rights.md", "v1Status": "safe-open allowlist; per-article licence recorded at admission", "softwareLicenseApplies": false },
+      { "source": "DOAJ-indexed open-access journals", "termsRecordedIn": "docs/iv-128-content-rights.md", "v1Status": "safe-open allowlist; approved CC or public-domain terms only", "softwareLicenseApplies": false }
+    ],
+    "providerTerms": [
+      { "provider": "external model providers", "v1Status": "no provider SDK is a direct dependency at this commit; IV-87 egress authorization applies before any is added", "softwareLicenseApplies": false }
+    ]
+  },
+
+  "exceptions": [
+    {
+      "kind": "license-review",
+      "subject": "jschardet@2.3.0",
+      "licenseExpression": "LGPL-2.1+",
+      "reason": "Encoding detection, inherited transitively from upstream Theia core. Consumed as an unmodified published package and dynamically imported; no LGPL source is modified or statically linked into an Ivory artifact.",
+      "owner": "Engineering",
+      "expires": "2027-02-19",
+      "reviewTrigger": "next adopted Theia upstream release, or any change to how the package is bundled",
+      "compensatingControl": "Package and licence text appear in the generated third-party notices; the monthly upstream drift review re-checks the licence expression and bundling mode."
+    },
+    {
+      "kind": "license-review",
+      "subject": "@vscode/codicons@0.0.45",
+      "licenseExpression": "CC-BY-4.0",
+      "reason": "Icon font shipped in the workbench chrome. CC-BY-4.0 is an attribution licence, not a software licence; the obligation is attribution, which the notices artifact satisfies.",
+      "owner": "Engineering",
+      "expires": "2027-02-19",
+      "reviewTrigger": "next adopted Theia upstream release",
+      "compensatingControl": "Attribution recorded in the generated third-party notices."
+    },
+    {
+      "kind": "license-unknown",
+      "subject": "busboy@1.6.0",
+      "reason": "Published package metadata omits a license field; confirmed against the registry packument on 2026-08-19. The package ships its licence text in its own LICENSE file, which cannot be read from lockfile metadata alone.",
+      "owner": "Engineering",
+      "expires": "2026-11-19",
+      "reviewTrigger": "before the first tagged release; resolve from the installed package LICENSE file",
+      "compensatingControl": "Transitive build/runtime dependency of upstream Theia; recorded in the SBOM and flagged in the notices artifact as licence-unconfirmed."
+    },
+    {
+      "kind": "license-unknown",
+      "subject": "streamsearch@1.1.0",
+      "reason": "Published package metadata omits a license field; confirmed against the registry packument on 2026-08-19.",
+      "owner": "Engineering",
+      "expires": "2026-11-19",
+      "reviewTrigger": "before the first tagged release; resolve from the installed package LICENSE file",
+      "compensatingControl": "Transitive dependency of busboy; recorded in the SBOM and flagged in the notices artifact as licence-unconfirmed."
+    },
+    {
+      "kind": "license-unknown",
+      "subject": "fuzzy@0.1.3",
+      "reason": "Published package metadata omits a license field; confirmed against the registry packument on 2026-08-19.",
+      "owner": "Engineering",
+      "expires": "2026-11-19",
+      "reviewTrigger": "before the first tagged release; resolve from the installed package LICENSE file",
+      "compensatingControl": "Transitive dependency of upstream Theia; recorded in the SBOM and flagged in the notices artifact as licence-unconfirmed."
+    },
+    {
+      "kind": "license-unknown",
+      "subject": "xmlhttprequest-ssl@2.1.2",
+      "reason": "Published package metadata omits a license field; confirmed against the registry packument on 2026-08-19.",
+      "owner": "Engineering",
+      "expires": "2026-11-19",
+      "reviewTrigger": "before the first tagged release; resolve from the installed package LICENSE file",
+      "compensatingControl": "Transitive dependency of engine.io-client via upstream Theia; recorded in the SBOM and flagged in the notices artifact as licence-unconfirmed."
+    }
+  ],
+  "advisoryExceptions": []
+}

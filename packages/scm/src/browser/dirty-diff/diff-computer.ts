@@ -76,7 +76,11 @@ export class DiffComputer {
 
 }
 
-class ArrayDiff extends jsdiff.Diff {
+// diff@8 requires 1-3 type arguments on its generic Diff base class (TokenT, ValueT, InputValueT).
+// This adapter deliberately performs no tokenization (see the identity overrides below), so no
+// narrower type than `any` describes what it is given.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+class ArrayDiff extends jsdiff.Diff<any, any, any> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     override tokenize(value: any): any {
         return value;
