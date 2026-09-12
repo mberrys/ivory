@@ -61,11 +61,11 @@ export class PostgresN4QualificationStore implements N4QualificationStore {
             [project.id, project.name, project.createdAt],
         );
         const row = result.rows[0];
-        if (!row) throw new Error(`N4 project was not persisted: ${project.id}`);
+        if (!row) {throw new Error(`N4 project was not persisted: ${project.id}`); }
         return { id: row.id, name: row.name, createdAt: row.created_at.toISOString() };
     }
     async addSourceToProject(projectId: string, contentHash: string): Promise<void> {
-        await this.pool.query(`INSERT INTO ivory_n4_project_sources (project_id, content_hash) VALUES ($1, $2) ON CONFLICT DO NOTHING`, [
+        await this.pool.query('INSERT INTO ivory_n4_project_sources (project_id, content_hash) VALUES ($1, $2) ON CONFLICT DO NOTHING', [
             projectId,
             contentHash,
         ]);
@@ -94,7 +94,7 @@ export class PostgresN4QualificationStore implements N4QualificationStore {
             ],
         );
         const row = result.rows[0];
-        if (!row) throw new Error(`N4 representation was not persisted: ${value.id}`);
+        if (!row) {throw new Error(`N4 representation was not persisted: ${value.id}`); }
         return representation(row);
     }
     async getRepresentation(id: string): Promise<N4RepresentationRecord | undefined> {
@@ -119,7 +119,7 @@ export class PostgresN4QualificationStore implements N4QualificationStore {
             ],
         );
         const row = result.rows[0];
-        if (!row) throw new Error(`N4 anchor was not persisted: ${value.id}`);
+        if (!row) {throw new Error(`N4 anchor was not persisted: ${value.id}`); }
         return anchor(row);
     }
     async listAnchors(projectId: string): Promise<readonly N4AnchorRecord[]> {
@@ -146,7 +146,7 @@ export class PostgresN4QualificationStore implements N4QualificationStore {
         try {
             await client.query('BEGIN');
             await client.query(
-                `INSERT INTO ivory_n4_transfer_audit (source_project_id, target_project_id, content_hash, allowed, reason, occurred_at) VALUES ($1,$2,$3,$4,$5,$6)`,
+                'INSERT INTO ivory_n4_transfer_audit (source_project_id, target_project_id, content_hash, allowed, reason, occurred_at) VALUES ($1,$2,$3,$4,$5,$6)',
                 [input.sourceProjectId, input.targetProjectId, input.contentHash, input.allowed, input.reason, input.occurredAt],
             );
             if (input.allowed) {
@@ -154,9 +154,9 @@ export class PostgresN4QualificationStore implements N4QualificationStore {
                     'SELECT 1 FROM ivory_n4_project_sources WHERE project_id = $1 AND content_hash = $2',
                     [input.sourceProjectId, input.contentHash],
                 );
-                if (membership.rowCount !== 1) throw new Error('N4 transfer source is not a project member.');
+                if (membership.rowCount !== 1) {throw new Error('N4 transfer source is not a project member.'); }
                 await client.query(
-                    `INSERT INTO ivory_n4_project_sources (project_id, content_hash) VALUES ($1,$2) ON CONFLICT DO NOTHING`,
+                    'INSERT INTO ivory_n4_project_sources (project_id, content_hash) VALUES ($1,$2) ON CONFLICT DO NOTHING',
                     [input.targetProjectId, input.contentHash],
                 );
             }

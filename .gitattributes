@@ -1,1 +1,6 @@
 fixtures/n4/pdf/*.pdf binary
+
+# N4 fixture corpus: the manifest pins byte digests, so these files must be byte-stable on
+# every platform. Without eol=lf a Windows checkout (core.autocrlf=true by default) rewrites the
+# CSVs and n4-corpus-qualification.spec fails its own fixture digest.
+fixtures/n4/csv/* text eol=lf
