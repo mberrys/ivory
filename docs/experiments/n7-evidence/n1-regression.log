@@ -1,18 +1,18 @@
 
 
   N1 research identity kernel
-    √ keeps the same command trace identical through cli and studio clients
-    √ preserves the original citation through source replacement and claim revision
-    √ keeps S1 closed over semantic references and ignores an activity back-link
-    √ requires explicit carry-forward and leaves old links on the old claim revision
-    √ rejects latest pointers and confidence scores
-    √ rejects stale expected heads and keeps overlapping annotations independent
-    √ renders attribution separately from endorsement for a reader
-    √ protects accepted revisions and snapshots from external mutation
-    √ rejects quotations and offsets that do not match a retained representation
-    √ refuses to commit objects with dangling references
-    √ rejects type mismatches at revision boundaries
-    √ records the carry-forward actor without rewriting link authorship
+    ✔ keeps the same command trace identical through cli and studio clients
+    ✔ preserves the original citation through source replacement and claim revision
+    ✔ keeps S1 closed over semantic references and ignores an activity back-link
+    ✔ requires explicit carry-forward and leaves old links on the old claim revision
+    ✔ rejects latest pointers and confidence scores
+    ✔ rejects stale expected heads and keeps overlapping annotations independent
+    ✔ renders attribution separately from endorsement for a reader
+    ✔ protects accepted revisions and snapshots from external mutation
+    ✔ rejects quotations and offsets that do not match a retained representation
+    ✔ refuses to commit objects with dangling references
+    ✔ rejects type mismatches at revision boundaries
+    ✔ records the carry-forward actor without rewriting link authorship
 
 
   12 passing (43ms)

@@ -1,34 +1,34 @@
 {
   "experiment": "N7",
   "contractVersion": "n7/1",
-  "observedAt": "2026-09-09T07:42:53.634Z",
+  "observedAt": "2026-09-12T22:42:53.213Z",
   "repository": {
-    "head": "f00d5735972a732333bc4eef3bcfa3fd151e38d9",
-    "branch": "n7-scoped-agent-proposals",
+    "head": "748ab97aa7275babba2c82399f88b24e53b630c8",
+    "branch": "dev-consolidation",
     "dirty": true,
     "sourceDigestEncoding": "SHA-256 of UTF-8 text with LF line endings",
     "sourceDigests": {
-      "package-lock.json": "6a5bfa8d404628296ecfa715b57cf6f2d13715dd53726c204b6b5b851d64cf5b",
-      "package.json": "7393159fadc7160230ccd67d68956e6b2bb6b55db130f2f8efdf02d500e759f7",
-      "packages/ivory-identity/src/common/canonical-preimage.spec.ts": "f83377a4c30d929f7c52f37cfa98825b59fd2f8fc972a068cafd572cda8781d6",
-      "packages/ivory-identity/src/common/canonical-preimage.ts": "a1c8a4af6f0684636480d8e808f934418c2f76bf6dae8b0ac6817b28ca4d70cc",
-      "packages/ivory-identity/src/common/identifier-alias.spec.ts": "4ad7317246c0a47b809df72121fd6fab89b401f53747ab897df903b68673032b",
-      "packages/ivory-identity/src/common/identifier-alias.ts": "d451cb3d645f8f9eea32314cdfae874821e583ccd546e61e9d3ca738345bba88",
-      "packages/ivory-identity/src/common/identifier.spec.ts": "348841f730f023d874f9ae4d830b0bc6503f11f10102bcd91d4de3e58fc7f72c",
-      "packages/ivory-identity/src/common/identifier.ts": "3391873f97d6f9f5fd17e64ffbf939120f6fe5607b3d5be5d1359bf7314017ea",
-      "packages/ivory-identity/src/common/identity-scheme.ts": "b0491abce3e71b51184371710e0fc9310b81e9574d204c84e376d34459c4f65f",
-      "packages/ivory-identity/src/common/passage-anchor.ts": "1222f4932a3de9f2d7711db31cbd54b663865bf63f3c9baf193270971d707296",
-      "packages/ivory-identity/src/node/digest.ts": "b413b933459f7f72e33409c774fd5f917ca197014f8114bbd492332cf03c13f6",
-      "packages/ivory-identity/src/node/identity-boundaries.spec.ts": "63fc6e190aa291a91ac0833360ae84ec8104839bfae5ce48c1e6c192f581de28",
-      "packages/ivory-identity/src/node/identity.spec.ts": "c2fccdbce53530a9ab18dc56ff8ed8d798ef56d37a25be953c7b6a098ca35427",
-      "packages/ivory-identity/src/node/identity.ts": "eae28b454268bef73d5d20b8eb90f9e2b3a9dccf9986b277fd0c60e169bbaca3",
-      "packages/ivory-identity/src/node/test/identity-fixtures.ts": "3dbe573aa8c2ef144a96a80386f9ca557840f593bffe49cc0b34508ea2905fcb",
+      "package-lock.json": "0ffc5b784799e08c4f5018f3c686b3a0ac37eb76c87814bf7cdbda15435d261e",
+      "package.json": "253634ba1c9a4fb36b3df5274dcd1f598afe38640f5e7a87797cb0f703e05219",
+      "packages/ivory-identity/src/common/canonical-preimage.spec.ts": "81157f441a70713a86582e45c847ef22ed4f14103e68d2fcc7dc0990063f7e6c",
+      "packages/ivory-identity/src/common/canonical-preimage.ts": "10a7561de5c39023c515b18e607ee2ab983914edd05ee46e1fe55e587f8d8b11",
+      "packages/ivory-identity/src/common/identifier-alias.spec.ts": "bd1eef50ded8301a56c1e3346f9e8f1c76096b4598c1568d0cef1ff56197a2cc",
+      "packages/ivory-identity/src/common/identifier-alias.ts": "f68bdc1869c60fd6c5f4d5d7b5721bcb91d03e70fcfba605f3f750e0f9e427e0",
+      "packages/ivory-identity/src/common/identifier.spec.ts": "f4ef696a37deb7127d21459597db2a495da098f06c0d0986eb03862161aff8e1",
+      "packages/ivory-identity/src/common/identifier.ts": "b7d1b15eff939f2c9fc81dd8380c81c58611acf8c50e857982fa9e28bfcbbafe",
+      "packages/ivory-identity/src/common/identity-scheme.ts": "0dabd19a2d35f349d82a29d44895995ddbaed2e3611d5e4d8538317c4d0fe994",
+      "packages/ivory-identity/src/common/passage-anchor.ts": "16aa30a269a525bfae6429a042b89a226d34178cc35327f668bb1f2f82d8c721",
+      "packages/ivory-identity/src/node/digest.ts": "bfb9fd82bc8015b1113e86bb2be76f4cbd8f05e414ff2e5c7fdc1f9168cc0e12",
+      "packages/ivory-identity/src/node/identity-boundaries.spec.ts": "a7df8068880de3ec16f967cfe95c763cb3e0cf43e811944d884b2290f0d8ff35",
+      "packages/ivory-identity/src/node/identity.spec.ts": "bbd13287e4655d6bc34982e7802f4e20f7927cfbf6041bf2451f150f9decd5f7",
+      "packages/ivory-identity/src/node/identity.ts": "bb558eb270731f13b0553685edf0398a2bc2b5f565fe507c8b6b35f2feea0b20",
+      "packages/ivory-identity/src/node/test/identity-fixtures.ts": "c11ac9e2ee5402d8d616edf69aeb985b92e3df0ebb19ff4e641868d08b30f630",
       "packages/ivory-tower-agent-experiment/fixtures/recorded-response.json": "2aec0b0a18d96fc61da7f2b062ff5c30edbe3cf0277840e03dc4b3e5569b2c60",
       "packages/ivory-tower-agent-experiment/package.json": "928e33916d94c529a893729a79886b22de059ea00dde76807d4f8559d9e6db73",
       "packages/ivory-tower-agent-experiment/src/core.ts": "ae3d9f05c56fd9c2538ab9d7d108efa2dbbeae765e3a158fed4973a0799b66d3",
       "packages/ivory-tower-agent-experiment/src/provider.ts": "8f26c28e21f68f0f6828175e029fc4d2aed63c7d6ceecc9ae08706d27937fef5",
       "packages/ivory-tower-agent-experiment/src/server.ts": "a31708d62546200a9af7894de49e3ebe71c5a4c73293c64cbf0e24dd112074df",
-      "packages/ivory-tower-agent-experiment/tsconfig.json": "9db034e91f1c1a8316a566f50f2698bbaaae09dd6ba2d7ed52ca0a4df16c2bfa",
+      "packages/ivory-tower-agent-experiment/tsconfig.json": "a98416008ff09c5b51f3e240b28eeca496da2f013e6f32ca755aca79e655b7bb",
       "packages/ivory-tower-research-kernel/src/node/canonical.ts": "094b91a847a2bf0df2b929b2fb4801bcd601ebf42102efd6dc91cbf84b941b43",
       "packages/ivory-tower-research-kernel/src/node/clients.ts": "fbcd81fa56d66b22aca673ebbd8ed72bdb8eda6cf6d43e65c7ea37ffff78ac53",
       "packages/ivory-tower-research-kernel/src/node/fixture.ts": "e804015969d71624493ebcb419140dffa435bdf29967d7bbee035453333cc989",
@@ -53,7 +53,7 @@
     "release": "10.0.26200",
     "arch": "x64",
     "cpu": "12th Gen Intel(R) Core(TM) i9-12900KF",
-    "totalMemoryBytes": 68501536768,
+    "totalMemoryBytes": 68501532672,
     "node": "v24.16.0",
     "typescript": "5.9.3",
     "mcpSdk": "1.30.0",
@@ -67,7 +67,7 @@
         "scripts/n7/build.mjs"
       ],
       "exitCode": 0,
-      "durationMs": 2898,
+      "durationMs": 2720,
       "log": "n7-evidence/build.log",
       "logDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "passed": true
@@ -84,26 +84,26 @@
         "scripts/n7/review.test.mjs"
       ],
       "exitCode": 0,
-      "durationMs": 1720,
+      "durationMs": 1741,
       "log": "n7-evidence/tests.log",
-      "logDigest": "78b0e2370ed4a8dda41d34f49894ef631a6133a8e9b9674cf14410da0dfcc9b0",
+      "logDigest": "433cc5fb3e3c34ef9f16f9bc6d3788361cf928603f2483032a1528298c33a6f6",
       "passed": true
     },
     {
       "name": "n1-regression",
       "command": [
         "node",
-        "C:\\.dev\\repos\\ivory-tower\\.worktrees\\v2-n1-experiment\\node_modules\\mocha\\bin\\mocha.js",
+        "<repo>/node_modules\\mocha\\bin\\mocha.js",
         "packages/ivory-tower-research-kernel/lib/node/research-kernel.spec.js"
       ],
       "exitCode": 0,
-      "durationMs": 240,
+      "durationMs": 235,
       "log": "n7-evidence/n1-regression.log",
-      "logDigest": "a1686fc7ea5bea022e3d46e9868b8f3f172494f7f128d09155e0a2ae4bbdc731",
+      "logDigest": "1caedb5b9ad563d0d4293c1ac1ee12659c8abe139dfb143fae5e40dcd0bfe1db",
       "passed": true
     }
   ],
-  "fixtureDigest": "2aec0b0a18d96fc61da7f2b062ff5c30edbe3cf0277840e03dc4b3e5569b2c60",
+  "fixtureDigest": "22a73c2263da760877d7fc048ac8188ff4767ef19d7b86e37759707b641a5ca5",
   "deterministic": {
     "status": "passed",
     "tests": 31,
@@ -162,6 +162,6 @@
   "decision": "deterministic-pass-live-provider-open",
   "transmissionEvidence": {
     "path": "n7-evidence/transmissions.json",
-    "digest": "657d2e635761aea27e6a24d29aba57df429e12b92def24cd1dc150ae3f4f96f0"
+    "digest": "df38a29d7e2b04a5bed37fcf9a77c8db285c11bc4cd78dadc5bfa1bcaae94875"
   }
 }

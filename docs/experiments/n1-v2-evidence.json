@@ -2,7 +2,7 @@
   "evidenceVersion": "n1-v2-evidence/1",
   "experiment": "N1 - research identity, snapshot closure and interpretation semantics",
   "contractVersion": "n1-revision/1",
-  "repositoryCommit": "b456adffa8d47e94d90190cee79105f9530f45cd",
+  "repositoryCommit": "748ab97aa7275babba2c82399f88b24e53b630c8",
   "repositoryBranch": "dev-consolidation",
   "sourceDocuments": [
     "Ivory Tower V1 High-Level Architecture and Implementation Plan.pdf: V2.1-V2.11 and N1",
@@ -56,10 +56,10 @@
       "selectorsRequireRetainedMaterial": true
     },
     "timingsMs": {
-      "goldenTrace": 6.37,
-      "cliTrace": 2.67,
-      "studioTrace": 2.44,
-      "total": 66.43
+      "goldenTrace": 6.13,
+      "cliTrace": 2.59,
+      "studioTrace": 2.3,
+      "total": 60.9
     },
     "failures": []
   },
