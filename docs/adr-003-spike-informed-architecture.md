@@ -60,6 +60,29 @@ benchmark: any change to snapshot or closure semantics must re-run
   and `npm run check:ivory-install`, which are part of M1's exit criteria.
 - Spike branches are frozen after their merges (see `docs/experiments/README.md` and the N-gate manifest).
 
+## Deferred: N5 (Theia shell and external-client equivalence)
+
+N5 was **not** merged into this consolidation. `N5-architecture-proof` (local `0a902217d`, origin
+`91fe5341f`) carries, besides the client work, a second research-implementation surface:
+
+- `ResearchServicePort` declared inside `packages/ivory-tower-api/src/api-server.ts` and wired in
+  `src/start.ts`, with its own readiness signature (`() => Promise<boolean>`) that contradicts the canonical
+  `IvoryReadyReport` path already merged from the ivory line;
+- `packages/ivory-tower-contracts/src/research-contracts.ts` plus `research-contract.spec.ts`;
+- `packages/ivory-tower-infrastructure/src/in-memory-research-service.ts`;
+- its own `packages/ivory-n5-shell` and a second browser application, `examples/ivory-n5-browser`;
+- edits to `scripts/check-ivory-boundaries.mjs` and `scripts/ivory-boundary-fixtures.json` (17 fixtures,
+  several addressing the N5 layer directories).
+
+Merging it wholesale would regress a currently green build (33 projects compile; `test:ivory-runtime` passes)
+for a gate that is **NOT_RUN** — there is no N5 evidence record. Merging only the self-contained parts
+(`packages/ivory-n5-client`, `scripts/n5/**`) leaves the boundary fixtures and package scripts pointing at
+removed directories, which fails `check:ivory-boundaries` (measured during this consolidation: exit 1).
+
+Decision: N5 stays on its branch and its gate stays open. When N5 is actually run it lands as a dedicated
+session that first decides whether its research-contract additions supersede the canonical API or are rewritten
+to consume it.
+
 ## Open question
 
 V1 is specified as local single-writer PGlite; the ivory line ships Postgres + Graphile + S3/MinIO + Docling +
