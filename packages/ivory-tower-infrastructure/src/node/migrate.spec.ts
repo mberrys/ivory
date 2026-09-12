@@ -4,10 +4,10 @@ import { expect } from 'chai';
 import { resolveIvoryMigrationBatch } from './migrate';
 
 describe('resolveIvoryMigrationBatch', () => {
-    const migrations = ['002_source_rights.sql', '001_runtime_topology.sql'];
+        const migrations = ['003_n4_qualification.sql', '002_source_rights.sql', '001_runtime_topology.sql'];
 
     it('returns the sorted migration list when no upper boundary is set', () => {
-        expect(resolveIvoryMigrationBatch(migrations)).to.deep.equal(['001_runtime_topology.sql', '002_source_rights.sql']);
+        expect(resolveIvoryMigrationBatch(migrations)).to.deep.equal(['001_runtime_topology.sql', '002_source_rights.sql', '003_n4_qualification.sql']);
     });
 
     it('includes the named upper boundary and every earlier migration', () => {

@@ -102,6 +102,8 @@ export interface ConversionPort {
         readonly artifact: Uint8Array;
         readonly artifactContentType: string;
         readonly normalizedPassages: readonly unknown[];
+        /** Converter-native layout/provenance, retained for inspectable PDF anchors when present. */
+        readonly structuredRepresentation?: unknown;
     }>;
 }
 

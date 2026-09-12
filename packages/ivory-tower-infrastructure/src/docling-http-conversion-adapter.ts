@@ -23,6 +23,7 @@ interface DoclingResponse {
     readonly document?: {
         readonly md_content?: string;
         readonly text_content?: string;
+        readonly json_content?: unknown;
     };
 }
 
@@ -43,6 +44,7 @@ export class DoclingHttpConversionAdapter implements ConversionPort {
         const body = request.content.slice().buffer as ArrayBuffer;
         form.append('files', new Blob([body], { type: request.contentType }), request.filename);
         form.append('to_formats', 'md');
+        form.append('to_formats', 'json');
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
         const abortRequest = () => controller.abort(request.signal?.reason);
@@ -75,6 +77,7 @@ export class DoclingHttpConversionAdapter implements ConversionPort {
                 parserVersion: request.parserVersion,
                 artifact,
                 artifactContentType: 'text/markdown',
+                structuredRepresentation: result.document?.json_content,
                 normalizedPassages: markdown
                     .split(/\n{2,}/u)
                     .filter(Boolean)

@@ -25,6 +25,15 @@ describe('ContentRightsAdmissionPolicy', () => {
         expect(decision.transferPermitted).to.equal(true);
     });
 
+    it('admits open CSV so missingness and non-ASCII labels can be retained by the N4 importer', async () => {
+        const policy = new ContentRightsAdmissionPolicy('vendorHosted');
+        const decision = await policy.admit({
+            filename: 'échantillon.csv', contentType: 'text/csv', license: 'CC-BY-4.0', authorizationEvidence: 'open license',
+            contentClass: 'openLicensed', acquisitionRoute: 'openRepository',
+        }, 'abc123');
+        expect(decision.allowed).to.equal(true);
+    });
+
     it('permits ingest but refuses transfer for arXiv without item licence confirmation', async () => {
         const policy = new ContentRightsAdmissionPolicy('vendorHosted');
         const decision = await policy.admit(

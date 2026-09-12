@@ -20,6 +20,9 @@
     },
     {
       "path": "../ivory-tower-domain"
+    },
+    {
+      "path": "../ivory-identity"
     }
   ]
 }
