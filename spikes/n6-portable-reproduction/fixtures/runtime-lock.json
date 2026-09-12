@@ -1,0 +1,8 @@
+{
+  "format": "ivory-n6-runtime/1",
+  "python": { "version": "3.12.12", "packages": [], "stdlib": ["csv", "json", "pathlib"] },
+  "r": { "version": "4.6.1", "packages": ["base", "utils"] },
+  "quarto": { "version": "1.8.27", "windowsUrl": "https://github.com/quarto-dev/quarto-cli/releases/download/v1.8.27/quarto-1.8.27-win.zip", "sha256": "b1d69b7abbc4664d438c85709b11170def5010b886a9f91482cb9b55f43cbd08" },
+  "render": "html",
+  "execution": "trusted synthetic fixture; no N3 isolation claim"
+}
