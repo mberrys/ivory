@@ -116,6 +116,11 @@
     "sbom:generate": "node scripts/generate-ivory-sbom.mjs",
     "notices:generate": "node scripts/generate-ivory-notices.mjs",
     "notices:check": "node scripts/generate-ivory-notices.mjs --check",
+    "verify:ivory-n3": "node scripts/ivory/n3-compute.mjs",
+    "test:ivory-n3": "node --test scripts/ivory/n3-*.spec.mjs",
+    "retain:ivory-n3": "node scripts/ivory/n3-retain.mjs",
+    "verify:ivory-n3-onboarding": "node scripts/ivory/n3-onboarding.mjs",
+
     "lint": "lerna run lint",
     "lint:clean": "rimraf .eslintcache",
     "lint:fix": "lerna run lint -- --fix",

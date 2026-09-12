@@ -1,0 +1,1148 @@
+{
+  "schema": "ivory-n3-evidence/1",
+  "status": "runtime-qualified",
+  "retainedAt": "2026-09-11T05:02:17.473Z",
+  "gitCommit": "e21cd613ee49f206c3e82aef2d00499bb60f5386",
+  "platform": {
+    "platform": "win32",
+    "arch": "x64",
+    "release": "10.0.26200",
+    "version": "Windows 11 Home",
+    "cpuModel": "12th Gen Intel(R) Core(TM) i9-12900KF",
+    "cpuCount": 24,
+    "totalMemoryBytes": 68501532672,
+    "nodeVersion": "v24.16.0"
+  },
+  "images": {
+    "python": "python@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea",
+    "r": "r-base@sha256:e7032f2f6fd273ee944a717b436bc66d1a89b1b90a9bbcaafcf1318d68a7d8b2"
+  },
+  "qualification": {
+    "python": {
+      "status": "runtime-qualified",
+      "failures": []
+    },
+    "r": {
+      "status": "runtime-qualified",
+      "failures": []
+    },
+    "failures": [],
+    "languageNeutral": true
+  },
+  "decision": {
+    "runtimeAdapter": "oci-container-probed",
+    "supportMatrix": "open-pending-onboarding",
+    "publicationStateMachine": "retained-semantic-protocol"
+  },
+  "onboarding": {
+    "record": {
+      "schema": "ivory-n3-onboarding/1",
+      "recordedAt": null,
+      "instructionsVersion": "docs/experiments/n3-onboarding-protocol.md@unreleased",
+      "platform": "windows-11-x64-docker-desktop-linux",
+      "participants": [],
+      "notes": "Empty until the exercise runs. verify:ivory-n3-onboarding reports this as not-applicable (exit 0) while it stays empty, and exits 1 once participants are recorded without meeting the four-of-five target."
+    },
+    "observed": false,
+    "acceptance": null
+  },
+  "python": {
+    "schema": "ivory-tower.n3-evidence",
+    "experiment": "N3",
+    "experimentVersion": "2.0",
+    "contractVersion": "n3-semantic-execution-v2",
+    "gitCommit": "e21cd613ee49f206c3e82aef2d00499bb60f5386",
+    "command": {
+      "executable": "C:/Program Files/nodejs/node.exe",
+      "script": "scripts/ivory/n3-compute.mjs",
+      "arguments": [
+        "--interrupt-publication",
+        "--measure",
+        "--artifact-root",
+        "artifacts/n3/python"
+      ]
+    },
+    "platform": {
+      "platform": "win32",
+      "arch": "x64",
+      "release": "10.0.26200",
+      "version": "Windows 11 Home",
+      "cpuModel": "12th Gen Intel(R) Core(TM) i9-12900KF",
+      "cpuCount": 24,
+      "totalMemoryBytes": 68501532672,
+      "nodeVersion": "v24.16.0"
+    },
+    "runtimeVersions": {
+      "node": "v24.16.0",
+      "docker": {
+        "client": {
+          "version": "29.7.2",
+          "apiVersion": "1.55",
+          "os": "windows",
+          "arch": "amd64"
+        },
+        "server": {
+          "version": "29.7.2",
+          "apiVersion": "1.55",
+          "os": "linux",
+          "arch": "amd64"
+        }
+      }
+    },
+    "fixtureDigests": {
+      "input": {
+        "path": "scripts/fixtures/n3/input.csv",
+        "bytes": 28,
+        "sha256": "91d578bf3955cfc669362766e81d14d49bff4474efb0675c758476d2580ffdd7"
+      },
+      "python": {
+        "path": "scripts/fixtures/n3/compute.py",
+        "bytes": 3911,
+        "sha256": "db27280bc771868a34ed72c3655e65551b35aa31f2c5a45a635dfd9e054df31b"
+      },
+      "r": {
+        "path": "scripts/fixtures/n3/compute.R",
+        "bytes": 225,
+        "sha256": "2714d587f972f6b23ae367ad1541587ac0104651c6cf902387d49d28ef93f049"
+      }
+    },
+    "configuration": {
+      "outputLimitBytes": 65536,
+      "resultLimitBytes": 65536,
+      "runTimeoutMs": 30000,
+      "resultContract": {
+        "version": "n3-result-v1",
+        "keys": [
+          "mean",
+          "rowCount",
+          "sum"
+        ]
+      },
+      "container": {
+        "networkMode": "none",
+        "readOnlyRootfs": true,
+        "user": "65532:65532",
+        "capDrop": [
+          "ALL"
+        ],
+        "securityOpt": [
+          "no-new-privileges:true"
+        ],
+        "pidsLimit": 64,
+        "memoryBytes": 268435456,
+        "nanoCpus": 1000000000,
+        "nofile": 256,
+        "fsize": 1024,
+        "inputMount": "/var/tmp",
+        "outputMount": "/tmp",
+        "tmpfs": "/dev/shm:rw,noexec,nosuid,size=16m"
+      },
+      "publicationInterruptionRequested": true
+    },
+    "protocolFaultMatrix": [
+      {
+        "owner": "core",
+        "boundary": "before-create",
+        "status": "not-created",
+        "isolated": true,
+        "reopened": true,
+        "workerPid": 8652,
+        "workerExited": true,
+        "workerAbruptExit": false,
+        "workerExitCode": 0,
+        "workerSignal": null,
+        "workerElapsedMs": 45
+      },
+      {
+        "owner": "core",
+        "boundary": "after-create",
+        "status": "queued",
+        "isolated": true,
+        "reopened": true,
+        "workerPid": 25400,
+        "workerExited": true,
+        "workerAbruptExit": true,
+        "workerExitCode": 70,
+        "workerSignal": null,
+        "workerElapsedMs": 164
+      },
+      {
+        "owner": "supervisor",
+        "boundary": "before-start",
+        "status": "queued",
+        "isolated": true,
+        "reopened": true,
+        "workerPid": 24972,
+        "workerExited": true,
+        "workerAbruptExit": true,
+        "workerExitCode": 70,
+        "workerSignal": null,
+        "workerElapsedMs": 82
+      },
+      {
+        "owner": "supervisor",
+        "boundary": "after-start",
+        "status": "running",
+        "isolated": true,
+        "reopened": true,
+        "workerPid": 24388,
+        "workerExited": true,
+        "workerAbruptExit": true,
+        "workerExitCode": 70,
+        "workerSignal": null,
+        "workerElapsedMs": 111
+      },
+      {
+        "owner": "supervisor",
+        "boundary": "before-publish",
+        "status": "running",
+        "isolated": true,
+        "reopened": true,
+        "workerPid": 3460,
+        "workerExited": true,
+        "workerAbruptExit": true,
+        "workerExitCode": 70,
+        "workerSignal": null,
+        "workerElapsedMs": 115
+      },
+      {
+        "owner": "supervisor",
+        "boundary": "after-artifact",
+        "status": "succeeded",
+        "artifactCount": 1,
+        "isolated": true,
+        "reopened": true,
+        "workerPid": 35332,
+        "workerExited": true,
+        "workerAbruptExit": true,
+        "workerExitCode": 70,
+        "workerSignal": null,
+        "workerElapsedMs": 232,
+        "recoveryElapsedMs": 20
+      },
+      {
+        "owner": "core",
+        "boundary": "after-publish",
+        "status": "succeeded",
+        "isolated": true,
+        "reopened": true,
+        "workerPid": 28184,
+        "workerExited": true,
+        "workerAbruptExit": true,
+        "workerExitCode": 70,
+        "workerSignal": null,
+        "workerElapsedMs": 414
+      },
+      {
+        "owner": "protocol",
+        "boundary": "cancellation-publication-race",
+        "status": "cancelled",
+        "latePublicationRejected": true,
+        "terminalOutcome": "cancelled",
+        "cancellationLatencyMs": 34
+      }
+    ],
+    "languageNeutralProtocol": "pending-python-and-r-confirmation",
+    "observations": {
+      "protocol": {
+        "boundaryCount": 7,
+        "restartRecoveryMs": 20,
+        "cancellationLatencyMs": 34
+      },
+      "runtime": {
+        "elapsedMs": 3283,
+        "warmLaunchMs": 3283,
+        "outputBytesCaptured": 19,
+        "resultBytes": 41
+      }
+    },
+    "architectureDecision": {
+      "status": "runtime-observed-language-qualified-open",
+      "decision": "Retain the semantic execution protocol and keep isolation behind a replaceable runtime adapter.",
+      "limitations": [
+        "This invocation does not select a supported operating system or production isolation profile.",
+        "An independent R repeat is still required before declaring language-neutral protocol semantics.",
+        "Required canaries that report a non-enforcement basis corroborate the mount-surface check; they are not independent proof of enforcement.",
+        "Container termination is observed via docker inspect before removal; a container removed before inspection fails the check."
+      ]
+    },
+    "limitations": [
+      "This invocation does not select a supported operating system or production isolation profile.",
+      "An independent R repeat is still required before declaring language-neutral protocol semantics.",
+      "Required canaries that report a non-enforcement basis corroborate the mount-surface check; they are not independent proof of enforcement.",
+      "Container termination is observed via docker inspect before removal; a container removed before inspection fails the check."
+    ],
+    "acceptance": {
+      "protocolLifecycleReopened": true,
+      "publicationRecoveryAfterRestart": true,
+      "cancellationPublicationFenced": true,
+      "runtimeAvailable": true,
+      "requiredCanariesDenied": true,
+      "escapeProbesRecorded": true,
+      "inputUnchanged": true,
+      "childProcessesTerminated": true,
+      "controlsEnforced": true,
+      "mountSurfaceMinimal": true,
+      "noPrivilegedEscalation": true,
+      "lateResultsFenced": true,
+      "oneTerminalPublicationOutcome": true,
+      "publicationRecoveredAfterInterrupt": true,
+      "resultOutputValidated": true,
+      "validOutputNotAdmittedAsFailure": true
+    },
+    "acceptanceCriteria": {
+      "protocolLifecycleReopened": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "publicationRecoveryAfterRestart": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "cancellationPublicationFenced": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "runtimeAvailable": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "requiredCanariesDenied": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "escapeProbesRecorded": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "inputUnchanged": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "childProcessesTerminated": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "controlsEnforced": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "mountSurfaceMinimal": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "noPrivilegedEscalation": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "lateResultsFenced": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "oneTerminalPublicationOutcome": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "publicationRecoveredAfterInterrupt": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "resultOutputValidated": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "validOutputNotAdmittedAsFailure": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      }
+    },
+    "rawArtifacts": [
+      {
+        "path": "logs/protocol-matrix.json",
+        "bytes": 2332,
+        "sha256": "266bb5fa6c22538037dc8b620742858c973981a4d824154044c3f4f8e9b13779"
+      },
+      {
+        "path": "logs/python-hostile.stdout.log",
+        "bytes": 65536,
+        "sha256": "62692c2cac59bcccf94dcceea9abf6e659445a0477ff95b09a7b45d1808acd86"
+      },
+      {
+        "path": "logs/python-hostile.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "logs/python-run.stdout.log",
+        "bytes": 19,
+        "sha256": "d51e4b91491ec151c3e05f836f2f2237cd9b660ce1dd5063f3674b5512b59dd8"
+      },
+      {
+        "path": "logs/python-run.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "image": "python@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea",
+    "language": "python",
+    "inputDigest": "91d578bf3955cfc669362766e81d14d49bff4474efb0675c758476d2580ffdd7",
+    "afterInputDigest": "91d578bf3955cfc669362766e81d14d49bff4474efb0675c758476d2580ffdd7",
+    "inputUnchanged": true,
+    "scriptDigest": "db27280bc771868a34ed72c3655e65551b35aa31f2c5a45a635dfd9e054df31b",
+    "idempotency": {
+      "firstReplayed": false,
+      "secondReplayed": true
+    },
+    "runtime": {
+      "status": "observed",
+      "exitCode": 0,
+      "outputLimit": false,
+      "stopReason": "normal-exit",
+      "timedOut": false,
+      "childProcessesTerminated": true,
+      "termination": {
+        "stopReason": "normal-exit",
+        "beforeStop": {
+          "Status": "exited",
+          "Running": false,
+          "Paused": false,
+          "Restarting": false,
+          "OOMKilled": false,
+          "Dead": false,
+          "Pid": 0,
+          "ExitCode": 0,
+          "Error": "",
+          "StartedAt": "2026-09-11T03:49:11.896181969Z",
+          "FinishedAt": "2026-09-11T03:49:13.348666251Z"
+        },
+        "afterStop": {
+          "Status": "exited",
+          "Running": false,
+          "Paused": false,
+          "Restarting": false,
+          "OOMKilled": false,
+          "Dead": false,
+          "Pid": 0,
+          "ExitCode": 0,
+          "Error": "",
+          "StartedAt": "2026-09-11T03:49:11.896181969Z",
+          "FinishedAt": "2026-09-11T03:49:13.348666251Z"
+        }
+      },
+      "controlsEnforced": true,
+      "controls": {
+        "networkMode": "none",
+        "readOnlyRootfs": true,
+        "privileged": false,
+        "user": "65532:65532",
+        "capDrop": [
+          "ALL"
+        ],
+        "securityOpt": [
+          "no-new-privileges:true"
+        ],
+        "pidsLimit": 64,
+        "memoryBytes": 268435456,
+        "nanoCpus": 1000000000,
+        "ulimits": [
+          {
+            "Name": "fsize",
+            "Hard": 1024,
+            "Soft": 1024
+          },
+          {
+            "Name": "nofile",
+            "Hard": 256,
+            "Soft": 256
+          }
+        ],
+        "tmpfs": {
+          "/dev/shm": "rw,noexec,nosuid,size=16m"
+        },
+        "mounts": [
+          {
+            "Type": "bind",
+            "Source": "<tmp>/ivory-n3-run-NETwez/input",
+            "Destination": "/var/tmp",
+            "Mode": "",
+            "RW": false,
+            "Propagation": "rprivate"
+          },
+          {
+            "Type": "bind",
+            "Source": "<tmp>/ivory-n3-run-NETwez/output",
+            "Destination": "/tmp",
+            "Mode": "",
+            "RW": true,
+            "Propagation": "rprivate"
+          }
+        ]
+      },
+      "elapsedMs": 3283,
+      "coldInstall": {
+        "elapsedMs": 17581,
+        "imageWasCachedBeforePull": false
+      },
+      "warmLaunchMs": 3283,
+      "resultContractVersion": "n3-result-v1",
+      "result": {
+        "mean": 20,
+        "rowCount": 3,
+        "sum": 60
+      },
+      "resultDigest": "1d44db2dd93ca7d73614d1c7b09fe3cd91bb3a3770d2b1a05b1b9b7a047d8ecb",
+      "resultBytes": 41,
+      "hostileCanaries": [
+        {
+          "name": "canonical-file-write",
+          "denied": true,
+          "basis": "read-only-filesystem",
+          "error": "OSError",
+          "errno": 30
+        },
+        {
+          "name": "path-symlink-escape",
+          "denied": true,
+          "basis": "read-only-filesystem",
+          "error": "OSError",
+          "errno": 30
+        },
+        {
+          "name": "host-home-read",
+          "denied": true,
+          "basis": "permission-denied",
+          "error": "PermissionError",
+          "errno": 13
+        },
+        {
+          "name": "network-egress",
+          "denied": true,
+          "basis": "network-unreachable",
+          "error": "OSError",
+          "errno": 101
+        },
+        {
+          "name": "process-escape",
+          "denied": true,
+          "basis": "absence",
+          "error": "FileNotFoundError",
+          "errno": 2
+        },
+        {
+          "name": "child-process",
+          "denied": null,
+          "basis": "supervisor-observed",
+          "childPid": 7
+        }
+      ],
+      "hostileCanaryOutcome": {
+        "requiredEnforced": true,
+        "escapeProbesRecorded": true,
+        "missing": [],
+        "observed": [
+          {
+            "name": "canonical-file-write",
+            "denied": true,
+            "basis": "read-only-filesystem",
+            "enforced": true
+          },
+          {
+            "name": "path-symlink-escape",
+            "denied": true,
+            "basis": "read-only-filesystem",
+            "enforced": true
+          },
+          {
+            "name": "network-egress",
+            "denied": true,
+            "basis": "network-unreachable",
+            "enforced": true
+          }
+        ]
+      },
+      "hostileOutputLimit": true,
+      "hostileStopReason": "output-limit",
+      "hostileChildProcessesTerminated": true,
+      "hostileTermination": {
+        "stopReason": "output-limit",
+        "beforeStop": {
+          "Status": "running",
+          "Running": true,
+          "Paused": false,
+          "Restarting": false,
+          "OOMKilled": false,
+          "Dead": false,
+          "Pid": 1466,
+          "ExitCode": 0,
+          "Error": "",
+          "StartedAt": "2026-09-11T03:49:08.14374837Z",
+          "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "afterStop": {
+          "Status": "exited",
+          "Running": false,
+          "Paused": false,
+          "Restarting": false,
+          "OOMKilled": false,
+          "Dead": false,
+          "Pid": 0,
+          "ExitCode": 137,
+          "Error": "",
+          "StartedAt": "2026-09-11T03:49:08.14374837Z",
+          "FinishedAt": "2026-09-11T03:49:10.157794439Z"
+        }
+      },
+      "hostileControlsEnforced": true
+    },
+    "publication": {
+      "interrupted": true,
+      "interruptionError": "Injected supervisor interruption after artifact write.",
+      "recovered": true,
+      "recoveryState": {
+        "version": 1,
+        "executionId": "n3-mtwf2xjv",
+        "intentDigest": "4d5b5100b0785f2432a5d070d904995be0eca20cfc16486cba5ccea18e2deb90",
+        "inputDigest": "91d578bf3955cfc669362766e81d14d49bff4474efb0675c758476d2580ffdd7",
+        "language": "python",
+        "image": "python@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea",
+        "status": "succeeded",
+        "currentAttempt": 1,
+        "createdAt": "2026-09-11T03:49:06.528Z",
+        "updatedAt": "2026-09-11T03:49:14.349Z",
+        "terminalOutcome": "succeeded",
+        "artifactKey": "artifacts/n3-mtwf2xjv-attempt-1.json",
+        "artifactDigest": "1d44db2dd93ca7d73614d1c7b09fe3cd91bb3a3770d2b1a05b1b9b7a047d8ecb"
+      },
+      "terminalOutcome": "succeeded",
+      "artifactCount": 1,
+      "lateAttempt": 1,
+      "replacementAttempt": 2,
+      "lateResultFenced": true,
+      "latePublicationState": {
+        "version": 1,
+        "executionId": "n3-mtwf2xjv",
+        "intentDigest": "4d5b5100b0785f2432a5d070d904995be0eca20cfc16486cba5ccea18e2deb90",
+        "inputDigest": "91d578bf3955cfc669362766e81d14d49bff4474efb0675c758476d2580ffdd7",
+        "language": "python",
+        "image": "python@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea",
+        "status": "running",
+        "currentAttempt": 2,
+        "createdAt": "2026-09-11T03:49:14.380Z",
+        "updatedAt": "2026-09-11T03:49:14.485Z"
+      }
+    }
+  },
+  "r": {
+    "schema": "ivory-tower.n3-evidence",
+    "experiment": "N3",
+    "experimentVersion": "2.0",
+    "contractVersion": "n3-semantic-execution-v2",
+    "gitCommit": "e21cd613ee49f206c3e82aef2d00499bb60f5386",
+    "command": {
+      "executable": "C:/Program Files/nodejs/node.exe",
+      "script": "scripts/ivory/n3-compute.mjs",
+      "arguments": [
+        "--language",
+        "r",
+        "--interrupt-publication",
+        "--measure",
+        "--artifact-root",
+        "artifacts/n3/r"
+      ]
+    },
+    "platform": {
+      "platform": "win32",
+      "arch": "x64",
+      "release": "10.0.26200",
+      "version": "Windows 11 Home",
+      "cpuModel": "12th Gen Intel(R) Core(TM) i9-12900KF",
+      "cpuCount": 24,
+      "totalMemoryBytes": 68501532672,
+      "nodeVersion": "v24.16.0"
+    },
+    "runtimeVersions": {
+      "node": "v24.16.0",
+      "docker": {
+        "client": {
+          "version": "29.7.2",
+          "apiVersion": "1.55",
+          "os": "windows",
+          "arch": "amd64"
+        },
+        "server": {
+          "version": "29.7.2",
+          "apiVersion": "1.55",
+          "os": "linux",
+          "arch": "amd64"
+        }
+      }
+    },
+    "fixtureDigests": {
+      "input": {
+        "path": "scripts/fixtures/n3/input.csv",
+        "bytes": 28,
+        "sha256": "91d578bf3955cfc669362766e81d14d49bff4474efb0675c758476d2580ffdd7"
+      },
+      "python": {
+        "path": "scripts/fixtures/n3/compute.py",
+        "bytes": 3911,
+        "sha256": "db27280bc771868a34ed72c3655e65551b35aa31f2c5a45a635dfd9e054df31b"
+      },
+      "r": {
+        "path": "scripts/fixtures/n3/compute.R",
+        "bytes": 225,
+        "sha256": "2714d587f972f6b23ae367ad1541587ac0104651c6cf902387d49d28ef93f049"
+      }
+    },
+    "configuration": {
+      "outputLimitBytes": 65536,
+      "resultLimitBytes": 65536,
+      "runTimeoutMs": 30000,
+      "resultContract": {
+        "version": "n3-result-v1",
+        "keys": [
+          "mean",
+          "rowCount",
+          "sum"
+        ]
+      },
+      "container": {
+        "networkMode": "none",
+        "readOnlyRootfs": true,
+        "user": "65532:65532",
+        "capDrop": [
+          "ALL"
+        ],
+        "securityOpt": [
+          "no-new-privileges:true"
+        ],
+        "pidsLimit": 64,
+        "memoryBytes": 268435456,
+        "nanoCpus": 1000000000,
+        "nofile": 256,
+        "fsize": 1024,
+        "inputMount": "/var/tmp",
+        "outputMount": "/tmp",
+        "tmpfs": "/dev/shm:rw,noexec,nosuid,size=16m"
+      },
+      "publicationInterruptionRequested": true
+    },
+    "protocolFaultMatrix": [
+      {
+        "owner": "core",
+        "boundary": "before-create",
+        "status": "not-created",
+        "isolated": true,
+        "reopened": true,
+        "workerPid": 21876,
+        "workerExited": true,
+        "workerAbruptExit": false,
+        "workerExitCode": 0,
+        "workerSignal": null,
+        "workerElapsedMs": 48
+      },
+      {
+        "owner": "core",
+        "boundary": "after-create",
+        "status": "queued",
+        "isolated": true,
+        "reopened": true,
+        "workerPid": 9384,
+        "workerExited": true,
+        "workerAbruptExit": true,
+        "workerExitCode": 70,
+        "workerSignal": null,
+        "workerElapsedMs": 103
+      },
+      {
+        "owner": "supervisor",
+        "boundary": "before-start",
+        "status": "queued",
+        "isolated": true,
+        "reopened": true,
+        "workerPid": 19356,
+        "workerExited": true,
+        "workerAbruptExit": true,
+        "workerExitCode": 70,
+        "workerSignal": null,
+        "workerElapsedMs": 98
+      },
+      {
+        "owner": "supervisor",
+        "boundary": "after-start",
+        "status": "running",
+        "isolated": true,
+        "reopened": true,
+        "workerPid": 28408,
+        "workerExited": true,
+        "workerAbruptExit": true,
+        "workerExitCode": 70,
+        "workerSignal": null,
+        "workerElapsedMs": 148
+      },
+      {
+        "owner": "supervisor",
+        "boundary": "before-publish",
+        "status": "running",
+        "isolated": true,
+        "reopened": true,
+        "workerPid": 35724,
+        "workerExited": true,
+        "workerAbruptExit": true,
+        "workerExitCode": 70,
+        "workerSignal": null,
+        "workerElapsedMs": 119
+      },
+      {
+        "owner": "supervisor",
+        "boundary": "after-artifact",
+        "status": "succeeded",
+        "artifactCount": 1,
+        "isolated": true,
+        "reopened": true,
+        "workerPid": 10536,
+        "workerExited": true,
+        "workerAbruptExit": true,
+        "workerExitCode": 70,
+        "workerSignal": null,
+        "workerElapsedMs": 324,
+        "recoveryElapsedMs": 19
+      },
+      {
+        "owner": "core",
+        "boundary": "after-publish",
+        "status": "succeeded",
+        "isolated": true,
+        "reopened": true,
+        "workerPid": 35116,
+        "workerExited": true,
+        "workerAbruptExit": true,
+        "workerExitCode": 70,
+        "workerSignal": null,
+        "workerElapsedMs": 234
+      },
+      {
+        "owner": "protocol",
+        "boundary": "cancellation-publication-race",
+        "status": "cancelled",
+        "latePublicationRejected": true,
+        "terminalOutcome": "cancelled",
+        "cancellationLatencyMs": 70
+      }
+    ],
+    "languageNeutralProtocol": "pending-python-and-r-confirmation",
+    "observations": {
+      "protocol": {
+        "boundaryCount": 7,
+        "restartRecoveryMs": 19,
+        "cancellationLatencyMs": 70
+      },
+      "runtime": {
+        "elapsedMs": 4865,
+        "warmLaunchMs": 4865,
+        "outputBytesCaptured": 19,
+        "resultBytes": 35
+      }
+    },
+    "architectureDecision": {
+      "status": "runtime-observed-language-qualified-open",
+      "decision": "Retain the semantic execution protocol and keep isolation behind a replaceable runtime adapter.",
+      "limitations": [
+        "This invocation does not select a supported operating system or production isolation profile.",
+        "A corresponding Python run must be retained with the R evidence for language-neutral protocol semantics.",
+        "Required canaries that report a non-enforcement basis corroborate the mount-surface check; they are not independent proof of enforcement.",
+        "Container termination is observed via docker inspect before removal; a container removed before inspection fails the check."
+      ]
+    },
+    "limitations": [
+      "This invocation does not select a supported operating system or production isolation profile.",
+      "A corresponding Python run must be retained with the R evidence for language-neutral protocol semantics.",
+      "Required canaries that report a non-enforcement basis corroborate the mount-surface check; they are not independent proof of enforcement.",
+      "Container termination is observed via docker inspect before removal; a container removed before inspection fails the check."
+    ],
+    "acceptance": {
+      "protocolLifecycleReopened": true,
+      "publicationRecoveryAfterRestart": true,
+      "cancellationPublicationFenced": true,
+      "runtimeAvailable": true,
+      "requiredCanariesDenied": null,
+      "escapeProbesRecorded": null,
+      "inputUnchanged": true,
+      "childProcessesTerminated": null,
+      "controlsEnforced": true,
+      "mountSurfaceMinimal": true,
+      "noPrivilegedEscalation": true,
+      "lateResultsFenced": true,
+      "oneTerminalPublicationOutcome": true,
+      "publicationRecoveredAfterInterrupt": true,
+      "resultOutputValidated": true,
+      "validOutputNotAdmittedAsFailure": true
+    },
+    "acceptanceCriteria": {
+      "protocolLifecycleReopened": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "publicationRecoveryAfterRestart": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "cancellationPublicationFenced": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "runtimeAvailable": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "requiredCanariesDenied": {
+        "required": false,
+        "observed": null,
+        "pass": null
+      },
+      "escapeProbesRecorded": {
+        "required": false,
+        "observed": null,
+        "pass": null
+      },
+      "inputUnchanged": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "childProcessesTerminated": {
+        "required": false,
+        "observed": null,
+        "pass": null
+      },
+      "controlsEnforced": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "mountSurfaceMinimal": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "noPrivilegedEscalation": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "lateResultsFenced": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "oneTerminalPublicationOutcome": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "publicationRecoveredAfterInterrupt": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "resultOutputValidated": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      },
+      "validOutputNotAdmittedAsFailure": {
+        "required": true,
+        "observed": true,
+        "pass": true
+      }
+    },
+    "rawArtifacts": [
+      {
+        "path": "logs/protocol-matrix.json",
+        "bytes": 2333,
+        "sha256": "378560420a38394b0e0405ae70ebb1cadcf72a291b56ca5a41c8c2267adedc35"
+      },
+      {
+        "path": "logs/r-run.stdout.log",
+        "bytes": 19,
+        "sha256": "d51e4b91491ec151c3e05f836f2f2237cd9b660ce1dd5063f3674b5512b59dd8"
+      },
+      {
+        "path": "logs/r-run.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "image": "r-base@sha256:e7032f2f6fd273ee944a717b436bc66d1a89b1b90a9bbcaafcf1318d68a7d8b2",
+    "language": "r",
+    "inputDigest": "91d578bf3955cfc669362766e81d14d49bff4474efb0675c758476d2580ffdd7",
+    "afterInputDigest": "91d578bf3955cfc669362766e81d14d49bff4474efb0675c758476d2580ffdd7",
+    "inputUnchanged": true,
+    "scriptDigest": "2714d587f972f6b23ae367ad1541587ac0104651c6cf902387d49d28ef93f049",
+    "idempotency": {
+      "firstReplayed": false,
+      "secondReplayed": true
+    },
+    "runtime": {
+      "status": "observed",
+      "exitCode": 0,
+      "outputLimit": false,
+      "stopReason": "normal-exit",
+      "timedOut": false,
+      "childProcessesTerminated": true,
+      "termination": {
+        "stopReason": "normal-exit",
+        "beforeStop": {
+          "Status": "exited",
+          "Running": false,
+          "Paused": false,
+          "Restarting": false,
+          "OOMKilled": false,
+          "Dead": false,
+          "Pid": 0,
+          "ExitCode": 0,
+          "Error": "",
+          "StartedAt": "2026-09-11T03:50:59.855840693Z",
+          "FinishedAt": "2026-09-11T03:51:00.391318337Z"
+        },
+        "afterStop": {
+          "Status": "exited",
+          "Running": false,
+          "Paused": false,
+          "Restarting": false,
+          "OOMKilled": false,
+          "Dead": false,
+          "Pid": 0,
+          "ExitCode": 0,
+          "Error": "",
+          "StartedAt": "2026-09-11T03:50:59.855840693Z",
+          "FinishedAt": "2026-09-11T03:51:00.391318337Z"
+        }
+      },
+      "controlsEnforced": true,
+      "controls": {
+        "networkMode": "none",
+        "readOnlyRootfs": true,
+        "privileged": false,
+        "user": "65532:65532",
+        "capDrop": [
+          "ALL"
+        ],
+        "securityOpt": [
+          "no-new-privileges:true"
+        ],
+        "pidsLimit": 64,
+        "memoryBytes": 268435456,
+        "nanoCpus": 1000000000,
+        "ulimits": [
+          {
+            "Name": "fsize",
+            "Hard": 1024,
+            "Soft": 1024
+          },
+          {
+            "Name": "nofile",
+            "Hard": 256,
+            "Soft": 256
+          }
+        ],
+        "tmpfs": {
+          "/dev/shm": "rw,noexec,nosuid,size=16m"
+        },
+        "mounts": [
+          {
+            "Type": "bind",
+            "Source": "<tmp>/ivory-n3-run-DZuBEg/output",
+            "Destination": "/tmp",
+            "Mode": "",
+            "RW": true,
+            "Propagation": "rprivate"
+          },
+          {
+            "Type": "bind",
+            "Source": "<tmp>/ivory-n3-run-DZuBEg/input",
+            "Destination": "/var/tmp",
+            "Mode": "",
+            "RW": false,
+            "Propagation": "rprivate"
+          }
+        ]
+      },
+      "elapsedMs": 4865,
+      "coldInstall": {
+        "elapsedMs": 97311,
+        "imageWasCachedBeforePull": false
+      },
+      "warmLaunchMs": 4865,
+      "resultContractVersion": "n3-result-v1",
+      "result": {
+        "mean": 20,
+        "rowCount": 3,
+        "sum": 60
+      },
+      "resultDigest": "135b6aa1ae9e3102f2236617ae9c75bcebe384931692bac3b6a54a489802514d",
+      "resultBytes": 35,
+      "hostileCanaries": null,
+      "hostileCanaryOutcome": null,
+      "hostileOutputLimit": false,
+      "hostileControlsEnforced": null
+    },
+    "publication": {
+      "interrupted": true,
+      "interruptionError": "Injected supervisor interruption after artifact write.",
+      "recovered": true,
+      "recoveryState": {
+        "version": 1,
+        "executionId": "n3-mtwf59zp",
+        "intentDigest": "4ff169e8022839c3a10ffbe8cf7cc9332bb6e4b136e1ee02189d95b4609d57da",
+        "inputDigest": "91d578bf3955cfc669362766e81d14d49bff4474efb0675c758476d2580ffdd7",
+        "language": "r",
+        "image": "r-base@sha256:e7032f2f6fd273ee944a717b436bc66d1a89b1b90a9bbcaafcf1318d68a7d8b2",
+        "status": "succeeded",
+        "currentAttempt": 1,
+        "createdAt": "2026-09-11T03:50:55.960Z",
+        "updatedAt": "2026-09-11T03:51:01.146Z",
+        "terminalOutcome": "succeeded",
+        "artifactKey": "artifacts/n3-mtwf59zp-attempt-1.json",
+        "artifactDigest": "135b6aa1ae9e3102f2236617ae9c75bcebe384931692bac3b6a54a489802514d"
+      },
+      "terminalOutcome": "succeeded",
+      "artifactCount": 1,
+      "lateAttempt": 1,
+      "replacementAttempt": 2,
+      "lateResultFenced": true,
+      "latePublicationState": {
+        "version": 1,
+        "executionId": "n3-mtwf59zp",
+        "intentDigest": "4ff169e8022839c3a10ffbe8cf7cc9332bb6e4b136e1ee02189d95b4609d57da",
+        "inputDigest": "91d578bf3955cfc669362766e81d14d49bff4474efb0675c758476d2580ffdd7",
+        "language": "r",
+        "image": "r-base@sha256:e7032f2f6fd273ee944a717b436bc66d1a89b1b90a9bbcaafcf1318d68a7d8b2",
+        "status": "running",
+        "currentAttempt": 2,
+        "createdAt": "2026-09-11T03:51:01.163Z",
+        "updatedAt": "2026-09-11T03:51:01.219Z"
+      }
+    }
+  }
+}

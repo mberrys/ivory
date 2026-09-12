@@ -56,3 +56,9 @@ data/
 /artifacts/
 examples/ivory-tower-browser/ivory-tower-browser.log
 examples/ivory-tower-browser/test-results/
+
+# Ivory Tower spike evidence (IV-19); generated, never committed.
+# The retained, reviewable copy lives in docs/experiments/.
+# Hermes plan-mode scratch space.
+.hermes/
+
