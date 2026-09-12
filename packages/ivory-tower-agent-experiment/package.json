@@ -1,0 +1,13 @@
+{
+  "name": "@ivory-tower/agent-experiment",
+  "version": "0.1.0",
+  "private": true,
+  "description": "N7 headless scoped proposal qualification; not a production service",
+  "main": "lib/core.js",
+  "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0",
+  "dependencies": {
+    "@ivory-tower/research-kernel": "0.1.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^3.25.76"
+  }
+}
