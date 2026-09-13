@@ -1,0 +1,96 @@
+{
+  "experiment": "N7",
+  "contractVersion": "n7/1",
+  "observedAt": "2026-09-13T04:40:27.065Z",
+  "repository": {
+    "head": "69805e3299deb477431e6d1e527bd7ebada5726a",
+    "branch": "cursor-n7-proposal-integrity-aeda",
+    "dirty": true,
+    "sourceDigestEncoding": "SHA-256 of UTF-8 text with LF line endings",
+    "sourceDigests": {
+      "docs/iv-n7-agent.md": "72b553fce09f92d109fe4b53ad2206172d92fdfca0b2dc8c338343e8f276a1c1",
+      "docs/where-new-behavior-goes.md": "e1526ed621a3d3d0a3e8f8a5a15809e823ee1033758446aef2cfc3ec7bcd5f9a",
+      "scripts/fixtures/n7/recorded-response.json": "e3cdb23c3a84c39343661012ebc8483cb479298a6ec8e51f10e2321e5a162bd3",
+      "scripts/ivory/n7-catalog.mjs": "3ec0ff5e39f159b1d331538e2f84c488f6b87ec2ee4b22251513579867712973",
+      "scripts/ivory/n7-catalog.spec.mjs": "a7ed849336b1cd00f3e1ce50b84ffadf30f3d3f6d48b02e3e6c8c6e7b1c8e478",
+      "scripts/ivory/n7-evidence.spec.mjs": "981dfbf449da341bcd7fe7ff348f184b13c93e929c3e66332a535aee3de6dbb2",
+      "scripts/ivory/n7-mcp.mjs": "7d492491f12fa90f8c9b15408f63ab61762beb8b78f0b5da23577b9381bf8730",
+      "scripts/ivory/n7-mcp.spec.mjs": "0c52de793b7a129aa94dcb0b24d05c2f79fd0c285d6444fc9dc4751187a71eda",
+      "scripts/ivory/n7-pipeline.mjs": "0e12ffdc8d78195aeecf8c8e6de638bd1aae4929843fb46d71fb4be0344469a8",
+      "scripts/ivory/n7-pipeline.spec.mjs": "7ead832da79c63a90794f5843ae25e5533634e63f0576bde6225df5df1638337",
+      "scripts/ivory/n7-retain.mjs": "38ddc4c2277e766f6c7148919ab6595ea0f61f8847ca3cf90189e54e8e6f6ba5"
+    }
+  },
+  "platform": {
+    "os": "linux",
+    "release": "6.12.94+",
+    "arch": "x64",
+    "cpu": "Intel(R) Xeon(R) Processor",
+    "totalMemoryBytes": 16791945216,
+    "node": "v22.14.0"
+  },
+  "fixtureDigest": "cde4963faf7cc25e11ff609a6f1ea5f1f8952205ebfc92f2cbdd3dcd5d8f9b47",
+  "deterministic": {
+    "status": "passed",
+    "tests": 24,
+    "passed": 24,
+    "failed": 0,
+    "skipped": 0,
+    "scenarios": [
+      "catalog operations declare Query, Command, Execution, or Proposal",
+      "no-model qualitative path creates a claim, annotation, and evidence link",
+      "exact refs reject latest, other projects, and ungranted fragments",
+      "mcp cannot accept and compute cannot propose",
+      "capability cannot grant accept, and unexpected proposal fields fail closed",
+      "proposals require a prior read of the exact excerpt",
+      "decline leaves accepted research state unchanged and cannot be reversed by resubmit",
+      "detached approval and mutated envelope cannot change a frozen proposal",
+      "search results and inspect calls stay on exact pinned refs",
+      "isolated catalog instances do not share writers",
+      "where-new-behavior-goes maps Core vs Compute vs Studio vs MCP",
+      "fixture transcripts never disclose the private canary or grant tools from source text",
+      "retained evidence, when present, records the four snapshots and an open live provider",
+      "MCP presenter exposes only resolve_fragment and propose_claim",
+      "MCP read-and-propose path uses the same catalog as CLI accept",
+      "studio, cli, mcp, and compute share one catalog and differ only by surface",
+      "pipeline records pre-execute, execute, post-execute, and result",
+      "fixture provider ignores adversarial source instructions",
+      "recorded fixture-provider snapshots cover the four N7 exercises",
+      "required egress control refuses extra hosts instead of falling back",
+      "http provider transmits only the retrieved excerpt and refuses redirects, extra tools, and timeouts",
+      "http provider fails closed on redirect, extra tool, timeout, and mid-request revoke",
+      "unsafe endpoints and implicit latest heads fail before dispatch",
+      "accepted run-spec preview does not accept an interpretation"
+    ],
+    "transcripts": [
+      "hostile-corpus",
+      "revoked-tool",
+      "stale-proposal",
+      "duplicate-accept"
+    ]
+  },
+  "liveProvider": {
+    "status": "not-run",
+    "reason": "Live qualification is opt-in and requires researcher review of exact transmission and proposal digests."
+  },
+  "limitations": [
+    "In-memory catalog, receipts, and proposal log only; no restart or crash durability claim (N2).",
+    "Synthetic fixtures and loopback HTTP observations do not qualify a hosted model provider.",
+    "Revocation cannot recall bytes already transmitted; late results are discarded.",
+    "No Theia integration, production authentication, or production MCP write capability.",
+    "Compute profile only previews a RunSpec; N3 owns governed execution."
+  ],
+  "gates": {
+    "noUndisclosedCorpusTransmission": true,
+    "noArbitraryCommandExecution": true,
+    "staleProposalRejected": true,
+    "repeatedAcceptanceOneEffect": true,
+    "modelOriginAttribution": true,
+    "proposalDoesNotAutoAccept": true,
+    "declineCoveredByCatalogTests": true,
+    "retrievalExactExcerpts": true,
+    "recordedFixtureSnapshots": true,
+    "noModelQualitativePath": true
+  },
+  "decision": "deterministic-pass-live-provider-open"
+}
