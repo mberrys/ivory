@@ -1,7 +1,7 @@
 # N3 v2 - Governed computation and publication
 
 **Status:** decided — pilot platform Windows 11 x64 + Docker Desktop (Linux containers); the support
-matrix is decided by the onboarding record `docs/experiments/n3-onboarding-record.json`.
+matrix remains open pending the onboarding cohort `docs/experiments/n3-onboarding-record.json`.
 
 N3 v2 is an experimental proof harness for the local Compute boundary. It
 answers a narrow question: can one captured table be processed by a bounded
