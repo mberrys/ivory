@@ -17,6 +17,7 @@ const evidence = { schema: 'ivory-n6-evidence/1', status: 'failed', humanQualifi
     commands: [], criteria: {}, limitations: [
         'Trusted synthetic study on Windows; no N3 containment or cross-platform claim.',
         'Five-researcher no-code study and executable product workflow remain pending.',
+        'PDF bytes are presentation-only: Typst does not guarantee byte-reproducible PDFs, so no PDF byte-identity gate exists.',
         'Experimental format; public format freeze is not authorized.',
     ] };
 
@@ -86,11 +87,16 @@ try {
     const repeated = await json(join(restored, '.ivory/local/n6-last-attempt.json'));
     assert.deepEqual(repeated.analytical, baseline.analytical);
     assert.equal(repeated.semanticDigest, baseline.semanticDigest);
+    assert.ok(baseline.pdfDigest && repeated.pdfDigest, 'Both runs must have rendered and validated the PDF lane');
     evidence.criteria.cleanReproduction = 'passed';
+    evidence.criteria.pdfLane = 'passed';
     evidence.baseline = baseline;
     evidence.restored = repeated;
+    // Reported, never gated: HTML and PDF bytes may legitimately differ between runs.
     evidence.presentation = { htmlBytesEqual: baseline.htmlDigest === repeated.htmlDigest,
-        analyticalEquivalent: true, policy: 'Presentation digests are reported separately from declared analytical comparisons.' };
+        pdfDigest: { baseline: baseline.pdfDigest, reproduced: repeated.pdfDigest },
+        pdfBytesEqual: baseline.pdfDigest === repeated.pdfDigest, analyticalEquivalent: true,
+        policy: 'Presentation digests (HTML and PDF) are reported separately from declared analytical comparisons and never gated: byte identity is not analytical equivalence.' };
     const inspected = await inspectProject(restored);
     evidence.fixtureDigest = digestBytes(Buffer.from(canonicalize(inspected.study)));
     const blob = inspected.dump.blob_refs[0].digest;
