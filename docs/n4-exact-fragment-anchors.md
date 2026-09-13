@@ -38,8 +38,10 @@ A-side extraction (at least five are required), persists the A/B representations
 reopens them from the qualification store, and checks their visibility after permitted project
 transfer. The full ledger is written to `artifacts/n4/qualification-ledger.json`, which is
 gitignored raw evidence (including the retained converter responses under `artifacts/n4/raw/`);
-the retained result lives in `docs/experiments/n4-v2-evidence.json`. The retained record currently
-says `NO-GO`, so this document claims no pass until a live two-converter run produces one.
+the retained result lives in `docs/experiments/n4-v2-evidence.json`. The retained record is
+`qualified`: the two-converter run converted all 22 fixtures, retained 120 real anchors with zero
+false-exact classifications, reopened every anchor exactly before and after permitted transfer,
+and recorded the declared `ocr_required` outcomes for the two image-only scanned fixtures.
 
 The ledger contains input/output and raw-response hashes, converter image digests, runtime and
 pull diagnostics, per-anchor observed and independent-oracle classifications, the 3x3 confusion

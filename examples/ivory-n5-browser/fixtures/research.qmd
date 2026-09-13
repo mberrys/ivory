@@ -1,0 +1,14 @@
+---
+title: "N5 Quarto fixture"
+format: html
+engine: knitr
+---
+
+## Reproducible result
+
+```{r}
+square <- function(value) value * value
+square(3)
+```
+
+The rendered document must contain the heading and the computed value 9.

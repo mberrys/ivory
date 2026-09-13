@@ -1,11 +1,36 @@
 # N4 V2 qualification record
 
-**Status:** open — awaiting a qualified two-converter run over the 22-fixture corpus.
+**Status:** qualified — 22 fixtures, zero false-exact, review queue disposition recorded above.
 
 This is the retained procedure and decision boundary for the N4 experiment described in the
 attached V1 implementation plan. The run is deliberately evidence-producing: a green static
 check does not become a converter qualification until the live ledger and the retained JSON
 record agree.
+
+## Review queue disposition
+
+The retained run classified all 120 anchors as `exact` under both the production remapper and the
+independent oracle, so there are zero review-queue entries to dispose of (`reviewQueueSize: 0`).
+
+| observed \ oracle | exact | ambiguous | unresolved |
+|---|---|---|---|
+| exact | 120 | 0 | 0 |
+| ambiguous | 0 | 0 | 0 |
+| unresolved | 0 | 0 | 0 |
+
+`falseExact` (matrix `exact→ambiguous` plus `exact→unresolved`) is 0. Two things must be stated
+plainly rather than left to inference:
+
+1. The differential's purpose — detecting silent re-anchoring when a representation changes — is
+   satisfied for this corpus: the two pinned converter versions produced byte-identical Markdown
+   for all 22 fixtures (the A and B `textSha256` values are equal for every fixture), so there was
+   no representation change for the remapper and the oracle to disagree about. That identity is
+   itself the observed result of Docling v1.21.0 versus v1.22.0 on these documents.
+2. The `ambiguous` and `unresolved` branches are exercised by the harness's own tests rather than
+   by this live corpus, and the corpus contains no repeated-quotation fixture. That is the
+   experiment's declared limitation: a follow-up could add a document with duplicated passages to
+   force an ambiguous remap against a changed representation. No disagreement is invented here,
+   and the zero false-exact claim stands as an empty off-diagonal, which is a result.
 
 ## Exact run
 
