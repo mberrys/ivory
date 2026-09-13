@@ -58,6 +58,12 @@ for (const dir of dirs) {
 const app = JSON.parse(readFileSync(path.join(root, 'examples/ivory-n5-browser/package.json')));
 const lock = JSON.parse(readFileSync(path.join(root, 'examples/ivory-n5-browser/extensions.lock.json')));
 const scanner = readFileSync(path.join(root, 'packages/ivory-n5-shell/src/node/scanner.ts'), 'utf8');
+const proxyModule = readFileSync(path.join(root, 'packages/ivory-n5-shell/src/node/module.ts'), 'utf8');
+if (!proxyModule.includes('EarlyExpressMiddleware') || !/earlyMiddleware\.handlers\.push/.test(proxyModule)) {
+    errors.push(
+        'N5 service proxy must register as early express middleware: a later configure() receives an already-consumed request body, because @theia/filesystem registers a global json parser',
+    );
+}
 const policy = Object.fromEntries([...scanner.matchAll(/'([^']+)': '([^']+)'/g)].map(match => [match[1], match[2]]));
 if (
     Object.keys(policy).length !== lock.extensions.length ||
