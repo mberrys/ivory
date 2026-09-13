@@ -1,9 +1,9 @@
 {
   "experiment": "N7",
   "contractVersion": "n7/1",
-  "observedAt": "2026-09-13T04:40:27.065Z",
+  "observedAt": "2026-09-13T04:41:29.386Z",
   "repository": {
-    "head": "69805e3299deb477431e6d1e527bd7ebada5726a",
+    "head": "8d3d23396790732bccdb753077984752971bf162",
     "branch": "cursor-n7-proposal-integrity-aeda",
     "dirty": true,
     "sourceDigestEncoding": "SHA-256 of UTF-8 text with LF line endings",
@@ -18,7 +18,7 @@
       "scripts/ivory/n7-mcp.spec.mjs": "0c52de793b7a129aa94dcb0b24d05c2f79fd0c285d6444fc9dc4751187a71eda",
       "scripts/ivory/n7-pipeline.mjs": "0e12ffdc8d78195aeecf8c8e6de638bd1aae4929843fb46d71fb4be0344469a8",
       "scripts/ivory/n7-pipeline.spec.mjs": "7ead832da79c63a90794f5843ae25e5533634e63f0576bde6225df5df1638337",
-      "scripts/ivory/n7-retain.mjs": "38ddc4c2277e766f6c7148919ab6595ea0f61f8847ca3cf90189e54e8e6f6ba5"
+      "scripts/ivory/n7-retain.mjs": "9563a7b4b907f5cfec543dde794629df77d7b823e1cecbcc2ff1e8e11f3f3a06"
     }
   },
   "platform": {
