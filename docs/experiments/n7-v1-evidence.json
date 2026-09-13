@@ -1,11 +1,11 @@
 {
   "experiment": "N7",
   "contractVersion": "n7/1",
-  "observedAt": "2026-09-13T23:27:31.567Z",
+  "observedAt": "2026-09-13T23:28:47.370Z",
   "repository": {
-    "head": "a6885133b5b10efab1876c459c6dd42e6d5455fc",
+    "head": "6b4ebebe06a04e2810e87557f0dc8faf0155257c",
     "branch": "closeout/n7-canonicalization",
-    "dirty": true,
+    "dirty": false,
     "sourceDigestEncoding": "SHA-256 of UTF-8 text with LF line endings",
     "sourceDigests": {
       "package-lock.json": "0d1894a4231c4dc352969581e61f5d8750625e690ab5ba4e25ebd49865fafbcc",
@@ -72,7 +72,7 @@
         "scripts/n7/build.mjs"
       ],
       "exitCode": 0,
-      "durationMs": 2836,
+      "durationMs": 3362,
       "log": "n7-evidence/build.log",
       "logDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "passed": true
@@ -90,9 +90,9 @@
         "scripts/n7/review.test.mjs"
       ],
       "exitCode": 0,
-      "durationMs": 1824,
+      "durationMs": 1975,
       "log": "n7-evidence/tests.log",
-      "logDigest": "2d74e93dfaa9160ba5419afc6ee3cb708c70fc5a23ba129c96240e4bcb120ed0",
+      "logDigest": "efbbb22b8b5adb83d12902834a0bb6868956bafacf884ce6dd211e60519c3413",
       "passed": true
     },
     {
@@ -103,9 +103,9 @@
         "packages/ivory-tower-research-kernel/lib/node/research-kernel.spec.js"
       ],
       "exitCode": 0,
-      "durationMs": 239,
+      "durationMs": 257,
       "log": "n7-evidence/n1-regression.log",
-      "logDigest": "fb26c1416c2314bafd638ecbc80933881a12783a89b69914e325faa3c02c9dc2",
+      "logDigest": "471b287e2be364b9e7eed9d688c77f31d6ea67c99c86742194adfbfdcbb06ef2",
       "passed": true
     }
   ],
@@ -217,6 +217,6 @@
   "decision": "bounded-experiment-pass",
   "transmissionEvidence": {
     "path": "n7-evidence/transmissions.json",
-    "digest": "79a88edea557d05a6cf8a459a771fb11a2bc0e04da8bdca46641792f273c55f5"
+    "digest": "cafa117040a03510c490d46f97a23f4cb468e60716b8566d7992d0540b2e533e"
   }
 }
