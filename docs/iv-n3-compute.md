@@ -1,5 +1,8 @@
 # N3 v2 - Governed computation and publication
 
+**Status:** decided — pilot platform Windows 11 x64 + Docker Desktop (Linux containers); the support
+matrix is decided by the onboarding record `docs/experiments/n3-onboarding-record.json`.
+
 N3 v2 is an experimental proof harness for the local Compute boundary. It
 answers a narrow question: can one captured table be processed by a bounded
 runtime while the semantic execution protocol fences stale attempts, survives
@@ -170,18 +173,29 @@ and digest evidence. Python success alone does not unlock an R-capable adapter.
 
 ## Supported platform
 
-The pilot platform is **not yet decided**. Evidence collected on Windows 11 x64
-with Docker Desktop (Linux containers) proves the protocol and the declared
-controls on that platform; it does not qualify macOS or Linux.
+The pilot platform is **decided: Windows 11 x64 with Docker Desktop (Linux
+containers)**. That is where the retained qualification was measured, and the
+record
+[`docs/experiments/n3-evidence.json`](experiments/n3-evidence.json) carries the
+whole chain for it: the hostile-runtime canaries and their enforcement bases
+(`read-only-filesystem`, `permission-denied`, `network-unreachable`), the
+`docker inspect` mount-surface and privilege inspection (`mountSurfaceMinimal`,
+`noPrivilegedEscalation`), the cold-install and warm-launch measurements for
+both images, and Python and R executed under one protocol to the same
+`n3-result-v1` result contract.
 
-The canonical V1 plan's default pilot target is macOS on Apple Silicon with a
-maintained local container runtime, subject to Phase 0 cohort confirmation, and
-it states that other operating systems gain support "through the same evidence,
-not assertion".
+macOS on Apple Silicon was the plan's earlier default pilot target; it is **not**
+the pilot. **macOS/Apple Silicon is not qualified**, because none of that
+evidence exists on it — no canaries, no mount-surface or privilege inspection,
+no cold-install or warm-launch measurement. It gains support only by passing the
+same evidence, "through the same evidence, not assertion"; it may not be
+advertised as supported before that evidence is retained.
 
-Until the retained record carries a `supportMatrix` decision, every platform
-stays unqualified. Reporting Windows evidence as macOS support, or as a
-support-matrix decision, is a release-blocking misstatement.
+The support matrix itself still moves only through the onboarding record: the
+retained record's `decision.supportMatrix` stays `open-pending-onboarding` until
+`docs/experiments/n3-onboarding-record.json` carries an observed cohort.
+Reporting Windows evidence as macOS support, or as a support-matrix decision, is
+a release-blocking misstatement.
 
 ## Decision boundary
 
