@@ -45,7 +45,11 @@ function isolatedEnv(runtime, project) {
 }
 
 async function preflight(runtime, lock, options) {
-    assert.equal(lock.format, 'ivory-n6-runtime/1');
+    assert.equal(lock.format, 'ivory-n6-runtime/2');
+    const lanes = lock.render?.lanes;
+    assert.ok(Array.isArray(lanes), 'Runtime lock must declare the render lanes');
+    assert.deepEqual([...lanes].sort(), ['html', 'typst'], 'Runtime lock must declare exactly the render lanes this verifier runs');
+    assert.equal(lock.render.typst?.keepTyp, true, 'The Typst lane must retain dossier.typ as its citation surface');
     const python = await run(runtime.python, ['-I', '-S', '-c', 'import platform; print(platform.python_version())'], options);
     const r = await run(runtime.r, ['--vanilla', '-e', 'cat(as.character(getRversion()))'], options);
     const quarto = (await readFile(join(runtime.quarto, 'share/version'), 'utf8')).trim();
@@ -61,9 +65,18 @@ async function preflight(runtime, lock, options) {
         assert.match(packageName, /^[A-Za-z][A-Za-z0-9.]*$/);
         await run(runtime.r, ['--vanilla', '-e', `stopifnot(requireNamespace('${packageName}', quietly=TRUE))`], options);
     }
-    return { python: python.stdout, r: r.stdout, quarto,
+    // The Typst engine is pinned by path, version, build and digest in the lock.
+    const typstPath = join(runtime.quarto, lock.render.typst.path);
+    const typst = (await run(typstPath, ['--version'], options)).stdout;
+    const parsed = /^typst (\S+) \(([0-9a-f]+)\)$/.exec(typst);
+    assert.ok(parsed, `Unexpected Typst version output: ${typst}`);
+    assert.equal(parsed[1], lock.render.typst.version, 'Typst version mismatch');
+    assert.equal(parsed[2], lock.render.typst.build, 'Typst build mismatch');
+    const typstDigest = digestBytes(await readFile(typstPath));
+    assert.equal(typstDigest, lock.render.typst.sha256, 'Typst binary digest mismatch');
+    return { python: python.stdout, r: r.stdout, quarto, typst,
         executableDigests: { python: digestBytes(await readFile(runtime.python)), r: digestBytes(await readFile(runtime.r)),
-            quarto: digestBytes(await readFile(join(runtime.quarto, 'bin/quarto.js'))) } };
+            quarto: digestBytes(await readFile(join(runtime.quarto, 'bin/quarto.js'))), typst: typstDigest } };
 }
 
 export async function reproduce(projectPath, runtimeConfig) {
@@ -106,19 +119,30 @@ export async function reproduce(projectPath, runtimeConfig) {
         await writeFile(join(output, 'evidence.md'), lines.join('\n') + '\n' + links.join('\n'));
         await writeFile(join(output, 'analysis.md'), `Rows: ${r.rowCount}; missing: ${r.missingCount}; sum: ${r.sum}; mean: ${r.mean}.\n`);
         const deno = join(runtime.quarto, 'bin/tools/x86_64/deno.exe');
-        await run(deno, ['run', '--cached-only', '--unstable-kv', '--unstable-ffi', '--no-config', '--no-lock',
+        const render = format => run(deno, ['run', '--cached-only', '--unstable-kv', '--unstable-ffi', '--no-config', '--no-lock',
             '--allow-all', '--no-check', '--v8-flags=--enable-experimental-regexp-engine',
-            join(runtime.quarto, 'bin/quarto.js'), 'render', 'analysis/dossier.qmd', '--to', 'html'], options);
+            join(runtime.quarto, 'bin/quarto.js'), 'render', 'analysis/dossier.qmd', '--to', format], options);
+        await render('html');
         const html = await readFile(join(project, 'analysis/dossier.html'), 'utf8');
+        // The PDF lane uses Quarto's bundled Typst engine; no TeX distribution is installed.
+        await render('typst');
+        const pdf = await readFile(join(project, 'analysis/dossier.pdf'));
+        assert.equal(pdf.subarray(0, 5).toString('latin1'), '%PDF-', 'PDF lane did not write a PDF');
+        assert.ok(pdf.length > 4096, 'PDF lane wrote an implausibly small PDF');
+        // Citations read the literal Typst text, never the PDF bytes: Typst embeds subsetted
+        // fonts and glyph-indexed text operators, and pandoc escapes underscores (`rev\_<hex>`).
+        const typstText = (await readFile(join(project, 'analysis/dossier.typ'), 'utf8')).replaceAll('\\_', '_');
         for (const citation of inspected.citations) {
-            assert.ok(html.includes(citation.ref.revisionId) && html.includes(citation.sourceRevisionId), 'Rendered citation missing');
+            assert.ok(html.includes(citation.ref.revisionId) && html.includes(citation.sourceRevisionId), 'Rendered HTML citation missing');
+            assert.ok(typstText.includes(citation.ref.revisionId) && typstText.includes(citation.sourceRevisionId), 'Rendered Typst citation missing');
         }
         const after = await inspectProject(project);
         assert.equal(canonicalize(after.dump), canonicalize(inspected.dump), 'Reproduction mutated research records');
         Object.assign(attempt, { status: 'passed', analytical: r, citationsResolved: inspected.citations.length,
             semanticDigest: digestBytes(Buffer.from(canonicalize(inspected.dump))),
-            htmlDigest: digestBytes(Buffer.from(html)), comparisonPolicy: inspected.study.comparisons,
-            presentation: 'HTML rendered; byte identity is not analytical equivalence; PDF not qualified' });
+            htmlDigest: digestBytes(Buffer.from(html)), pdfDigest: digestBytes(pdf),
+            comparisonPolicy: inspected.study.comparisons,
+            presentation: 'HTML and PDF rendered; byte identity is not analytical equivalence; both digests are presentation-only' });
     } catch (error) { attempt.error = error.message; throw error; }
     finally { await writeJson(resultFile, attempt); }
     return attempt;
