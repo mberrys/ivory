@@ -120,6 +120,8 @@
     "test:ivory-n3": "node --test scripts/ivory/n3-*.spec.mjs",
     "retain:ivory-n3": "node scripts/ivory/n3-retain.mjs",
     "verify:ivory-n3-onboarding": "node scripts/ivory/n3-onboarding.mjs",
+    "verify:ivory-n-gates": "node scripts/ivory/n-gates.mjs",
+    "test:ivory-n-gates": "node --test scripts/ivory/n-gates.spec.mjs",
 
     "lint": "lerna run lint",
     "lint:clean": "rimraf .eslintcache",
