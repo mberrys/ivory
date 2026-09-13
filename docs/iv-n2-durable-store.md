@@ -1,5 +1,9 @@
 # N2 — Durable store, blob admission and recovery
 
+**Promotion (ADR-005):** the port accepted by ADR-005 lives in
+`packages/ivory-tower-contracts/src/durable-store-port.ts`. This directory is frozen as evidence:
+fixes go into the production implementation, and re-runs happen only to refresh the retained record.
+
 Disposable spike. It answers whether PGlite plus the filesystem can preserve
 acknowledged research commits and round-trip export/import with no server and
 no second authoritative log.
