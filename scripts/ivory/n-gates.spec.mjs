@@ -147,20 +147,25 @@ function runVerifier(args, env) {
 }
 
 /**
- * A manifest outside the repository whose gate evidence is addressed by a
- * relative traversal back into the temporary directory. These gates are
- * therefore decided only by the fixture, never by which real gates happen to
- * be closed in the checked-out state.
+ * A manifest outside the repository whose gate evidence and document are
+ * addressed by a relative traversal back into the temporary directory. These
+ * gates are therefore decided only by the fixture, never by which real gates
+ * happen to be closed in the checked-out state.
  */
 function tempManifest(gates) {
     const dir = mkdtempSync(join(tmpdir(), 'n-gates-manifest-'));
     const manifest = join(dir, 'ivory-n-gates.json');
+    const relocated = name => relative(REPO_ROOT, join(dir, name));
     writeFileSync(
         manifest,
         JSON.stringify(
             {
                 schema: 'ivory-n-gates/1',
-                gates: gates.map(gate => ({ ...gate, evidence: relative(REPO_ROOT, join(dir, gate.evidence)) })),
+                gates: gates.map(gate => ({
+                    ...gate,
+                    ...(gate.evidence === undefined ? {} : { evidence: relocated(gate.evidence) }),
+                    ...(gate.document === undefined ? {} : { document: relocated(gate.document) }),
+                })),
             },
             null,
             2,
@@ -205,6 +210,27 @@ test('a required gate whose evidence is present and closed passes', () => {
     const result = runVerifier(['--require-closed', 'NX'], { IVORY_N_GATES_CONFIG: manifest });
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, /\| NX \| closed \|/);
+    assert.match(result.stdout, /1\/1 N-gates closed\./);
+});
+
+test('the N3 gate closes on runtime qualification and the support-matrix decision, with no onboarding cohort recorded', () => {
+    const { dir, manifest } = tempManifest([
+        manifestGate('N3', { evidence: 'n3-evidence.json', document: 'n3-doc.md' }),
+    ]);
+    writeFileSync(
+        join(dir, 'n3-evidence.json'),
+        JSON.stringify({
+            status: 'runtime-qualified',
+            decision: { supportMatrix: 'pilot-decided' },
+            onboarding: { observed: false },
+        }),
+    );
+    writeFileSync(join(dir, 'n3-doc.md'), '**Status:** decided — pilot platform and support matrix recorded.\n');
+    const result = runVerifier(['--require-closed', 'N3'], { IVORY_N_GATES_CONFIG: manifest });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /\| N3 \| closed \|/);
+    assert.match(result.stdout, /onboardingObserved=false/);
+    assert.doesNotMatch(result.stdout, /onboarding\.observed/);
     assert.match(result.stdout, /1\/1 N-gates closed\./);
 });
 

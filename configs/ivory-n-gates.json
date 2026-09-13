@@ -53,8 +53,7 @@
       },
       "closedWhen": [
         { "path": "status", "equals": "runtime-qualified" },
-        { "path": "decision.supportMatrix", "equals": "pilot-decided" },
-        { "path": "onboarding.observed", "equals": true }
+        { "path": "decision.supportMatrix", "equals": "pilot-decided" }
       ]
     },
     {
