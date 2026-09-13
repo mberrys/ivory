@@ -1,0 +1,120 @@
+{
+  "schema": "ivory-n-gates/1",
+  "documentation": "docs/experiments/README.md",
+  "gates": [
+    {
+      "id": "N1",
+      "title": "Research identity, snapshot closure and interpretation semantics",
+      "evidence": "docs/experiments/n1-v2-evidence.json",
+      "document": "docs/experiments/n1-v2-reference-kernel.md",
+      "documentStatusPrefix": "**Status:**",
+      "documentOpenPattern": "remains open|\\bopen\\b",
+      "documentClosedPattern": "^closed\\b",
+      "observations": {
+        "automated": "automatedPass",
+        "human": "humanValidation.status",
+        "decision": "decision.status"
+      },
+      "closedWhen": [
+        { "path": "automatedPass", "equals": true },
+        { "path": "humanValidation.status", "equals": "closed" }
+      ]
+    },
+    {
+      "id": "N2",
+      "title": "Durable store, blob admission and recovery",
+      "evidence": "docs/experiments/n2-v2-evidence.json",
+      "document": "docs/experiments/n2-v2-reference-machine.md",
+      "documentStatusPrefix": "**Status:**",
+      "documentOpenPattern": "provisional|open",
+      "documentClosedPattern": "^decided\\b",
+      "observations": {
+        "automated": "automatedPass",
+        "engine": "decision.engine",
+        "architectureStatus": "decision.architectureStatus"
+      },
+      "closedWhen": [
+        { "path": "automatedPass", "equals": true },
+        { "path": "decision.architectureStatus", "equals": "engine-decided" }
+      ]
+    },
+    {
+      "id": "N3",
+      "title": "Governed computation and publication",
+      "evidence": "docs/experiments/n3-evidence.json",
+      "document": "docs/iv-n3-compute.md",
+      "documentStatusPrefix": "**Status:**",
+      "documentOpenPattern": "not yet decided|open",
+      "documentClosedPattern": "^decided\\b",
+      "observations": {
+        "runtime": "status",
+        "supportMatrix": "decision.supportMatrix",
+        "onboardingObserved": "onboarding.observed"
+      },
+      "closedWhen": [
+        { "path": "status", "equals": "runtime-qualified" },
+        { "path": "decision.supportMatrix", "equals": "pilot-decided" }
+      ]
+    },
+    {
+      "id": "N4",
+      "title": "Exact fragment anchors and ingestion fidelity",
+      "evidence": "docs/experiments/n4-v2-evidence.json",
+      "document": "docs/experiments/n4-v2-qualification.md",
+      "documentStatusPrefix": "**Status:**",
+      "documentOpenPattern": "^open\\b|NO-GO|not yet passed|pending",
+      "documentClosedPattern": "^qualified\\b",
+      "observations": {
+        "status": "status",
+        "falseExact": "observations.falseExact",
+        "anchors": "observations.anchorsFromA",
+        "converted": "observations.convertedFixtures"
+      },
+      "closedWhen": [{ "path": "status", "equals": "qualified" }]
+    },
+    {
+      "id": "N5",
+      "title": "Theia shell and external-client equivalence",
+      "evidence": "docs/experiments/n5-v2-evidence.json",
+      "document": "docs/experiments/n5-theia-client-equivalence.md",
+      "documentStatusPrefix": "**Status:**",
+      "documentOpenPattern": "^blocked\\b|^partial\\b|^pending\\b",
+      "documentClosedPattern": "^qualified\\b",
+      "observations": {
+        "decision": "decision",
+        "liveService": "liveService.available"
+      },
+      "closedWhen": [{ "path": "decision", "equals": "passed" }]
+    },
+    {
+      "id": "N6",
+      "title": "Portable reproduction and real research value",
+      "evidence": "docs/experiments/n6-evidence.json",
+      "document": "docs/experiments/n6-portable-reproduction.md",
+      "documentStatusPrefix": "**Status:**",
+      "documentOpenPattern": "^open\\b|pending|not qualified",
+      "documentClosedPattern": "^qualified\\b",
+      "observations": {
+        "status": "status",
+        "humanQualification": "humanQualification",
+        "cleanReproduction": "criteria.cleanReproduction"
+      },
+      "closedWhen": [{ "path": "status", "equals": "human-qualified" }]
+    },
+    {
+      "id": "N7",
+      "title": "Scoped agent proposal integrity",
+      "evidence": "docs/experiments/n7-v1-evidence.json",
+      "document": "docs/experiments/n7-scoped-agent-proposals.md",
+      "documentStatusPrefix": "**Status:**",
+      "documentOpenPattern": "^open\\b|remains open",
+      "documentClosedPattern": "^qualified\\b|^bounded-experiment\\b",
+      "observations": {
+        "decision": "decision",
+        "liveProvider": "liveProvider.status",
+        "deterministic": "deterministic.status"
+      },
+      "closedWhen": [{ "path": "decision", "equals": "bounded-experiment-pass" }]
+    }
+  ]
+}
