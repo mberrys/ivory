@@ -45,7 +45,7 @@ async function main() {
     const record = JSON.parse(await fs.readFile(path.resolve(ROOT, recordPath), 'utf8'));
     const outcome = onboardingAcceptance(record);
     if (outcome === null) {
-        console.log('N3 onboarding record is empty; the observation is not-applicable and the support matrix stays open.');
+        console.log('N3 onboarding record is empty; the observation is not-applicable and does not gate the support matrix.');
         return;
     }
     console.log(JSON.stringify(outcome, null, 2));
