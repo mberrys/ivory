@@ -7,12 +7,13 @@ import { createStudy } from '../fixture.mjs';
 import { exportStudy, restoreStudy, validateExport, inspectProject, json, writeJson, digestBytes, canonicalize, safePath } from '../portable.mjs';
 import { compare } from '../reproduce.mjs';
 
-let root, exported, original;
+let root, exported, original, policy;
 before(async () => {
     root = await mkdtemp(join(tmpdir(), 'ivory-n6-contract-'));
     await createStudy(join(root, 'source'));
     exported = join(root, 'export');
     original = await exportStudy(join(root, 'source'), exported);
+    policy = original.study.comparisons;
 });
 after(async () => { if (root) { await rm(root, { recursive: true, force: true }); } });
 
@@ -106,12 +107,22 @@ test('format changes and unexpected files are rejected', async () => {
     await assert.rejects(validateExport(version), /Unsupported/);
 });
 
+const result = { rowCount: 30, validCount: 27, missingCount: 3, sum: 405, mean: 15 };
+
 test('analytical comparisons fail changes and nonfinite values but ignore presentation bytes', () => {
-    const policy = original.study.comparisons;
-    const result = { rowCount: 30, validCount: 27, missingCount: 3, sum: 405, mean: 15 };
     compare({ ...result, htmlDigest: 'presentation-a' }, policy);
     compare({ ...result, htmlDigest: 'presentation-b' }, policy);
     for (const change of [{ sum: 406 }, { mean: 15.1 }, { mean: NaN }, { mean: Infinity }, { rowCount: 29 }]) {
         assert.throws(() => compare({ ...result, ...change }, policy));
     }
+});
+
+test('PDF bytes are presentation, never acceptance', () => {
+    compare({ ...result, pdfDigest: 'presentation-a' }, policy);
+    compare({ ...result, pdfDigest: 'presentation-b' }, policy);
+});
+
+test('a changed analytical value fails even when the PDF digest matches', () => {
+    const changed = { ...result, sum: 406, pdfDigest: 'presentation-a' };
+    assert.throws(() => compare(changed, policy));
 });

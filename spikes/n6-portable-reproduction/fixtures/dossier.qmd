@@ -4,6 +4,12 @@ format:
   html:
     embed-resources: true
     toc: true
+  typst:
+    papersize: a4
+    keep-typ: true
+# Declaring a second format would add Quarto's "Other Formats" link to the HTML
+# lane; suppress it so the HTML bytes stay identical to the retained digest.
+format-links: false
 execute:
   enabled: false
 ---
