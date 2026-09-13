@@ -872,6 +872,27 @@ async function main() {
             try {
                 selected = selectAnchors(results.A.text, fixture.path);
             } catch (error) {
+                if (fixture.kind === 'scanned') {
+                    // Scanned inputs verify explicit OCR-needed handling: with no usable text layer the
+                    // declared outcome is a schema-valid ocr_required record with a next action, which
+                    // satisfies the corpus coverage and is never an anchor-selection failure.
+                    const declared = {
+                        fixture: fixture.path,
+                        converter: converters.map(converter => converter.label).join('+'),
+                        converterRef: converters[0].image,
+                        kind: fixture.kind,
+                        extractionFailure: extractionFailureSchema.parse({
+                            code: 'ocr_required',
+                            message: 'No anchorable text was extracted from the scanned fixture (' + describeError(error) + '); provide OCR output before anchor selection.',
+                            retryable: false,
+                            attempt: 1,
+                            nextAction: 'provide_ocr',
+                        }),
+                    };
+                    ledger.failures.push(declared);
+                    ledger.fixturesDetail.push({ ...attempt, representations: representationDetails, anchors: [], tableFidelity: rawTableFidelity });
+                    continue;
+                }
                 ledger.anchorSelectionFailures.push({
                     fixture: fixture.path,
                     message: describeError(error),
