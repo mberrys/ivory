@@ -24,3 +24,35 @@ experiment, and a machine-written evidence record that states what was observed.
    qualification requires the real run.
 5. Evidence that cannot be produced (no hardware, no network, no cohort) is recorded as
    `blocked`/`not-applicable` with the reason. It is never rounded up to a pass.
+
+## Retained records
+
+One row per retained record file currently in this directory. Records bind raw artifacts by
+SHA-256; the raw-artifact folders (`n7-evidence/`, `n7-live-provider/`) are committed and cited
+from the record that owns them.
+
+| Record | Experiment | Kind |
+|---|---|---|
+| `n1-v2-evidence.json` | N1 | machine-written evidence |
+| `n1-human-record.json` | N1 | human record (participant attestation) |
+| `n1-reader-protocol.md` | N1 | protocol |
+| `n1-v2-reference-kernel.md` | N1 | document |
+| `n2-v2-evidence.json` | N2 | machine-written evidence |
+| `n2-v2-reference-machine.md` | N2 | document |
+| `n2-v2-storm-cycles.json` | N2 | raw artifact |
+| `n3-evidence.json` | N3 | machine-written evidence |
+| `n3-onboarding-protocol.md` | N3 | protocol |
+| `n3-onboarding-record.json` | N3 | human record |
+| `n4-v2-evidence.json` | N4 | machine-written evidence |
+| `n4-v2-qualification.md` | N4 | document |
+| `n6-evidence.json` | N6 | machine-written evidence |
+| `n6-portable-reproduction.md` | N6 | document |
+| `n6-researcher-study-kit.md` | N6 | protocol |
+| `n7-v1-evidence.json` | N7 | machine-written evidence |
+| `n7-scoped-agent-proposals.md` | N7 | document |
+| `n7-canonicalization.md` | N7 | document (canonicalization decision) |
+| `n7-evidence/build.log`, `n7-evidence/tests.log`, `n7-evidence/n1-regression.log` | N7 | raw command logs |
+| `n7-evidence/transmissions.json` | N7 | recorded transmissions |
+| `n7-live-provider/run.json` | N7 | machine-written live-provider record |
+| `n7-live-provider/outgoing-body.txt` | N7 | raw artifact (exact transmitted bytes) |
+| `n7-live-provider/response-body.json` | N7 | raw artifact (raw model response) |
