@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -10,6 +10,14 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const KERNEL_MODULE = path.join(ROOT, 'packages', 'ivory-tower-research-kernel', 'lib', 'node', 'index.js');
 const EVIDENCE_PATH = path.join(ROOT, 'docs', 'experiments', 'n1-v2-evidence.json');
 const startedAt = performance.now();
+
+import { deriveHumanValidation, humanLimitation } from './ivory/n1-human-record.mjs';
+
+const HUMAN_RECORD_PATH = path.join(ROOT, 'docs', 'experiments', 'n1-human-record.json');
+const humanRecord = existsSync(HUMAN_RECORD_PATH)
+    ? JSON.parse(readFileSync(HUMAN_RECORD_PATH, 'utf8'))
+    : undefined;
+const humanValidation = deriveHumanValidation(humanRecord);
 
 const { ResearchKernel, buildAdvisingAgencyFixture, createResearchClients, digestCanonical } = await import(
     pathToFileURL(KERNEL_MODULE).href
@@ -252,13 +260,7 @@ const evidence = {
         failures,
     },
     automatedPass,
-    humanValidation: {
-        status: 'open',
-        requiredResearchers: 3,
-        requiredPasses: 2,
-        observedResults: null,
-        note: 'The automated verifier does not invent researcher observations; run the supplied reader protocol separately.',
-    },
+    humanValidation,
     decision: {
         status: automatedPass ? 'provisional-architecture-pass' : 'failed',
         unlocked: automatedPass
@@ -273,7 +275,7 @@ const evidence = {
     },
     limitations: [
         'The kernel is an in-memory reference model; persistence and durable round-trip belong to N2.',
-        'The verifier proves the automated trace only; the three-researcher interpretation gate remains open.',
+        humanLimitation(humanValidation),
         'The experiment does not qualify representation remapping, PDF/OCR anchors, or production schema persistence.',
     ],
 };
