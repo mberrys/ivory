@@ -1,22 +1,29 @@
 import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
 import { cp, mkdir, mkdtemp, readFile, rename, readdir, writeFile } from 'node:fs/promises';
 import { join, resolve, relative } from 'node:path';
 import { platform, release, totalmem, cpus } from 'node:os';
 import { root } from './build.mjs';
 import { inspectProject, json, writeJson, canonicalize, digestBytes } from './portable.mjs';
 import { run } from './reproduce.mjs';
+import { deriveN6HumanQualification, n6HumanLimitation } from '../../scripts/ivory/n6-researcher-record.mjs';
 
 const artifacts = resolve(root, 'artifacts/n6');
 await mkdir(artifacts, { recursive: true });
 const runRoot = await mkdtemp(join(artifacts, 'qualification-'));
 const runtimeConfig = resolve(process.argv[2] ?? join(artifacts, 'runtime/runtime.json'));
+// The human gate is record-owned: it is derived from the retained researcher record, never asserted here.
+const humanRecordPath = join(root, 'docs/experiments/n6-researcher-record.json');
+const humanRecord = existsSync(humanRecordPath) ? JSON.parse(readFileSync(humanRecordPath, 'utf8')) : undefined;
+const humanGate = deriveN6HumanQualification(humanRecord);
 const source = join(runRoot, 'original'), restored = join(runRoot, 'clean-install/study'), portable = join(runRoot, 'portable');
-const evidence = { schema: 'ivory-n6-evidence/1', status: 'failed', humanQualification: 'pending',
+const evidence = { schema: 'ivory-n6-evidence/1', status: 'failed', humanQualification: humanGate.humanQualification,
     createdAt: new Date().toISOString(), artifactPath: relative(root, runRoot).replaceAll('\\', '/'),
     platform: { os: platform(), release: release(), node: process.version, memoryBytes: totalmem(), cpu: cpus()[0]?.model },
     commands: [], criteria: {}, limitations: [
         'Trusted synthetic study on Windows; no N3 containment or cross-platform claim.',
-        'Five-researcher no-code study and executable product workflow remain pending.',
+        n6HumanLimitation(humanGate),
+        'PDF bytes are presentation-only: Typst does not guarantee byte-reproducible PDFs, so no PDF byte-identity gate exists.',
         'Experimental format; public format freeze is not authorized.',
     ] };
 
@@ -86,11 +93,16 @@ try {
     const repeated = await json(join(restored, '.ivory/local/n6-last-attempt.json'));
     assert.deepEqual(repeated.analytical, baseline.analytical);
     assert.equal(repeated.semanticDigest, baseline.semanticDigest);
+    assert.ok(baseline.pdfDigest && repeated.pdfDigest, 'Both runs must have rendered and validated the PDF lane');
     evidence.criteria.cleanReproduction = 'passed';
+    evidence.criteria.pdfLane = 'passed';
     evidence.baseline = baseline;
     evidence.restored = repeated;
+    // Reported, never gated: HTML and PDF bytes may legitimately differ between runs.
     evidence.presentation = { htmlBytesEqual: baseline.htmlDigest === repeated.htmlDigest,
-        analyticalEquivalent: true, policy: 'Presentation digests are reported separately from declared analytical comparisons.' };
+        pdfDigest: { baseline: baseline.pdfDigest, reproduced: repeated.pdfDigest },
+        pdfBytesEqual: baseline.pdfDigest === repeated.pdfDigest, analyticalEquivalent: true,
+        policy: 'Presentation digests (HTML and PDF) are reported separately from declared analytical comparisons and never gated: byte identity is not analytical equivalence.' };
     const inspected = await inspectProject(restored);
     evidence.fixtureDigest = digestBytes(Buffer.from(canonicalize(inspected.study)));
     const blob = inspected.dump.blob_refs[0].digest;
@@ -120,7 +132,8 @@ try {
     // Recovery after fixing the failures is required, not inferred.
     await execute(cli('reproduce', restored, secondConfig), 'recovery');
     evidence.criteria.recovery = 'passed';
-    evidence.status = 'technical-pass-human-pending';
+    // The record owns the human gate: an empty cohort keeps this at technical-pass-human-pending/pending.
+    evidence.status = humanGate.status;
 } catch (error) { evidence.error = error.stack; process.exitCode = 1; }
 finally {
     await writeJson(join(runRoot, 'evidence.json'), evidence);

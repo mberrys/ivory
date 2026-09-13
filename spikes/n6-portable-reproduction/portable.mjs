@@ -8,7 +8,7 @@ import { kernelApi } from './fixture.mjs';
 const { canonicalize, digestBytes, digestCanonical } = kernelApi;
 export { canonicalize, digestBytes };
 const requireThat = (condition, message) => { if (!condition) { throw new Error(message); } };
-export async function json(path) { return JSON.parse(await readFile(path, 'utf8')); }
+export async function json(path) { return JSON.parse((await readFile(path, 'utf8')).replace(/^\uFEFF/, '')); }
 export async function writeJson(path, value) {
     await mkdir(dirname(path), { recursive: true });
     await writeFile(path, canonicalize(value) + '\n');

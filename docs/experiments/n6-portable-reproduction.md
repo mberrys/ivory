@@ -1,5 +1,7 @@
 # N6 — Portable reproduction and real research value
 
+**Status:** open — technical pass retained; clean-install reproduction and the five-researcher study pending.
+
 N6 is a disposable technical experiment, not a production project format. See
 [retained evidence](n6-evidence.json) for the observed result and exact source
 digests. Human qualification and the executable no-code product workflow remain
@@ -49,10 +51,12 @@ R and Quarto licenses remain with the installed distributions; runtime binaries
 are not checked into this repository.
 
 The captured runtime lock declares standard-library-only Python and R's base and
-utils packages. Execution uses `-I -S`, R `--vanilla`, disabled default R packages,
-empty user library paths, and fresh HOME/cache directories. No credentials are
-forwarded to analysis processes. This is trusted-fixture portability evidence,
-not an operating-system sandbox or N3 isolation qualification.
+utils packages, the render lanes (`html`, `typst`), and the pinned Typst binary
+by path, version, build and digest. Execution uses `-I -S`, R `--vanilla`,
+disabled default R packages, empty user library paths, and fresh HOME/cache
+directories. No credentials are forwarded to analysis processes. This is
+trusted-fixture portability evidence, not an operating-system sandbox or N3
+isolation qualification.
 
 The verifier creates a study, executes a baseline, exports it, and restores into
 a new directory in another process. Original project/export paths are renamed
@@ -96,9 +100,21 @@ fail. Source, code, record and blob integrity use exact digests, not tolerances.
 Quarto renders an HTML dossier with exact retained/current source citations,
 link roles and author attribution. Every declared dossier citation must be
 present in the rendered document. Presentation digests are reported separately;
-HTML byte variation cannot change analytical acceptance. PDF rendering is not
-qualified by this HTML fixture. A PDF lane must use the same analytical and
-citation gates before gaining an equivalent result.
+HTML byte variation cannot change analytical acceptance. The fixture declares
+`format-links: false` so that adding a second format cannot inject Quarto's
+"Other Formats" navigation into the HTML lane: the retained HTML digest is
+reproduced exactly.
+
+The same document also renders to PDF through Quarto's bundled Typst engine
+(`--to typst`, pinned in the runtime lock as Typst 0.13.0 (8dce676d) with its
+binary digest); no LaTeX distribution is installed or required. The PDF digest
+is recorded as presentation-only beside the HTML digest — Typst embeds a
+creation timestamp and does not guarantee byte-reproducible PDFs, so neither
+digest can feed an analytical or citation acceptance decision. Citation
+assertions for this lane read `analysis/dossier.typ`, the literal text compiled
+into the PDF (retained with `keep-typ: true`), never the PDF bytes, which embed
+subsetted fonts and glyph-indexed text operators. A changed analytical value
+still fails even when both presentation digests match.
 
 `test:ivory-n6` runs the 12 imported N1 tests and the N6 contract tests. Full
 qualification also runs the N2 regression suite, including process interruption.
