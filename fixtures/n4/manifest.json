@@ -22,6 +22,8 @@
     {"path":"pdf/bitmap-symbol-textrefine.pdf","kind":"plain","sha256":"c6dc6a57d164c86c8aa59e6136f8b166a4697213ef6d5669bed6a7f6227bed0b"},
     {"path":"pdf/bitmap-symbol-texttopright.pdf","kind":"plain","sha256":"e5b6eb678be01e99db7a6316fa99070bebf29489ae61054bdde04c9c26c6b9dd"},
     {"path":"csv/open-survey-missingness.csv","kind":"csv","sha256":"d07d92346de4a90ea3eec4c49eeef68e9b210ba64df2ad809c06b2da215f11b7"},
-    {"path":"csv/open-multilingual-labels.csv","kind":"csv","sha256":"746f8c49a041988680d5dd9cb63cd20f8cc7c77f9dc4338148af06ad758f65a1"}
+    {"path":"csv/open-multilingual-labels.csv","kind":"csv","sha256":"746f8c49a041988680d5dd9cb63cd20f8cc7c77f9dc4338148af06ad758f65a1"},
+    {"path":"txt/open-advising-note.txt","kind":"text","sha256":"1f721a092289056a2778c427a6f360a390d339ab9a34e1ba36d605aaacbe99ce"},
+    {"path":"txt/open-methods-note.txt","kind":"text","sha256":"ee88a2a7f7b607c8f4d05efe01411ddc85d3fc4ef10679a257131b46ddd71021"}
   ]
 }
