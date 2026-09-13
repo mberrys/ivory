@@ -5,3 +5,12 @@ fixtures/n4/pdf/*.pdf binary
 # CSVs and n4-corpus-qualification.spec fails its own fixture digest.
 fixtures/n4/csv/* text eol=lf
 fixtures/n4/txt/* text eol=lf
+
+# Ivory Tower sources: the prettier config (configs/ivory-prettier.json) requires LF, so a Windows
+# checkout (core.autocrlf=true by default) must not rewrite these trees to CRLF — otherwise
+# `npm run format:check:ivory-tower` fails on every file in a fresh checkout and masks real drift.
+packages/ivory-*/src/** text eol=lf
+packages/ivory-n5-client/src/** text eol=lf
+packages/ivory-n5-shell/src/** text eol=lf
+examples/ivory-tower-browser/** text eol=lf
+examples/ivory-n5-browser/** text eol=lf
