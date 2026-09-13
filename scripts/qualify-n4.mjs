@@ -17,6 +17,8 @@ const pullTimeoutMs = Number(process.env.N4_DOCKER_PULL_TIMEOUT_MS ?? 600_000);
 const anchorCountPerFixture = 6;
 const minimumAnchorsPerFixture = 5;
 const n4PolicyVersion = 'iv-policy/n4-v2';
+const REQUIRED_FIXTURES = 22;
+const REQUIRED_TEXT_FIXTURES = 2;
 const converters = [
     {
         label: 'A',
@@ -37,6 +39,12 @@ const manifestFixtures = manifest.fixtures.map(fixture => ({
     kind: fixture.kind,
     sha256: fixture.sha256,
 }));
+
+function contentTypeFor(fixturePath) {
+    if (fixturePath.endsWith('.csv')) return 'text/csv';
+    if (fixturePath.endsWith('.txt')) return 'text/plain';
+    return 'application/pdf';
+}
 
 function sha256(value) {
     return createHash('sha256').update(value).digest('hex');
@@ -83,8 +91,11 @@ function safeDocker(args) {
 function validateManifest() {
     const errors = [];
     if (manifest.schemaVersion !== 1) errors.push('manifest schemaVersion must be 1');
-    if (!Array.isArray(manifest.fixtures) || manifest.fixtures.length !== 20) {
-        errors.push('manifest must contain exactly 20 fixtures');
+    if (!Array.isArray(manifest.fixtures) || manifest.fixtures.length !== REQUIRED_FIXTURES) {
+        errors.push(`manifest must contain exactly ${REQUIRED_FIXTURES} fixtures`);
+    }
+    if (manifest.fixtures.filter(fixture => fixture.kind === 'text').length !== REQUIRED_TEXT_FIXTURES) {
+        errors.push(`manifest must contain exactly ${REQUIRED_TEXT_FIXTURES} text fixtures`);
     }
     if (manifest.fixtures.filter(fixture => fixture.kind === 'scanned').length !== 2) {
         errors.push('manifest must contain exactly two scanned PDFs');
@@ -242,7 +253,7 @@ function parseJsonContent(value) {
 async function convert(converter, fixture, bytes) {
     const startedAt = Date.now();
     const form = new FormData();
-    const contentType = fixture.path.endsWith('.csv') ? 'text/csv' : 'application/pdf';
+    const contentType = contentTypeFor(fixture.path);
     form.append('files', new Blob([bytes], { type: contentType }), path.basename(fixture.path));
     form.append('to_formats', 'md');
     form.append('to_formats', 'json');
@@ -538,7 +549,7 @@ function sourceRecord(fixture, transferPermitted = true) {
         id: 'src_' + fixture.sha256.slice(0, 32),
         contentHash: fixture.sha256,
         objectKey: 'sources/' + fixture.sha256 + '/raw/' + path.basename(fixture.path),
-        contentType: fixture.path.endsWith('.csv') ? 'text/csv' : 'application/pdf',
+        contentType: contentTypeFor(fixture.path),
         license: 'MPL-2.0',
         authorizationEvidence: 'fixtures/n4/NOTICE.md and checked-in manifest',
         admissionPolicyVersion: 'iv-policy/n4-v2',
@@ -567,7 +578,7 @@ function deriveRepresentation(identity, bytes, fixture, converter, text) {
         inputIds: [pipeline.sourceVersionId],
         parameters: {
             outputFormats: 'md,json',
-            inputContentType: fixture.path.endsWith('.csv') ? 'text/csv' : 'application/pdf',
+            inputContentType: contentTypeFor(fixture.path),
             layoutRetention: true,
         },
         policyVersion: n4PolicyVersion,
@@ -651,7 +662,7 @@ function makeArchitectureDecision(ledger) {
         primaryConverter: qualified ? 'Docling v1.21.0 (A) as the pinned reference representation' : undefined,
         representationFormat: 'raw source bytes plus markdown/text and retained Docling JSON layout output',
         selectorProfile: 'exact quote plus prefix/suffix context; no ranking or silent fallback',
-        supportedInputs: 'plain, multilingual, columns/tables/footnotes, CSV typed rows, and explicit scanned/OCR handling',
+        supportedInputs: 'plain text (UTF-8), multilingual, columns/tables/footnotes, CSV typed rows, and explicit scanned/OCR handling',
         unresolvedLimitations: limitations,
     };
 }
@@ -951,7 +962,7 @@ async function main() {
             return fixture?.kind === 'scanned';
         });
         const unexpectedFailures = ledger.failures.filter(failure => !scannedFailures.includes(failure));
-        const pdfAnchors = ledger.anchors.filter(anchor => !anchor.fixture.endsWith('.csv'));
+        const pdfAnchors = ledger.anchors.filter(anchor => anchor.fixture.endsWith('.pdf'));
         const pdfAnchorsWithoutCoordinates = pdfAnchors.filter(anchor => anchor.coordinatesA.length === 0);
         const csvDetails = ledger.fixturesDetail.filter(fixture => fixture.path.endsWith('.csv'));
         const tables = csvDetails.map(fixture => fixture.tableFidelity).filter(table => table !== undefined);
@@ -959,7 +970,7 @@ async function main() {
             && tables.every(tableFidelityIsComplete)
             && tables.some(table => table.headers.some(hasNonAscii) || table.rows.some(row => row.cells.some(cell => hasNonAscii(cell.rawText))));
         ledger.criteria = {
-            exactly20FixturesAttempted: ledger.fixtureAttempts.length === 20,
+            allFixturesAttempted: ledger.fixtureAttempts.length === manifest.fixtures.length,
             twoGenuinelyPinnedConverters: ledger.converters.length === 2 && ledger.converters.every(converter => converter.status === 'ready' && converter.image.includes('@sha256:')),
             atLeast100RealAnchorsFromA: ledger.anchors.length >= 100,
             originalRepresentationsReopenExactly: ledger.persistence.exactReopenChecks === ledger.anchors.length && exactReopenFailures.length === 0,

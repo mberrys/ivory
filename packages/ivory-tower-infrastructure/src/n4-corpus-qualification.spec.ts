@@ -22,11 +22,12 @@ const corpusRoot = resolve(root, 'fixtures/n4');
 const manifest = JSON.parse(readFileSync(resolve(corpusRoot, 'manifest.json'), 'utf8')) as Manifest;
 
 describe('N4 corpus qualification contract', () => {
-    it('pins 20 real fixtures with the required media coverage', () => {
+    it('pins 22 real fixtures with the required media coverage', () => {
         expect(manifest.schemaVersion).to.equal(1);
-        expect(manifest.fixtures).to.have.length(20);
+        expect(manifest.fixtures).to.have.length(22);
         expect(manifest.fixtures.filter(fixture => fixture.path.endsWith('.pdf'))).to.have.length(18);
-        expect(manifest.fixtures.filter(fixture => fixture.path.endsWith('.csv'))).to.have.length(2);
+        expect(manifest.fixtures.filter(fixture => fixture.kind === 'csv')).to.have.length(2);
+        expect(manifest.fixtures.filter(fixture => fixture.kind === 'text')).to.have.length(2);
         expect(manifest.fixtures.filter(fixture => fixture.kind === 'scanned')).to.have.length(2);
         for (const fixture of manifest.fixtures) {
             const bytes = readFileSync(resolve(corpusRoot, fixture.path));
@@ -34,7 +35,7 @@ describe('N4 corpus qualification contract', () => {
         }
     });
 
-    it('persists 100 anchors across a changed converter representation with zero false exact matches', async () => {
+    it('persists 110 anchors across a changed converter representation with zero false exact matches', async () => {
         const store = new InMemoryN4QualificationStore();
         const now = '2026-09-08T00:00:00.000Z';
         await store.ensureProject({ id: 'n4-baseline', name: 'N4 baseline', createdAt: now });
@@ -103,7 +104,8 @@ describe('N4 corpus qualification contract', () => {
                 count += 1;
             }
         }
-        expect(count).to.equal(100);
-        expect(await store.listAnchors('n4-baseline')).to.have.length(100);
+        const minimumAnchors = 5 * manifest.fixtures.length; // 110 with 22 fixtures
+        expect(count).to.be.at.least(minimumAnchors);
+        expect(await store.listAnchors('n4-baseline')).to.have.length(count);
     });
 });

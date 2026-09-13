@@ -1,5 +1,7 @@
 # N4 V2 qualification record
 
+**Status:** open — awaiting a qualified two-converter run over the 22-fixture corpus.
+
 This is the retained procedure and decision boundary for the N4 experiment described in the
 attached V1 implementation plan. The run is deliberately evidence-producing: a green static
 check does not become a converter qualification until the live ledger and the retained JSON
@@ -15,7 +17,9 @@ For a bounded diagnostic rerun, set N4_DOCKER_PULL_TIMEOUT_MS (the default is te
 image); a timeout is retained as evidence and leaves the qualification NO-GO.
 
 The command compiles the Ivory Tower packages needed by the verifier, invokes both immutable
-Docling images against all 20 checked-in fixtures, and retains:
+Docling images against all 22 checked-in fixtures — 18 PDFs, the two CSV fixtures and the two
+UTF-8 text fixtures (`fixtures/n4/txt/open-advising-note.txt` and
+`fixtures/n4/txt/open-methods-note.txt`) — and retains:
 
 - `artifacts/n4/qualification-ledger.json` — full gitignored observations and raw-response
   digests under `artifacts/n4/raw/`;
@@ -48,7 +52,7 @@ matrix.exact.ambiguous + matrix.exact.unresolved
 
 The retained record may say `qualified` only when all of these are true:
 
-1. all 20 fixtures were attempted against both digest-pinned converter versions;
+1. all 22 fixtures were attempted against both digest-pinned converter versions;
 2. at least 100 anchors came from real A-side extraction text;
 3. every persisted anchor reopens exactly before and after permitted project transfer;
 4. PDF anchor quotes have converter-emitted page coordinates, and both CSVs pass the typed/raw
