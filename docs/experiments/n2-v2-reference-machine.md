@@ -1,9 +1,9 @@
 # N2 V2 reference-machine qualification
 
-Status: **measured pass** on commit `7ed5b5f09`; the PGlite engine decision is unlocked for
-architecture-owner sign-off (this run does not perform that sign-off). The retained record is
-[`n2-v2-evidence.json`](./n2-v2-evidence.json) and the retained per-cycle ledger is
-[`n2-v2-storm-cycles.json`](./n2-v2-storm-cycles.json).
+**Status:** decided — PGlite 0.3.16 is the local V1 engine (docs/adr-005-storage-engine.md).
+
+The measured reference-machine run is retained in [`n2-v2-evidence.json`](./n2-v2-evidence.json);
+the retained per-cycle ledger is [`n2-v2-storm-cycles.json`](./n2-v2-storm-cycles.json).
 
 ## Question and boundary
 
