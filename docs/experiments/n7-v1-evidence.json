@@ -1,15 +1,15 @@
 {
   "experiment": "N7",
   "contractVersion": "n7/1",
-  "observedAt": "2026-09-12T22:42:53.213Z",
+  "observedAt": "2026-09-13T23:28:47.370Z",
   "repository": {
-    "head": "748ab97aa7275babba2c82399f88b24e53b630c8",
-    "branch": "dev-consolidation",
-    "dirty": true,
+    "head": "6b4ebebe06a04e2810e87557f0dc8faf0155257c",
+    "branch": "closeout/n7-canonicalization",
+    "dirty": false,
     "sourceDigestEncoding": "SHA-256 of UTF-8 text with LF line endings",
     "sourceDigests": {
-      "package-lock.json": "0ffc5b784799e08c4f5018f3c686b3a0ac37eb76c87814bf7cdbda15435d261e",
-      "package.json": "253634ba1c9a4fb36b3df5274dcd1f598afe38640f5e7a87797cb0f703e05219",
+      "package-lock.json": "0d1894a4231c4dc352969581e61f5d8750625e690ab5ba4e25ebd49865fafbcc",
+      "package.json": "a9e5d22ab1add0d59e1c78f1c153de34796a1d13901491754b16df99f0908fad",
       "packages/ivory-identity/src/common/canonical-preimage.spec.ts": "81157f441a70713a86582e45c847ef22ed4f14103e68d2fcc7dc0990063f7e6c",
       "packages/ivory-identity/src/common/canonical-preimage.ts": "10a7561de5c39023c515b18e607ee2ab983914edd05ee46e1fe55e587f8d8b11",
       "packages/ivory-identity/src/common/identifier-alias.spec.ts": "bd1eef50ded8301a56c1e3346f9e8f1c76096b4598c1568d0cef1ff56197a2cc",
@@ -19,33 +19,38 @@
       "packages/ivory-identity/src/common/identity-scheme.ts": "0dabd19a2d35f349d82a29d44895995ddbaed2e3611d5e4d8538317c4d0fe994",
       "packages/ivory-identity/src/common/passage-anchor.ts": "16aa30a269a525bfae6429a042b89a226d34178cc35327f668bb1f2f82d8c721",
       "packages/ivory-identity/src/node/digest.ts": "bfb9fd82bc8015b1113e86bb2be76f4cbd8f05e414ff2e5c7fdc1f9168cc0e12",
+      "packages/ivory-identity/src/node/fragment-anchor.spec.ts": "43fc3f763760f3adf81a17ffb8ebe094287bbcbd57bff869c74b2fd3350cfbc5",
+      "packages/ivory-identity/src/node/fragment-anchor.ts": "353ff1d3466bad014edd1638fb9ec51c378cfe90e2b71dd820cb2d9e62a14988",
       "packages/ivory-identity/src/node/identity-boundaries.spec.ts": "a7df8068880de3ec16f967cfe95c763cb3e0cf43e811944d884b2290f0d8ff35",
       "packages/ivory-identity/src/node/identity.spec.ts": "bbd13287e4655d6bc34982e7802f4e20f7927cfbf6041bf2451f150f9decd5f7",
       "packages/ivory-identity/src/node/identity.ts": "bb558eb270731f13b0553685edf0398a2bc2b5f565fe507c8b6b35f2feea0b20",
       "packages/ivory-identity/src/node/test/identity-fixtures.ts": "c11ac9e2ee5402d8d616edf69aeb985b92e3df0ebb19ff4e641868d08b30f630",
       "packages/ivory-tower-agent-experiment/fixtures/recorded-response.json": "2aec0b0a18d96fc61da7f2b062ff5c30edbe3cf0277840e03dc4b3e5569b2c60",
       "packages/ivory-tower-agent-experiment/package.json": "928e33916d94c529a893729a79886b22de059ea00dde76807d4f8559d9e6db73",
-      "packages/ivory-tower-agent-experiment/src/core.ts": "ae3d9f05c56fd9c2538ab9d7d108efa2dbbeae765e3a158fed4973a0799b66d3",
-      "packages/ivory-tower-agent-experiment/src/provider.ts": "8f26c28e21f68f0f6828175e029fc4d2aed63c7d6ceecc9ae08706d27937fef5",
-      "packages/ivory-tower-agent-experiment/src/server.ts": "a31708d62546200a9af7894de49e3ebe71c5a4c73293c64cbf0e24dd112074df",
+      "packages/ivory-tower-agent-experiment/src/core.ts": "49edfc6dbefd7675a80ca5f4609a4323e6575ffa01c0b477772ae98925d4153e",
+      "packages/ivory-tower-agent-experiment/src/provider.ts": "a00794d78f82b64c9141d128017bcd0bc8f860c6c81b3ee28b924267d8d07c59",
+      "packages/ivory-tower-agent-experiment/src/server.ts": "940e927925414c3c14a057e072e26ae32b27d96f3fc24c4dc4856753cf850979",
       "packages/ivory-tower-agent-experiment/tsconfig.json": "a98416008ff09c5b51f3e240b28eeca496da2f013e6f32ca755aca79e655b7bb",
       "packages/ivory-tower-research-kernel/src/node/canonical.ts": "094b91a847a2bf0df2b929b2fb4801bcd601ebf42102efd6dc91cbf84b941b43",
       "packages/ivory-tower-research-kernel/src/node/clients.ts": "fbcd81fa56d66b22aca673ebbd8ed72bdb8eda6cf6d43e65c7ea37ffff78ac53",
       "packages/ivory-tower-research-kernel/src/node/fixture.ts": "e804015969d71624493ebcb419140dffa435bdf29967d7bbee035453333cc989",
       "packages/ivory-tower-research-kernel/src/node/fixtures/advising-agency-protocol.md": "7f005f53639b22ac805778d9251735b8d49ea93a31654217c1aa0f788527b9da",
       "packages/ivory-tower-research-kernel/src/node/index.ts": "20a8974ba590dddf6946d481bc785742a8bcf07dd12a22cfa6f854781bee84f6",
-      "packages/ivory-tower-research-kernel/src/node/kernel.ts": "b23cc917df7c548fd077a00ca2dd05db4ae112b180da3bdc36826fff0f25bdde",
+      "packages/ivory-tower-research-kernel/src/node/kernel.ts": "8cd36ef2b92bca544b38cc35491ea4f26b678705fde50ff68e292ad0c25d8168",
       "packages/ivory-tower-research-kernel/src/node/reader.ts": "1a2dfd55066c83921737ec39773c11f614a14af1074b8dd5ea612ae0958c694f",
-      "packages/ivory-tower-research-kernel/src/node/research-kernel.spec.ts": "10eff24ae8a18556ed7551869be94d12a9eb3a2158572743b6c443581e2d5e5c",
+      "packages/ivory-tower-research-kernel/src/node/research-kernel.spec.ts": "5d7f5f827fa7232c52cfb6012a4f2780c731f1a7a65400492e0e3fb3feecc614",
       "packages/ivory-tower-research-kernel/src/node/types.ts": "eb6577fd217060efa6f7e17e8eaa7ae158af1c356a535623f792e1e4f5983c39",
+      "scripts/n7/adversarial.test.mjs": "2729ccb2755b4a4d678e3e262ab8f331ed961b85399896114dfa3bf87e690958",
       "scripts/n7/build.mjs": "2b396bce3ddc2de84b5705f98fc36ccf6316e52afbc6a5e87703226a8149fe69",
       "scripts/n7/client.mjs": "d7c5cb8fa9d1a8ad015c6e232814337942021141c50bcf034262f1400ae80945",
       "scripts/n7/core.test.mjs": "856fcdda54b90884b89e9c0ebb54385195206e7f477a1f2b37fd4cd4fb43753c",
+      "scripts/n7/fingerprint.mjs": "d5527e67d75c36bc622249db9a5ba9654d53cb06db2eac6a71833518914d5259",
+      "scripts/n7/live-provider.mjs": "a6315c6af44e2208918b24b0e0827c93d25d8dc3a521788b24f5940c994f56ec",
       "scripts/n7/mcp.test.mjs": "241359dba88a5dcec621ec7069b5a0c671d1e734291052a11611a5d9900d3e8f",
       "scripts/n7/provider.test.mjs": "4e888e52c529dc74f622bd27108757a313289bca3f4ee93eef25b83b572f65e6",
       "scripts/n7/review.mjs": "8c3ca1be3d2281f779737294c325242f396ca0b880d711c5b7f310a31b386bff",
       "scripts/n7/review.test.mjs": "1f1cd8cb51c0cb73ae44297242e80a03300888714c8483df9b843a82e4d574c6",
-      "scripts/n7/verify.mjs": "a4ce75a38de00db1382495842af9ee8902672e1035c0eeb8fb0aeaa007b1841c"
+      "scripts/n7/verify.mjs": "425e40f2b9fb77a1ac313967943d2bbf5e4fbf96c5866792f933cfcf99edd8b7"
     }
   },
   "platform": {
@@ -67,7 +72,7 @@
         "scripts/n7/build.mjs"
       ],
       "exitCode": 0,
-      "durationMs": 2720,
+      "durationMs": 3362,
       "log": "n7-evidence/build.log",
       "logDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "passed": true
@@ -78,15 +83,16 @@
         "node",
         "--test",
         "--test-reporter=tap",
+        "scripts/n7/adversarial.test.mjs",
         "scripts/n7/core.test.mjs",
         "scripts/n7/mcp.test.mjs",
         "scripts/n7/provider.test.mjs",
         "scripts/n7/review.test.mjs"
       ],
       "exitCode": 0,
-      "durationMs": 1741,
+      "durationMs": 1975,
       "log": "n7-evidence/tests.log",
-      "logDigest": "433cc5fb3e3c34ef9f16f9bc6d3788361cf928603f2483032a1528298c33a6f6",
+      "logDigest": "efbbb22b8b5adb83d12902834a0bb6868956bafacf884ce6dd211e60519c3413",
       "passed": true
     },
     {
@@ -97,20 +103,24 @@
         "packages/ivory-tower-research-kernel/lib/node/research-kernel.spec.js"
       ],
       "exitCode": 0,
-      "durationMs": 235,
+      "durationMs": 257,
       "log": "n7-evidence/n1-regression.log",
-      "logDigest": "1caedb5b9ad563d0d4293c1ac1ee12659c8abe139dfb143fae5e40dcd0bfe1db",
+      "logDigest": "471b287e2be364b9e7eed9d688c77f31d6ea67c99c86742194adfbfdcbb06ef2",
       "passed": true
     }
   ],
   "fixtureDigest": "22a73c2263da760877d7fc048ac8188ff4767ef19d7b86e37759707b641a5ca5",
   "deterministic": {
     "status": "passed",
-    "tests": 31,
-    "passed": 31,
+    "tests": 35,
+    "passed": 35,
     "failed": 0,
     "skipped": 0,
     "scenarios": [
+      "hostile source text is untrusted data: it cannot grant tools, widen scope, or accept itself",
+      "hostile-corpus transmission carries only the approved excerpt and never the private canary",
+      "the no-model qualitative path writes a human claim, annotation and evidence link through the same contract",
+      "isolated project catalogs do not share writers, sequences or refs",
       "acceptance publishes exactly one model claim/link with shared human acceptance activity",
       "identical concurrent acceptance and retry after revocation return one original receipt",
       "reusing a receipt key for different proposal content has no partial effect",
@@ -149,19 +159,64 @@
     "passed": 12
   },
   "liveProvider": {
-    "status": "not-run",
-    "reason": "Live qualification is opt-in and requires researcher review of exact transmission and proposal digests."
+    "status": "run",
+    "outcome": "passed",
+    "observedAt": "2026-09-13T23:25:37.110Z",
+    "endpoint": "loopback-http",
+    "model": "qwen3-4b-instruct-2507",
+    "observationSummary": {
+      "preview-within-request-limit": true,
+      "preview-excludes-private-canary": true,
+      "dispatch-refused-before-approval": true,
+      "exactly-one-wire-request": true,
+      "approved-bytes-are-transmitted-bytes": true,
+      "content-type-only-headers": true,
+      "no-redirect": true,
+      "http-200": true,
+      "one-propose_claim-tool-call": true,
+      "response-excludes-private-canary": true,
+      "dispatcher-observations-match-wire": true,
+      "candidate-strict-schema": true,
+      "no-accepted-state-from-dispatch": true,
+      "proposal-is-pending": true,
+      "proposal-bound-to-application-capability": true,
+      "proposal-does-not-publish-state": true,
+      "acceptance-requires-researcher-identity": true,
+      "acceptance-publishes-model-claim-and-human-activity": true,
+      "no-implicit-retry-after-dispatch": true,
+      "stale-head-fences-acceptance": true,
+      "decline-preserves-state-and-is-not-reversible": true,
+      "revocation-causes-zero-egress": true,
+      "credential-free:outgoing-body": true,
+      "credential-free:response-body": true,
+      "credential-free:server-log": true,
+      "no-configured-credential-leaked": true
+    },
+    "retained": {
+      "record": "docs/experiments/n7-live-provider/run.json",
+      "recordDigest": "73f676930cd17f677b750147f43309cde616268b3fd63d326a11a8c9ce51323a",
+      "outgoingBody": {
+        "path": "docs/experiments/n7-live-provider/outgoing-body.txt",
+        "digest": "9b59bbe389e78e6662d4af672e395717cd31eed5186fab58c54d0294cf871dda"
+      },
+      "response": {
+        "path": "docs/experiments/n7-live-provider/response-body.json",
+        "digest": "85044a29e91774c76e70f89692a056212894cf2dd7103659969b0f435fd21cdd"
+      }
+    },
+    "stale": false,
+    "staleFiles": []
   },
   "limitations": [
     "In-memory acceptance and receipts only; no restart or crash durability claim.",
-    "Synthetic fixtures and local HTTP observations do not qualify a real model provider.",
+    "One bounded run against a real local llama.cpp model is retained (docs/experiments/n7-live-provider/run.json); no hosted provider or multi-run qualification is claimed.",
     "Revocation cannot recall bytes already transmitted; late results are discarded.",
     "No Theia integration, production authentication, arbitrary code sandbox, or production shipping claim.",
     "Source fingerprints identify the tested worktree, including uncommitted changes; HEAD alone is not the implementation identity."
   ],
-  "decision": "deterministic-pass-live-provider-open",
+  "decision": "bounded-experiment-pass",
   "transmissionEvidence": {
     "path": "n7-evidence/transmissions.json",
-    "digest": "df38a29d7e2b04a5bed37fcf9a77c8db285c11bc4cd78dadc5bfa1bcaae94875"
+    "digest": "cafa117040a03510c490d46f97a23f4cb468e60716b8566d7992d0540b2e533e"
   }
 }
