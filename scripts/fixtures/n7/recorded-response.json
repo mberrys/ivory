@@ -1,0 +1,10 @@
+{
+  "provider": "recorded-fixture",
+  "model": "recorded-fixture/1",
+  "label": "Authored fixture, not a claimed recording of a live model.",
+  "candidate": {
+    "text": "Advising can clarify a next step.",
+    "role": "supports",
+    "rationale": "The interviewee described advising as clarifying action."
+  }
+}
