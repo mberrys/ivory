@@ -9,7 +9,7 @@
       "document": "docs/experiments/n1-v2-reference-kernel.md",
       "documentStatusPrefix": "**Status:**",
       "documentOpenPattern": "remains open|\\bopen\\b",
-      "documentClosedPattern": "closed",
+      "documentClosedPattern": "^closed\\b",
       "observations": {
         "automated": "automatedPass",
         "human": "humanValidation.status",
@@ -27,7 +27,7 @@
       "document": "docs/experiments/n2-v2-reference-machine.md",
       "documentStatusPrefix": "**Status:**",
       "documentOpenPattern": "provisional|open",
-      "documentClosedPattern": "decided",
+      "documentClosedPattern": "^decided\\b",
       "observations": {
         "automated": "automatedPass",
         "engine": "decision.engine",
@@ -45,7 +45,7 @@
       "document": "docs/iv-n3-compute.md",
       "documentStatusPrefix": "**Status:**",
       "documentOpenPattern": "not yet decided|open",
-      "documentClosedPattern": "decided",
+      "documentClosedPattern": "^decided\\b",
       "observations": {
         "runtime": "status",
         "supportMatrix": "decision.supportMatrix",
@@ -63,8 +63,8 @@
       "evidence": "docs/experiments/n4-v2-evidence.json",
       "document": "docs/experiments/n4-v2-qualification.md",
       "documentStatusPrefix": "**Status:**",
-      "documentOpenPattern": "NO-GO|not yet passed|pending",
-      "documentClosedPattern": "qualified",
+      "documentOpenPattern": "^open\\b|NO-GO|not yet passed|pending",
+      "documentClosedPattern": "^qualified\\b",
       "observations": {
         "status": "status",
         "falseExact": "observations.falseExact",
@@ -79,8 +79,8 @@
       "evidence": "docs/experiments/n5-v2-evidence.json",
       "document": "docs/experiments/n5-theia-client-equivalence.md",
       "documentStatusPrefix": "**Status:**",
-      "documentOpenPattern": "blocked|partial|pending",
-      "documentClosedPattern": "qualified",
+      "documentOpenPattern": "^blocked\\b|^partial\\b|^pending\\b",
+      "documentClosedPattern": "^qualified\\b",
       "observations": {
         "decision": "decision",
         "liveService": "liveService.available"
@@ -93,8 +93,8 @@
       "evidence": "docs/experiments/n6-evidence.json",
       "document": "docs/experiments/n6-portable-reproduction.md",
       "documentStatusPrefix": "**Status:**",
-      "documentOpenPattern": "pending|not qualified",
-      "documentClosedPattern": "qualified",
+      "documentOpenPattern": "^open\\b|pending|not qualified",
+      "documentClosedPattern": "^qualified\\b",
       "observations": {
         "status": "status",
         "humanQualification": "humanQualification",
@@ -108,8 +108,8 @@
       "evidence": "docs/experiments/n7-v1-evidence.json",
       "document": "docs/experiments/n7-scoped-agent-proposals.md",
       "documentStatusPrefix": "**Status:**",
-      "documentOpenPattern": "remains open|open",
-      "documentClosedPattern": "qualified|bounded-experiment",
+      "documentOpenPattern": "^open\\b|remains open",
+      "documentClosedPattern": "^qualified\\b|^bounded-experiment\\b",
       "observations": {
         "decision": "decision",
         "liveProvider": "liveProvider.status",

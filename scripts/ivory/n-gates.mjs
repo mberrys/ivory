@@ -21,10 +21,25 @@ function valueAt(object, dotPath) {
 }
 
 function statusLine(text, prefix) {
-    return text
+    const line = text
         .split(/\r?\n/)
-        .map(line => line.trim())
-        .find(line => line.startsWith(prefix));
+        .map(candidate => candidate.trim())
+        .find(candidate => candidate.startsWith(prefix));
+    return line === undefined ? undefined : line.slice(prefix.length).trim();
+}
+
+/**
+ * Gate ids that were required but are not declared by the manifest.
+ * Pure so the CLI contract is testable without spawning a process.
+ */
+export function unknownGateIds(gates, ids) {
+    const known = new Set(gates.map(gate => gate.id));
+    const seen = new Set();
+    return ids.filter(id => {
+        if (known.has(id) || seen.has(id)) return false;
+        seen.add(id);
+        return true;
+    });
 }
 
 export function evaluateGates(config, options = {}) {
@@ -123,11 +138,14 @@ function main() {
         .split(',')
         .map(id => id.trim())
         .filter(id => id !== '');
+    const unknown = unknownGateIds(gates, required);
+    for (const id of unknown) process.stderr.write(`UNKNOWN GATE: ${id}\n`);
+
     const requireAll = process.argv.includes('--require-pass');
     const notClosed = gates.filter(gate => (requireAll || required.includes(gate.id)) && !gate.closed);
     for (const gate of notClosed) process.stderr.write(`REQUIRED: gate ${gate.id} is not closed\n`);
 
-    process.exitCode = mismatches.length > 0 || notClosed.length > 0 ? 1 : 0;
+    process.exitCode = mismatches.length > 0 || notClosed.length > 0 || unknown.length > 0 ? 1 : 0;
 }
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
