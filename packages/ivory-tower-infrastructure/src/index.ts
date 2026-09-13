@@ -23,3 +23,4 @@ export * from './postgres-execution-store';
 export * from './postgres-n4-qualification-store';
 export * from './graphile-worker-adapter';
 export * from './node/migrate';
+export * from './in-memory-research-service';
