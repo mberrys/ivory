@@ -57,14 +57,23 @@ directories:
 
 ```powershell
 & "C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -products "*" -property installationPath
-& "C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -products "*" -find "VC/Tools/MSVC/*"
-& "C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -products "*" -find "VC/Tools/MSVC/*/lib/*/spectre"
+Get-ChildItem -File "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/*/lib/spectre/*"
+Get-ChildItem -File "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/*/atlmfc/lib/spectre/*"
 ```
 
-The last command lists `lib/<arch>/spectre` directories; empty output means the
-component is missing. Map the probed toolset's `14.4X` to the full catalog component
-ID — the installer rejects the abbreviated `VC.14.4X.Spectre` form and requires the
-versioned `VC.14.4X.17.1Y.x86.x64.Spectre` ID from the catalog:
+Installed toolsets keep the Spectre-mitigated libraries at
+`VC/Tools/MSVC/<version>/lib/spectre/<arch>` and
+`VC/Tools/MSVC/<version>/atlmfc/lib/spectre/<arch>`. The component is present when
+those directories exist and contain `.lib` files; empty directories are placeholders,
+not the component. The machine check (`npm.cmd run check:ivory-toolchain`, unit-spec'd
+by `npm.cmd run test:ivory-toolchain`) locates the directories under the probed
+installation; a probe that reports the component missing while
+`lib/spectre/<arch>/*.lib` exists is a probe bug, not a missing component. Earlier
+revisions of this document and of `scripts/verify-ivory-toolchain.mjs` probed
+`VC/Tools/MSVC/*/lib/*/spectre`, which matches no real toolset layout and produced
+exactly that false "missing" result. Map the probed toolset's `14.4X` to the full
+catalog component ID — the installer rejects the abbreviated `VC.14.4X.Spectre` form
+and requires the versioned `VC.14.4X.17.1Y.x86.x64.Spectre` ID from the catalog:
 
 ```powershell
 & "C:/Program Files (x86)/Microsoft Visual Studio/Installer/setup.exe" modify `
@@ -75,9 +84,12 @@ versioned `VC.14.4X.17.1Y.x86.x64.Spectre` ID from the catalog:
 
 This must run elevated (admin): a non-elevated run fails with installer exit code
 5007 ("Commands with --quiet or --passive should be run elevated from the
-beginning"). Re-run the third probe to confirm the directories exist before
-continuing. This machine's toolset is 14.44.35207 under Visual Studio Build Tools
-2022 17.14.35.
+beginning"). Re-run the probe to confirm the directories exist before continuing.
+This machine's toolset is 14.44.35207 under Visual Studio Build Tools 2022 17.14.35;
+the component is installed there (observed 2026-09-13:
+`lib/spectre/{onecore,x64,x86}` and `atlmfc/lib/spectre/{x64,x86}`, with the `.lib`
+payload in `x64`/`x86`; `npm.cmd run check:ivory-toolchain` prints
+`Spectre-mitigated MSVC libraries (4 toolset directories)` and exits 0).
 
 ```powershell
 python scripts/n5/extensions.py install
@@ -104,7 +116,7 @@ Rscript packages/ivory-n5-client/helpers/ivory_n5.R get EXECUTION_ID
 npm.cmd run evidence:n5
 ```
 
-`evidence:n5` writes `artifacts/n5/evidence.json` and exits **2** for blocked
+`evidence:n5` writes `docs/experiments/n5-v2-evidence.json` (the record `configs/ivory-n-gates.json` reads) and exits **2** for blocked
 qualification. It records the base commit and dirty state rather than falsely
 claiming an uncommitted implementation is the base commit. R helpers require
 `httr2` in the selected R environment. Their versions must be

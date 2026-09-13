@@ -17,27 +17,34 @@ Raw evidence (gitignored) lives under `artifacts/n5/`. The single retained recor
 
 ### 0.1 Spectre-mitigated MSVC libraries — the only hard build blocker
 
-Observed 2026-09-13: probe empty (missing); toolset `14.44.35207` has no `lib/<arch>/spectre` directory.
+Observed 2026-09-13: **installed**. The toolset `14.44.35207` keeps the libraries at
+`lib/spectre/{onecore,x64,x86}` and `atlmfc/lib/spectre/{x64,x86}`; the `.lib` payload
+is in `lib/spectre/{x64,x86}` (44/45 files) and `atlmfc/lib/spectre/{x64,x86}`.
 
-Probe (empty output = missing):
+Probe (empty = missing; unit-spec'd by `npm run test:ivory-toolchain`):
 
 ```bash
-"C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -products '*' -find "VC/Tools/MSVC/*/lib/*/spectre"
+npm run check:ivory-toolchain   # expected: "Spectre-mitigated MSVC libraries (4 toolset directories)" + Node/npm line, exit 0
 ```
 
-Install **elevated** (PowerShell; a non-elevated run fails with installer exit code 5007):
+The earlier `vswhere -find "VC/Tools/MSVC/*/lib/*/spectre"` pattern was one path
+segment off (it matches no real toolset layout) and is no longer used;
+`scripts/verify-ivory-toolchain.mjs` now scans the probed installation for
+`VC/Tools/MSVC/*/lib/spectre/<arch>` and `VC/Tools/MSVC/*/atlmfc/lib/spectre/<arch>`
+directories that contain at least one `.lib` file. A probe that reports the component
+missing while those directories hold `.lib` files is a probe bug, not a missing
+component. Install (elevated) if genuinely missing:
 
 ```powershell
 & "C:/Program Files (x86)/Microsoft Visual Studio/Installer/setup.exe" modify --installPath "C:/Program Files/Microsoft Visual Studio/2022/BuildTools" --add Microsoft.VisualStudio.Component.VC.14.44.17.14.x86.x64.Spectre --quiet --norestart
 ```
 
-Confirm: re-run the probe (expect `.../lib/x64/spectre` paths) and `npm run check:ivory-toolchain`
-(exit 0; prints `Ivory Tower toolchain: Spectre-mitigated MSVC libraries (<n> toolset directories)`).
 Never set `IVORY_SKIP_SPECTRE_CHECK`.
 
-npm pin for the toolchain check: the machine shim selects npm 11.17.0; the pinned 11.13.0 is selected
-per call with `export npm_config_prefix="$HOME/AppData/Roaming/npm"` (verified 2026-09-13:
-`npm --version` → `11.13.0`). Do not edit `configs/ivory-toolchain.json`.
+npm pin for the toolchain check: the machine shim selects npm 11.17.0; the pinned
+11.13.0 is selected per call with
+`export npm_config_prefix=C:/Users/micha/AppData/Local/Temp/npm1113` (verified
+2026-09-13: `npm --version` → `11.13.0`). Do not edit `configs/ivory-toolchain.json`.
 
 - Feeds: nothing; it unblocks Step 1.
 
