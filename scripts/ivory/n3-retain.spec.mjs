@@ -7,6 +7,8 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
     N3_RETAIN_SCHEMA,
+    N3_SUPPORT_MATRIX_DECIDED,
+    N3_SUPPORT_MATRIX_OPEN,
     qualificationSummary,
     sanitize,
 } from './n3-retain.mjs';
@@ -23,6 +25,7 @@ function passingEvidence(language) {
         image: `example/image@sha256:${'b'.repeat(64)}`,
         command: { executable: 'C:\\Program Files\\nodejs\\node.exe', arguments: ['--language', language] },
         platform: { platform: 'win32', arch: 'x64', release: '10.0.26200', cpuModel: 'test', totalMemoryBytes: 1 },
+        runtimeVersions: { docker: { client: { os: 'windows' }, server: { os: 'linux' } } },
         runtime: { status: 'observed', coldInstall: { elapsedMs: 1234, imageWasCachedBeforePull: false }, warmLaunchMs: 900 },
         acceptance: {
             requiredCanariesDenied: language === 'python' ? true : null,
@@ -86,7 +89,10 @@ test('retain:ivory-n3 writes a qualified record and exits 2 for protocol-only in
         assert.equal(record.status, 'runtime-qualified');
         assert.deepEqual(record.qualification.failures, []);
         assert.equal(record.qualification.languageNeutral, true);
-        assert.equal(record.decision.supportMatrix, 'open-pending-onboarding');
+        // The platform decision plus the retained runtime qualification decide
+        // the support matrix; no onboarding cohort is required.
+        assert.equal(record.decision.supportMatrix, N3_SUPPORT_MATRIX_DECIDED);
+        assert.equal(record.onboarding, null);
         assert.equal(record.python.language, 'python');
         assert.equal(record.r.language, 'r');
 
@@ -109,7 +115,8 @@ test('retain:ivory-n3 writes a qualified record and exits 2 for protocol-only in
         assert.equal(secondRecord.includes(os.homedir().replaceAll('\\', '/')), false);
         assert.match(secondRecord, /<home>\/bin\/node\.exe/);
 
-        // An observed onboarding record is the only thing that decides the support matrix.
+        // A cohort is an optional adoption observation: it is retained as-is
+        // and never gates the support matrix.
         const onboardingPath = path.join(root, 'onboarding.json');
         await fs.writeFile(onboardingPath, `${JSON.stringify({
             schema: 'ivory-n3-onboarding/1',
@@ -124,28 +131,43 @@ test('retain:ivory-n3 writes a qualified record and exits 2 for protocol-only in
             })),
         }, null, 2)}\n`);
         await fs.writeFile(pythonPath, `${JSON.stringify(passingEvidence('python'), null, 2)}\n`);
-        const decided = await spawnNode([
+        const observed = await spawnNode([
             retainModule, '--python', pythonPath, '--r', rPath, '--onboarding', onboardingPath, '--out', outPath,
         ]);
-        assert.equal(decided.code, 0, decided.stderr);
-        const decidedRecord = JSON.parse(await fs.readFile(outPath, 'utf8'));
-        assert.equal(decidedRecord.decision.supportMatrix, 'pilot-decided');
-        assert.equal(decidedRecord.onboarding.observed, true);
-        assert.equal(decidedRecord.onboarding.acceptance.withinTarget, 4);
+        assert.equal(observed.code, 0, observed.stderr);
+        const observedRecord = JSON.parse(await fs.readFile(outPath, 'utf8'));
+        assert.equal(observedRecord.decision.supportMatrix, N3_SUPPORT_MATRIX_DECIDED);
+        assert.equal(observedRecord.onboarding.observed, true);
+        assert.equal(observedRecord.onboarding.acceptance.withinTarget, 4);
 
-        // An empty onboarding record leaves the support matrix open.
+        // An empty onboarding record is not-applicable: retained, never a
+        // failure, and still not the deciding input.
         await fs.writeFile(onboardingPath, `${JSON.stringify({
             schema: 'ivory-n3-onboarding/1',
             participants: [],
         }, null, 2)}\n`);
-        const undecided = await spawnNode([
+        const emptyObserved = await spawnNode([
             retainModule, '--python', pythonPath, '--r', rPath, '--onboarding', onboardingPath, '--out', outPath,
         ]);
-        assert.equal(undecided.code, 0, undecided.stderr);
-        const undecidedRecord = JSON.parse(await fs.readFile(outPath, 'utf8'));
-        assert.equal(undecidedRecord.decision.supportMatrix, 'open-pending-onboarding');
-        assert.equal(undecidedRecord.onboarding.observed, false);
-        assert.equal(undecidedRecord.onboarding.acceptance, null);
+        assert.equal(emptyObserved.code, 0, emptyObserved.stderr);
+        const emptyRecord = JSON.parse(await fs.readFile(outPath, 'utf8'));
+        assert.equal(emptyRecord.decision.supportMatrix, N3_SUPPORT_MATRIX_DECIDED);
+        assert.equal(emptyRecord.onboarding.observed, false);
+        assert.equal(emptyRecord.onboarding.acceptance, null);
+
+        // Without --onboarding the observation is simply absent.
+        const noCohort = await spawnNode([retainModule, '--python', pythonPath, '--r', rPath, '--out', outPath]);
+        assert.equal(noCohort.code, 0, noCohort.stderr);
+        assert.equal(JSON.parse(await fs.readFile(outPath, 'utf8')).onboarding, null);
+
+        // A platform other than the decided pilot leaves the matrix open even
+        // though the runtime itself is qualified.
+        const otherPlatform = JSON.parse(JSON.stringify(passingEvidence('python')));
+        otherPlatform.platform = { ...otherPlatform.platform, platform: 'darwin', arch: 'arm64' };
+        await fs.writeFile(pythonPath, `${JSON.stringify(otherPlatform, null, 2)}\n`);
+        const otherMachine = await spawnNode([retainModule, '--python', pythonPath, '--r', rPath, '--out', outPath]);
+        assert.equal(otherMachine.code, 0, otherMachine.stderr);
+        assert.equal(JSON.parse(await fs.readFile(outPath, 'utf8')).decision.supportMatrix, N3_SUPPORT_MATRIX_OPEN);
     } finally {
         await fs.rm(root, { recursive: true, force: true });
     }
