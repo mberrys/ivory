@@ -4,7 +4,7 @@ import test from 'node:test';
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { evaluateGates, formatGateTable, unknownGateIds } from './n-gates.mjs';
 
@@ -137,9 +137,36 @@ test('unknown gate ids are reported instead of silently ignored', () => {
 });
 
 const SCRIPT = fileURLToPath(new URL('./n-gates.mjs', import.meta.url));
+const REPO_ROOT = join(dirname(SCRIPT), '..', '..');
 
-function runVerifier(args) {
-    return spawnSync(process.execPath, [SCRIPT, ...args], { encoding: 'utf8' });
+function runVerifier(args, env) {
+    return spawnSync(process.execPath, [SCRIPT, ...args], {
+        encoding: 'utf8',
+        env: { ...process.env, ...env },
+    });
+}
+
+/**
+ * A manifest outside the repository whose gate evidence is addressed by a
+ * relative traversal back into the temporary directory. These gates are
+ * therefore decided only by the fixture, never by which real gates happen to
+ * be closed in the checked-out state.
+ */
+function tempManifest(gates) {
+    const dir = mkdtempSync(join(tmpdir(), 'n-gates-manifest-'));
+    const manifest = join(dir, 'ivory-n-gates.json');
+    writeFileSync(
+        manifest,
+        JSON.stringify(
+            {
+                schema: 'ivory-n-gates/1',
+                gates: gates.map(gate => ({ ...gate, evidence: relative(REPO_ROOT, join(dir, gate.evidence)) })),
+            },
+            null,
+            2,
+        ),
+    );
+    return { dir, manifest };
 }
 
 test('--require-closed rejects a gate id that is not in the manifest', () => {
@@ -149,10 +176,36 @@ test('--require-closed rejects a gate id that is not in the manifest', () => {
 });
 
 test('a required gate that exists but is still open fails as open, not as unknown', () => {
-    const result = runVerifier(['--require-closed', 'N1']);
+    const { manifest } = tempManifest([
+        {
+            id: 'NX',
+            title: 'Hermetic gate whose evidence is never written',
+            evidence: 'nx-evidence.json',
+            closedWhen: [{ path: 'status', equals: 'closed' }],
+        },
+    ]);
+    const result = runVerifier(['--require-closed', 'NX'], { IVORY_N_GATES_CONFIG: manifest });
     assert.equal(result.status, 1, result.stderr);
-    assert.match(result.stderr, /REQUIRED: gate N1 is not closed/);
+    assert.match(result.stderr, /REQUIRED: gate NX is not closed/);
     assert.doesNotMatch(result.stderr, /UNKNOWN GATE/);
+    assert.match(result.stdout, /\| NX \| open \|/);
+});
+
+test('a required gate whose evidence is present and closed passes', () => {
+    const { dir, manifest } = tempManifest([
+        {
+            id: 'NX',
+            title: 'Hermetic gate whose evidence is written as closed',
+            evidence: 'nx-evidence.json',
+            observations: { status: 'status' },
+            closedWhen: [{ path: 'status', equals: 'closed' }],
+        },
+    ]);
+    writeFileSync(join(dir, 'nx-evidence.json'), JSON.stringify({ status: 'closed' }));
+    const result = runVerifier(['--require-closed', 'NX'], { IVORY_N_GATES_CONFIG: manifest });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /\| NX \| closed \|/);
+    assert.match(result.stdout, /1\/1 N-gates closed\./);
 });
 
 test('the verifier without flags still prints the table and succeeds', () => {

@@ -3,13 +3,14 @@
 /**
  * Roll-up of the N1..N7 spike gates (ADR-003 rule 6).
  * Run via: npm run verify:ivory-n-gates [-- --require-closed N1,N2] [--require-pass]
+ * Set IVORY_N_GATES_CONFIG=<path> to evaluate an alternative manifest (test seam).
  */
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const CONFIG_FILE = path.join(ROOT, 'configs', 'ivory-n-gates.json');
+const CONFIG_FILE = process.env.IVORY_N_GATES_CONFIG ?? path.join(ROOT, 'configs', 'ivory-n-gates.json');
 
 function valueAt(object, dotPath) {
     let current = object;
