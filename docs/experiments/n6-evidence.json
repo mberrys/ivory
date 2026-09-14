@@ -1,9 +1,9 @@
 {
   "schema": "ivory-n6-evidence/1",
-  "status": "technical-pass-human-pending",
+  "status": "technical-pass",
   "humanQualification": "pending",
-  "createdAt": "2026-09-13T22:20:39.214Z",
-  "artifactPath": "artifacts/n6/qualification-IgkcHw",
+  "createdAt": "2026-09-14T00:10:00.793Z",
+  "artifactPath": "artifacts/n6/qualification-RWqMma",
   "platform": {
     "os": "win32",
     "release": "10.0.26200",
@@ -40,7 +40,7 @@
       "args": [
         "<repo>spikes\\n6-portable-reproduction\\cli.mjs",
         "create",
-        "<repo>artifacts\\n6\\qualification-IgkcHw\\original"
+        "<repo>artifacts\\n6\\qualification-RWqMma\\original"
       ],
       "status": "passed"
     },
@@ -49,7 +49,7 @@
       "args": [
         "<repo>spikes\\n6-portable-reproduction\\cli.mjs",
         "reproduce",
-        "<repo>artifacts\\n6\\qualification-IgkcHw\\original",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\original",
         "<repo>artifacts\\n6\\runtime\\runtime.json"
       ],
       "status": "passed"
@@ -59,8 +59,8 @@
       "args": [
         "<repo>spikes\\n6-portable-reproduction\\cli.mjs",
         "export",
-        "<repo>artifacts\\n6\\qualification-IgkcHw\\original",
-        "<repo>artifacts\\n6\\qualification-IgkcHw\\portable"
+        "<repo>artifacts\\n6\\qualification-RWqMma\\original",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\portable"
       ],
       "status": "passed"
     },
@@ -69,8 +69,8 @@
       "args": [
         "<repo>spikes\\n6-portable-reproduction\\cli.mjs",
         "restore",
-        "<repo>artifacts\\n6\\qualification-IgkcHw\\portable",
-        "<repo>artifacts\\n6\\qualification-IgkcHw\\clean-install\\study"
+        "<repo>artifacts\\n6\\qualification-RWqMma\\portable",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\clean-install\\study"
       ],
       "status": "passed"
     },
@@ -79,33 +79,33 @@
       "args": [
         "<repo>spikes\\n6-portable-reproduction\\cli.mjs",
         "reproduce",
-        "<repo>artifacts\\n6\\qualification-IgkcHw\\clean-install\\study",
-        "<repo>artifacts\\n6\\qualification-IgkcHw\\clean-install\\runtime\\runtime.json"
+        "<repo>artifacts\\n6\\qualification-RWqMma\\clean-install\\study",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\clean-install\\runtime\\runtime.json"
       ],
       "status": "passed"
     },
     {
       "label": "missing-blob",
       "status": "expected-failure",
-      "error": "Command failed (1): C:\\Program Files\\nodejs\\node.exe\nENOENT: no such file or directory, open 'C:\\.dev\\repos\\ivory-tower\\.worktrees\\closeout-n6\\artifacts\\n6\\qualification-IgkcHw\\clean-install\\study\\.ivory\\objects\\sha256\\05\\052ccedb3d7ac51ec5a164592ee80eb827574c094cdede01cb583cad4e3c2760'\n"
+      "error": "Command failed (1): C:\\Program Files\\nodejs\\node.exe\nENOENT: no such file or directory, open 'C:\\.dev\\repos\\ivory-tower\\.worktrees\\dev-consolidation\\artifacts\\n6\\qualification-RWqMma\\clean-install\\study\\.ivory\\objects\\sha256\\05\\052ccedb3d7ac51ec5a164592ee80eb827574c094cdede01cb583cad4e3c2760'\n"
     },
     {
       "label": "missing-dependency",
       "status": "expected-failure",
-      "error": "Command failed (1): C:\\Program Files\\nodejs\\node.exe\nCommand failed (1): C:\\.dev\\repos\\ivory-tower\\.worktrees\\closeout-n6\\artifacts\\n6\\qualification-IgkcHw\\clean-install\\runtime\\r\\bin\\Rscript.exe\nError: requireNamespace(\"utils\", quietly = TRUE) is not TRUE\r\nExecution halted\r\n\n"
+      "error": "Command failed (1): C:\\Program Files\\nodejs\\node.exe\nCommand failed (1): C:\\.dev\\repos\\ivory-tower\\.worktrees\\dev-consolidation\\artifacts\\n6\\qualification-RWqMma\\clean-install\\runtime\\r\\bin\\Rscript.exe\nError: requireNamespace(\"utils\", quietly = TRUE) is not TRUE\r\nExecution halted\r\n\n"
     },
     {
       "label": "missing-input",
       "status": "expected-failure",
-      "error": "Command failed (1): C:\\Program Files\\nodejs\\node.exe\nENOENT: no such file or directory, lstat 'C:\\.dev\\repos\\ivory-tower\\.worktrees\\closeout-n6\\artifacts\\n6\\qualification-IgkcHw\\clean-install\\study\\analysis\\survey.csv'\n"
+      "error": "Command failed (1): C:\\Program Files\\nodejs\\node.exe\nENOENT: no such file or directory, lstat 'C:\\.dev\\repos\\ivory-tower\\.worktrees\\dev-consolidation\\artifacts\\n6\\qualification-RWqMma\\clean-install\\study\\analysis\\survey.csv'\n"
     },
     {
       "label": "recovery",
       "args": [
         "<repo>spikes\\n6-portable-reproduction\\cli.mjs",
         "reproduce",
-        "<repo>artifacts\\n6\\qualification-IgkcHw\\clean-install\\study",
-        "<repo>artifacts\\n6\\qualification-IgkcHw\\clean-install\\runtime\\runtime.json"
+        "<repo>artifacts\\n6\\qualification-RWqMma\\clean-install\\study",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\clean-install\\runtime\\runtime.json"
       ],
       "status": "passed"
     }
@@ -121,12 +121,13 @@
   },
   "limitations": [
     "Trusted synthetic study on Windows; no N3 containment or cross-platform claim.",
-    "Five-researcher no-code study and executable product workflow remain pending.",
+    "Second-machine clean install not performed: docs/experiments/n6-clean-install-runbook.md records \"blocked\"; the retained clean reproduction is an isolated same-machine restore, not clean-install evidence.",
+    "The five-researcher product-value study is an optional measurement, not an exit criterion (owner decision 2026-09-13); see docs/experiments/n6-researcher-record.json.",
     "PDF bytes are presentation-only: Typst does not guarantee byte-reproducible PDFs, so no PDF byte-identity gate exists.",
     "Experimental format; public format freeze is not authorized."
   ],
-  "baseCommit": "939908d818da0c2711c6749e410f958be6d16b9b",
-  "worktreeStatus": "M docs/experiments/n6-evidence.json\n M spikes/n6-portable-reproduction/verify.mjs\n?? docs/experiments/n6-researcher-record.json\n?? scripts/ivory/n6-researcher-record.mjs\n?? scripts/ivory/n6-researcher-record.spec.mjs",
+  "baseCommit": "7c3f732a0d95e1fb489c67a0b46d69e09b501b55",
+  "worktreeStatus": "",
   "implementationDigests": {
     "spikes/n6-portable-reproduction/build.mjs": "a097e34ab96bc00fe33ffea51a5e30234ba5dfa43c158bb1c70f78f456ec20b2",
     "spikes/n6-portable-reproduction/cli.mjs": "3b8676043c7cd2802d9a520a410995a25cba8224206dbfa7a3af60744ab118dc",
@@ -142,7 +143,7 @@
     "spikes/n6-portable-reproduction/reproduce.mjs": "f7258c467662571783248f517798a93450bde4d8cb0a88a5eefba09e7c877143",
     "spikes/n6-portable-reproduction/test/portable.spec.mjs": "44634f3ac834ea99581db7c3c3cbc8c20196f8cadfd680fe529bd5f3f994770d",
     "spikes/n6-portable-reproduction/test.mjs": "1e575ff0fa7a100b7055450a93e09ffc1d69191dbb622cbc647e2f0d7a317dc6",
-    "spikes/n6-portable-reproduction/verify.mjs": "c6e0461738beaf10bcc9e034179e06f1d417b532561da4e80bef179adcb5e07d",
+    "spikes/n6-portable-reproduction/verify.mjs": "c9d134c1f1d5c2bb7106ba245427b1c6740e86645015d47ae8e8476027b8357f",
     "spikes/n2-durable-store/package-lock.json": "e325019f354efd3f6e235677587353602fea5b65d2d582adf4bac52f8c362cd3",
     "spikes/n2-durable-store/package.json": "21826a35965dc0f6452ef92efdd6a52dcaf0eb001fdfc0d5bbc48c008870fed1",
     "spikes/n2-durable-store/sql/001_revision_activity.sql": "e88879384e64a4e24560c2829bebfc9ab4a628b9aca9c1eda885c16342c74a4d",
@@ -173,32 +174,32 @@
     "spikes/n2-durable-store/test/storm-ledger.spec.mjs": "01689c89b9cb8e1829afbc94c15b2af567ed23f9dec3e830815c30892594730e",
     "spikes/n2-durable-store/test/wait-exit.spec.mjs": "be091b554c3499f4dc47146764551aebf6dca78358bcdd4baab96e5c80537442",
     "spikes/n2-durable-store/verify.mjs": "73c702b048a20a8d7ca4d86b706de08c905a4eda677d088f1ca58d8da674f284",
-    "packages/ivory-tower-research-kernel/src/node/canonical.ts": "6b560a2e3d8d6a59f35033fd173ab7c01565138bfdef97d542999815ecee4247",
-    "packages/ivory-tower-research-kernel/src/node/clients.ts": "9480d51f03919026ef57aa1c95b6f3114ac8238766c0f4964ed0f97c83b3d6f4",
-    "packages/ivory-tower-research-kernel/src/node/fixture.ts": "271787e4a9d83ea31ab5e05b501338d08a48cf639e11e38e64f512f55317e95c",
+    "packages/ivory-tower-research-kernel/src/node/canonical.ts": "094b91a847a2bf0df2b929b2fb4801bcd601ebf42102efd6dc91cbf84b941b43",
+    "packages/ivory-tower-research-kernel/src/node/clients.ts": "fbcd81fa56d66b22aca673ebbd8ed72bdb8eda6cf6d43e65c7ea37ffff78ac53",
+    "packages/ivory-tower-research-kernel/src/node/fixture.ts": "e804015969d71624493ebcb419140dffa435bdf29967d7bbee035453333cc989",
     "packages/ivory-tower-research-kernel/src/node/fixtures/advising-agency-protocol.md": "f739e858278043dca2c3fed1bec02c3907f17136ef1d52d8f2ec039e5f018f2e",
-    "packages/ivory-tower-research-kernel/src/node/index.ts": "5fe881e43f62bc1ca6cac7b1da887e6e8ce4d4faac9077515f7d63f833b8cb32",
-    "packages/ivory-tower-research-kernel/src/node/kernel.ts": "4db8d39b0350f4299474c3f577dcc333525ed1cd40e2c53d28d2f3b79e62f8d7",
-    "packages/ivory-tower-research-kernel/src/node/reader.ts": "c351d83432cfa23f1ea5f895873365514067bc96c2e75dfe3b1a2443a7cf5b5c",
-    "packages/ivory-tower-research-kernel/src/node/research-kernel.spec.ts": "14325defbb983037c7b0b819c012431f2466de8f9f1086beab8a576fa58ebdbb",
-    "packages/ivory-tower-research-kernel/src/node/types.ts": "33e1bfb2ad7a018b31d29c2127d4cfe53ff4205654060c83e89b0d5c925ee24a",
-    "packages/ivory-identity/src/common/canonical-preimage.spec.ts": "ba72c324a51450718a86e9a11a62c87f6388a2cfc22d6851ed9c27aecb751cea",
-    "packages/ivory-identity/src/common/canonical-preimage.ts": "54e32034e64ea45c9673a816e83429009fa46d2efecbfd588ae57ad4ef8ec054",
-    "packages/ivory-identity/src/common/identifier-alias.spec.ts": "0edc1a60603b14e7bf44ae4155c61e286fbe12259a9c319fa80488e20035798b",
-    "packages/ivory-identity/src/common/identifier-alias.ts": "bbb70e1491387cd64aba37eb4da4af3f3c9d44549282e1c3488b4ae2533a11fd",
-    "packages/ivory-identity/src/common/identifier.spec.ts": "560b94d826ff856077d68494ca9b5613ac483972b990b817f097b2ff22b96a43",
-    "packages/ivory-identity/src/common/identifier.ts": "b062b79d801b6d1b9ffe76eb9c1741326263e2ea0c04d9aea2ebf99b37be59c6",
-    "packages/ivory-identity/src/common/identity-scheme.ts": "e5ecc6a7b64ec12048d36e828d2d9b7b79af45d0277b247795de757bc20db983",
-    "packages/ivory-identity/src/common/passage-anchor.ts": "02837d7b1bd3cfb90b4ff743ab5ed0ba798ad1a7b9fea0cb71fa6ccdd17d7371",
-    "packages/ivory-identity/src/node/digest.ts": "48ce14362c7ba31f16457086ffb92d01532b00de0ba29349de4de7ed7f947a37",
-    "packages/ivory-identity/src/node/fragment-anchor.spec.ts": "2e4d79249639c2c4f90e96711a965d2afbed3a13682b12391b9e9797ccdd3e9e",
-    "packages/ivory-identity/src/node/fragment-anchor.ts": "570d35a87f4145d4a802771df811c83efc7f7985ac237fa03d8143765296b82a",
-    "packages/ivory-identity/src/node/identity-boundaries.spec.ts": "2ee81ecd0cbdc474b2ace0f99c0cd15c1aaefa69dcd4394a3aba0f09e05f6e7c",
-    "packages/ivory-identity/src/node/identity.spec.ts": "9e23d4cd6773fc4864e3a5870292e8af9ef0b7e3e6b38fef922d84ef420bea7b",
-    "packages/ivory-identity/src/node/identity.ts": "8670afb053f6df59aab9f3415360ba57d76c762fd1a5094b12bbf9ecf6b428f4",
-    "packages/ivory-identity/src/node/test/identity-fixtures.ts": "64aefef2b8866bfe2adee9e498c714c32f2c1b12e18bf58118633d810c0fa1b5",
-    "package.json": "65dd67ae998cd1c983dc49e49ef665b801516946be4b998cd8ba2671c0d60e83",
-    "package-lock.json": "cfb2018ecf570645a5131f040ee41f197629e0cc7ba97b6b9742542d5a8c75cc"
+    "packages/ivory-tower-research-kernel/src/node/index.ts": "20a8974ba590dddf6946d481bc785742a8bcf07dd12a22cfa6f854781bee84f6",
+    "packages/ivory-tower-research-kernel/src/node/kernel.ts": "8cd36ef2b92bca544b38cc35491ea4f26b678705fde50ff68e292ad0c25d8168",
+    "packages/ivory-tower-research-kernel/src/node/reader.ts": "1a2dfd55066c83921737ec39773c11f614a14af1074b8dd5ea612ae0958c694f",
+    "packages/ivory-tower-research-kernel/src/node/research-kernel.spec.ts": "5d7f5f827fa7232c52cfb6012a4f2780c731f1a7a65400492e0e3fb3feecc614",
+    "packages/ivory-tower-research-kernel/src/node/types.ts": "eb6577fd217060efa6f7e17e8eaa7ae158af1c356a535623f792e1e4f5983c39",
+    "packages/ivory-identity/src/common/canonical-preimage.spec.ts": "81157f441a70713a86582e45c847ef22ed4f14103e68d2fcc7dc0990063f7e6c",
+    "packages/ivory-identity/src/common/canonical-preimage.ts": "10a7561de5c39023c515b18e607ee2ab983914edd05ee46e1fe55e587f8d8b11",
+    "packages/ivory-identity/src/common/identifier-alias.spec.ts": "bd1eef50ded8301a56c1e3346f9e8f1c76096b4598c1568d0cef1ff56197a2cc",
+    "packages/ivory-identity/src/common/identifier-alias.ts": "f68bdc1869c60fd6c5f4d5d7b5721bcb91d03e70fcfba605f3f750e0f9e427e0",
+    "packages/ivory-identity/src/common/identifier.spec.ts": "f4ef696a37deb7127d21459597db2a495da098f06c0d0986eb03862161aff8e1",
+    "packages/ivory-identity/src/common/identifier.ts": "b7d1b15eff939f2c9fc81dd8380c81c58611acf8c50e857982fa9e28bfcbbafe",
+    "packages/ivory-identity/src/common/identity-scheme.ts": "0dabd19a2d35f349d82a29d44895995ddbaed2e3611d5e4d8538317c4d0fe994",
+    "packages/ivory-identity/src/common/passage-anchor.ts": "16aa30a269a525bfae6429a042b89a226d34178cc35327f668bb1f2f82d8c721",
+    "packages/ivory-identity/src/node/digest.ts": "bfb9fd82bc8015b1113e86bb2be76f4cbd8f05e414ff2e5c7fdc1f9168cc0e12",
+    "packages/ivory-identity/src/node/fragment-anchor.spec.ts": "43fc3f763760f3adf81a17ffb8ebe094287bbcbd57bff869c74b2fd3350cfbc5",
+    "packages/ivory-identity/src/node/fragment-anchor.ts": "353ff1d3466bad014edd1638fb9ec51c378cfe90e2b71dd820cb2d9e62a14988",
+    "packages/ivory-identity/src/node/identity-boundaries.spec.ts": "a7df8068880de3ec16f967cfe95c763cb3e0cf43e811944d884b2290f0d8ff35",
+    "packages/ivory-identity/src/node/identity.spec.ts": "bbd13287e4655d6bc34982e7802f4e20f7927cfbf6041bf2451f150f9decd5f7",
+    "packages/ivory-identity/src/node/identity.ts": "bb558eb270731f13b0553685edf0398a2bc2b5f565fe507c8b6b35f2feea0b20",
+    "packages/ivory-identity/src/node/test/identity-fixtures.ts": "c11ac9e2ee5402d8d616edf69aeb985b92e3df0ebb19ff4e641868d08b30f630",
+    "package.json": "6cd72cc0ef2db2a8c391b55668714ed4a8eda6783e7af028eec339ecaf119ddf",
+    "package-lock.json": "eb6eb332164353d9c5b61ffe8aec7b62e47ed135738aae18f3bffadc6c3bde86"
   },
   "baseline": {
     "analytical": {
@@ -224,10 +225,10 @@
     },
     "htmlDigest": "92d20eaca3b95cd0d4cad485b88255a183ccb9ad5845b0068a92f4b5c6798c3a",
     "noModel": true,
-    "pdfDigest": "1c8ea4bd448db2611cd38a8d1635ea09949548a151df74d4ed48296eda68de31",
+    "pdfDigest": "80c05e0fbdf873610de4b6f197f1e932a84bd49b968e24e2dab8ecc1f3327840",
     "presentation": "HTML and PDF rendered; byte identity is not analytical equivalence; both digests are presentation-only",
-    "semanticDigest": "f085656fd4435a77ac6bf5af458caf5410682ca97124b659b8c47b3a54b352d2",
-    "startedAt": "2026-09-13T22:22:08.295Z",
+    "semanticDigest": "25d2722a98927878bd392a936369166853551b88b73e0ae083b254ee642618a0",
+    "startedAt": "2026-09-14T00:11:18.121Z",
     "status": "passed",
     "versions": {
       "executableDigests": {
@@ -266,10 +267,10 @@
     },
     "htmlDigest": "92d20eaca3b95cd0d4cad485b88255a183ccb9ad5845b0068a92f4b5c6798c3a",
     "noModel": true,
-    "pdfDigest": "770ac0d12455ce4960fbc74da00c732d69cf5f67d7fda34f063f3faa653355bb",
+    "pdfDigest": "9ceb79d4e71d208e2bfe8a984a91b019395d502fc20f4d59785a1fe88779822c",
     "presentation": "HTML and PDF rendered; byte identity is not analytical equivalence; both digests are presentation-only",
-    "semanticDigest": "f085656fd4435a77ac6bf5af458caf5410682ca97124b659b8c47b3a54b352d2",
-    "startedAt": "2026-09-13T22:22:47.896Z",
+    "semanticDigest": "25d2722a98927878bd392a936369166853551b88b73e0ae083b254ee642618a0",
+    "startedAt": "2026-09-14T00:11:47.560Z",
     "status": "passed",
     "versions": {
       "executableDigests": {
@@ -287,8 +288,8 @@
   "presentation": {
     "htmlBytesEqual": true,
     "pdfDigest": {
-      "baseline": "1c8ea4bd448db2611cd38a8d1635ea09949548a151df74d4ed48296eda68de31",
-      "reproduced": "770ac0d12455ce4960fbc74da00c732d69cf5f67d7fda34f063f3faa653355bb"
+      "baseline": "80c05e0fbdf873610de4b6f197f1e932a84bd49b968e24e2dab8ecc1f3327840",
+      "reproduced": "9ceb79d4e71d208e2bfe8a984a91b019395d502fc20f4d59785a1fe88779822c"
     },
     "pdfBytesEqual": false,
     "analyticalEquivalent": true,
