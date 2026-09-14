@@ -111,3 +111,28 @@ test('research actions post to the published contract routes without dropping pa
     assert.equal(calls[3].headers['Idempotency-Key'], 'edit-key');
     assert.throws(() => client.submitEdit({}, ''), /Idempotency-Key/);
 });
+
+test('default fetch keeps its global receiver so the browser client is usable', async () => {
+    // A browser-accurate fetch: window.fetch throws "Illegal invocation" unless called
+    // with the Window (global) receiver. Node's fetch tolerates an unbound call, so
+    // without this guard the defect only appears in the live workbench.
+    const calls = [];
+    const receiverSensitiveFetch = function (url, init) {
+        if (this !== globalThis) {
+            throw new TypeError("Failed to execute 'fetch' on 'Window': Illegal invocation");
+        }
+        calls.push({ url, init });
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({ ready: true }) });
+    };
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = receiverSensitiveFetch;
+    try {
+        const client = new ExecutionClient('http://service');
+        const payload = await client.ready();
+        assert.deepEqual(payload, { ready: true });
+        assert.equal(calls.length, 1);
+        assert.equal(calls[0].url, 'http://service/health/ready');
+    } finally {
+        globalThis.fetch = originalFetch;
+    }
+});

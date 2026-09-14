@@ -16,7 +16,10 @@ const missingCapabilities = Object.freeze([]);
 class ExecutionClient {
     constructor(baseUrl, fetcher = globalThis.fetch) {
         this.baseUrl = baseUrl.replace(/\/$/, '');
-        this.fetcher = fetcher;
+        // window.fetch requires its Window receiver: an unbound call throws
+        // "Illegal invocation" in the browser while Node tolerates it, so the
+        // default must be bound to globalThis (=== window in the browser).
+        this.fetcher = typeof fetcher === 'function' ? fetcher.bind(globalThis) : fetcher;
     }
 
     async request(path, { method = 'GET', body, key, signal } = {}) {

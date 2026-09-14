@@ -1,6 +1,6 @@
 # N5 — Theia shell and external-client equivalence
 
-**Status:** blocked — grafted onto the consolidated line; live client qualification not yet run.
+**Status:** qualified — four-client equivalence, twelve ordered competing edits, restart around an accepted-but-undelivered receipt and exact citation navigation were observed live against the one canonical Core service on 2026-09-13, together with the built-workbench language surfaces; record: docs/experiments/n5-v2-evidence.json (decision: passed).
 
 The isolated `@ivory-tower/n5-browser` application targets Windows/browser and
 Theia 1.75.0. The existing V1 application and its plugin-host prohibition remain
@@ -24,20 +24,22 @@ conflict semantics), backed by an in-memory fixture research service with a
 four N5 clients (Theia widget, CLI, Python, and R helpers) are bound to these
 routes and the previously disabled widget actions are enabled. The service is an
 in-memory fixture (`InMemoryResearchService`), not a persistence layer; the
-6-step qualification protocol is still pending.
+6-step qualification protocol was observed live against it on 2026-09-13 (`docs/experiments/n5-v2-evidence.json`).
 
 The current contracts barrel imports domain code, so the transport carries opaque
 JSON without importing that barrel. The CLI and helpers preserve service response
 bodies, including conflict details. An execution request is not called a RunSpec
 or used as a substitute for one. The operator-owned stop/start procedure for the
-one canonical service remains to be exercised with real cross-client evidence.
+one canonical service was exercised live on 2026-09-13 (see the record's `restart` block).
 
 Submission has no implicit retry: callers retain the request and idempotency key
 before sending and reuse both after uncertainty. Theia's read-only watcher refreshes
 status and resumes SSE with bounded reconnect backoff. Both current event stores
 emit `executionId:sequence`; the HTTP endpoint accepts a numeric replay cursor.
 The adapter checks the execution prefix before translating that cursor. It never
-starts another writer. Restart qualification still requires real service evidence.
+starts another writer. Restart qualification was exercised live on 2026-09-13:
+after the kill the same key replayed to the same execution id, with one event
+row and one job row (record `restart` block).
 
 ## Reproduce
 
@@ -57,14 +59,23 @@ directories:
 
 ```powershell
 & "C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -products "*" -property installationPath
-& "C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -products "*" -find "VC/Tools/MSVC/*"
-& "C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe" -latest -products "*" -find "VC/Tools/MSVC/*/lib/*/spectre"
+Get-ChildItem -File "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/*/lib/spectre/*"
+Get-ChildItem -File "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/*/atlmfc/lib/spectre/*"
 ```
 
-The last command lists `lib/<arch>/spectre` directories; empty output means the
-component is missing. Map the probed toolset's `14.4X` to the full catalog component
-ID — the installer rejects the abbreviated `VC.14.4X.Spectre` form and requires the
-versioned `VC.14.4X.17.1Y.x86.x64.Spectre` ID from the catalog:
+Installed toolsets keep the Spectre-mitigated libraries at
+`VC/Tools/MSVC/<version>/lib/spectre/<arch>` and
+`VC/Tools/MSVC/<version>/atlmfc/lib/spectre/<arch>`. The component is present when
+those directories exist and contain `.lib` files; empty directories are placeholders,
+not the component. The machine check (`npm.cmd run check:ivory-toolchain`, unit-spec'd
+by `npm.cmd run test:ivory-toolchain`) locates the directories under the probed
+installation; a probe that reports the component missing while
+`lib/spectre/<arch>/*.lib` exists is a probe bug, not a missing component. Earlier
+revisions of this document and of `scripts/verify-ivory-toolchain.mjs` probed
+`VC/Tools/MSVC/*/lib/*/spectre`, which matches no real toolset layout and produced
+exactly that false "missing" result. Map the probed toolset's `14.4X` to the full
+catalog component ID — the installer rejects the abbreviated `VC.14.4X.Spectre` form
+and requires the versioned `VC.14.4X.17.1Y.x86.x64.Spectre` ID from the catalog:
 
 ```powershell
 & "C:/Program Files (x86)/Microsoft Visual Studio/Installer/setup.exe" modify `
@@ -75,9 +86,12 @@ versioned `VC.14.4X.17.1Y.x86.x64.Spectre` ID from the catalog:
 
 This must run elevated (admin): a non-elevated run fails with installer exit code
 5007 ("Commands with --quiet or --passive should be run elevated from the
-beginning"). Re-run the third probe to confirm the directories exist before
-continuing. This machine's toolset is 14.44.35207 under Visual Studio Build Tools
-2022 17.14.35.
+beginning"). Re-run the probe to confirm the directories exist before continuing.
+This machine's toolset is 14.44.35207 under Visual Studio Build Tools 2022 17.14.35;
+the component is installed there (observed 2026-09-13:
+`lib/spectre/{onecore,x64,x86}` and `atlmfc/lib/spectre/{x64,x86}`, with the `.lib`
+payload in `x64`/`x86`; `npm.cmd run check:ivory-toolchain` prints
+`Spectre-mitigated MSVC libraries (4 toolset directories)` and exits 0).
 
 ```powershell
 python scripts/n5/extensions.py install
@@ -104,7 +118,7 @@ Rscript packages/ivory-n5-client/helpers/ivory_n5.R get EXECUTION_ID
 npm.cmd run evidence:n5
 ```
 
-`evidence:n5` writes `artifacts/n5/evidence.json` and exits **2** for blocked
+`evidence:n5` writes `docs/experiments/n5-v2-evidence.json` (the record `configs/ivory-n-gates.json` reads) and exits **2** for blocked
 qualification. It records the base commit and dirty state rather than falsely
 claiming an uncommitted implementation is the base commit. R helpers require
 `httr2` in the selected R environment. Their versions must be

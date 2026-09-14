@@ -23,6 +23,7 @@ import {
     validateIvoryTowerEnvironment,
 } from '@ivory-tower/infrastructure';
 import { createApiServer } from './api-server';
+import { fixtureClockOption } from './fixture-clock';
 
 export async function startApi(): Promise<void> {
     const environment = readIvoryTowerEnvironment('api');
@@ -58,6 +59,7 @@ export async function startApi(): Promise<void> {
         clock,
         research: new InMemoryResearchService({
             fixturesDir: process.env.IVORY_N5_FIXTURES_DIR ?? path.resolve(__dirname, '../../../examples/ivory-n5-browser/fixtures'),
+            ...fixtureClockOption(process.env.IVORY_N5_FIXTURE_CLOCK),
         }),
         readiness: async () =>
             evaluateIvoryReadiness({
