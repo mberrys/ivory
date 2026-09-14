@@ -234,6 +234,50 @@ test('the N3 gate closes on runtime qualification and the support-matrix decisio
     assert.match(result.stdout, /1\/1 N-gates closed\./);
 });
 
+test('the N6 gate closes on the technical pass with the cohort reported informationally', () => {
+    const { dir, manifest } = tempManifest([
+        manifestGate('N6', { evidence: 'n6-evidence.json', document: 'n6-doc.md' }),
+    ]);
+    writeFileSync(
+        join(dir, 'n6-evidence.json'),
+        JSON.stringify({
+            status: 'technical-pass',
+            humanQualification: 'pending',
+            criteria: { cleanReproduction: 'passed' },
+        }),
+    );
+    writeFileSync(
+        join(dir, 'n6-doc.md'),
+        '**Status:** technical-pass — the lanes are qualified; the five-researcher study is an optional measurement, not a gate.\n',
+    );
+    const result = runVerifier(['--require-closed', 'N6'], { IVORY_N_GATES_CONFIG: manifest });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /\| N6 \| closed \|/);
+    assert.match(result.stdout, /status="technical-pass"/);
+    assert.match(result.stdout, /humanQualification="pending"/);
+    assert.match(result.stdout, /cleanReproduction="passed"/);
+    assert.match(result.stdout, /1\/1 N-gates closed\./);
+});
+
+test('the N6 gate stays open while the record calls only a human-pending technical pass', () => {
+    const { dir, manifest } = tempManifest([
+        manifestGate('N6', { evidence: 'n6-evidence.json', document: 'n6-doc.md' }),
+    ]);
+    writeFileSync(
+        join(dir, 'n6-evidence.json'),
+        JSON.stringify({
+            status: 'technical-pass-human-pending',
+            humanQualification: 'pending',
+            criteria: { cleanReproduction: 'passed' },
+        }),
+    );
+    writeFileSync(join(dir, 'n6-doc.md'), '**Status:** open — waiting on human qualification.\n');
+    const result = runVerifier(['--require-closed', 'N6'], { IVORY_N_GATES_CONFIG: manifest });
+    assert.equal(result.status, 1, result.stderr);
+    assert.match(result.stderr, /REQUIRED: gate N6 is not closed/);
+    assert.match(result.stdout, /\| N6 \| open \|/);
+});
+
 test('the verifier without flags still prints the table and succeeds', () => {
     const result = runVerifier([]);
     assert.equal(result.status, 0, result.stderr);
