@@ -93,13 +93,13 @@
       "document": "docs/experiments/n6-portable-reproduction.md",
       "documentStatusPrefix": "**Status:**",
       "documentOpenPattern": "^open\\b|pending|not qualified",
-      "documentClosedPattern": "^qualified\\b",
+      "documentClosedPattern": "^technical-pass\\b",
       "observations": {
         "status": "status",
         "humanQualification": "humanQualification",
         "cleanReproduction": "criteria.cleanReproduction"
       },
-      "closedWhen": [{ "path": "status", "equals": "human-qualified" }]
+      "closedWhen": [{ "path": "status", "equals": "technical-pass" }]
     },
     {
       "id": "N7",
