@@ -1,6 +1,6 @@
 # N5 — Theia shell and external-client equivalence
 
-**Status:** blocked — grafted onto the consolidated line; live client qualification not yet run.
+**Status:** qualified — four-client equivalence, twelve ordered competing edits, restart around an accepted-but-undelivered receipt and exact citation navigation were observed live against the one canonical Core service on 2026-09-13, together with the built-workbench language surfaces; record: docs/experiments/n5-v2-evidence.json (decision: passed).
 
 The isolated `@ivory-tower/n5-browser` application targets Windows/browser and
 Theia 1.75.0. The existing V1 application and its plugin-host prohibition remain
@@ -24,20 +24,22 @@ conflict semantics), backed by an in-memory fixture research service with a
 four N5 clients (Theia widget, CLI, Python, and R helpers) are bound to these
 routes and the previously disabled widget actions are enabled. The service is an
 in-memory fixture (`InMemoryResearchService`), not a persistence layer; the
-6-step qualification protocol is still pending.
+6-step qualification protocol was observed live against it on 2026-09-13 (`docs/experiments/n5-v2-evidence.json`).
 
 The current contracts barrel imports domain code, so the transport carries opaque
 JSON without importing that barrel. The CLI and helpers preserve service response
 bodies, including conflict details. An execution request is not called a RunSpec
 or used as a substitute for one. The operator-owned stop/start procedure for the
-one canonical service remains to be exercised with real cross-client evidence.
+one canonical service was exercised live on 2026-09-13 (see the record's `restart` block).
 
 Submission has no implicit retry: callers retain the request and idempotency key
 before sending and reuse both after uncertainty. Theia's read-only watcher refreshes
 status and resumes SSE with bounded reconnect backoff. Both current event stores
 emit `executionId:sequence`; the HTTP endpoint accepts a numeric replay cursor.
 The adapter checks the execution prefix before translating that cursor. It never
-starts another writer. Restart qualification still requires real service evidence.
+starts another writer. Restart qualification was exercised live on 2026-09-13:
+after the kill the same key replayed to the same execution id, with one event
+row and one job row (record `restart` block).
 
 ## Reproduce
 
