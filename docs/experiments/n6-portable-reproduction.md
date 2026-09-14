@@ -1,11 +1,16 @@
 # N6 — Portable reproduction and real research value
 
-**Status:** open — technical pass retained; clean-install reproduction and the five-researcher study pending.
+**Status:** technical-pass — the HTML and Typst/PDF lanes are qualified and presentation-independent; the five-researcher product-value study is an optional measurement, not a gate (owner decision 2026-09-13).
 
 N6 is a disposable technical experiment, not a production project format. See
 [retained evidence](n6-evidence.json) for the observed result and exact source
-digests. Human qualification and the executable no-code product workflow remain
-pending; the experiment does not authorize public-format freeze.
+digests. The second-machine clean install has **not** been performed — its
+[runbook](n6-clean-install-runbook.md) records `blocked`, and the retained clean
+reproduction is an isolated same-machine restore — so this record must not read
+as a claim that a clean second installation was done. The five-researcher
+product-value study has not been conducted and is an optional measurement: no
+exit criterion, format-freeze condition or release claim depends on it (owner
+decision 2026-09-13). The experiment does not authorize public-format freeze.
 
 Authority: [Architectural spikes N1–N7](https://linear.app/mbx2/document/architectural-spikes-n1-n7-17f7e0721f67).
 
@@ -128,14 +133,21 @@ blocked by the isolated checkout's missing root dependency bootstrap (and one
 invocation used npm 11.17.0 instead of the pinned 11.13.0). No full Theia build,
 browser qualification, or hosted CI success is claimed.
 
-## Decision and remaining human gate
+## Decision and optional measurement
 
 A technical pass supports further development of deterministic semantic export,
 strict restoration and separate analytical/presentation comparisons. It does not
 establish a public reproducibility badge, a production UI, another supported OS,
-or completion of the researcher study.
+or a clean second-machine installation: the
+[clean-install runbook](n6-clean-install-runbook.md) records `blocked`, and the
+retained evidence is same-machine.
 
-Use the [researcher study kit](n6-researcher-study-kit.md) when the executable
-no-code workflow is available. At least four of five researchers must finish the
-qualitative loop without code and explain both a supporting and a challenging
-link before N6's human gate can pass. No researcher result is inferred from tests.
+The [researcher study kit](n6-researcher-study-kit.md) describes an optional
+measurement of real research value that may be conducted and reported once the
+executable no-code workflow exists; no exit criterion, format-freeze condition or
+release claim depends on it (owner decision 2026-09-13). Its own reporting bar
+stays at least four of five researchers finishing the qualitative loop without
+code and explaining both a supporting and a challenging link; those observations,
+if a cohort ever runs, are retained verbatim in
+[n6-researcher-record.json](n6-researcher-record.json) and reported beside this
+record — never as an N6 condition. No researcher result is inferred from tests.

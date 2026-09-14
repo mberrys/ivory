@@ -6,13 +6,13 @@ import { platform, release, totalmem, cpus } from 'node:os';
 import { root } from './build.mjs';
 import { inspectProject, json, writeJson, canonicalize, digestBytes } from './portable.mjs';
 import { run } from './reproduce.mjs';
-import { deriveN6HumanQualification, n6HumanLimitation } from '../../scripts/ivory/n6-researcher-record.mjs';
+import { N6_TECHNICAL_STATUS, deriveN6HumanQualification, n6HumanLimitation } from '../../scripts/ivory/n6-researcher-record.mjs';
 
 const artifacts = resolve(root, 'artifacts/n6');
 await mkdir(artifacts, { recursive: true });
 const runRoot = await mkdtemp(join(artifacts, 'qualification-'));
 const runtimeConfig = resolve(process.argv[2] ?? join(artifacts, 'runtime/runtime.json'));
-// The human gate is record-owned: it is derived from the retained researcher record, never asserted here.
+// The cohort observation is record-owned and informational: the N6 gate itself is the technical pass (owner decision 2026-09-13).
 const humanRecordPath = join(root, 'docs/experiments/n6-researcher-record.json');
 const humanRecord = existsSync(humanRecordPath) ? JSON.parse(readFileSync(humanRecordPath, 'utf8')) : undefined;
 const humanGate = deriveN6HumanQualification(humanRecord);
@@ -22,7 +22,8 @@ const evidence = { schema: 'ivory-n6-evidence/1', status: 'failed', humanQualifi
     platform: { os: platform(), release: release(), node: process.version, memoryBytes: totalmem(), cpu: cpus()[0]?.model },
     commands: [], criteria: {}, limitations: [
         'Trusted synthetic study on Windows; no N3 containment or cross-platform claim.',
-        n6HumanLimitation(humanGate),
+        'Second-machine clean install not performed: docs/experiments/n6-clean-install-runbook.md records "blocked"; the retained clean reproduction is an isolated same-machine restore, not clean-install evidence.',
+        n6HumanLimitation(),
         'PDF bytes are presentation-only: Typst does not guarantee byte-reproducible PDFs, so no PDF byte-identity gate exists.',
         'Experimental format; public format freeze is not authorized.',
     ] };
@@ -132,8 +133,8 @@ try {
     // Recovery after fixing the failures is required, not inferred.
     await execute(cli('reproduce', restored, secondConfig), 'recovery');
     evidence.criteria.recovery = 'passed';
-    // The record owns the human gate: an empty cohort keeps this at technical-pass-human-pending/pending.
-    evidence.status = humanGate.status;
+    // The gate is the technical pass this run just completed; the cohort observation never gates (owner decision 2026-09-13).
+    evidence.status = N6_TECHNICAL_STATUS;
 } catch (error) { evidence.error = error.stack; process.exitCode = 1; }
 finally {
     await writeJson(join(runRoot, 'evidence.json'), evidence);
