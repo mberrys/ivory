@@ -51,9 +51,9 @@ test('rejects incomplete Conditional metadata', () => {
 
 test('accepts generated cutline blocks with CRLF line endings', () => {
     const documentPath = path.join(ROOT, 'docs/v1-build-vs-open-source.md');
-    const document = fs.readFileSync(documentPath, 'utf8');
+    const source = fs.readFileSync(documentPath, 'utf8').replace(/\r\n/g, '\n');
     const crlfDocumentPath = path.join(ROOT, 'docs/.v1-cutline-crlf-test.md');
-    fs.writeFileSync(crlfDocumentPath, document.replace(/\n/g, '\r\n'), 'utf8');
+    fs.writeFileSync(crlfDocumentPath, source.replace(/\n/g, '\r\n'), 'utf8');
     try {
         assert.equal(verifyGeneratedMap(crlfDocumentPath, manifest).ok, true);
     } finally {
