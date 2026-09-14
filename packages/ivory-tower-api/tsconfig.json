@@ -1,0 +1,16 @@
+{
+  "extends": "../../configs/base.tsconfig",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "lib"
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../ivory-tower-adapters" },
+    { "path": "../ivory-tower-application" },
+    { "path": "../ivory-tower-contracts" },
+    { "path": "../ivory-tower-domain" },
+    { "path": "../ivory-tower-infrastructure" }
+  ]
+}

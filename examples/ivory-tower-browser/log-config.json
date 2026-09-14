@@ -1,0 +1,24 @@
+{
+  "appenders": {
+    "global": {
+      "type": "file",
+      "filename": "ivory-tower-browser.log"
+    },
+    "console": {
+      "type": "console",
+      "layout": {
+        "type": "pattern",
+        "pattern": "%[%d{ISO8601}] %p - %m%]"
+      }
+    }
+  },
+  "categories": {
+    "default": {
+      "appenders": [
+        "global",
+        "console"
+      ],
+      "level": "info"
+    }
+  }
+}

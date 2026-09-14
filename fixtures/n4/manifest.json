@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "license": "per-file; see fixtures/n4/NOTICE.md",
+  "source": "https://github.com/mozilla/pdf.js/tree/master/test/pdfs and repository-authored fixtures; see NOTICE.md",
+  "fixtures": [
+    {"path":"csv/open-multilingual-labels.csv","kind":"csv","sha256":"b3d456f2b0b7bca9da064f049a11e3fe0a3b9d1d53cb5a58af9449484d7822bf","source":"repository-authored"},
+    {"path":"csv/open-survey-missingness.csv","kind":"csv","sha256":"fd54336c2b9cf61059fe60f2959e3fbfd63612b95846fadbb7dc3407d1e939e1","source":"repository-authored"},
+    {"path":"pdf/160F-2019.pdf","kind":"columns","sha256":"f41f0818365ffd14ca4e55c0556355193bd76632b970d60cc2dec554cac6f379","source":"pdfjs-corpus-mpl-2.0"},
+    {"path":"pdf/bitmap-composite-and-xnor-text.pdf","kind":"scanned","sha256":"aba6249b83158532ad87ccf47ba69737c9ba2b787c2f815767d239e910564235","source":"pdfjs-corpus-mpl-2.0"},
+    {"path":"pdf/bitmap-symbol-textbottomleft.pdf","kind":"scanned","sha256":"0bc02085b750d0413fa3360825cc23b5e5a449b2e3f08fa084c3b00b64e03683","source":"pdfjs-corpus-mpl-2.0"},
+    {"path":"pdf/file_pdfjs_test.pdf","kind":"plain","sha256":"851fb6bfa4143203a284833c38138df1914a7ccca5e911dfaef8eb4e17e66b49","source":"pdfjs-corpus-mpl-2.0"},
+    {"path":"pdf/open-methods-ar.pdf","kind":"multilingual","sha256":"c7c52322f778423e12e3e6464ac56cbea9a0590963b004e613508af5c8ebf8ef","source":"repository-authored"},
+    {"path":"pdf/open-methods-footnote-review.pdf","kind":"footnote","sha256":"95e9fd3beeea05190723419f60e1961a9f0e1a3c168ebf6c03b6fc5da681393e","source":"repository-authored"},
+    {"path":"pdf/open-methods-footnotes.pdf","kind":"footnote","sha256":"9c8ffcf422fb5f88df922156f75831d6157b66beee31b5da270faccf00da775e","source":"repository-authored"},
+    {"path":"pdf/open-methods-he.pdf","kind":"multilingual","sha256":"02da7b1c01250fc71d7fedb9780ab6fe088f213fe660be7ac7dc7b40d149cab6","source":"repository-authored"},
+    {"path":"pdf/open-methods-ja.pdf","kind":"multilingual","sha256":"f3de9faa5aa4e1b1f7418b9997cb0959e7810238ff66a516307ada10828eda43","source":"repository-authored"},
+    {"path":"pdf/open-methods-ko.pdf","kind":"multilingual","sha256":"d8f0e0bda9e9b2b31d7ea5630f0c23145016711f72c710d70b50ee1ae955e7b9","source":"repository-authored"},
+    {"path":"pdf/open-methods-ru.pdf","kind":"multilingual","sha256":"f9c20b0341899c39cf26d11f3ce0af22951f35fc14c1a661470a1c69fe54e25a","source":"repository-authored"},
+    {"path":"pdf/open-methods-table.pdf","kind":"table","sha256":"9840fd3f1094bd054fc164aa39e0b5bf3b4d6109e5000caf50b241d953d661cd","source":"repository-authored"},
+    {"path":"pdf/open-methods-zh.pdf","kind":"multilingual","sha256":"c26e5102ce75c43bc0eadcd575fe96edaa89198362d968df264c3a2af14c64a1","source":"repository-authored"},
+    {"path":"pdf/open-research-notes.pdf","kind":"plain","sha256":"3f93c76e18352f506156dba1d0a37eb15114bb2aeeac81d7ec17bf1c43666591","source":"repository-authored"},
+    {"path":"pdf/open-two-column-paper.pdf","kind":"columns","sha256":"69d10d7ed371498763c553c66083c63e3d55d9b8e6c1eb90008ea022dca5dea9","source":"repository-authored"},
+    {"path":"pdf/pdfjs_wikipedia.pdf","kind":"plain","sha256":"4a10e1aee6565b5f329f073470cf95410272412510985948dc86399b57d7b4db","source":"wikipedia-cc-by-sa-4.0"},
+    {"path":"pdf/prefilled_f1040.pdf","kind":"table","sha256":"899edb271684d2451337e225268003324a583a7d3429e23efd69f1654adf9bf9","source":"irs-form-public-domain"},
+    {"path":"pdf/TAMReview.pdf","kind":"plain","sha256":"a6db6d2f5e4f97e1e28a5919a875a40b89e38d0229b33cc023ca4d353f3ab3ec","source":"pdfjs-corpus-mpl-2.0"},
+    {"path":"txt/open-advising-note.txt","kind":"text","sha256":"1f721a092289056a2778c427a6f360a390d339ab9a34e1ba36d605aaacbe99ce","source":"repository-authored"},
+    {"path":"txt/open-methods-note.txt","kind":"text","sha256":"ee88a2a7f7b607c8f4d05efe01411ddc85d3fc4ef10679a257131b46ddd71021","source":"repository-authored"}
+  ]
+}

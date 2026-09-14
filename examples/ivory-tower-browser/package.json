@@ -1,0 +1,51 @@
+{
+  "private": true,
+  "name": "@ivory-tower/example-browser",
+  "version": "0.1.0",
+  "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0",
+  "theia": {
+    "frontend": {
+      "config": {
+        "applicationName": "Ivory Tower",
+        "ivoryApiBaseUrl": "http://localhost:4100",
+        "preferences": {
+          "files.enableTrash": false,
+          "security.workspace.trust.enabled": false
+        },
+        "reloadOnReconnect": true
+      }
+    },
+    "backend": {
+      "config": {
+        "frontendConnectionTimeout": 3000
+      }
+    }
+  },
+  "dependencies": {
+    "@ivory-tower/health": "0.1.0",
+    "@theia/core": "1.75.0",
+    "@theia/filesystem": "1.75.0",
+    "@theia/messages": "1.75.0",
+    "@theia/preferences": "1.75.0",
+    "@theia/process": "1.75.0",
+    "@theia/workspace": "1.75.0"
+  },
+  "scripts": {
+    "clean": "theiaext clean",
+    "build": "theiaext build && npm run -s bundle",
+    "build:production": "theiaext build && npm run -s bundle:production",
+    "bundle": "npm run rebuild && theia build --mode development",
+    "bundle:production": "npm run rebuild && theia build --mode production",
+    "compile": "tsc -b",
+    "rebuild": "theia rebuild:browser --cacheRoot ../..",
+    "start": "theia start --log-config=log-config.json",
+    "start:debug": "npm run -s start -- --log-level=debug",
+    "watch": "concurrently --kill-others -n tsc,bundle -c red,yellow \"tsc -b -w --preserveWatchOutput\" \"npm run -s watch:bundle\"",
+    "watch:bundle": "theia build --watch --mode development",
+    "test:playwright": "playwright test --config=./playwright.config.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.1",
+    "@theia/cli": "1.75.0"
+  }
+}

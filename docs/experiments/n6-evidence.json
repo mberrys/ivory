@@ -1,0 +1,299 @@
+{
+  "schema": "ivory-n6-evidence/1",
+  "status": "technical-pass",
+  "humanQualification": "pending",
+  "createdAt": "2026-09-14T00:10:00.793Z",
+  "artifactPath": "artifacts/n6/qualification-RWqMma",
+  "platform": {
+    "os": "win32",
+    "release": "10.0.26200",
+    "node": "v24.16.0",
+    "memoryBytes": 68501532672,
+    "cpu": "12th Gen Intel(R) Core(TM) i9-12900KF"
+  },
+  "commands": [
+    {
+      "label": "contracts",
+      "args": [
+        "<repo>spikes\\n6-portable-reproduction\\test.mjs"
+      ],
+      "status": "passed"
+    },
+    {
+      "label": "n2-regressions",
+      "args": [
+        "--test",
+        "<repo>spikes\\n2-durable-store\\test\\commit.spec.mjs",
+        "<repo>spikes\\n2-durable-store\\test\\export.spec.mjs",
+        "<repo>spikes\\n2-durable-store\\test\\hostile.spec.mjs",
+        "<repo>spikes\\n2-durable-store\\test\\interrupt.spec.mjs",
+        "<repo>spikes\\n2-durable-store\\test\\migrate.spec.mjs",
+        "<repo>spikes\\n2-durable-store\\test\\n2-v2-criteria.spec.mjs",
+        "<repo>spikes\\n2-durable-store\\test\\scale-label.spec.mjs",
+        "<repo>spikes\\n2-durable-store\\test\\storm-ledger.spec.mjs",
+        "<repo>spikes\\n2-durable-store\\test\\wait-exit.spec.mjs"
+      ],
+      "status": "passed"
+    },
+    {
+      "label": "create",
+      "args": [
+        "<repo>spikes\\n6-portable-reproduction\\cli.mjs",
+        "create",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\original"
+      ],
+      "status": "passed"
+    },
+    {
+      "label": "baseline",
+      "args": [
+        "<repo>spikes\\n6-portable-reproduction\\cli.mjs",
+        "reproduce",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\original",
+        "<repo>artifacts\\n6\\runtime\\runtime.json"
+      ],
+      "status": "passed"
+    },
+    {
+      "label": "export",
+      "args": [
+        "<repo>spikes\\n6-portable-reproduction\\cli.mjs",
+        "export",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\original",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\portable"
+      ],
+      "status": "passed"
+    },
+    {
+      "label": "restore",
+      "args": [
+        "<repo>spikes\\n6-portable-reproduction\\cli.mjs",
+        "restore",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\portable",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\clean-install\\study"
+      ],
+      "status": "passed"
+    },
+    {
+      "label": "clean-reproduction",
+      "args": [
+        "<repo>spikes\\n6-portable-reproduction\\cli.mjs",
+        "reproduce",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\clean-install\\study",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\clean-install\\runtime\\runtime.json"
+      ],
+      "status": "passed"
+    },
+    {
+      "label": "missing-blob",
+      "status": "expected-failure",
+      "error": "Command failed (1): C:\\Program Files\\nodejs\\node.exe\nENOENT: no such file or directory, open 'C:\\.dev\\repos\\ivory-tower\\.worktrees\\dev-consolidation\\artifacts\\n6\\qualification-RWqMma\\clean-install\\study\\.ivory\\objects\\sha256\\05\\052ccedb3d7ac51ec5a164592ee80eb827574c094cdede01cb583cad4e3c2760'\n"
+    },
+    {
+      "label": "missing-dependency",
+      "status": "expected-failure",
+      "error": "Command failed (1): C:\\Program Files\\nodejs\\node.exe\nCommand failed (1): C:\\.dev\\repos\\ivory-tower\\.worktrees\\dev-consolidation\\artifacts\\n6\\qualification-RWqMma\\clean-install\\runtime\\r\\bin\\Rscript.exe\nError: requireNamespace(\"utils\", quietly = TRUE) is not TRUE\r\nExecution halted\r\n\n"
+    },
+    {
+      "label": "missing-input",
+      "status": "expected-failure",
+      "error": "Command failed (1): C:\\Program Files\\nodejs\\node.exe\nENOENT: no such file or directory, lstat 'C:\\.dev\\repos\\ivory-tower\\.worktrees\\dev-consolidation\\artifacts\\n6\\qualification-RWqMma\\clean-install\\study\\analysis\\survey.csv'\n"
+    },
+    {
+      "label": "recovery",
+      "args": [
+        "<repo>spikes\\n6-portable-reproduction\\cli.mjs",
+        "reproduce",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\clean-install\\study",
+        "<repo>artifacts\\n6\\qualification-RWqMma\\clean-install\\runtime\\runtime.json"
+      ],
+      "status": "passed"
+    }
+  ],
+  "criteria": {
+    "contracts": "passed",
+    "cleanReproduction": "passed",
+    "pdfLane": "passed",
+    "missingInputsPreventSuccess": "passed",
+    "noModel": "passed",
+    "exactCitations": "passed",
+    "recovery": "passed"
+  },
+  "limitations": [
+    "Trusted synthetic study on Windows; no N3 containment or cross-platform claim.",
+    "Second-machine clean install not performed: docs/experiments/n6-clean-install-runbook.md records \"blocked\"; the retained clean reproduction is an isolated same-machine restore, not clean-install evidence.",
+    "The five-researcher product-value study is an optional measurement, not an exit criterion (owner decision 2026-09-13); see docs/experiments/n6-researcher-record.json.",
+    "PDF bytes are presentation-only: Typst does not guarantee byte-reproducible PDFs, so no PDF byte-identity gate exists.",
+    "Experimental format; public format freeze is not authorized."
+  ],
+  "baseCommit": "7c3f732a0d95e1fb489c67a0b46d69e09b501b55",
+  "worktreeStatus": "",
+  "implementationDigests": {
+    "spikes/n6-portable-reproduction/build.mjs": "a097e34ab96bc00fe33ffea51a5e30234ba5dfa43c158bb1c70f78f456ec20b2",
+    "spikes/n6-portable-reproduction/cli.mjs": "3b8676043c7cd2802d9a520a410995a25cba8224206dbfa7a3af60744ab118dc",
+    "spikes/n6-portable-reproduction/fixture.mjs": "35118da47f1b20e048538c425d8489943498dfd44c588fc0fc076f7159ac6a8a",
+    "spikes/n6-portable-reproduction/fixtures/analyse.R": "d99a99d15cf5ae010fb413e0e7db4667cb49f747a3aab3ecafbe2112712a663e",
+    "spikes/n6-portable-reproduction/fixtures/dossier.qmd": "a392e319f70d10da1414b36bc3d6beca33c16c77c737752e212fe82969233585",
+    "spikes/n6-portable-reproduction/fixtures/runtime-lock.json": "97165b082e3a141f4018bdaee8a29a5f188c269bbb11c0ffca6a59a2445d0009",
+    "spikes/n6-portable-reproduction/fixtures/transform.py": "8b37d89f2da8294c52b4d49d50cdc6b527a3b2041c14ad61403ca6260ede6990",
+    "spikes/n6-portable-reproduction/package-lock.json": "41f9beec28626cc57b67a7c4b6c0dc191ab96a1563dc6e43d0b77a65b61f9f60",
+    "spikes/n6-portable-reproduction/package.json": "20d23f5e7cb82e9a36ee29a6b546a835bdbb68f92247f42a8d5cda586f1466e3",
+    "spikes/n6-portable-reproduction/portable.mjs": "5fb6a8f311896b4e0707dc3ac097a262e33db3066ab11f3e9b0222aa5fbf90d4",
+    "spikes/n6-portable-reproduction/prepare-runtime.ps1": "67046a8ec5642cf634d5f0e04e0bab98016969cc24371aa235973ae69d435ad9",
+    "spikes/n6-portable-reproduction/reproduce.mjs": "f7258c467662571783248f517798a93450bde4d8cb0a88a5eefba09e7c877143",
+    "spikes/n6-portable-reproduction/test/portable.spec.mjs": "44634f3ac834ea99581db7c3c3cbc8c20196f8cadfd680fe529bd5f3f994770d",
+    "spikes/n6-portable-reproduction/test.mjs": "1e575ff0fa7a100b7055450a93e09ffc1d69191dbb622cbc647e2f0d7a317dc6",
+    "spikes/n6-portable-reproduction/verify.mjs": "c9d134c1f1d5c2bb7106ba245427b1c6740e86645015d47ae8e8476027b8357f",
+    "spikes/n2-durable-store/package-lock.json": "e325019f354efd3f6e235677587353602fea5b65d2d582adf4bac52f8c362cd3",
+    "spikes/n2-durable-store/package.json": "21826a35965dc0f6452ef92efdd6a52dcaf0eb001fdfc0d5bbc48c008870fed1",
+    "spikes/n2-durable-store/sql/001_revision_activity.sql": "e88879384e64a4e24560c2829bebfc9ab4a628b9aca9c1eda885c16342c74a4d",
+    "spikes/n2-durable-store/sql/002_search.sql": "0281b232535d6b1476e517827dd335c6edbf8b0ef5a781a37a572d1d7fd4ada9",
+    "spikes/n2-durable-store/sql/003_snapshot_manifest_text.sql": "baef385c0f0a4c75db07bd3174576a0addc66582c62dcc003f43a115446ce14d",
+    "spikes/n2-durable-store/src/blob-admission.mjs": "fe2126d37255b76a7003a43f0417298917bf59139bd9ccf87ce97b32a004eb05",
+    "spikes/n2-durable-store/src/cas-scale.mjs": "afaaa315d4953640cb1183de2579a8bbdaa854fd5becaf6648e7c1824d31da83",
+    "spikes/n2-durable-store/src/child-exit.mjs": "27d8b929188ab7ade6652fd1c8698ec868f7ba5ee490afa7e8dd7d8a406d514f",
+    "spikes/n2-durable-store/src/child.mjs": "600bc19a89d0ec005b2f2cfa2768855ec6e0384e5b964584cc6976d22895a2c3",
+    "spikes/n2-durable-store/src/durable-store.mjs": "637d65beebfb3611d5bc8262d181fbfa1f1e53f658ec0f9c3fd507c12b59a668",
+    "spikes/n2-durable-store/src/errors.mjs": "78d0ac8592a54c4859e7e29dc56510fe7f187aed0cc6f8d0680f69ca5b53e274",
+    "spikes/n2-durable-store/src/fault.mjs": "b6479a410b853446afba33782b5edabbf3a70cb241ff7babadc5dce91be59c0b",
+    "spikes/n2-durable-store/src/fixture-digest.mjs": "4e500906dc29e938b6973eba02c434837064234ac27ca812cb242c1ad206276c",
+    "spikes/n2-durable-store/src/hardware.mjs": "43bb4f5d341196e61a4c46623487b8a9ec8afcb3c423ac4f7d9d5e056b431225",
+    "spikes/n2-durable-store/src/interrupt-harness.mjs": "78d855d7ebaf9e74478bc2bff7b9fb1811c51153bf5f241b22da49c4261f96a2",
+    "spikes/n2-durable-store/src/lock.mjs": "1ed61395a7c402f2551b80c463bc653e1469790d5ce7efb7a24acf8554573399",
+    "spikes/n2-durable-store/src/migrate.mjs": "1517cf335a841426d1a968f3fec54022a8b99440e7aa2e64435638d9146eaef0",
+    "spikes/n2-durable-store/src/paths.mjs": "11344815fc75aa570e1d4542ea6eb6875877aeb3170b734a8a065963f6e914b5",
+    "spikes/n2-durable-store/src/scale.mjs": "613628d84eec7d88bd939ac054e16fe4a9b4dcca042dccc5733e482332a0c82a",
+    "spikes/n2-durable-store/src/storm-ledger.mjs": "2850a8e159005e78cea94f6a1ccd7b7662009fda0af50fa98eb0f8deab236d62",
+    "spikes/n2-durable-store/test/commit.spec.mjs": "9c0b637e24b3da3b9455c87edfec779d95efd949db999a118186a67b659c9e82",
+    "spikes/n2-durable-store/test/export.spec.mjs": "b07acbd81d982e5011e04bb770de3691e8dc74f55aa0d31ae0ea680052a5e981",
+    "spikes/n2-durable-store/test/hostile.spec.mjs": "29b22677b76145389b351e8e842668d9d2f9993f55ac73f713cdf7cda6c2206f",
+    "spikes/n2-durable-store/test/interrupt.spec.mjs": "e7a14542c9639cbc541be9bd72f2095a4e1ab804690cb35d4410151b3645e031",
+    "spikes/n2-durable-store/test/migrate.spec.mjs": "87750f4629e8dd9606b01db8306640ea92f2bcb94f2fd79d51d29b90e3285825",
+    "spikes/n2-durable-store/test/n2-v2-criteria.spec.mjs": "e4f58634c6b1cd63f233a7f96651375a14710240b066e334995cf49cef219277",
+    "spikes/n2-durable-store/test/scale-label.spec.mjs": "05333e2c62c266a6dcd6523302753e631fb540b94ab908efb85a9f0ce734349d",
+    "spikes/n2-durable-store/test/storm-ledger.spec.mjs": "01689c89b9cb8e1829afbc94c15b2af567ed23f9dec3e830815c30892594730e",
+    "spikes/n2-durable-store/test/wait-exit.spec.mjs": "be091b554c3499f4dc47146764551aebf6dca78358bcdd4baab96e5c80537442",
+    "spikes/n2-durable-store/verify.mjs": "73c702b048a20a8d7ca4d86b706de08c905a4eda677d088f1ca58d8da674f284",
+    "packages/ivory-tower-research-kernel/src/node/canonical.ts": "094b91a847a2bf0df2b929b2fb4801bcd601ebf42102efd6dc91cbf84b941b43",
+    "packages/ivory-tower-research-kernel/src/node/clients.ts": "fbcd81fa56d66b22aca673ebbd8ed72bdb8eda6cf6d43e65c7ea37ffff78ac53",
+    "packages/ivory-tower-research-kernel/src/node/fixture.ts": "e804015969d71624493ebcb419140dffa435bdf29967d7bbee035453333cc989",
+    "packages/ivory-tower-research-kernel/src/node/fixtures/advising-agency-protocol.md": "f739e858278043dca2c3fed1bec02c3907f17136ef1d52d8f2ec039e5f018f2e",
+    "packages/ivory-tower-research-kernel/src/node/index.ts": "20a8974ba590dddf6946d481bc785742a8bcf07dd12a22cfa6f854781bee84f6",
+    "packages/ivory-tower-research-kernel/src/node/kernel.ts": "8cd36ef2b92bca544b38cc35491ea4f26b678705fde50ff68e292ad0c25d8168",
+    "packages/ivory-tower-research-kernel/src/node/reader.ts": "1a2dfd55066c83921737ec39773c11f614a14af1074b8dd5ea612ae0958c694f",
+    "packages/ivory-tower-research-kernel/src/node/research-kernel.spec.ts": "5d7f5f827fa7232c52cfb6012a4f2780c731f1a7a65400492e0e3fb3feecc614",
+    "packages/ivory-tower-research-kernel/src/node/types.ts": "eb6577fd217060efa6f7e17e8eaa7ae158af1c356a535623f792e1e4f5983c39",
+    "packages/ivory-identity/src/common/canonical-preimage.spec.ts": "81157f441a70713a86582e45c847ef22ed4f14103e68d2fcc7dc0990063f7e6c",
+    "packages/ivory-identity/src/common/canonical-preimage.ts": "10a7561de5c39023c515b18e607ee2ab983914edd05ee46e1fe55e587f8d8b11",
+    "packages/ivory-identity/src/common/identifier-alias.spec.ts": "bd1eef50ded8301a56c1e3346f9e8f1c76096b4598c1568d0cef1ff56197a2cc",
+    "packages/ivory-identity/src/common/identifier-alias.ts": "f68bdc1869c60fd6c5f4d5d7b5721bcb91d03e70fcfba605f3f750e0f9e427e0",
+    "packages/ivory-identity/src/common/identifier.spec.ts": "f4ef696a37deb7127d21459597db2a495da098f06c0d0986eb03862161aff8e1",
+    "packages/ivory-identity/src/common/identifier.ts": "b7d1b15eff939f2c9fc81dd8380c81c58611acf8c50e857982fa9e28bfcbbafe",
+    "packages/ivory-identity/src/common/identity-scheme.ts": "0dabd19a2d35f349d82a29d44895995ddbaed2e3611d5e4d8538317c4d0fe994",
+    "packages/ivory-identity/src/common/passage-anchor.ts": "16aa30a269a525bfae6429a042b89a226d34178cc35327f668bb1f2f82d8c721",
+    "packages/ivory-identity/src/node/digest.ts": "bfb9fd82bc8015b1113e86bb2be76f4cbd8f05e414ff2e5c7fdc1f9168cc0e12",
+    "packages/ivory-identity/src/node/fragment-anchor.spec.ts": "43fc3f763760f3adf81a17ffb8ebe094287bbcbd57bff869c74b2fd3350cfbc5",
+    "packages/ivory-identity/src/node/fragment-anchor.ts": "353ff1d3466bad014edd1638fb9ec51c378cfe90e2b71dd820cb2d9e62a14988",
+    "packages/ivory-identity/src/node/identity-boundaries.spec.ts": "a7df8068880de3ec16f967cfe95c763cb3e0cf43e811944d884b2290f0d8ff35",
+    "packages/ivory-identity/src/node/identity.spec.ts": "bbd13287e4655d6bc34982e7802f4e20f7927cfbf6041bf2451f150f9decd5f7",
+    "packages/ivory-identity/src/node/identity.ts": "bb558eb270731f13b0553685edf0398a2bc2b5f565fe507c8b6b35f2feea0b20",
+    "packages/ivory-identity/src/node/test/identity-fixtures.ts": "c11ac9e2ee5402d8d616edf69aeb985b92e3df0ebb19ff4e641868d08b30f630",
+    "package.json": "6cd72cc0ef2db2a8c391b55668714ed4a8eda6783e7af028eec339ecaf119ddf",
+    "package-lock.json": "eb6eb332164353d9c5b61ffe8aec7b62e47ed135738aae18f3bffadc6c3bde86"
+  },
+  "baseline": {
+    "analytical": {
+      "mean": 15,
+      "missingCount": 3,
+      "rowCount": 30,
+      "sum": 405,
+      "validCount": 27
+    },
+    "citationsResolved": 3,
+    "comparisonPolicy": {
+      "absoluteTolerance": 1e-12,
+      "exact": {
+        "missingCount": 3,
+        "rowCount": 30,
+        "sum": 405,
+        "validCount": 27
+      },
+      "numeric": {
+        "mean": 15
+      },
+      "relativeTolerance": 1e-12
+    },
+    "htmlDigest": "92d20eaca3b95cd0d4cad485b88255a183ccb9ad5845b0068a92f4b5c6798c3a",
+    "noModel": true,
+    "pdfDigest": "80c05e0fbdf873610de4b6f197f1e932a84bd49b968e24e2dab8ecc1f3327840",
+    "presentation": "HTML and PDF rendered; byte identity is not analytical equivalence; both digests are presentation-only",
+    "semanticDigest": "25d2722a98927878bd392a936369166853551b88b73e0ae083b254ee642618a0",
+    "startedAt": "2026-09-14T00:11:18.121Z",
+    "status": "passed",
+    "versions": {
+      "executableDigests": {
+        "python": "5b9d341b502c252e262a23033b53002fcaa9bc9c952186f1a566bcde0d894881",
+        "quarto": "0329e136e4a737b702be534bd281e16ac38e58626525af91b9bc8dead63801f9",
+        "r": "d829bcf7e9fa1d7e3e828c565c3cdbb1ed416f551f4fa6fd4dfcdf231e33e5e8",
+        "typst": "0b8a0e2175cb382e239606e104842882d3ac827fddabe2a0dda91e461e894fd9"
+      },
+      "python": "3.12.12",
+      "quarto": "1.8.27",
+      "r": "4.6.1",
+      "typst": "typst 0.13.0 (8dce676d)"
+    }
+  },
+  "restored": {
+    "analytical": {
+      "mean": 15,
+      "missingCount": 3,
+      "rowCount": 30,
+      "sum": 405,
+      "validCount": 27
+    },
+    "citationsResolved": 3,
+    "comparisonPolicy": {
+      "absoluteTolerance": 1e-12,
+      "exact": {
+        "missingCount": 3,
+        "rowCount": 30,
+        "sum": 405,
+        "validCount": 27
+      },
+      "numeric": {
+        "mean": 15
+      },
+      "relativeTolerance": 1e-12
+    },
+    "htmlDigest": "92d20eaca3b95cd0d4cad485b88255a183ccb9ad5845b0068a92f4b5c6798c3a",
+    "noModel": true,
+    "pdfDigest": "9ceb79d4e71d208e2bfe8a984a91b019395d502fc20f4d59785a1fe88779822c",
+    "presentation": "HTML and PDF rendered; byte identity is not analytical equivalence; both digests are presentation-only",
+    "semanticDigest": "25d2722a98927878bd392a936369166853551b88b73e0ae083b254ee642618a0",
+    "startedAt": "2026-09-14T00:11:47.560Z",
+    "status": "passed",
+    "versions": {
+      "executableDigests": {
+        "python": "5b9d341b502c252e262a23033b53002fcaa9bc9c952186f1a566bcde0d894881",
+        "quarto": "0329e136e4a737b702be534bd281e16ac38e58626525af91b9bc8dead63801f9",
+        "r": "d829bcf7e9fa1d7e3e828c565c3cdbb1ed416f551f4fa6fd4dfcdf231e33e5e8",
+        "typst": "0b8a0e2175cb382e239606e104842882d3ac827fddabe2a0dda91e461e894fd9"
+      },
+      "python": "3.12.12",
+      "quarto": "1.8.27",
+      "r": "4.6.1",
+      "typst": "typst 0.13.0 (8dce676d)"
+    }
+  },
+  "presentation": {
+    "htmlBytesEqual": true,
+    "pdfDigest": {
+      "baseline": "80c05e0fbdf873610de4b6f197f1e932a84bd49b968e24e2dab8ecc1f3327840",
+      "reproduced": "9ceb79d4e71d208e2bfe8a984a91b019395d502fc20f4d59785a1fe88779822c"
+    },
+    "pdfBytesEqual": false,
+    "analyticalEquivalent": true,
+    "policy": "Presentation digests (HTML and PDF) are reported separately from declared analytical comparisons and never gated: byte identity is not analytical equivalence."
+  },
+  "fixtureDigest": "3eecd9ba22e85dfcd391ce82acf214194b0d7c34976039f315172fa831f6da09"
+}

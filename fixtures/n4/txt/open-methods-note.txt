@@ -1,0 +1,11 @@
+Methods note — coding and comparison
+Thirty short interviews were coded with one codebook in two editions.
+Two coders annotated overlapping passages; disagreements were retained.
+Claims are compared only across the same frozen snapshot.
+A frozen snapshot names the exact revisions it contains.
+Re-freezing after an edit produces a new snapshot, never a rewritten one.
+Supporting and challenging links are stored as separate attributed records.
+An author who recorded a link is not an author who endorses the claim.
+Where the evidence conflicted, both links were kept and the conflict was reported.
+No ranking, scoring or automatic selection was applied to the retained quotes.
+Analytical reports use the survey rows; presentation format is reported separately.

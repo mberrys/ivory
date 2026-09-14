@@ -281,4 +281,5 @@ export class GettingStartedContribution extends AbstractViewContribution<Getting
             }
         );
     }
+
 }

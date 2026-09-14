@@ -1,0 +1,22 @@
+{
+  "profiles": {
+    "local": {
+      "storage": ["filesystem", "s3"],
+      "localSecretDefaultsAllowed": true,
+      "minio": "local-dev-only-unreviewed-agpl"
+    },
+    "staging": {
+      "storage": ["s3"],
+      "localSecretDefaultsAllowed": false
+    },
+    "production": {
+      "storage": ["s3"],
+      "localSecretDefaultsAllowed": false
+    }
+  },
+  "rejectedLocalSecretDefaults": {
+    "s3AccessKeyId": ["ivory"],
+    "s3SecretAccessKey": ["ivory-development-only"],
+    "databaseUrlPrefixes": ["postgres://ivory:ivory@", "postgresql://ivory:ivory@"]
+  }
+}

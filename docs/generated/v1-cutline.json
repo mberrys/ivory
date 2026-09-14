@@ -1,0 +1,1898 @@
+{
+  "schemaVersion": 1,
+  "trackerDataSource": "collection://3af9cb07-9ddb-80fb-bc87-000bf2847490",
+  "trackerSnapshotAt": "2026-08-09T19:04:41.219Z",
+  "repositoryCommit": "0e168a1559cd2fb964424e979c53cbc705f9633f",
+  "issueIdRange": {
+    "min": 3,
+    "max": 132
+  },
+  "excludedIssueIds": [
+    1,
+    2
+  ],
+  "counts": {
+    "totalIssues": 130,
+    "releaseClassCounts": {
+      "Required": 112,
+      "Post-V1": 17,
+      "Conditional": 1
+    },
+    "phaseCounts": {
+      "1": 24,
+      "2": 12,
+      "3": 11,
+      "4": 17,
+      "5": 30,
+      "6": 19,
+      "7": 17
+    },
+    "estimatePointsByClass": {
+      "Required": 584,
+      "Post-V1": 118,
+      "Conditional": 3
+    },
+    "estimatePointsByPhase": {
+      "1": 111,
+      "2": 47,
+      "3": 56,
+      "4": 96,
+      "5": 173,
+      "6": 104,
+      "7": 118
+    }
+  },
+  "classificationMetadata": [
+    {
+      "issueId": 132,
+      "trigger": "Product and accessibility review confirms the preference is required for the supported hosted V1 material contract before cutline freeze.",
+      "evidenceSource": "IV-129 material-role contract, IV-131 web fallback verification, and hosted appearance-settings accessibility review.",
+      "decisionOwner": "Ivory Tower product and design owners with engineering confirmation of the IV-23 adapter boundary.",
+      "evaluateBy": "V1 cutline freeze and Phase 2 exit evidence.",
+      "ifTriggered": "Reclassify to Required and reconcile IV-129, IV-131, and IV-23.",
+      "ifNotTriggered": "Keep Conditional and use the IV-129 default plus IV-131 fallback.",
+      "downstreamIssuesAffected": [
+        "IV-129",
+        "IV-131",
+        "IV-23"
+      ]
+    }
+  ],
+  "phaseGates": [
+    {
+      "phase": 1,
+      "exitEvidence": "Zero unclassified issues; product, runtime, authorization, provenance, and dependency boundaries are resolved.",
+      "evidence": [
+        {
+          "kind": "artifact",
+          "uri": "docs/adr-001-application-platform.md"
+        },
+        {
+          "kind": "artifact",
+          "uri": "docs/adr-002-runtime-topology.md"
+        },
+        {
+          "kind": "artifact",
+          "uri": "scripts/ivory/verify-v1-cutline.mjs"
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "exitEvidence": "Hosted shell, auth/project boundary, shared async states, and accessibility evidence pass.",
+      "evidence": [
+        {
+          "kind": "artifact",
+          "uri": "examples/ivory-tower-browser/package.json"
+        },
+        {
+          "kind": "artifact",
+          "uri": "packages/ivory-tower-health/src/package.spec.ts"
+        },
+        {
+          "kind": "artifact",
+          "uri": "scripts/check-ivory-boundaries.mjs"
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "exitEvidence": "Supported-content admission, immutable source identity, deterministic conversion diagnostics, and reload-safe anchors pass.",
+      "evidence": [
+        {
+          "kind": "artifact",
+          "uri": "packages/ivory-tower-infrastructure/migrations/001_runtime_topology.sql"
+        },
+        {
+          "kind": "artifact",
+          "uri": "packages/ivory-tower-infrastructure/src/docling-http-conversion-adapter.ts"
+        },
+        {
+          "kind": "artifact",
+          "uri": "packages/ivory-tower-contracts/src/source-contract.ts"
+        }
+      ]
+    },
+    {
+      "phase": 4,
+      "exitEvidence": "Migrations, provenance-preserving chunks, retrieval evaluation, citation validation, and data normalization pass.",
+      "evidence": [
+        {
+          "kind": "artifact",
+          "uri": "packages/ivory-identity/src/node/identity.ts"
+        },
+        {
+          "kind": "artifact",
+          "uri": "packages/ivory-tower-contracts/src/execution-contract.ts"
+        },
+        {
+          "kind": "artifact",
+          "uri": "packages/ivory-tower-infrastructure/src/schema-readiness.ts"
+        }
+      ]
+    },
+    {
+      "phase": 5,
+      "exitEvidence": "Provider egress, result envelopes, adjudication lineage, protected human records, budgets, and resumable execution pass.",
+      "evidence": [
+        {
+          "kind": "artifact",
+          "uri": "packages/ivory-tower-infrastructure/src/egress-policy.ts"
+        },
+        {
+          "kind": "artifact",
+          "uri": "packages/ivory-tower-application/src/execution-service.ts"
+        },
+        {
+          "kind": "artifact",
+          "uri": "packages/ivory-tower-infrastructure/src/graphile-worker-adapter.ts"
+        }
+      ]
+    },
+    {
+      "phase": 6,
+      "exitEvidence": "Golden benchmarks, deterministic E2E, security/privacy, accessibility, authorship/export, comprehension, and recovery evidence pass.",
+      "evidence": [
+        {
+          "kind": "artifact",
+          "uri": "scripts/ivory/evaluate-phase-gates.mjs"
+        },
+        {
+          "kind": "artifact",
+          "uri": ".github/workflows/ci-cd.yml"
+        },
+        {
+          "kind": "artifact",
+          "uri": "docs/v1-build-vs-open-source.md"
+        }
+      ]
+    }
+  ],
+  "issues": [
+    {
+      "id": 3,
+      "title": "Establish LiqUIdify GUI foundation",
+      "phase": 2,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        26
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Implement an interchangeable AI-provider abstraction layer",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        18,
+        22
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Define capability-based AI agent contracts",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        4
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Create a cross-provider research-workflow benchmark harness",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        47,
+        50
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Every conclusion should be inspectable",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        46,
+        56
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Define Ivory Tower's academic-first Knowledge Intelligence product model",
+      "phase": 1,
+      "status": "Done",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": []
+    },
+    {
+      "id": 9,
+      "title": "Build a hybrid scholarly corpus and knowledge substrate",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        40,
+        43
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Create a conversational research workspace with live visual analysis",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        51,
+        62
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Implement research-native visualization primitives",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        62,
+        63
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Implement evidence-led research investigation agents",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        54,
+        55
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Expose controlled research semantic context through MCP",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        56
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Decide V1 runtime topology and repository architecture",
+      "phase": 1,
+      "status": "In Progress",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        8
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Scaffold the TypeScript web application and quality gates",
+      "phase": 1,
+      "status": "Blocked",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        14
+      ]
+    },
+    {
+      "id": 16,
+      "title": "Define the canonical research object schema",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        77
+      ]
+    },
+    {
+      "id": 17,
+      "title": "Define stable source, passage, and derived-artifact identifiers",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        16
+      ]
+    },
+    {
+      "id": 18,
+      "title": "Define typed service and API boundaries",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        14,
+        16
+      ]
+    },
+    {
+      "id": 19,
+      "title": "Establish dependency licensing, SBOM, and version-pinning policy",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        14
+      ]
+    },
+    {
+      "id": 20,
+      "title": "Define V1 supported-content and restricted-data policy",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        14
+      ]
+    },
+    {
+      "id": 21,
+      "title": "Establish local development, migration, and seed workflow",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        15
+      ]
+    },
+    {
+      "id": 22,
+      "title": "Define deployment, configuration, and secret-management contract",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        20
+      ]
+    },
+    {
+      "id": 23,
+      "title": "Implement the Ivory Tower UI adapter layer over LiqUIdify",
+      "phase": 2,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        15,
+        27
+      ]
+    },
+    {
+      "id": 24,
+      "title": "Build the responsive research workspace shell and navigation",
+      "phase": 2,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        18,
+        23
+      ]
+    },
+    {
+      "id": 25,
+      "title": "Implement shared loading, empty, failure, and retry states",
+      "phase": 2,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        18,
+        23
+      ]
+    },
+    {
+      "id": 26,
+      "title": "Verify keyboard, focus, contrast, and reduced-motion behavior",
+      "phase": 2,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        24,
+        25
+      ]
+    },
+    {
+      "id": 27,
+      "title": "Execute a LiqUIdify compatibility and upgrade spike",
+      "phase": 2,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        19
+      ]
+    },
+    {
+      "id": 28,
+      "title": "Implement immutable source storage and content hashing",
+      "phase": 3,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        17,
+        22
+      ]
+    },
+    {
+      "id": 29,
+      "title": "Implement the source upload and ingestion state machine",
+      "phase": 3,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        28,
+        78,
+        79
+      ]
+    },
+    {
+      "id": 30,
+      "title": "Integrate the Docling document-conversion service",
+      "phase": 3,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        29
+      ]
+    },
+    {
+      "id": 31,
+      "title": "Implement OCR fallback and extraction-quality diagnostics",
+      "phase": 3,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        30
+      ]
+    },
+    {
+      "id": 32,
+      "title": "Implement scholarly metadata resolution using Crossref and OpenAlex",
+      "phase": 3,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        18,
+        28
+      ]
+    },
+    {
+      "id": 33,
+      "title": "Implement source deduplication and version reconciliation",
+      "phase": 3,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        32
+      ]
+    },
+    {
+      "id": 34,
+      "title": "Integrate the PDF.js source viewer",
+      "phase": 3,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        24,
+        28
+      ]
+    },
+    {
+      "id": 35,
+      "title": "Implement stable passage deep links and highlight overlays",
+      "phase": 3,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        30,
+        34
+      ]
+    },
+    {
+      "id": 36,
+      "title": "Implement ingestion failure recovery and reprocessing controls",
+      "phase": 3,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        31
+      ]
+    },
+    {
+      "id": 37,
+      "title": "Provision PostgreSQL, pgvector, and versioned schema migrations",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        16,
+        21
+      ]
+    },
+    {
+      "id": 38,
+      "title": "Implement provenance-preserving document chunking",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        30,
+        37
+      ]
+    },
+    {
+      "id": 39,
+      "title": "Implement embedding generation and model-version tracking",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        38
+      ]
+    },
+    {
+      "id": 40,
+      "title": "Implement hybrid lexical-vector retrieval",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        39
+      ]
+    },
+    {
+      "id": 41,
+      "title": "Implement corpus, source, date, entity, and content-type retrieval filters",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        40
+      ]
+    },
+    {
+      "id": 42,
+      "title": "Implement surrounding-context expansion for retrieved passages",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        40
+      ]
+    },
+    {
+      "id": 43,
+      "title": "Implement claim, evidence, contradiction, and interpretation persistence",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        17,
+        37
+      ]
+    },
+    {
+      "id": 44,
+      "title": "Implement entity resolution and temporal relationship modeling",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        42,
+        43
+      ]
+    },
+    {
+      "id": 45,
+      "title": "Implement reproducible citation formatting and export",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        32,
+        35,
+        43
+      ]
+    },
+    {
+      "id": 46,
+      "title": "Implement citation validation and unsupported-claim rejection",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        35,
+        42,
+        43
+      ]
+    },
+    {
+      "id": 47,
+      "title": "Build the retrieval and passage-anchor evaluation corpus",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        35,
+        41
+      ]
+    },
+    {
+      "id": 48,
+      "title": "Integrate the AI SDK provider registry and direct provider adapters",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        4
+      ]
+    },
+    {
+      "id": 49,
+      "title": "Implement the provider-independent structured result envelope",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        5,
+        48
+      ]
+    },
+    {
+      "id": 50,
+      "title": "Implement the structured cited-answer capability",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        46,
+        49
+      ]
+    },
+    {
+      "id": 51,
+      "title": "Implement persistent conversational research threads",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        50
+      ]
+    },
+    {
+      "id": 52,
+      "title": "Implement research scope and framing revision controls",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        41,
+        51
+      ]
+    },
+    {
+      "id": 53,
+      "title": "Implement uncertainty and competing-interpretation representation",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        43,
+        49
+      ]
+    },
+    {
+      "id": 54,
+      "title": "Implement the evidence-gap analysis capability",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        47,
+        50,
+        53
+      ]
+    },
+    {
+      "id": 55,
+      "title": "Implement the bounded literature-review capability",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        45,
+        50,
+        91
+      ]
+    },
+    {
+      "id": 56,
+      "title": "Implement model, prompt, tool, and source audit records",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        49,
+        79
+      ]
+    },
+    {
+      "id": 57,
+      "title": "Implement streaming research-response transport and cancellation",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        51
+      ]
+    },
+    {
+      "id": 58,
+      "title": "Enforce capability-level time, cost, and source budgets",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        56,
+        57
+      ]
+    },
+    {
+      "id": 59,
+      "title": "Define the typed research visualization specification",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        5,
+        44
+      ]
+    },
+    {
+      "id": 60,
+      "title": "Implement the interactive claim-evidence graph",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        24,
+        59
+      ]
+    },
+    {
+      "id": 61,
+      "title": "Implement the temporal evidence timeline",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        59
+      ]
+    },
+    {
+      "id": 62,
+      "title": "Implement visualization-to-source navigation",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        35,
+        60
+      ]
+    },
+    {
+      "id": 63,
+      "title": "Implement visualization selection rationale",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        52,
+        59
+      ]
+    },
+    {
+      "id": 64,
+      "title": "Implement the V1 golden benchmark harness",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        6,
+        91,
+        98,
+        100
+      ]
+    },
+    {
+      "id": 65,
+      "title": "Instrument quality, latency, cost, and failure telemetry",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        100
+      ]
+    },
+    {
+      "id": 66,
+      "title": "Build the end-to-end corpus-to-cited-conclusion acceptance suite",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        10,
+        91,
+        98,
+        99,
+        100
+      ]
+    },
+    {
+      "id": 67,
+      "title": "Complete the V1 security and privacy threat model",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        18,
+        20
+      ]
+    },
+    {
+      "id": 68,
+      "title": "Define V1 release gates and the supported-content matrix",
+      "phase": 6,
+      "status": "Ready",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        8,
+        26,
+        66,
+        67,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        116,
+        118,
+        120,
+        121,
+        127
+      ]
+    },
+    {
+      "id": 69,
+      "title": "Integrate the production MCP server SDK for controlled read-only access",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        13
+      ]
+    },
+    {
+      "id": 70,
+      "title": "Implement project-scoped authorization for MCP clients",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        69,
+        74
+      ]
+    },
+    {
+      "id": 71,
+      "title": "Implement Zotero and OSF source connectors",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        106,
+        108
+      ]
+    },
+    {
+      "id": 72,
+      "title": "Implement a DuckDB-based statistical analysis sandbox",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        56,
+        67
+      ]
+    },
+    {
+      "id": 73,
+      "title": "Implement geographic and archaeological map visualizations",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        59
+      ]
+    },
+    {
+      "id": 74,
+      "title": "Implement multi-user workspace authorization and collaboration",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        22,
+        67
+      ]
+    },
+    {
+      "id": 75,
+      "title": "Implement the restricted-data de-identification workflow",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        74
+      ]
+    },
+    {
+      "id": 76,
+      "title": "Evaluate Berry LLM as an optional Ivory Tower provider",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        64
+      ]
+    },
+    {
+      "id": 77,
+      "title": "Define staged research protocol and claim-posture contract",
+      "phase": 1,
+      "status": "In Progress",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        8
+      ]
+    },
+    {
+      "id": 78,
+      "title": "Define and implement durable asynchronous job contracts",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        17,
+        18
+      ]
+    },
+    {
+      "id": 79,
+      "title": "Implement immutable pipeline-run manifests and artifact invalidation",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        17,
+        18
+      ]
+    },
+    {
+      "id": 80,
+      "title": "Implement guided first-project onboarding with a sample corpus",
+      "phase": 2,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        24,
+        25,
+        113,
+        117,
+        119,
+        122
+      ]
+    },
+    {
+      "id": 81,
+      "title": "Implement progressive-disclosure method inspector and vocabulary",
+      "phase": 2,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        24,
+        113,
+        117,
+        119,
+        122
+      ]
+    },
+    {
+      "id": 82,
+      "title": "Implement V1 authentication and project authorization boundary",
+      "phase": 2,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        22
+      ]
+    },
+    {
+      "id": 83,
+      "title": "Enforce supported-content admission before conversion",
+      "phase": 3,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        29
+      ]
+    },
+    {
+      "id": 84,
+      "title": "Implement corpus coverage, selection-rationale, and extraction-quality report",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        31,
+        33,
+        91
+      ]
+    },
+    {
+      "id": 85,
+      "title": "Implement bounded qualitative annotation, codebook, and memo workflow",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        51,
+        56
+      ]
+    },
+    {
+      "id": 86,
+      "title": "Implement researcher adjudication workflow for generated claims",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        51,
+        53,
+        56
+      ]
+    },
+    {
+      "id": 87,
+      "title": "Enforce provider data-egress policy",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        56
+      ]
+    },
+    {
+      "id": 88,
+      "title": "Export verifiable research dossier and reproducibility package",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        45,
+        84,
+        85,
+        98,
+        99
+      ]
+    },
+    {
+      "id": 89,
+      "title": "Validate novice and expert research comprehension before release",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        26,
+        66,
+        80,
+        81,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        115,
+        116,
+        118,
+        120,
+        121,
+        124,
+        125,
+        126,
+        127
+      ]
+    },
+    {
+      "id": 90,
+      "title": "Implement operational recovery and immutable release evidence bundle",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        64,
+        65,
+        66,
+        67
+      ]
+    },
+    {
+      "id": 91,
+      "title": "Implement literature-candidate relevance adjudication and search refinement",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        32,
+        41
+      ]
+    },
+    {
+      "id": 92,
+      "title": "Define source-grounded reported-data and experimental-observation schema",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        17
+      ]
+    },
+    {
+      "id": 93,
+      "title": "Extract structured reported data from text, tables, figures, and supplements",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        31,
+        35,
+        92
+      ]
+    },
+    {
+      "id": 94,
+      "title": "Normalize cross-paper variables, units, conditions, and uncertainty",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        32,
+        93
+      ]
+    },
+    {
+      "id": 95,
+      "title": "Validate extracted-dataset completeness and adjudicate reported observations",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        47,
+        86,
+        94
+      ]
+    },
+    {
+      "id": 96,
+      "title": "Convert researcher schemas and example plots into reviewable visualization specs",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        59,
+        81
+      ]
+    },
+    {
+      "id": 97,
+      "title": "Generate deterministic plots from validated provenance-bearing datasets",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        63,
+        95,
+        96
+      ]
+    },
+    {
+      "id": 98,
+      "title": "Validate plot completeness, legibility, and dataset reconciliation",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        26,
+        97
+      ]
+    },
+    {
+      "id": 99,
+      "title": "Implement versioned reusable research workflow recipes and expert-run controls",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        96
+      ]
+    },
+    {
+      "id": 100,
+      "title": "Implement quota-aware execution preflight and resumable checkpoints",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        58,
+        81,
+        101
+      ]
+    },
+    {
+      "id": 101,
+      "title": "Implement content-addressed research artifact cache and reuse policy",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        56,
+        78
+      ]
+    },
+    {
+      "id": 102,
+      "title": "Conduct a systematic social-science tool, source, and adoption landscape review",
+      "phase": 1,
+      "status": "Done",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        8
+      ]
+    },
+    {
+      "id": 103,
+      "title": "Validate the connector-and-workflow-layer product thesis against a standalone vertical application",
+      "phase": 1,
+      "status": "Ready",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        102
+      ]
+    },
+    {
+      "id": 104,
+      "title": "Define and validate equity-of-access requirements and measurements",
+      "phase": 1,
+      "status": "Ready",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        8
+      ]
+    },
+    {
+      "id": 105,
+      "title": "Define applied social-science personas and deliverable contracts",
+      "phase": 1,
+      "status": "Ready",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        102
+      ]
+    },
+    {
+      "id": 106,
+      "title": "Validate federated social-science literature connector demand and architecture",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        33,
+        91,
+        103
+      ]
+    },
+    {
+      "id": 107,
+      "title": "Validate evidence-clearinghouse and public social-dataset connector demand",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        83,
+        103
+      ]
+    },
+    {
+      "id": 108,
+      "title": "Validate OSF workflow demand and API feasibility",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        88,
+        103
+      ]
+    },
+    {
+      "id": 109,
+      "title": "Validate CAQDAS interchange demand and outcome safety",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        88,
+        103
+      ]
+    },
+    {
+      "id": 110,
+      "title": "Implement portable quantitative-analysis artifact interchange",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        72,
+        88
+      ]
+    },
+    {
+      "id": 111,
+      "title": "Implement authorized survey-platform ingestion connectors",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        107
+      ]
+    },
+    {
+      "id": 112,
+      "title": "Implement domain-specific research deliverable profiles",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        88
+      ]
+    },
+    {
+      "id": 113,
+      "title": "Define the researcher-authorship and AI-contribution constitution",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        77
+      ]
+    },
+    {
+      "id": 114,
+      "title": "Extend the canonical schema for protected human records and model contributions",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        17,
+        113
+      ]
+    },
+    {
+      "id": 115,
+      "title": "Implement the protected human-only notebook and AI-suggestion boundary",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        85,
+        86,
+        114
+      ]
+    },
+    {
+      "id": 116,
+      "title": "Implement AI-contribution review, diff, purge, and export manifests",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        88,
+        115
+      ]
+    },
+    {
+      "id": 117,
+      "title": "Define the typed research-connection proposal and warrant schema",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        17
+      ]
+    },
+    {
+      "id": 118,
+      "title": "Implement inspectable connection surfacing and researcher adjudication",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        84,
+        86,
+        117
+      ]
+    },
+    {
+      "id": 119,
+      "title": "Define the critical-history identity, terminology, and archive-context model",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        17,
+        20,
+        105
+      ]
+    },
+    {
+      "id": 120,
+      "title": "Implement counter-archive, archival-silence, and positionality workflows",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        85,
+        86,
+        119
+      ]
+    },
+    {
+      "id": 121,
+      "title": "Enforce sensitive-identity non-inference and anti-outing protections",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        82,
+        83,
+        87,
+        119
+      ]
+    },
+    {
+      "id": 122,
+      "title": "Define the bounded V1 survey-analysis and statistical-warrant contract",
+      "phase": 1,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        20,
+        92,
+        104,
+        105
+      ]
+    },
+    {
+      "id": 123,
+      "title": "Implement survey dataset, questionnaire, and codebook ingestion from authorized uploads",
+      "phase": 3,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        31,
+        83,
+        122
+      ]
+    },
+    {
+      "id": 124,
+      "title": "Implement survey weighting, missingness, and data-quality preflight",
+      "phase": 4,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        84,
+        123
+      ]
+    },
+    {
+      "id": 125,
+      "title": "Implement researcher-approved descriptive survey analysis specifications",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        58,
+        86,
+        124
+      ]
+    },
+    {
+      "id": 126,
+      "title": "Validate survey results, small cells, and causal-language boundaries",
+      "phase": 5,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        121,
+        125
+      ]
+    },
+    {
+      "id": 127,
+      "title": "Generate provenance-linked accessible survey tables, charts, and analysis packages",
+      "phase": 6,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 8,
+      "conditionalTriggered": false,
+      "blockers": [
+        62,
+        88,
+        126
+      ]
+    },
+    {
+      "id": 128,
+      "title": "Freeze the V1 cutline and phase-exit gates",
+      "phase": 1,
+      "status": "Ready",
+      "releaseClass": "Required",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": []
+    },
+    {
+      "id": 129,
+      "title": "Define Windows Acrylic material roles and fallback contract",
+      "phase": 2,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        15,
+        27
+      ]
+    },
+    {
+      "id": 130,
+      "title": "Implement and verify the Windows Electron Acrylic adapter",
+      "phase": 7,
+      "status": "Backlog",
+      "releaseClass": "Post-V1",
+      "estimate": 5,
+      "conditionalTriggered": false,
+      "blockers": [
+        23,
+        24,
+        129
+      ]
+    },
+    {
+      "id": 131,
+      "title": "Implement the Windows Acrylic V1 fallback (no adapter)",
+      "phase": 2,
+      "status": "Backlog",
+      "releaseClass": "Required",
+      "estimate": 0,
+      "conditionalTriggered": false,
+      "blockers": [
+        129
+      ]
+    },
+    {
+      "id": 132,
+      "title": "Add accent blur window background preference option",
+      "phase": 2,
+      "status": "Backlog",
+      "releaseClass": "Conditional",
+      "estimate": 3,
+      "conditionalTriggered": false,
+      "blockers": [
+        23,
+        129
+      ]
+    }
+  ]
+}

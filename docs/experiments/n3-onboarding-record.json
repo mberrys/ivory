@@ -1,0 +1,8 @@
+{
+  "schema": "ivory-n3-onboarding/1",
+  "recordedAt": null,
+  "instructionsVersion": "docs/experiments/n3-onboarding-protocol.md@unreleased",
+  "platform": "windows-11-x64-docker-desktop-linux",
+  "participants": [],
+  "notes": "Empty until the exercise runs. verify:ivory-n3-onboarding reports this as not-applicable (exit 0) while it stays empty, and exits 1 once participants are recorded without meeting the four-of-five target."
+}

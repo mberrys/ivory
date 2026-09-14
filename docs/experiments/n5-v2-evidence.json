@@ -1,0 +1,2540 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-14T00:36:57.787Z",
+  "baseCommit": "2796af12dbddb444329edcee89025f007e34c4a9",
+  "workingTree": "",
+  "platform": "win32/x64",
+  "decision": "passed",
+  "observationClock": {
+    "status": "pinned",
+    "reading": "2026-09-13T00:00:00.000Z",
+    "rule": "the four clients ran against one canonical Core instance whose fixture clock was pinned (IVORY_N5_FIXTURE_CLOCK) so every content field of the resolved RunSpec — runId included — is byte-comparable; raw responses are retained per client under artifacts/n5/clients/"
+  },
+  "standards": "Windows prerequisite: the Spectre-mitigated MSVC libraries are detected in their real layout (scripts/verify-ivory-toolchain.mjs, npm run check:ivory-toolchain exits 0); npm is pinned per process via npm_config_prefix; no IVORY_SKIP_SPECTRE_CHECK",
+  "sourceFingerprints": [
+    {
+      "path": "packages/ivory-n5-client/helpers/ivory_n5.py",
+      "sha256": "af99249c7067c444ec17ca82af50d24c0e09a7005a250898d3c8d9edc5a5ff43"
+    },
+    {
+      "path": "packages/ivory-n5-client/helpers/ivory_n5.R",
+      "sha256": "5f7418e3ed46d8426f6befbe6ed26a9b63e7b3d4c42a300599ff0656921fd88e"
+    },
+    {
+      "path": "packages/ivory-n5-client/package.json",
+      "sha256": "79983ada84863f8177a8d912b8d88f701854abaff84b1a60348fa9be7f7fa80d"
+    },
+    {
+      "path": "packages/ivory-n5-client/src/cli.cjs",
+      "sha256": "24140cae8a09e69b4e1da31c35626e802d828f69c182633501b9e0a29a8800d8"
+    },
+    {
+      "path": "packages/ivory-n5-client/src/client.cjs",
+      "sha256": "2cef5059450a939fa5eca72b5d589db7d5125b918f3010fd9c341cf5e9faa25a"
+    },
+    {
+      "path": "packages/ivory-n5-client/src/client.d.ts",
+      "sha256": "9b2666d4eddfe2ce2ccc862bf0cbcff779a4282319964bc340187bfb368a38da"
+    },
+    {
+      "path": "packages/ivory-n5-client/test/client.test.cjs",
+      "sha256": "54039a24db506174169e90409bf9860bfe09b1e6c4f7049886464722c6a6c63d"
+    },
+    {
+      "path": "packages/ivory-n5-client/test/helpers.test.cjs",
+      "sha256": "7fcf415ba397450bf67488b3b287c86f9fa930d798d396fe8684e4027b011868"
+    },
+    {
+      "path": "packages/ivory-n5-shell/.eslintrc.js",
+      "sha256": "16a542dd753d300c46086de970c48acec4d3c359d9e6dbb87217e6bb6bbac297"
+    },
+    {
+      "path": "packages/ivory-n5-shell/package.json",
+      "sha256": "2407a3301c1ed35503f405f2be0006839684a5c2b2c6228a09692ac71f6639a3"
+    },
+    {
+      "path": "packages/ivory-n5-shell/src/browser/contribution.ts",
+      "sha256": "190b5c3e795de76b79eee7fd2c1e0ad20f430b189744f49601007913315f837e"
+    },
+    {
+      "path": "packages/ivory-n5-shell/src/browser/module.ts",
+      "sha256": "c7692911d5c6972151f542263133bb298a08ca4e70e0e052344cf92bfa5a65e7"
+    },
+    {
+      "path": "packages/ivory-n5-shell/src/browser/widget.tsx",
+      "sha256": "f9a2a7058acf1f1d3572569342298a1b39de899a79bea56577d655f834166efe"
+    },
+    {
+      "path": "packages/ivory-n5-shell/src/node/module.ts",
+      "sha256": "c05b135c71d51b6453443a26a7db30df554b45334c7f23ad5233b4f151bcc1ec"
+    },
+    {
+      "path": "packages/ivory-n5-shell/src/node/scanner.ts",
+      "sha256": "1e3dd4db03fd82f3567345015edf957898ca6e4c8dbaec424defcc28062278b2"
+    },
+    {
+      "path": "packages/ivory-n5-shell/tsconfig.json",
+      "sha256": "90ea9b7b93e3ef553debf9185566e67864cb46fa5a452a967939cc607494e882"
+    },
+    {
+      "path": "examples/ivory-n5-browser/esbuild.mjs",
+      "sha256": "278853870206d6c3ca6dba49b56529e22aa9479b757db9d85622fc86d12ca3ae"
+    },
+    {
+      "path": "examples/ivory-n5-browser/extensions.lock.json",
+      "sha256": "ef7cf1100cd697bf9af0b78581d81e171fe97571e414fc061eb5ce0aaa1b458e"
+    },
+    {
+      "path": "examples/ivory-n5-browser/fixtures/conditional.ipynb",
+      "sha256": "494e55ea07958d5c627e601722950b1afb134f8ac4078fec18f72523697fa958"
+    },
+    {
+      "path": "examples/ivory-n5-browser/fixtures/python-diagnostic.py",
+      "sha256": "bb5cf2189042b6d333897ff7b62001b80f2a13ea63075a3731109eef8e54509c"
+    },
+    {
+      "path": "examples/ivory-n5-browser/fixtures/r-diagnostic.R",
+      "sha256": "fe5e1e37979b32051b53753fec7b51d2360b490c9f5e524919b0c801fadffe66"
+    },
+    {
+      "path": "examples/ivory-n5-browser/fixtures/research.py",
+      "sha256": "96ac4cbd6307e20e23740eb3795f3b61804685800ae2a1feda10d847ebda2b7e"
+    },
+    {
+      "path": "examples/ivory-n5-browser/fixtures/research.qmd",
+      "sha256": "17a1f06cdcb5db89dad2e8a805a0661621e9de6d9994148a4487ee2ef8a14234"
+    },
+    {
+      "path": "examples/ivory-n5-browser/fixtures/research.R",
+      "sha256": "08d9dab03964105440fe5871de3f86282706b90daa1d8c65001aada2a5432604"
+    },
+    {
+      "path": "examples/ivory-n5-browser/package.json",
+      "sha256": "0feaf642d9cdd24910f39152020f2fd88c0ad3aa9bd3927f3bd041d4d88d8f23"
+    },
+    {
+      "path": "examples/ivory-n5-browser/playwright.config.ts",
+      "sha256": "9644e8408f6ef563b2ddb378724328c1b6cf0c9410f5d3ed634c979f4c30dcc5"
+    },
+    {
+      "path": "examples/ivory-n5-browser/tests/shell.spec.ts",
+      "sha256": "c14b3212ceb89a639cb14e3b0a36ae9439871cfa1ca97269996596fdf3b6f696"
+    },
+    {
+      "path": "examples/ivory-n5-browser/tsconfig.json",
+      "sha256": "11c87a5e9d41d0307aed1e45805fdaa0e6bfbdc4d58b2bba6918b6f2cf925069"
+    },
+    {
+      "path": "scripts/n5/check-boundaries.mjs",
+      "sha256": "c45a5571a4b44a48a1e7efddd1da57234427103e3e481c1d7bf8369beab9aa69"
+    },
+    {
+      "path": "scripts/n5/compare.mjs",
+      "sha256": "a7ccbf15a00e54071182aade0055bbf7b685830eb4ee213c1284aa42421cd739"
+    },
+    {
+      "path": "scripts/n5/compare.test.mjs",
+      "sha256": "fed4be3ec432a4d4538eff444d1d8e9ae33e40b57e64d5efccee9dfed88b6c67"
+    },
+    {
+      "path": "scripts/n5/evidence.mjs",
+      "sha256": "0ed597f8f60bcaa9746b62d4c1d3a83a2c4d5664ce4bbdc6b470203decce44f5"
+    },
+    {
+      "path": "scripts/n5/extensions.mjs",
+      "sha256": "9c344347ca41c7393a903ef99b8db27c5c596a852261ca60ea81e60099fa5502"
+    },
+    {
+      "path": "scripts/n5/extensions.py",
+      "sha256": "66487f1e17a4ca796afc512b2b63de7e9ce9a074a8bdde1b309a1101910a4b78"
+    },
+    {
+      "path": "scripts/n5/language-observation.mjs",
+      "sha256": "d95eebdfaa791c7beade04d24a116556b3eed0f1574931efd10d7cb72e27fa9d"
+    },
+    {
+      "path": "scripts/n5/live-observation.mjs",
+      "sha256": "f06be67db39b913a37c66984d0c26a3c899ae988b23f5051eca9428d8b5c5196"
+    },
+    {
+      "path": "scripts/n5/restart-observation.mjs",
+      "sha256": "ca29656d4019a7e30b099d27a1678604902314694a227fd24d5f80d0f8acc6b3"
+    }
+  ],
+  "liveService": {
+    "available": true,
+    "url": "http://127.0.0.1:4100",
+    "ready": {
+      "status": "ready",
+      "checks": [
+        {
+          "name": "postgres",
+          "status": "ok"
+        },
+        {
+          "name": "schema",
+          "status": "ok"
+        },
+        {
+          "name": "queue",
+          "status": "ok"
+        },
+        {
+          "name": "objectStore",
+          "status": "ok"
+        },
+        {
+          "name": "docling",
+          "status": "skipped"
+        }
+      ]
+    }
+  },
+  "serviceVersion": null,
+  "clients": {
+    "theia": {
+      "status": "observed",
+      "project": {
+        "projectId": "n5-demo",
+        "revision": "rev-1",
+        "headRevision": "rev-1",
+        "openedAt": "2026-09-13T00:00:00.000Z",
+        "entryPaths": [
+          "conditional.ipynb",
+          "research.py",
+          "research.qmd",
+          "research.R"
+        ]
+      },
+      "citation": {
+        "citationId": "cite-research-py",
+        "projectId": "n5-demo",
+        "resolvedAt": "2026-09-13T00:00:00.000Z",
+        "anchor": {
+          "sourcePath": "research.py",
+          "sourceRevision": "rev-1",
+          "anchorId": "anchor-research.py",
+          "passage": "\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "startOffset": 0,
+          "endOffset": 168,
+          "contentHash": "96ac4cbd6307e20e23740eb3795f3b61804685800ae2a1feda10d847ebda2b7e"
+        }
+      },
+      "runSpec": {
+        "runId": "run-15c2d23085eb4c51",
+        "projectId": "n5-demo",
+        "revision": "rev-1",
+        "sourceSetVersion": "fixtures-rev-1",
+        "environment": {
+          "node": "v24.16.0",
+          "platform": "win32/x64"
+        },
+        "commands": [
+          "python research.py",
+          "Rscript research.R",
+          "quarto render research.qmd"
+        ],
+        "resolvedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "semanticResult": {
+        "status": "succeeded",
+        "output": [
+          "9"
+        ]
+      },
+      "artifacts": [
+        "artifacts/n5/clients/theia-open.json",
+        "artifacts/n5/clients/theia-cite.json",
+        "artifacts/n5/clients/theia-run.json"
+      ]
+    },
+    "cli": {
+      "status": "observed",
+      "project": {
+        "projectId": "n5-demo",
+        "revision": "rev-1",
+        "headRevision": "rev-1",
+        "openedAt": "2026-09-13T00:00:00.000Z",
+        "entryPaths": [
+          "conditional.ipynb",
+          "research.py",
+          "research.qmd",
+          "research.R"
+        ]
+      },
+      "citation": {
+        "citationId": "cite-research-py",
+        "projectId": "n5-demo",
+        "resolvedAt": "2026-09-13T00:00:00.000Z",
+        "anchor": {
+          "sourcePath": "research.py",
+          "sourceRevision": "rev-1",
+          "anchorId": "anchor-research.py",
+          "passage": "\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "startOffset": 0,
+          "endOffset": 168,
+          "contentHash": "96ac4cbd6307e20e23740eb3795f3b61804685800ae2a1feda10d847ebda2b7e"
+        }
+      },
+      "runSpec": {
+        "runId": "run-15c2d23085eb4c51",
+        "projectId": "n5-demo",
+        "revision": "rev-1",
+        "sourceSetVersion": "fixtures-rev-1",
+        "environment": {
+          "node": "v24.16.0",
+          "platform": "win32/x64"
+        },
+        "commands": [
+          "python research.py",
+          "Rscript research.R",
+          "quarto render research.qmd"
+        ],
+        "resolvedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "semanticResult": {
+        "status": "succeeded",
+        "output": [
+          "9"
+        ]
+      },
+      "artifacts": [
+        "artifacts/n5/clients/cli-open.json",
+        "artifacts/n5/clients/cli-cite.json",
+        "artifacts/n5/clients/cli-run.json"
+      ]
+    },
+    "python": {
+      "status": "observed",
+      "project": {
+        "projectId": "n5-demo",
+        "revision": "rev-1",
+        "headRevision": "rev-1",
+        "openedAt": "2026-09-13T00:00:00.000Z",
+        "entryPaths": [
+          "conditional.ipynb",
+          "research.py",
+          "research.qmd",
+          "research.R"
+        ]
+      },
+      "citation": {
+        "citationId": "cite-research-py",
+        "projectId": "n5-demo",
+        "resolvedAt": "2026-09-13T00:00:00.000Z",
+        "anchor": {
+          "sourcePath": "research.py",
+          "sourceRevision": "rev-1",
+          "anchorId": "anchor-research.py",
+          "passage": "\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "startOffset": 0,
+          "endOffset": 168,
+          "contentHash": "96ac4cbd6307e20e23740eb3795f3b61804685800ae2a1feda10d847ebda2b7e"
+        }
+      },
+      "runSpec": {
+        "runId": "run-15c2d23085eb4c51",
+        "projectId": "n5-demo",
+        "revision": "rev-1",
+        "sourceSetVersion": "fixtures-rev-1",
+        "environment": {
+          "node": "v24.16.0",
+          "platform": "win32/x64"
+        },
+        "commands": [
+          "python research.py",
+          "Rscript research.R",
+          "quarto render research.qmd"
+        ],
+        "resolvedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "semanticResult": {
+        "status": "succeeded",
+        "output": [
+          "9"
+        ]
+      },
+      "artifacts": [
+        "artifacts/n5/clients/python-open.json",
+        "artifacts/n5/clients/python-cite.json",
+        "artifacts/n5/clients/python-run.json"
+      ]
+    },
+    "r": {
+      "status": "observed",
+      "project": {
+        "projectId": "n5-demo",
+        "revision": "rev-1",
+        "headRevision": "rev-1",
+        "openedAt": "2026-09-13T00:00:00.000Z",
+        "entryPaths": [
+          "conditional.ipynb",
+          "research.py",
+          "research.qmd",
+          "research.R"
+        ]
+      },
+      "citation": {
+        "citationId": "cite-research-py",
+        "projectId": "n5-demo",
+        "resolvedAt": "2026-09-13T00:00:00.000Z",
+        "anchor": {
+          "sourcePath": "research.py",
+          "sourceRevision": "rev-1",
+          "anchorId": "anchor-research.py",
+          "passage": "\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "startOffset": 0,
+          "endOffset": 168,
+          "contentHash": "96ac4cbd6307e20e23740eb3795f3b61804685800ae2a1feda10d847ebda2b7e"
+        }
+      },
+      "runSpec": {
+        "runId": "run-15c2d23085eb4c51",
+        "projectId": "n5-demo",
+        "revision": "rev-1",
+        "sourceSetVersion": "fixtures-rev-1",
+        "environment": {
+          "node": "v24.16.0",
+          "platform": "win32/x64"
+        },
+        "commands": [
+          "python research.py",
+          "Rscript research.R",
+          "quarto render research.qmd"
+        ],
+        "resolvedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "semanticResult": {
+        "status": "succeeded",
+        "output": [
+          "9"
+        ]
+      },
+      "artifacts": [
+        "artifacts/n5/clients/r-open.json",
+        "artifacts/n5/clients/r-cite.json",
+        "artifacts/n5/clients/r-run.json"
+      ]
+    }
+  },
+  "clientComparison": {
+    "status": "passed"
+  },
+  "orderedConflicts": [
+    {
+      "first": "theia",
+      "second": "cli",
+      "status": "passed",
+      "firstAction": {
+        "projectId": "n5-demo",
+        "sourcePath": "research.py",
+        "baseRevision": "rev-1",
+        "newRevision": "rev-2",
+        "appliedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "secondConflict": {
+        "code": "revision_conflict",
+        "baseRevision": "rev-1",
+        "headRevision": "rev-2",
+        "authoritative": {
+          "sourcePath": "research.py",
+          "revision": "rev-2",
+          "bytes": "# edit by theia\n\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "contentHash": "e524b0b120315df4f237f90ecb222a8990998eb2b2e74c72e9943684d773b049"
+        },
+        "rejectedRequest": {
+          "projectId": "n5-demo",
+          "baseRevision": "rev-1",
+          "sourcePath": "research.py",
+          "edit": {
+            "kind": "insert",
+            "startOffset": 0,
+            "endOffset": 0,
+            "text": "# edit by cli\n"
+          }
+        }
+      },
+      "verification": {
+        "firstRecordedRevision": "rev-2",
+        "firstResponseMatches": true,
+        "conflictStatus": 409,
+        "conflictCode": "revision_conflict",
+        "conflictBaseRevision": "rev-1",
+        "conflictHeadRevision": "rev-2",
+        "authoritativeRevision": "rev-2",
+        "authoritativeBytesMatch": true,
+        "authoritativeBytesHash": true,
+        "rejectedRequestUnchanged": true,
+        "secondClientExitNonZero": true
+      }
+    },
+    {
+      "first": "theia",
+      "second": "python",
+      "status": "passed",
+      "firstAction": {
+        "projectId": "n5-demo",
+        "sourcePath": "research.py",
+        "baseRevision": "rev-1",
+        "newRevision": "rev-2",
+        "appliedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "secondConflict": {
+        "code": "revision_conflict",
+        "baseRevision": "rev-1",
+        "headRevision": "rev-2",
+        "authoritative": {
+          "sourcePath": "research.py",
+          "revision": "rev-2",
+          "bytes": "# edit by theia\n\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "contentHash": "e524b0b120315df4f237f90ecb222a8990998eb2b2e74c72e9943684d773b049"
+        },
+        "rejectedRequest": {
+          "projectId": "n5-demo",
+          "baseRevision": "rev-1",
+          "sourcePath": "research.py",
+          "edit": {
+            "kind": "insert",
+            "startOffset": 0,
+            "endOffset": 0,
+            "text": "# edit by python\n"
+          }
+        }
+      },
+      "verification": {
+        "firstRecordedRevision": "rev-2",
+        "firstResponseMatches": true,
+        "conflictStatus": 409,
+        "conflictCode": "revision_conflict",
+        "conflictBaseRevision": "rev-1",
+        "conflictHeadRevision": "rev-2",
+        "authoritativeRevision": "rev-2",
+        "authoritativeBytesMatch": true,
+        "authoritativeBytesHash": true,
+        "rejectedRequestUnchanged": true,
+        "secondClientExitNonZero": true
+      }
+    },
+    {
+      "first": "theia",
+      "second": "r",
+      "status": "passed",
+      "firstAction": {
+        "projectId": "n5-demo",
+        "sourcePath": "research.py",
+        "baseRevision": "rev-1",
+        "newRevision": "rev-2",
+        "appliedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "secondConflict": {
+        "code": "revision_conflict",
+        "baseRevision": "rev-1",
+        "headRevision": "rev-2",
+        "authoritative": {
+          "sourcePath": "research.py",
+          "revision": "rev-2",
+          "bytes": "# edit by theia\n\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "contentHash": "e524b0b120315df4f237f90ecb222a8990998eb2b2e74c72e9943684d773b049"
+        },
+        "rejectedRequest": {
+          "projectId": "n5-demo",
+          "baseRevision": "rev-1",
+          "sourcePath": "research.py",
+          "edit": {
+            "kind": "insert",
+            "startOffset": 0,
+            "endOffset": 0,
+            "text": "# edit by r\n"
+          }
+        }
+      },
+      "verification": {
+        "firstRecordedRevision": "rev-2",
+        "firstResponseMatches": true,
+        "conflictStatus": 409,
+        "conflictCode": "revision_conflict",
+        "conflictBaseRevision": "rev-1",
+        "conflictHeadRevision": "rev-2",
+        "authoritativeRevision": "rev-2",
+        "authoritativeBytesMatch": true,
+        "authoritativeBytesHash": true,
+        "rejectedRequestUnchanged": true,
+        "secondClientExitNonZero": true
+      }
+    },
+    {
+      "first": "cli",
+      "second": "theia",
+      "status": "passed",
+      "firstAction": {
+        "projectId": "n5-demo",
+        "sourcePath": "research.py",
+        "baseRevision": "rev-1",
+        "newRevision": "rev-2",
+        "appliedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "secondConflict": {
+        "code": "revision_conflict",
+        "baseRevision": "rev-1",
+        "headRevision": "rev-2",
+        "authoritative": {
+          "sourcePath": "research.py",
+          "revision": "rev-2",
+          "bytes": "# edit by cli\n\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "contentHash": "c2490842b57abc2955ca899ceb27c69339269c0516b21dc54d3f4a488c604595"
+        },
+        "rejectedRequest": {
+          "projectId": "n5-demo",
+          "baseRevision": "rev-1",
+          "sourcePath": "research.py",
+          "edit": {
+            "kind": "insert",
+            "startOffset": 0,
+            "endOffset": 0,
+            "text": "# edit by theia\n"
+          }
+        }
+      },
+      "verification": {
+        "firstRecordedRevision": "rev-2",
+        "firstResponseMatches": true,
+        "conflictStatus": 409,
+        "conflictCode": "revision_conflict",
+        "conflictBaseRevision": "rev-1",
+        "conflictHeadRevision": "rev-2",
+        "authoritativeRevision": "rev-2",
+        "authoritativeBytesMatch": true,
+        "authoritativeBytesHash": true,
+        "rejectedRequestUnchanged": true
+      }
+    },
+    {
+      "first": "cli",
+      "second": "python",
+      "status": "passed",
+      "firstAction": {
+        "projectId": "n5-demo",
+        "sourcePath": "research.py",
+        "baseRevision": "rev-1",
+        "newRevision": "rev-2",
+        "appliedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "secondConflict": {
+        "code": "revision_conflict",
+        "baseRevision": "rev-1",
+        "headRevision": "rev-2",
+        "authoritative": {
+          "sourcePath": "research.py",
+          "revision": "rev-2",
+          "bytes": "# edit by cli\n\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "contentHash": "c2490842b57abc2955ca899ceb27c69339269c0516b21dc54d3f4a488c604595"
+        },
+        "rejectedRequest": {
+          "projectId": "n5-demo",
+          "baseRevision": "rev-1",
+          "sourcePath": "research.py",
+          "edit": {
+            "kind": "insert",
+            "startOffset": 0,
+            "endOffset": 0,
+            "text": "# edit by python\n"
+          }
+        }
+      },
+      "verification": {
+        "firstRecordedRevision": "rev-2",
+        "firstResponseMatches": true,
+        "conflictStatus": 409,
+        "conflictCode": "revision_conflict",
+        "conflictBaseRevision": "rev-1",
+        "conflictHeadRevision": "rev-2",
+        "authoritativeRevision": "rev-2",
+        "authoritativeBytesMatch": true,
+        "authoritativeBytesHash": true,
+        "rejectedRequestUnchanged": true,
+        "secondClientExitNonZero": true
+      }
+    },
+    {
+      "first": "cli",
+      "second": "r",
+      "status": "passed",
+      "firstAction": {
+        "projectId": "n5-demo",
+        "sourcePath": "research.py",
+        "baseRevision": "rev-1",
+        "newRevision": "rev-2",
+        "appliedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "secondConflict": {
+        "code": "revision_conflict",
+        "baseRevision": "rev-1",
+        "headRevision": "rev-2",
+        "authoritative": {
+          "sourcePath": "research.py",
+          "revision": "rev-2",
+          "bytes": "# edit by cli\n\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "contentHash": "c2490842b57abc2955ca899ceb27c69339269c0516b21dc54d3f4a488c604595"
+        },
+        "rejectedRequest": {
+          "projectId": "n5-demo",
+          "baseRevision": "rev-1",
+          "sourcePath": "research.py",
+          "edit": {
+            "kind": "insert",
+            "startOffset": 0,
+            "endOffset": 0,
+            "text": "# edit by r\n"
+          }
+        }
+      },
+      "verification": {
+        "firstRecordedRevision": "rev-2",
+        "firstResponseMatches": true,
+        "conflictStatus": 409,
+        "conflictCode": "revision_conflict",
+        "conflictBaseRevision": "rev-1",
+        "conflictHeadRevision": "rev-2",
+        "authoritativeRevision": "rev-2",
+        "authoritativeBytesMatch": true,
+        "authoritativeBytesHash": true,
+        "rejectedRequestUnchanged": true,
+        "secondClientExitNonZero": true
+      }
+    },
+    {
+      "first": "python",
+      "second": "theia",
+      "status": "passed",
+      "firstAction": {
+        "projectId": "n5-demo",
+        "sourcePath": "research.py",
+        "baseRevision": "rev-1",
+        "newRevision": "rev-2",
+        "appliedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "secondConflict": {
+        "code": "revision_conflict",
+        "baseRevision": "rev-1",
+        "headRevision": "rev-2",
+        "authoritative": {
+          "sourcePath": "research.py",
+          "revision": "rev-2",
+          "bytes": "# edit by python\n\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "contentHash": "e8c34be40c89723c65515a3e9d6ef33784f7d78180ee0b39b676ac445adb417c"
+        },
+        "rejectedRequest": {
+          "projectId": "n5-demo",
+          "baseRevision": "rev-1",
+          "sourcePath": "research.py",
+          "edit": {
+            "kind": "insert",
+            "startOffset": 0,
+            "endOffset": 0,
+            "text": "# edit by theia\n"
+          }
+        }
+      },
+      "verification": {
+        "firstRecordedRevision": "rev-2",
+        "firstResponseMatches": true,
+        "conflictStatus": 409,
+        "conflictCode": "revision_conflict",
+        "conflictBaseRevision": "rev-1",
+        "conflictHeadRevision": "rev-2",
+        "authoritativeRevision": "rev-2",
+        "authoritativeBytesMatch": true,
+        "authoritativeBytesHash": true,
+        "rejectedRequestUnchanged": true
+      }
+    },
+    {
+      "first": "python",
+      "second": "cli",
+      "status": "passed",
+      "firstAction": {
+        "projectId": "n5-demo",
+        "sourcePath": "research.py",
+        "baseRevision": "rev-1",
+        "newRevision": "rev-2",
+        "appliedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "secondConflict": {
+        "code": "revision_conflict",
+        "baseRevision": "rev-1",
+        "headRevision": "rev-2",
+        "authoritative": {
+          "sourcePath": "research.py",
+          "revision": "rev-2",
+          "bytes": "# edit by python\n\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "contentHash": "e8c34be40c89723c65515a3e9d6ef33784f7d78180ee0b39b676ac445adb417c"
+        },
+        "rejectedRequest": {
+          "projectId": "n5-demo",
+          "baseRevision": "rev-1",
+          "sourcePath": "research.py",
+          "edit": {
+            "kind": "insert",
+            "startOffset": 0,
+            "endOffset": 0,
+            "text": "# edit by cli\n"
+          }
+        }
+      },
+      "verification": {
+        "firstRecordedRevision": "rev-2",
+        "firstResponseMatches": true,
+        "conflictStatus": 409,
+        "conflictCode": "revision_conflict",
+        "conflictBaseRevision": "rev-1",
+        "conflictHeadRevision": "rev-2",
+        "authoritativeRevision": "rev-2",
+        "authoritativeBytesMatch": true,
+        "authoritativeBytesHash": true,
+        "rejectedRequestUnchanged": true,
+        "secondClientExitNonZero": true
+      }
+    },
+    {
+      "first": "python",
+      "second": "r",
+      "status": "passed",
+      "firstAction": {
+        "projectId": "n5-demo",
+        "sourcePath": "research.py",
+        "baseRevision": "rev-1",
+        "newRevision": "rev-2",
+        "appliedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "secondConflict": {
+        "code": "revision_conflict",
+        "baseRevision": "rev-1",
+        "headRevision": "rev-2",
+        "authoritative": {
+          "sourcePath": "research.py",
+          "revision": "rev-2",
+          "bytes": "# edit by python\n\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "contentHash": "e8c34be40c89723c65515a3e9d6ef33784f7d78180ee0b39b676ac445adb417c"
+        },
+        "rejectedRequest": {
+          "projectId": "n5-demo",
+          "baseRevision": "rev-1",
+          "sourcePath": "research.py",
+          "edit": {
+            "kind": "insert",
+            "startOffset": 0,
+            "endOffset": 0,
+            "text": "# edit by r\n"
+          }
+        }
+      },
+      "verification": {
+        "firstRecordedRevision": "rev-2",
+        "firstResponseMatches": true,
+        "conflictStatus": 409,
+        "conflictCode": "revision_conflict",
+        "conflictBaseRevision": "rev-1",
+        "conflictHeadRevision": "rev-2",
+        "authoritativeRevision": "rev-2",
+        "authoritativeBytesMatch": true,
+        "authoritativeBytesHash": true,
+        "rejectedRequestUnchanged": true,
+        "secondClientExitNonZero": true
+      }
+    },
+    {
+      "first": "r",
+      "second": "theia",
+      "status": "passed",
+      "firstAction": {
+        "projectId": "n5-demo",
+        "sourcePath": "research.py",
+        "baseRevision": "rev-1",
+        "newRevision": "rev-2",
+        "appliedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "secondConflict": {
+        "code": "revision_conflict",
+        "baseRevision": "rev-1",
+        "headRevision": "rev-2",
+        "authoritative": {
+          "sourcePath": "research.py",
+          "revision": "rev-2",
+          "bytes": "# edit by r\n\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "contentHash": "3375784be4182776fdddae8353d05d14d7d541c078636eb908e07450eaf4ab95"
+        },
+        "rejectedRequest": {
+          "projectId": "n5-demo",
+          "baseRevision": "rev-1",
+          "sourcePath": "research.py",
+          "edit": {
+            "kind": "insert",
+            "startOffset": 0,
+            "endOffset": 0,
+            "text": "# edit by theia\n"
+          }
+        }
+      },
+      "verification": {
+        "firstRecordedRevision": "rev-2",
+        "firstResponseMatches": true,
+        "conflictStatus": 409,
+        "conflictCode": "revision_conflict",
+        "conflictBaseRevision": "rev-1",
+        "conflictHeadRevision": "rev-2",
+        "authoritativeRevision": "rev-2",
+        "authoritativeBytesMatch": true,
+        "authoritativeBytesHash": true,
+        "rejectedRequestUnchanged": true
+      }
+    },
+    {
+      "first": "r",
+      "second": "cli",
+      "status": "passed",
+      "firstAction": {
+        "projectId": "n5-demo",
+        "sourcePath": "research.py",
+        "baseRevision": "rev-1",
+        "newRevision": "rev-2",
+        "appliedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "secondConflict": {
+        "code": "revision_conflict",
+        "baseRevision": "rev-1",
+        "headRevision": "rev-2",
+        "authoritative": {
+          "sourcePath": "research.py",
+          "revision": "rev-2",
+          "bytes": "# edit by r\n\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "contentHash": "3375784be4182776fdddae8353d05d14d7d541c078636eb908e07450eaf4ab95"
+        },
+        "rejectedRequest": {
+          "projectId": "n5-demo",
+          "baseRevision": "rev-1",
+          "sourcePath": "research.py",
+          "edit": {
+            "kind": "insert",
+            "startOffset": 0,
+            "endOffset": 0,
+            "text": "# edit by cli\n"
+          }
+        }
+      },
+      "verification": {
+        "firstRecordedRevision": "rev-2",
+        "firstResponseMatches": true,
+        "conflictStatus": 409,
+        "conflictCode": "revision_conflict",
+        "conflictBaseRevision": "rev-1",
+        "conflictHeadRevision": "rev-2",
+        "authoritativeRevision": "rev-2",
+        "authoritativeBytesMatch": true,
+        "authoritativeBytesHash": true,
+        "rejectedRequestUnchanged": true,
+        "secondClientExitNonZero": true
+      }
+    },
+    {
+      "first": "r",
+      "second": "python",
+      "status": "passed",
+      "firstAction": {
+        "projectId": "n5-demo",
+        "sourcePath": "research.py",
+        "baseRevision": "rev-1",
+        "newRevision": "rev-2",
+        "appliedAt": "2026-09-13T00:00:00.000Z"
+      },
+      "secondConflict": {
+        "code": "revision_conflict",
+        "baseRevision": "rev-1",
+        "headRevision": "rev-2",
+        "authoritative": {
+          "sourcePath": "research.py",
+          "revision": "rev-2",
+          "bytes": "# edit by r\n\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+          "contentHash": "3375784be4182776fdddae8353d05d14d7d541c078636eb908e07450eaf4ab95"
+        },
+        "rejectedRequest": {
+          "projectId": "n5-demo",
+          "baseRevision": "rev-1",
+          "sourcePath": "research.py",
+          "edit": {
+            "kind": "insert",
+            "startOffset": 0,
+            "endOffset": 0,
+            "text": "# edit by python\n"
+          }
+        }
+      },
+      "verification": {
+        "firstRecordedRevision": "rev-2",
+        "firstResponseMatches": true,
+        "conflictStatus": 409,
+        "conflictCode": "revision_conflict",
+        "conflictBaseRevision": "rev-1",
+        "conflictHeadRevision": "rev-2",
+        "authoritativeRevision": "rev-2",
+        "authoritativeBytesMatch": true,
+        "authoritativeBytesHash": true,
+        "rejectedRequestUnchanged": true,
+        "secondClientExitNonZero": true
+      }
+    }
+  ],
+  "restart": {
+    "status": "passed",
+    "protocol": "documenting relay holds the accepted response, client ends without a body; canonical service killed after durable acceptance, restarted, same body and key re-submitted",
+    "heldReceipt": {
+      "id": "2bc0ce36-3df7-4e99-967c-9b5366d87c09",
+      "kind": "validate",
+      "status": "queued",
+      "contractVersion": 1,
+      "idempotencyKey": "RETAINED-KEY-N5",
+      "attempt": 0,
+      "progress": 0,
+      "createdAt": "2026-09-14T00:03:24.069Z",
+      "updatedAt": "2026-09-14T00:03:24.069Z"
+    },
+    "clientInterrupted": {
+      "command": "IVORY_N5_SERVICE_URL=http://127.0.0.1:4110 node packages/ivory-n5-client/src/cli.cjs submit artifacts/n5/requests/execution.json RETAINED-KEY-N5",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": "{\"error\":\"fetch failed\"}\n",
+      "endedWithoutBody": true,
+      "heldReceiptVisibleToClient": false
+    },
+    "kill": {
+      "killedAt": "2026-09-14T00:03:24.155Z",
+      "pid": 99200,
+      "taskkill": {
+        "exitCode": 0,
+        "stdout": "SUCCESS: The process with PID 99200 (child process of PID 66700) has been terminated.",
+        "stderr": ""
+      },
+      "portClosed": true
+    },
+    "artifacts": [
+      "artifacts/n5/restart/held-response.json",
+      "artifacts/n5/restart/client-interrupted.json",
+      "artifacts/n5/restart/kill.json",
+      "artifacts/n5/restart/replay.json",
+      "artifacts/n5/restart/relay.log"
+    ]
+  },
+  "exactNavigation": {
+    "status": "passed",
+    "beforeEdit": {
+      "command": "POST /v1/citations/resolve {\"projectId\":\"n5-demo\",\"revision\":\"rev-1\",\"citationId\":\"cite-research-py\"}",
+      "status": 200,
+      "anchor": {
+        "sourcePath": "research.py",
+        "sourceRevision": "rev-1",
+        "anchorId": "anchor-research.py",
+        "passage": "\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+        "startOffset": 0,
+        "endOffset": 168,
+        "contentHash": "96ac4cbd6307e20e23740eb3795f3b61804685800ae2a1feda10d847ebda2b7e"
+      },
+      "verification": {
+        "sourceRevision": "rev-1",
+        "passageHashMatchesContentHash": true,
+        "passageEqualsCommittedFixture": true,
+        "fixturePath": "examples/ivory-n5-browser/fixtures/research.py"
+      }
+    },
+    "revisionMove": {
+      "invocation": {
+        "command": "C:\\Program Files\\nodejs\\node.exe C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\packages\\ivory-n5-client\\src\\cli.cjs edit C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\artifacts\\n5\\requests\\nav-edit.json n5-nav-edit",
+        "exitCode": 0,
+        "stdout": "{\"projectId\":\"n5-demo\",\"sourcePath\":\"research.py\",\"baseRevision\":\"rev-1\",\"newRevision\":\"rev-2\",\"appliedAt\":\"2026-09-13T00:00:00.000Z\"}\n",
+        "stderr": ""
+      },
+      "response": {
+        "projectId": "n5-demo",
+        "sourcePath": "research.py",
+        "baseRevision": "rev-1",
+        "newRevision": "rev-2",
+        "appliedAt": "2026-09-13T00:00:00.000Z"
+      }
+    },
+    "afterEdit": {
+      "command": "POST /v1/citations/resolve {\"projectId\":\"n5-demo\",\"revision\":\"rev-2\",\"citationId\":\"cite-research-py\"}",
+      "status": 200,
+      "anchor": {
+        "sourcePath": "research.py",
+        "sourceRevision": "rev-1",
+        "anchorId": "anchor-research.py",
+        "passage": "\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"\r\ndef square(value: float) -> float:\r\n    return value * value\r\n\r\n\r\nprint(square(3.0))\r\n",
+        "startOffset": 0,
+        "endOffset": 168,
+        "contentHash": "96ac4cbd6307e20e23740eb3795f3b61804685800ae2a1feda10d847ebda2b7e"
+      },
+      "verification": {
+        "sourceRevisionStillRev1": true,
+        "bytesUnchanged": true,
+        "contentHashUnchanged": true,
+        "passageEqualsCommittedFixture": true
+      }
+    },
+    "stale": {
+      "command": "resolve rev-1 while head is rev-2",
+      "status": 409,
+      "body": {
+        "error": {
+          "code": "citation_stale",
+          "message": "Citation resolution requires the head revision rev-2, not rev-1."
+        }
+      }
+    },
+    "notFound": {
+      "command": "resolve cite-unknown at rev-2",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "citation_not_found",
+          "message": "Citation cite-unknown is not bound in this fixture project."
+        }
+      }
+    },
+    "artifacts": [
+      "artifacts/n5/navigation/cite-rev-1-before-edit.json",
+      "artifacts/n5/navigation/cite-rev-2-after-edit.json",
+      "artifacts/n5/navigation/revision-move-edit.json",
+      "artifacts/n5/navigation/stale-rev-1-at-head-rev-2.json",
+      "artifacts/n5/navigation/citation-not-found.json"
+    ]
+  },
+  "languageWorkflows": {
+    "status": "passed",
+    "statusRule": "Exit-driving cells are the protocol observations with a concrete expected outcome: square completion and definition navigation for Python, both intentionally-invalid diagnostic fixtures, both terminal executions (9.0 / 9), and the rendered Quarto document (heading + computed 9). Cosmetic cells (highlighting, hover, R completion, Quarto completion/diagnostics/navigation, notebook) are recorded exactly as observed under reported and are never upgraded.",
+    "required": {
+      "python.completion": {
+        "outcome": "works",
+        "summary": "completion offers square",
+        "scratchFile": "examples/ivory-n5-browser/n5-probe-research.py",
+        "suggestionItems": [
+          "square",
+          "square",
+          "square_clusteringnetworkx.algorithms.cluster",
+          "square_clustering",
+          "squeezetensorflow",
+          "squeeze",
+          "SquareBracketdocutils.utils.math.math2html",
+          "SquareBracket",
+          "SquareBracketsBlocktinycss2.ast",
+          "SquareBracketsBlock",
+          "SquaredHingetensorflow.keras.losses",
+          "SquaredHinge",
+          "SquareGradiantColorMaskqrcode.image.styles.colormasks",
+          "SquareGradiantColorMask",
+          "SquareModuleDrawerqrcode.image.styles.moduledrawers",
+          "SquareModuleDrawer",
+          "SquareModuleDrawerqrcode.image.styles.moduledrawers.pil",
+          "SquareModuleDrawer",
+          "sqlbuildingpony.orm",
+          "sqlbuilding"
+        ],
+        "bufferRestored": true
+      },
+      "python.definition": {
+        "outcome": "works",
+        "summary": "definition navigation reaches line 2",
+        "attempts": 2,
+        "before": {
+          "line": 6,
+          "column": 10
+        },
+        "after": {
+          "line": 2,
+          "column": 5
+        }
+      },
+      "python.diagnostics": {
+        "outcome": "works",
+        "summary": "basedpyright diagnostic present (1)",
+        "marks": [
+          {
+            "cls": "cdr squiggly-error",
+            "line": null
+          }
+        ],
+        "message": null
+      },
+      "python.execution": {
+        "outcome": "works",
+        "summary": "command output observed (\"9.0\")",
+        "commands": {
+          "display": "python fixtures/research.py",
+          "capture": "python fixtures/research.py > n5-execution-python.txt"
+        },
+        "terminalScreenshot": "artifacts/n5/language/n5-execution-python.png",
+        "captureFile": "examples/ivory-n5-browser/n5-execution-python.txt",
+        "editorLines": [
+          "9.0",
+          ""
+        ],
+        "note": "the workbench terminal renders through xterm canvas (no DOM text); the display is retained as a screenshot and the command output as a file opened in the editor"
+      },
+      "r.definition": {
+        "outcome": "works",
+        "summary": "definition navigation reaches line 2",
+        "attempts": 1,
+        "before": {
+          "line": 3,
+          "column": 10
+        },
+        "after": {
+          "line": 2,
+          "column": 1
+        }
+      },
+      "r.diagnostics": {
+        "outcome": "works",
+        "summary": "parser diagnostic present (1)",
+        "marks": [
+          {
+            "cls": "cdr squiggly-error",
+            "line": null
+          }
+        ]
+      },
+      "r.execution": {
+        "outcome": "works",
+        "summary": "command output observed (\"[1] 9\")",
+        "commands": {
+          "display": "Rscript fixtures/research.R",
+          "capture": "Rscript fixtures/research.R > n5-execution-r.txt"
+        },
+        "terminalScreenshot": "artifacts/n5/language/n5-execution-r.png",
+        "captureFile": "examples/ivory-n5-browser/n5-execution-r.txt",
+        "editorLines": [
+          "[1] 9",
+          ""
+        ],
+        "note": "the workbench terminal renders through xterm canvas (no DOM text); the display is retained as a screenshot and the command output as a file opened in the editor"
+      },
+      "quarto.render": {
+        "outcome": "works",
+        "summary": "rendered document contains the heading and the computed [1] 9",
+        "extensionOutcome": "extension render produced no document within 15s",
+        "terminalRender": "quarto render fixtures/research.qmd (workbench terminal)",
+        "terminalScreenshot": "artifacts/n5/language/quarto-render-terminal.png",
+        "renderedCopy": "artifacts/n5/language/rendered-research.html",
+        "containsHeading": true,
+        "containsComputed": true
+      }
+    },
+    "requiredFailed": [],
+    "requiredMissing": [],
+    "reported": {
+      "terminal.cwd": {
+        "outcome": "observed",
+        "summary": "workbench terminal created",
+        "screenshot": "artifacts/n5/language/terminal-initial.png"
+      },
+      "python.highlighting": {
+        "outcome": "works",
+        "summary": "syntax highlighting (24 tokens)",
+        "tabs": [],
+        "lines": [
+          "\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"",
+          "def square(value: float) -> float:",
+          "    return value * value",
+          "",
+          "",
+          "print(square(value=3.0))",
+          ""
+        ],
+        "highlight": {
+          "tokenCount": 24,
+          "distinctStyles": [
+            {
+              "text": "\"\"\"Hover/definition: squ",
+              "cls": "mtk18",
+              "inlineColor": "",
+              "computedColor": "rgb(163, 21, 21)"
+            },
+            {
+              "text": "def",
+              "cls": "mtk4",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 0, 255)"
+            },
+            {
+              "text": " ",
+              "cls": "mtk1",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 0, 0)"
+            },
+            {
+              "text": "square",
+              "cls": "mtk11",
+              "inlineColor": "",
+              "computedColor": "rgb(121, 94, 38)"
+            },
+            {
+              "text": "(",
+              "cls": "mtk1 bracket-highlighting-0",
+              "inlineColor": "",
+              "computedColor": "rgb(4, 49, 250)"
+            },
+            {
+              "text": "value",
+              "cls": "mtk9",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 16, 128)"
+            },
+            {
+              "text": "float",
+              "cls": "mtk10",
+              "inlineColor": "",
+              "computedColor": "rgb(38, 127, 153)"
+            },
+            {
+              "text": "return",
+              "cls": "mtk12",
+              "inlineColor": "",
+              "computedColor": "rgb(175, 0, 219)"
+            },
+            {
+              "text": "(",
+              "cls": "mtk1 bracket-highlighting-1",
+              "inlineColor": "",
+              "computedColor": "rgb(49, 147, 49)"
+            },
+            {
+              "text": "value=",
+              "cls": "mtk1 dyn-rule-2-0",
+              "inlineColor": "",
+              "computedColor": "rgb(150, 150, 150)"
+            }
+          ]
+        }
+      },
+      "python.hover": {
+        "outcome": "works",
+        "summary": "hover shows the signature",
+        "hover": "(function) def square(value: float) -> float"
+      },
+      "r.highlighting": {
+        "outcome": "works",
+        "summary": "syntax highlighting (16 tokens)",
+        "tabs": [],
+        "lines": [
+          "# Definition navigation on square(3) must reach line 2. Execution prints 9.",
+          "square <- function(value) value * value",
+          "print(square(3))",
+          ""
+        ],
+        "highlight": {
+          "tokenCount": 16,
+          "distinctStyles": [
+            {
+              "text": "# Definition navigation ",
+              "cls": "mtk3",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 128, 0)"
+            },
+            {
+              "text": "square",
+              "cls": "mtk11",
+              "inlineColor": "",
+              "computedColor": "rgb(121, 94, 38)"
+            },
+            {
+              "text": " <- ",
+              "cls": "mtk1",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 0, 0)"
+            },
+            {
+              "text": "function",
+              "cls": "mtk12",
+              "inlineColor": "",
+              "computedColor": "rgb(175, 0, 219)"
+            },
+            {
+              "text": "(",
+              "cls": "mtk1 bracket-highlighting-0",
+              "inlineColor": "",
+              "computedColor": "rgb(4, 49, 250)"
+            },
+            {
+              "text": "value",
+              "cls": "mtk9",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 16, 128)"
+            },
+            {
+              "text": "(",
+              "cls": "mtk1 bracket-highlighting-1",
+              "inlineColor": "",
+              "computedColor": "rgb(49, 147, 49)"
+            },
+            {
+              "text": "3",
+              "cls": "mtk7",
+              "inlineColor": "",
+              "computedColor": "rgb(9, 134, 88)"
+            }
+          ]
+        }
+      },
+      "r.completion": {
+        "outcome": "works",
+        "summary": "completion offers square",
+        "scratchFile": "examples/ivory-n5-browser/n5-probe-research.R",
+        "suggestionItems": [
+          "square(value)",
+          "square",
+          "sQuote{base}",
+          "sQuote"
+        ],
+        "bufferRestored": true
+      },
+      "quarto.highlighting": {
+        "outcome": "works",
+        "summary": "syntax display (30 tokens)",
+        "tabs": [],
+        "lines": [
+          "---",
+          "title: \"N5 Quarto fixture\"",
+          "format: html",
+          "engine: knitr",
+          "---",
+          "",
+          "## Reproducible result",
+          "",
+          "```{r}",
+          "square <- function(value) value * value",
+          "square(3)",
+          "```",
+          "",
+          "The rendered document must contain the heading and the computed value 9.",
+          ""
+        ],
+        "highlight": {
+          "tokenCount": 30,
+          "distinctStyles": [
+            {
+              "text": "---",
+              "cls": "mtk1",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 0, 0)"
+            },
+            {
+              "text": "title",
+              "cls": "mtk13",
+              "inlineColor": "",
+              "computedColor": "rgb(128, 0, 0)"
+            },
+            {
+              "text": "\"N5 Quarto fixture\"",
+              "cls": "mtk18",
+              "inlineColor": "",
+              "computedColor": "rgb(163, 21, 21)"
+            },
+            {
+              "text": "html",
+              "cls": "mtk4",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 0, 255)"
+            },
+            {
+              "text": "## Reproducible result",
+              "cls": "mtk13 mtkb",
+              "inlineColor": "",
+              "computedColor": "rgb(128, 0, 0)"
+            },
+            {
+              "text": "{",
+              "cls": "mtk1 bracket-highlighting-0",
+              "inlineColor": "",
+              "computedColor": "rgb(4, 49, 250)"
+            },
+            {
+              "text": "square",
+              "cls": "mtk11",
+              "inlineColor": "",
+              "computedColor": "rgb(121, 94, 38)"
+            },
+            {
+              "text": "function",
+              "cls": "mtk12",
+              "inlineColor": "",
+              "computedColor": "rgb(175, 0, 219)"
+            },
+            {
+              "text": "value",
+              "cls": "mtk9",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 16, 128)"
+            },
+            {
+              "text": "3",
+              "cls": "mtk7",
+              "inlineColor": "",
+              "computedColor": "rgb(9, 134, 88)"
+            }
+          ]
+        }
+      },
+      "quarto.completion": {
+        "outcome": "works",
+        "summary": "completion offered items (frontmatter 4, chunk 0)",
+        "scratchFile": "examples/ivory-n5-browser/n5-probe-research.qmd",
+        "variants": {
+          "frontmatterKey": [
+            "format",
+            "format",
+            "format-links",
+            "format-links"
+          ],
+          "rChunk": []
+        },
+        "pluginErrors": [
+          {
+            "type": "info",
+            "text": "2026-09-14T00:34:20.224Z plugin-host INFO TypeError: Cannot read properties of undefined (reading 'line')\n    at iie (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:368:881)\n    at mi (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:368:937)\n    at FE (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:405:978)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:405:13981\n    at async fi (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:368:65)\n    at async Object.provideHover (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:405:13935)\n    at async _HoverAdapter.provideHover (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\lib\\backend\\plugin-host.js:197155:19)\n    at async _RpcProtocol.handleRequest (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\lib\\backend\\plugin-host.js:83016:26)"
+          },
+          {
+            "type": "info",
+            "text": "2026-09-14T00:34:35.187Z plugin-host INFO TypeError: Cannot read properties of undefined (reading 'line')\n    at iie (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:368:881)\n    at mi (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:368:937)\n    at FE (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:405:978)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:405:13981\n    at async fi (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:368:65)\n    at async Object.provideHover (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:405:13935)\n    at async _HoverAdapter.provideHover (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\lib\\backend\\plugin-host.js:197155:19)\n    at async _RpcProtocol.handleRequest (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\lib\\backend\\plugin-host.js:83016:26)"
+          }
+        ],
+        "bufferRestored": true
+      },
+      "quarto.diagnostics": {
+        "outcome": "works",
+        "summary": "diagnostic present",
+        "attempts": [
+          {
+            "variant": "incomplete R expression in chunk",
+            "marks": []
+          },
+          {
+            "variant": "unterminated YAML string",
+            "marks": [
+              {
+                "cls": "cdr squiggly-error",
+                "line": null
+              }
+            ]
+          }
+        ]
+      },
+      "quarto.navigation": {
+        "outcome": "works",
+        "summary": "symbol navigation reaches the heading line (7)",
+        "symbols": [
+          " Reproducible resultsymbols (3)",
+          " (code cell)Reproducible resultrecently used",
+          " square(code cell)other commands"
+        ],
+        "after": {
+          "line": 7,
+          "column": 1
+        }
+      },
+      "notebook": {
+        "outcome": "not-observed",
+        "reason": "no notebook/kernel extension is part of the mandatory candidate set; conditional.ipynb opens as an ordinary document",
+        "observed": {
+          "notebookElements": 0,
+          "textEditors": 1
+        }
+      }
+    },
+    "surfaces": {
+      "terminal.cwd": {
+        "outcome": "observed",
+        "summary": "workbench terminal created",
+        "screenshot": "artifacts/n5/language/terminal-initial.png"
+      },
+      "python.highlighting": {
+        "outcome": "works",
+        "summary": "syntax highlighting (24 tokens)",
+        "tabs": [],
+        "lines": [
+          "\"\"\"Hover/definition: square is (value: float) -> float. Execution prints 9.0.\"\"\"",
+          "def square(value: float) -> float:",
+          "    return value * value",
+          "",
+          "",
+          "print(square(value=3.0))",
+          ""
+        ],
+        "highlight": {
+          "tokenCount": 24,
+          "distinctStyles": [
+            {
+              "text": "\"\"\"Hover/definition: squ",
+              "cls": "mtk18",
+              "inlineColor": "",
+              "computedColor": "rgb(163, 21, 21)"
+            },
+            {
+              "text": "def",
+              "cls": "mtk4",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 0, 255)"
+            },
+            {
+              "text": " ",
+              "cls": "mtk1",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 0, 0)"
+            },
+            {
+              "text": "square",
+              "cls": "mtk11",
+              "inlineColor": "",
+              "computedColor": "rgb(121, 94, 38)"
+            },
+            {
+              "text": "(",
+              "cls": "mtk1 bracket-highlighting-0",
+              "inlineColor": "",
+              "computedColor": "rgb(4, 49, 250)"
+            },
+            {
+              "text": "value",
+              "cls": "mtk9",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 16, 128)"
+            },
+            {
+              "text": "float",
+              "cls": "mtk10",
+              "inlineColor": "",
+              "computedColor": "rgb(38, 127, 153)"
+            },
+            {
+              "text": "return",
+              "cls": "mtk12",
+              "inlineColor": "",
+              "computedColor": "rgb(175, 0, 219)"
+            },
+            {
+              "text": "(",
+              "cls": "mtk1 bracket-highlighting-1",
+              "inlineColor": "",
+              "computedColor": "rgb(49, 147, 49)"
+            },
+            {
+              "text": "value=",
+              "cls": "mtk1 dyn-rule-2-0",
+              "inlineColor": "",
+              "computedColor": "rgb(150, 150, 150)"
+            }
+          ]
+        }
+      },
+      "python.completion": {
+        "outcome": "works",
+        "summary": "completion offers square",
+        "scratchFile": "examples/ivory-n5-browser/n5-probe-research.py",
+        "suggestionItems": [
+          "square",
+          "square",
+          "square_clusteringnetworkx.algorithms.cluster",
+          "square_clustering",
+          "squeezetensorflow",
+          "squeeze",
+          "SquareBracketdocutils.utils.math.math2html",
+          "SquareBracket",
+          "SquareBracketsBlocktinycss2.ast",
+          "SquareBracketsBlock",
+          "SquaredHingetensorflow.keras.losses",
+          "SquaredHinge",
+          "SquareGradiantColorMaskqrcode.image.styles.colormasks",
+          "SquareGradiantColorMask",
+          "SquareModuleDrawerqrcode.image.styles.moduledrawers",
+          "SquareModuleDrawer",
+          "SquareModuleDrawerqrcode.image.styles.moduledrawers.pil",
+          "SquareModuleDrawer",
+          "sqlbuildingpony.orm",
+          "sqlbuilding"
+        ],
+        "bufferRestored": true
+      },
+      "python.hover": {
+        "outcome": "works",
+        "summary": "hover shows the signature",
+        "hover": "(function) def square(value: float) -> float"
+      },
+      "python.definition": {
+        "outcome": "works",
+        "summary": "definition navigation reaches line 2",
+        "attempts": 2,
+        "before": {
+          "line": 6,
+          "column": 10
+        },
+        "after": {
+          "line": 2,
+          "column": 5
+        }
+      },
+      "python.diagnostics": {
+        "outcome": "works",
+        "summary": "basedpyright diagnostic present (1)",
+        "marks": [
+          {
+            "cls": "cdr squiggly-error",
+            "line": null
+          }
+        ],
+        "message": null
+      },
+      "python.execution": {
+        "outcome": "works",
+        "summary": "command output observed (\"9.0\")",
+        "commands": {
+          "display": "python fixtures/research.py",
+          "capture": "python fixtures/research.py > n5-execution-python.txt"
+        },
+        "terminalScreenshot": "artifacts/n5/language/n5-execution-python.png",
+        "captureFile": "examples/ivory-n5-browser/n5-execution-python.txt",
+        "editorLines": [
+          "9.0",
+          ""
+        ],
+        "note": "the workbench terminal renders through xterm canvas (no DOM text); the display is retained as a screenshot and the command output as a file opened in the editor"
+      },
+      "r.highlighting": {
+        "outcome": "works",
+        "summary": "syntax highlighting (16 tokens)",
+        "tabs": [],
+        "lines": [
+          "# Definition navigation on square(3) must reach line 2. Execution prints 9.",
+          "square <- function(value) value * value",
+          "print(square(3))",
+          ""
+        ],
+        "highlight": {
+          "tokenCount": 16,
+          "distinctStyles": [
+            {
+              "text": "# Definition navigation ",
+              "cls": "mtk3",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 128, 0)"
+            },
+            {
+              "text": "square",
+              "cls": "mtk11",
+              "inlineColor": "",
+              "computedColor": "rgb(121, 94, 38)"
+            },
+            {
+              "text": " <- ",
+              "cls": "mtk1",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 0, 0)"
+            },
+            {
+              "text": "function",
+              "cls": "mtk12",
+              "inlineColor": "",
+              "computedColor": "rgb(175, 0, 219)"
+            },
+            {
+              "text": "(",
+              "cls": "mtk1 bracket-highlighting-0",
+              "inlineColor": "",
+              "computedColor": "rgb(4, 49, 250)"
+            },
+            {
+              "text": "value",
+              "cls": "mtk9",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 16, 128)"
+            },
+            {
+              "text": "(",
+              "cls": "mtk1 bracket-highlighting-1",
+              "inlineColor": "",
+              "computedColor": "rgb(49, 147, 49)"
+            },
+            {
+              "text": "3",
+              "cls": "mtk7",
+              "inlineColor": "",
+              "computedColor": "rgb(9, 134, 88)"
+            }
+          ]
+        }
+      },
+      "r.definition": {
+        "outcome": "works",
+        "summary": "definition navigation reaches line 2",
+        "attempts": 1,
+        "before": {
+          "line": 3,
+          "column": 10
+        },
+        "after": {
+          "line": 2,
+          "column": 1
+        }
+      },
+      "r.completion": {
+        "outcome": "works",
+        "summary": "completion offers square",
+        "scratchFile": "examples/ivory-n5-browser/n5-probe-research.R",
+        "suggestionItems": [
+          "square(value)",
+          "square",
+          "sQuote{base}",
+          "sQuote"
+        ],
+        "bufferRestored": true
+      },
+      "r.diagnostics": {
+        "outcome": "works",
+        "summary": "parser diagnostic present (1)",
+        "marks": [
+          {
+            "cls": "cdr squiggly-error",
+            "line": null
+          }
+        ]
+      },
+      "r.execution": {
+        "outcome": "works",
+        "summary": "command output observed (\"[1] 9\")",
+        "commands": {
+          "display": "Rscript fixtures/research.R",
+          "capture": "Rscript fixtures/research.R > n5-execution-r.txt"
+        },
+        "terminalScreenshot": "artifacts/n5/language/n5-execution-r.png",
+        "captureFile": "examples/ivory-n5-browser/n5-execution-r.txt",
+        "editorLines": [
+          "[1] 9",
+          ""
+        ],
+        "note": "the workbench terminal renders through xterm canvas (no DOM text); the display is retained as a screenshot and the command output as a file opened in the editor"
+      },
+      "quarto.highlighting": {
+        "outcome": "works",
+        "summary": "syntax display (30 tokens)",
+        "tabs": [],
+        "lines": [
+          "---",
+          "title: \"N5 Quarto fixture\"",
+          "format: html",
+          "engine: knitr",
+          "---",
+          "",
+          "## Reproducible result",
+          "",
+          "```{r}",
+          "square <- function(value) value * value",
+          "square(3)",
+          "```",
+          "",
+          "The rendered document must contain the heading and the computed value 9.",
+          ""
+        ],
+        "highlight": {
+          "tokenCount": 30,
+          "distinctStyles": [
+            {
+              "text": "---",
+              "cls": "mtk1",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 0, 0)"
+            },
+            {
+              "text": "title",
+              "cls": "mtk13",
+              "inlineColor": "",
+              "computedColor": "rgb(128, 0, 0)"
+            },
+            {
+              "text": "\"N5 Quarto fixture\"",
+              "cls": "mtk18",
+              "inlineColor": "",
+              "computedColor": "rgb(163, 21, 21)"
+            },
+            {
+              "text": "html",
+              "cls": "mtk4",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 0, 255)"
+            },
+            {
+              "text": "## Reproducible result",
+              "cls": "mtk13 mtkb",
+              "inlineColor": "",
+              "computedColor": "rgb(128, 0, 0)"
+            },
+            {
+              "text": "{",
+              "cls": "mtk1 bracket-highlighting-0",
+              "inlineColor": "",
+              "computedColor": "rgb(4, 49, 250)"
+            },
+            {
+              "text": "square",
+              "cls": "mtk11",
+              "inlineColor": "",
+              "computedColor": "rgb(121, 94, 38)"
+            },
+            {
+              "text": "function",
+              "cls": "mtk12",
+              "inlineColor": "",
+              "computedColor": "rgb(175, 0, 219)"
+            },
+            {
+              "text": "value",
+              "cls": "mtk9",
+              "inlineColor": "",
+              "computedColor": "rgb(0, 16, 128)"
+            },
+            {
+              "text": "3",
+              "cls": "mtk7",
+              "inlineColor": "",
+              "computedColor": "rgb(9, 134, 88)"
+            }
+          ]
+        }
+      },
+      "quarto.completion": {
+        "outcome": "works",
+        "summary": "completion offered items (frontmatter 4, chunk 0)",
+        "scratchFile": "examples/ivory-n5-browser/n5-probe-research.qmd",
+        "variants": {
+          "frontmatterKey": [
+            "format",
+            "format",
+            "format-links",
+            "format-links"
+          ],
+          "rChunk": []
+        },
+        "pluginErrors": [
+          {
+            "type": "info",
+            "text": "2026-09-14T00:34:20.224Z plugin-host INFO TypeError: Cannot read properties of undefined (reading 'line')\n    at iie (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:368:881)\n    at mi (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:368:937)\n    at FE (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:405:978)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:405:13981\n    at async fi (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:368:65)\n    at async Object.provideHover (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:405:13935)\n    at async _HoverAdapter.provideHover (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\lib\\backend\\plugin-host.js:197155:19)\n    at async _RpcProtocol.handleRequest (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\lib\\backend\\plugin-host.js:83016:26)"
+          },
+          {
+            "type": "info",
+            "text": "2026-09-14T00:34:35.187Z plugin-host INFO TypeError: Cannot read properties of undefined (reading 'line')\n    at iie (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:368:881)\n    at mi (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:368:937)\n    at FE (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:405:978)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:405:13981\n    at async fi (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:368:65)\n    at async Object.provideHover (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\plugins\\quarto.quarto\\out\\main.js:405:13935)\n    at async _HoverAdapter.provideHover (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\lib\\backend\\plugin-host.js:197155:19)\n    at async _RpcProtocol.handleRequest (C:\\.dev\\repos\\ivory-tower\\.worktrees\\n5-qualification\\examples\\ivory-n5-browser\\lib\\backend\\plugin-host.js:83016:26)"
+          }
+        ],
+        "bufferRestored": true
+      },
+      "quarto.diagnostics": {
+        "outcome": "works",
+        "summary": "diagnostic present",
+        "attempts": [
+          {
+            "variant": "incomplete R expression in chunk",
+            "marks": []
+          },
+          {
+            "variant": "unterminated YAML string",
+            "marks": [
+              {
+                "cls": "cdr squiggly-error",
+                "line": null
+              }
+            ]
+          }
+        ]
+      },
+      "quarto.navigation": {
+        "outcome": "works",
+        "summary": "symbol navigation reaches the heading line (7)",
+        "symbols": [
+          " Reproducible resultsymbols (3)",
+          " (code cell)Reproducible resultrecently used",
+          " square(code cell)other commands"
+        ],
+        "after": {
+          "line": 7,
+          "column": 1
+        }
+      },
+      "quarto.render": {
+        "outcome": "works",
+        "summary": "rendered document contains the heading and the computed [1] 9",
+        "extensionOutcome": "extension render produced no document within 15s",
+        "terminalRender": "quarto render fixtures/research.qmd (workbench terminal)",
+        "terminalScreenshot": "artifacts/n5/language/quarto-render-terminal.png",
+        "renderedCopy": "artifacts/n5/language/rendered-research.html",
+        "containsHeading": true,
+        "containsComputed": true
+      },
+      "notebook": {
+        "outcome": "not-observed",
+        "reason": "no notebook/kernel extension is part of the mandatory candidate set; conditional.ipynb opens as an ordinary document",
+        "observed": {
+          "notebookElements": 0,
+          "textEditors": 1
+        }
+      }
+    },
+    "capturedAt": "2026-09-14T00:36:24.200Z",
+    "shellUrl": "http://127.0.0.1:3107",
+    "workspaceRoot": "examples/ivory-n5-browser"
+  },
+  "notebook": {
+    "outcome": "not-observed",
+    "reason": "no notebook/kernel extension is part of the mandatory candidate set; conditional.ipynb opens as an ordinary document",
+    "observed": {
+      "notebookElements": 0,
+      "textEditors": 1
+    }
+  },
+  "runtimes": {
+    "node": {
+      "status": "available",
+      "version": "v24.16.0"
+    },
+    "python": {
+      "status": "available",
+      "version": "Python 3.11.9"
+    },
+    "r": {
+      "status": "available",
+      "version": "Rscript (R) version 4.6.1 (2026-06-24)",
+      "httr2": {
+        "status": "available",
+        "version": "1.3.0"
+      }
+    },
+    "quarto": {
+      "status": "available",
+      "version": "1.10.18"
+    }
+  },
+  "prerequisites": {
+    "extensions": {
+      "status": "verified",
+      "verified": [
+        "REditorSupport.r@2.8.8 verified 9add9b7aceda1dc0072cc9e048b5bfcc8de4488ccd2802ea5fe834517a3ce2e2",
+        "REditorSupport.r-syntax@0.1.4 verified 110af62e93b38c240ce2ea5c0f89a0b5fe58e9c6ba5400fe3175547324846eba",
+        "ms-python.python@2026.2.0 verified f958e2df01d4eb4cdd4455728afd0576c0de9a8bd892e1a5e2603f612d1004f6",
+        "detachhead.basedpyright@1.40.0 verified 67e47122039ab2a687dd31e470eaa282093efefe7ad20f502c76331b8d058333",
+        "quarto.quarto@1.137.0 verified 179b5f14eeae729839ae459d826a16c9e452451db94200f9faa308f5effb6ffd",
+        "vscode.python@1.95.3 verified 37c2a0cdfa668bd4dc37265d7d172300a20350098651b1843ee220a30c5e2d88",
+        "vscode.yaml@1.95.3 verified 1c60f93adad36f20de0696bc75f8b3829f3fc4c760f4d8022ec9f934436bbeb0"
+      ]
+    },
+    "fixtureClock": "2026-09-13T00:00:00.000Z",
+    "serviceReady": "ready"
+  },
+  "dependenciesInstalled": true,
+  "extensions": {
+    "schemaVersion": 1,
+    "theiaVersion": "1.75.0",
+    "supportedVscodeApi": "1.130.0",
+    "extensions": [
+      {
+        "id": "REditorSupport.r",
+        "version": "2.8.8",
+        "url": "https://open-vsx.org/api/REditorSupport/r/2.8.8/file/REditorSupport.r-2.8.8.vsix",
+        "sha256": "9add9b7aceda1dc0072cc9e048b5bfcc8de4488ccd2802ea5fe834517a3ce2e2",
+        "license": "SEE LICENSE IN LICENSE",
+        "licenseUrl": "https://open-vsx.org/api/REditorSupport/r/2.8.8/file/LICENSE.txt",
+        "engines": {
+          "vscode": "^1.75.0"
+        },
+        "dependencies": [
+          "REditorSupport.r-syntax"
+        ],
+        "optionalPackExcluded": [],
+        "manifestUrl": "https://open-vsx.org/api/REditorSupport/r/2.8.8/file/package.json"
+      },
+      {
+        "id": "REditorSupport.r-syntax",
+        "version": "0.1.4",
+        "url": "https://open-vsx.org/api/REditorSupport/r-syntax/0.1.4/file/REditorSupport.r-syntax-0.1.4.vsix",
+        "sha256": "110af62e93b38c240ce2ea5c0f89a0b5fe58e9c6ba5400fe3175547324846eba",
+        "license": "SEE LICENSE IN LICENSE",
+        "licenseUrl": "https://open-vsx.org/api/REditorSupport/r-syntax/0.1.4/file/LICENSE.txt",
+        "engines": {
+          "vscode": "^1.90.0"
+        },
+        "dependencies": [],
+        "optionalPackExcluded": [],
+        "manifestUrl": "https://open-vsx.org/api/REditorSupport/r-syntax/0.1.4/file/package.json"
+      },
+      {
+        "id": "ms-python.python",
+        "version": "2026.2.0",
+        "url": "https://open-vsx.org/api/ms-python/python/2026.2.0/file/ms-python.python-2026.2.0.vsix",
+        "sha256": "f958e2df01d4eb4cdd4455728afd0576c0de9a8bd892e1a5e2603f612d1004f6",
+        "license": "MIT",
+        "licenseUrl": "https://open-vsx.org/api/ms-python/python/2026.2.0/file/LICENSE.txt",
+        "engines": {
+          "vscode": "^1.95.0"
+        },
+        "dependencies": [],
+        "optionalPackExcluded": [
+          "ms-python.vscode-pylance",
+          "ms-python.debugpy",
+          "ms-python.vscode-python-envs"
+        ],
+        "manifestUrl": "https://open-vsx.org/api/ms-python/python/2026.2.0/file/package.json"
+      },
+      {
+        "id": "detachhead.basedpyright",
+        "version": "1.40.0",
+        "url": "https://open-vsx.org/api/detachhead/basedpyright/1.40.0/file/detachhead.basedpyright-1.40.0.vsix",
+        "sha256": "67e47122039ab2a687dd31e470eaa282093efefe7ad20f502c76331b8d058333",
+        "license": "MIT",
+        "licenseUrl": "https://open-vsx.org/api/detachhead/basedpyright/1.40.0/file/LICENSE.txt",
+        "engines": {
+          "vscode": "^1.101.0"
+        },
+        "dependencies": [],
+        "optionalPackExcluded": [],
+        "manifestUrl": "https://open-vsx.org/api/detachhead/basedpyright/1.40.0/file/package.json"
+      },
+      {
+        "id": "quarto.quarto",
+        "version": "1.137.0",
+        "url": "https://open-vsx.org/api/quarto/quarto/1.137.0/file/quarto.quarto-1.137.0.vsix",
+        "sha256": "179b5f14eeae729839ae459d826a16c9e452451db94200f9faa308f5effb6ffd",
+        "license": "MIT",
+        "licenseUrl": "https://open-vsx.org/api/quarto/quarto/1.137.0/file/LICENSE.txt",
+        "engines": {
+          "vscode": "^1.75.0",
+          "positron": "^2026.04.1"
+        },
+        "dependencies": [],
+        "optionalPackExcluded": [],
+        "manifestUrl": "https://open-vsx.org/api/quarto/quarto/1.137.0/file/package.json"
+      },
+      {
+        "id": "vscode.python",
+        "version": "1.95.3",
+        "url": "https://open-vsx.org/api/vscode/python/1.95.3/file/vscode.python-1.95.3.vsix",
+        "sha256": "37c2a0cdfa668bd4dc37265d7d172300a20350098651b1843ee220a30c5e2d88",
+        "license": "SEE LICENSE IN LICENSE-vscode.txt",
+        "licenseUrl": "https://open-vsx.org/api/vscode/python/1.95.3/file/LICENSE-vscode.txt",
+        "engines": {
+          "vscode": "*"
+        },
+        "dependencies": [],
+        "optionalPackExcluded": [],
+        "manifestUrl": "https://open-vsx.org/api/vscode/python/1.95.3/file/package.json"
+      },
+      {
+        "id": "vscode.yaml",
+        "version": "1.95.3",
+        "url": "https://open-vsx.org/api/vscode/yaml/1.95.3/file/vscode.yaml-1.95.3.vsix",
+        "sha256": "1c60f93adad36f20de0696bc75f8b3829f3fc4c760f4d8022ec9f934436bbeb0",
+        "license": "SEE LICENSE IN LICENSE-vscode.txt",
+        "licenseUrl": "https://open-vsx.org/api/vscode/yaml/1.95.3/file/LICENSE-vscode.txt",
+        "engines": {
+          "vscode": "*"
+        },
+        "dependencies": [],
+        "optionalPackExcluded": [],
+        "manifestUrl": "https://open-vsx.org/api/vscode/yaml/1.95.3/file/package.json"
+      }
+    ]
+  },
+  "rawArtifacts": [
+    {
+      "path": "artifacts/n5/build.log",
+      "sha256": "af5f850161837d480ebdac48529206f2308148f3b0ad0d075f89032979906667",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/clients/cli-cite.json",
+      "sha256": "b7442db6fac809ba3007a3e6adfb63524e66505cff5f0ce5dcd95d935f1ac40b",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/clients/cli-open.json",
+      "sha256": "fb4fc547c7bfcb36c100a8603167a866a34cc526944fab5d02caab1b16574ce9",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/clients/cli-run.json",
+      "sha256": "aeb06c9cd9d872656d297773612c25c6822ad592f739e226fc16b91103085cad",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/clients/compare-actions.json",
+      "sha256": "6df0121b3efe0af4eeaace369a85a28467ab8caf6b20bdef72add475bebe52a4",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/clients/compare.json",
+      "sha256": "62a2ec7ea23aed9b55d5588aa911617482704992eeb912b0d6c9a87ea7f781a1",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/clients/python-cite.json",
+      "sha256": "f1d7bb1282bd7fd4ec62cc9e7a0381419de3d014874e7445a34e5d9041595ce8",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/clients/python-open.json",
+      "sha256": "9781e12343ab65c2e7591da5b23c5ee51239d101eeb6255d40d3ce056b30a4f0",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/clients/python-run.json",
+      "sha256": "399fe281f3623bc9a14124818f8df06abacbf28f960ca6d583d4ae55bf638884",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/clients/r-cite.json",
+      "sha256": "b7442db6fac809ba3007a3e6adfb63524e66505cff5f0ce5dcd95d935f1ac40b",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/clients/r-open.json",
+      "sha256": "fb4fc547c7bfcb36c100a8603167a866a34cc526944fab5d02caab1b16574ce9",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/clients/r-run.json",
+      "sha256": "aeb06c9cd9d872656d297773612c25c6822ad592f739e226fc16b91103085cad",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/clients/theia-cite.json",
+      "sha256": "ca5f30050dfb0e0e85ba0e13087d24560a0dfd5c19af5aa9b447deb923fd1246",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/clients/theia-open.json",
+      "sha256": "bc90292c8ea409922c05d7dc173e6a40c5a90bfdb800d9a795872a3ad3d36ef5",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/clients/theia-run.json",
+      "sha256": "51bc7fca137eb7814adce8e23805d6998bca0252e6532f76def5d1ebe10aa0d3",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/conflicts/cli--python.json",
+      "sha256": "3c431d24d781d413cbbac0ce71accc86ac2fda9a2f76d99a5cbd22a9a040117d",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/conflicts/cli--r.json",
+      "sha256": "2df2d9b7ce4bd7a4fe7dbd883e72a297bb438529a2a3209e5a158cc15d919739",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/conflicts/cli--theia.json",
+      "sha256": "88d993671b89f5316c1bb28a20bf63f9183326f8e296d4f6118143488e78d27b",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/conflicts/python--cli.json",
+      "sha256": "2c7d9fe8758b4bd021817c77f2ffccecd46f8bc33840a678ec5d45d8b5506200",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/conflicts/python--r.json",
+      "sha256": "4ecdf28e7c34d846a9036d34cb505b24d3e1114b04f3c32fd18f8fb5fdcf782d",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/conflicts/python--theia.json",
+      "sha256": "eea06e89af33aa28975fd7d2a2aa8c8d77972268a70242ea12891f591b640dbe",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/conflicts/r--cli.json",
+      "sha256": "07cc7aba8632db3f441446b32143c9357e48754d37127543147f795df7bf2875",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/conflicts/r--python.json",
+      "sha256": "b6be15a839621fadeedb923e044158ded78fbb0d9846c26b7a2084e40541cdf4",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/conflicts/r--theia.json",
+      "sha256": "65e78282fb65661c93004f784a4beda731a5a6f174e23bced2812159ef2eab73",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/conflicts/theia--cli.json",
+      "sha256": "1bad25d9558861738825c594a0df6392b67aa59df5490d471116ce7b473db9e9",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/conflicts/theia--python.json",
+      "sha256": "e041b8452d2f1fe96b33ab950581114acfa0841463d12e3bf21f4e13f422e664",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/conflicts/theia--r.json",
+      "sha256": "061db43e395f026210a204b5d70e6dfe127bcd498c33a64d9ffd9964c70fa750",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/extensions-install.log",
+      "sha256": "2e45cbcb59a6588c68bb56bebc605d47ccb2c40ab21586acfcea24af020db11e",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/httr2-install.log",
+      "sha256": "cf9b1d26054662f66e9cdda3aab61db231e3ec4780b0db283c74c0219fe16605",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language-observation.log",
+      "sha256": "55caa41fbfb134905f3e253894b02fcb05599d9aa26756f22973e56382747312",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/activation-logs.json",
+      "sha256": "33fb308149633702cf9ac8d7c9354a626477787b7e394a6c9176285801d69494",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/n5-execution-python.png",
+      "sha256": "3aadcc430485de1f68f082d414e9f65ce31deb4b9ca98b8f9185ab72a3d349f4",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/n5-execution-r.png",
+      "sha256": "7cc2b6a53109b30fd9153a777a577b5ed7da445a6d497aab995fce074f68f962",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/notebook.json",
+      "sha256": "d9460523a4129d7b32719054e4742c896e69a9a30e813a5b210d970250b684e2",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/python.completion.json",
+      "sha256": "b9e3dee01e2b771167c658bdc8a0ff092089b8a402c1a4b842475dd3b95129ac",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/python.definition.json",
+      "sha256": "c04e9d31346e625c18606bcd6c0c58c468d7a74f0ce3f0e86a2a054a3208c262",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/python.diagnostics.json",
+      "sha256": "a2ee9726ac4259c4b21236ce8f010eaaf38ab5c78c64f98b9c70986954237781",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/python.execution.json",
+      "sha256": "f6a055bc312227d421b7712ffc367da611735aa918af0b740678356a985dd253",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/python.highlighting.json",
+      "sha256": "37191ede4f1ff87aaba8aa2edc31e2ff6209197fc49f510de413b3ee5b16fe86",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/python.hover.json",
+      "sha256": "3006b4362eb2a017f20d5230eaecd74b44671a8ab25a53bc97aaa43f9d9b8780",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/quarto-render-extension.png",
+      "sha256": "324272d056750c14e303d4f11b191c8efb60fbc950fdd50d28fd1760d6501443",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/quarto-render-terminal.png",
+      "sha256": "61e4adf6d3baf206d2edecf9eac8c3df8d79530230b957a48a5fea4317fbc782",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/quarto.completion.json",
+      "sha256": "3174976b06edb98ee2da5d667df429e5570994a10521b2c7e5f490b4d43a81f7",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/quarto.diagnostics.json",
+      "sha256": "05146e5e41806b40e16dfb708fe9d1074bd5f57b9a362b266e41610a3b11e8aa",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/quarto.highlighting.json",
+      "sha256": "3134398825968477019fc7815231a5958caa8a4c02dbaead0587b5ed5b240c6f",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/quarto.navigation.json",
+      "sha256": "c7d33154b48022542ba30bb7f1ba0bedb1e9a19fba15e8c84509427b47d3aaa2",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/quarto.render.json",
+      "sha256": "78169b0abd9aea8e1c25c45366ac60ec8bbb206577bf14ed26add03fb10a7875",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/r.completion.json",
+      "sha256": "fcc56d7283b1d8c44fe5b81c8d6ba8fba42d85f1d980c07f31e6ff95bf589c6e",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/r.definition.json",
+      "sha256": "8f1376356e2374cc881d5225d506fe5f0f6ad55389ffb5ff1f54da83a3d9506d",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/r.diagnostics.json",
+      "sha256": "807031c8d36269739d9be59383a7c0ba3008da22ccc83b10ebe3fe254f1dd6e8",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/r.execution.json",
+      "sha256": "2d44668cf92f53a727c27049a72a6694bce2c13bd4923d5a3d282246cb5790d7",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/r.highlighting.json",
+      "sha256": "269a393191e9ee645646d4f8fe016d5d0bdbf6e3f8bee1b7e4a5262fb28d9d30",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/summary.json",
+      "sha256": "fe1f19155216cd5cabe86b61647a7829bc8827a9b4c14b1b0ac77e7189605ab2",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/terminal-initial.png",
+      "sha256": "bdd5640bcc42b2d48f3a6e32f5496e3daf6900008279e6e777bd591732dc3e9a",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/language/terminal.cwd.json",
+      "sha256": "ad6e7d6aba356dc86970b48fe6aec43ee4c990b65a9fdc4ad81a85294baffdaf",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/live-observation.log",
+      "sha256": "0998da20de8979eb808e857964c21e0a046236efd17a3f5c3d8f87cb14f3ca5e",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/navigation/citation-not-found.json",
+      "sha256": "92a598b9b2f9b20e45e83890727f17364ab6ebbfd9b0601164248b2152fe3eb0",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/navigation/cite-rev-1-before-edit.json",
+      "sha256": "6173a9a34d38c45b445ef02a60438ec2b7b2b9f0b084f6688ae59197e2e991db",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/navigation/cite-rev-2-after-edit.json",
+      "sha256": "2a5656c9c090a6662ed002c3cbf4d44e421f2a71c06b56d08699dfc1af763be5",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/navigation/revision-move-edit.json",
+      "sha256": "c876da2f931347121cf6d99fb88d213419f551a6b7a04aeccad70d7b40d31adc",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/navigation/stale-rev-1-at-head-rev-2.json",
+      "sha256": "85fa4e0643a4f09d41f427d50ca568414572e13da8fa369c45245589fb0b9426",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/navigation/summary.json",
+      "sha256": "62a2ec7ea23aed9b55d5588aa911617482704992eeb912b0d6c9a87ea7f781a1",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/npm-install-links.log",
+      "sha256": "05bc3df2d31c70e12bafd4dbe273ccb5aa9526a1b93b5f575f3566f52689a7ab",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/observation-summary.json",
+      "sha256": "76509667a067d17c3f4d78261e0801ae7a4b2d945f40b9e773b13970b7a8854d",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/r-packages-install.log",
+      "sha256": "012b5fde453b1562b043bfc75483394eb063f541e0c13fa8c08bdab4dfc82592",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/restart/client-interrupted.json",
+      "sha256": "f54dd06ceb2bffff9163134cf5217d8b85ea2c188f3874d2a867114462b937c9",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/restart/held-response.json",
+      "sha256": "14053613ad784e554dea1268b0a72321967c5af96a8496725a46e7aaeda19307",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/restart/kill.json",
+      "sha256": "6f8e1809a2fc933ae91f71b76f163a8874f0c4711aed35516f25b9cea899dc69",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/restart/receipt-first.json",
+      "sha256": "ceaf43e9fab339cdf4e3a6e00ce5003353e4c8b0e5ae7062370246a51361526a",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/restart/relay.log",
+      "sha256": "e4c90ff6bd2fc85aa5c2128c579cddc8736ee547f9bf48d1b6033cb7877691cc",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/restart/replay.json",
+      "sha256": "62813f1de49826576d965fe2d3d26f04a5a8266d901a9d7f3fb97ee93f44fa76",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/restart/service-process.json",
+      "sha256": "db8ede5000a499585b275837f077cf8fac9fbdaa496dc5b4c838f8163a28b79b",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/restart/summary.json",
+      "sha256": "62a2ec7ea23aed9b55d5588aa911617482704992eeb912b0d6c9a87ea7f781a1",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/service/api.log",
+      "sha256": "f4949ef6b694cf3984bdb9be220bd06c17a238bf1351d317b599474b528d79f4",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/service/ready-after-restart.json",
+      "sha256": "c6a2649f971f2e90010c86a9f678a73988a7ebf2e7aaf70bc7892fc4f1e7e142",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/service/ready.json",
+      "sha256": "c6a2649f971f2e90010c86a9f678a73988a7ebf2e7aaf70bc7892fc4f1e7e142",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/service/reset.json",
+      "sha256": "7761094cb9a18fd8f405828659684d64a97e67e6b2c280f742c38c400c3a9693",
+      "tracked": false
+    },
+    {
+      "path": "artifacts/n5/service/shell.log",
+      "sha256": "259ccbbd676c6af1be5b78c0b19585e500fda7aee2b2a19bf14a6d48575c11f4",
+      "tracked": false
+    }
+  ],
+  "contractReason": ""
+}

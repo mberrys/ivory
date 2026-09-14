@@ -1,0 +1,11 @@
+{
+  "name": "ivory-dependency-policy-fixture",
+  "private": true,
+  "scripts": {
+    "format:check:ivory-tower": "prettier --check \"packages/ivory-tower-*/src/**/*.{ts,tsx}\"",
+    "typecheck:ivory-tower": "lerna run compile --scope \"@ivory-tower/*\" --scope \"@theia/ivory-*\"",
+    "lint:ivory-tower": "lerna run lint --scope \"@ivory-tower/*\" --scope \"@theia/ivory-*\"",
+    "test:ivory-tower": "lerna run test --scope \"@ivory-tower/*\" --scope \"@theia/ivory-*\"",
+    "dependency:policy": "node scripts/check-ivory-dependency-policy.mjs"
+  }
+}

@@ -1,0 +1,11 @@
+respondent_id,region,response_rate,follow_up
+001,North District,0.73,yes
+002,South District,,no
+003,East District,0.61,
+004,West District,0.88,yes
+005,North District,,
+006,South Central District,0.42,no
+007,East District,0.55,yes
+008,West District,,
+009,North District,0.91,yes
+010,South Central District,,

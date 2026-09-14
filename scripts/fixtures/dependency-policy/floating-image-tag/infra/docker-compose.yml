@@ -1,0 +1,7 @@
+name: ivory-tower-fixture
+
+services:
+  docling:
+    image: quay.io/docling-project/docling-serve:latest
+    ports:
+      - "5001:5001"

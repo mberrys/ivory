@@ -1,0 +1,33 @@
+{
+  "name": "@theia/ivory-identity",
+  "version": "1.75.0",
+  "description": "Ivory Tower - Stable Source, Passage, and Derived-Artifact Identifiers",
+  "private": true,
+  "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mberrys/ivory-tower.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mberrys/ivory-tower/issues"
+  },
+  "homepage": "https://github.com/mberrys/ivory-tower",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "scripts": {
+    "build": "theiaext build",
+    "clean": "theiaext clean",
+    "compile": "theiaext compile",
+    "lint": "theiaext lint",
+    "test": "theiaext test",
+    "watch": "theiaext watch"
+  },
+  "devDependencies": {
+    "@theia/ext-scripts": "1.75.0"
+  },
+  "nyc": {
+    "extends": "../../configs/nyc.json"
+  }
+}

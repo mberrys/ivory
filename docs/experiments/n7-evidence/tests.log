@@ -1,0 +1,220 @@
+TAP version 13
+# Subtest: hostile source text is untrusted data: it cannot grant tools, widen scope, or accept itself
+ok 1 - hostile source text is untrusted data: it cannot grant tools, widen scope, or accept itself
+  ---
+  duration_ms: 7.2692
+  type: 'test'
+  ...
+# Subtest: hostile-corpus transmission carries only the approved excerpt and never the private canary
+ok 2 - hostile-corpus transmission carries only the approved excerpt and never the private canary
+  ---
+  duration_ms: 40.0129
+  type: 'test'
+  ...
+# Subtest: the no-model qualitative path writes a human claim, annotation and evidence link through the same contract
+ok 3 - the no-model qualitative path writes a human claim, annotation and evidence link through the same contract
+  ---
+  duration_ms: 2.5836
+  type: 'test'
+  ...
+# Subtest: isolated project catalogs do not share writers, sequences or refs
+ok 4 - isolated project catalogs do not share writers, sequences or refs
+  ---
+  duration_ms: 0.9281
+  type: 'test'
+  ...
+# Subtest: acceptance publishes exactly one model claim/link with shared human acceptance activity
+ok 5 - acceptance publishes exactly one model claim/link with shared human acceptance activity
+  ---
+  duration_ms: 7.3889
+  type: 'test'
+  ...
+# Subtest: identical concurrent acceptance and retry after revocation return one original receipt
+ok 6 - identical concurrent acceptance and retry after revocation return one original receipt
+  ---
+  duration_ms: 3.4564
+  type: 'test'
+  ...
+# Subtest: reusing a receipt key for different proposal content has no partial effect
+ok 7 - reusing a receipt key for different proposal content has no partial effect
+  ---
+  duration_ms: 2.3761
+  type: 'test'
+  ...
+# Subtest: claim head change fences a prepared proposal
+ok 8 - claim head change fences a prepared proposal
+  ---
+  duration_ms: 1.3041
+  type: 'test'
+  ...
+# Subtest: decline preserves accepted state and cannot be reversed by resubmitting the proposal
+ok 9 - decline preserves accepted state and cannot be reversed by resubmitting the proposal
+  ---
+  duration_ms: 1.6056
+  type: 'test'
+  ...
+# Subtest: preview mutation and changed digest cannot change the stored proposal
+ok 10 - preview mutation and changed digest cannot change the stored proposal
+  ---
+  duration_ms: 1.3972
+  type: 'test'
+  ...
+# Subtest: scope checks reject other projects, ungranted and invented revisions
+ok 11 - scope checks reject other projects, ungranted and invented revisions
+  ---
+  duration_ms: 0.9477
+  type: 'test'
+  ...
+# Subtest: proposals require a prior read and exact matching excerpt digest
+ok 12 - proposals require a prior read and exact matching excerpt digest
+  ---
+  duration_ms: 1.8986
+  type: 'test'
+  ...
+# Subtest: capability revocation fences reads, proposals and first acceptance
+ok 13 - capability revocation fences reads, proposals and first acceptance
+  ---
+  duration_ms: 1.1933
+  type: 'test'
+  ...
+# Subtest: source correction retains original excerpt and exact evidence reference
+ok 14 - source correction retains original excerpt and exact evidence reference
+  ---
+  duration_ms: 1.7478
+  type: 'test'
+  ...
+# Subtest: failure during staged link construction rolls back claim, activity and receipt
+ok 15 - failure during staged link construction rolls back claim, activity and receipt
+  ---
+  duration_ms: 2.8532
+  type: 'test'
+  ...
+# Subtest: real stdio MCP exposes only exact read and proposal; no automatic acceptance or command execution
+ok 16 - real stdio MCP exposes only exact read and proposal; no automatic acceptance or command execution
+  ---
+  duration_ms: 358.0168
+  type: 'test'
+  ...
+# Subtest: MCP proposal cannot bypass revocation through a fresh tool call
+ok 17 - MCP proposal cannot bypass revocation through a fresh tool call
+  ---
+  duration_ms: 285.4723
+  type: 'test'
+  ...
+# Subtest: MCP prepared proposal is fenced by a competing researcher edit
+ok 18 - MCP prepared proposal is fenced by a competing researcher edit
+  ---
+  duration_ms: 277.4046
+  type: 'test'
+  ...
+# Subtest: actual serialized provider request equals approved preview and contains no undisclosed corpus
+ok 19 - actual serialized provider request equals approved preview and contains no undisclosed corpus
+  ---
+  duration_ms: 44.5917
+  type: 'test'
+  ...
+# Subtest: modified preview content cannot alter transmitted bytes or grant approval to a changed digest
+ok 20 - modified preview content cannot alter transmitted bytes or grant approval to a changed digest
+  ---
+  duration_ms: 8.883
+  type: 'test'
+  ...
+# Subtest: revocation before dispatch causes zero HTTP requests
+ok 21 - revocation before dispatch causes zero HTTP requests
+  ---
+  duration_ms: 2.8229
+  type: 'test'
+  ...
+# Subtest: mid-request revocation discards the late response without accepting state
+ok 22 - mid-request revocation discards the late response without accepting state
+  ---
+  duration_ms: 7.2152
+  type: 'test'
+  ...
+# Subtest: redirect is not followed and cannot transmit corpus to another endpoint
+ok 23 - redirect is not followed and cannot transmit corpus to another endpoint
+  ---
+  duration_ms: 6.7199
+  type: 'test'
+  ...
+# Subtest: arbitrary execution tool fails closed with no accepted state or implicit retry
+ok 24 - arbitrary execution tool fails closed with no accepted state or implicit retry
+  ---
+  duration_ms: 6.4075
+  type: 'test'
+  ...
+# Subtest: malformed JSON fails closed with no accepted state or implicit retry
+ok 25 - malformed JSON fails closed with no accepted state or implicit retry
+  ---
+  duration_ms: 6.3643
+  type: 'test'
+  ...
+# Subtest: oversized response fails closed with no accepted state or implicit retry
+ok 26 - oversized response fails closed with no accepted state or implicit retry
+  ---
+  duration_ms: 9.7026
+  type: 'test'
+  ...
+# Subtest: HTTP failure fails closed with no accepted state or implicit retry
+ok 27 - HTTP failure fails closed with no accepted state or implicit retry
+  ---
+  duration_ms: 4.7145
+  type: 'test'
+  ...
+# Subtest: invented proposal fields fails closed with no accepted state or implicit retry
+ok 28 - invented proposal fields fails closed with no accepted state or implicit retry
+  ---
+  duration_ms: 6.5592
+  type: 'test'
+  ...
+# Subtest: multiple tool calls fails closed with no accepted state or implicit retry
+ok 29 - multiple tool calls fails closed with no accepted state or implicit retry
+  ---
+  duration_ms: 5.2053
+  type: 'test'
+  ...
+# Subtest: provider timeout is bounded and leaves accepted state unchanged
+ok 30 - provider timeout is bounded and leaves accepted state unchanged
+  ---
+  duration_ms: 115.8497
+  type: 'test'
+  ...
+# Subtest: unapproved excerpt mutation and unsafe endpoint configuration are rejected before dispatch
+ok 31 - unapproved excerpt mutation and unsafe endpoint configuration are rejected before dispatch
+  ---
+  duration_ms: 1.3588
+  type: 'test'
+  ...
+# Subtest: oversized outbound context is rejected before any transmission can be approved
+ok 32 - oversized outbound context is rejected before any transmission can be approved
+  ---
+  duration_ms: 6.0049
+  type: 'test'
+  ...
+# Subtest: trusted CLI accept path requires both content previews
+ok 33 - trusted CLI accept path requires both content previews
+  ---
+  duration_ms: 641.2856
+  type: 'test'
+  ...
+# Subtest: trusted CLI decline path requires both content previews
+ok 34 - trusted CLI decline path requires both content previews
+  ---
+  duration_ms: 591.4746
+  type: 'test'
+  ...
+# Subtest: trusted CLI revoke path requires both content previews
+ok 35 - trusted CLI revoke path requires both content previews
+  ---
+  duration_ms: 568.0848
+  type: 'test'
+  ...
+1..35
+# tests 35
+# suites 0
+# pass 35
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1913.1863
