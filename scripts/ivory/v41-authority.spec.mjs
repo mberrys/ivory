@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,6 +21,86 @@ function bundle() {
 function rawGitBlobSha(bytes) {
     const buffer = Buffer.isBuffer(bytes) ? bytes : Buffer.from(bytes);
     return createHash('sha1').update(Buffer.from(`blob ${buffer.length}\0`, 'utf8')).update(buffer).digest('hex');
+}
+
+function retainedFile(relative) {
+    const bytes = readFileSync(join(ROOT, relative));
+    return {
+        path: relative,
+        sha256: createHash('sha256').update(bytes).digest('hex'),
+        bytes: bytes.length,
+    };
+}
+
+function qualifiedCandidate() {
+    const candidate = bundle();
+    const selectedSha = candidate.heads.heads.find(head => head.role === 'selectedDev').sha;
+    const verifier = retainedFile('scripts/ivory/v41-authority.mjs');
+    const fixture = retainedFile('package.json');
+    const evidence = retainedFile('configs/ivory-v41-gates.json');
+    candidate.qualification.runContext = {
+        repository: {
+            remote: 'mberrys/ivory',
+            ref: 'refs/heads/dev',
+            branch: 'dev',
+            headSha: selectedSha,
+            treeSha: '1111111111111111111111111111111111111111',
+            dirty: false,
+            authorityBasis: {
+                manifest: 'configs/ivory-v41-authority-heads.json',
+                role: 'selectedDev',
+                sha: selectedSha,
+                relation: 'equal',
+            },
+        },
+        environment: {
+            os: { platform: 'win32', release: '10.0', arch: 'x64' },
+            runtime: { node: 'v24.0.0', npm: '11.0.0' },
+            configuration: {
+                profile: 'local',
+                secretValuesOmitted: true,
+                lockfileSha256: '2222222222222222222222222222222222222222222222222222222222222222',
+            },
+            recordedAt: '2026-09-18T00:00:00.000Z',
+        },
+        verifier: {
+            module: verifier.path,
+            moduleSha256: verifier.sha256,
+            command: 'npm run verify:ivory-v41-authority',
+            startedAt: '2026-09-18T00:00:00.000Z',
+            finishedAt: '2026-09-18T00:01:00.000Z',
+            exitCode: 0,
+        },
+    };
+    candidate.qualification.gates.find(gate => gate.id === 'Q1').record = {
+        schema: 'ivory-v41-qualification-record/1',
+        gate: 'Q1',
+        fixtures: [{ id: 'package-fixture', ...fixture }],
+        evidence: [{ id: 'gate-registry', tracked: true, ...evidence }],
+        observations: {
+            machine: { status: 'passed' },
+            human: { status: 'accepted' },
+        },
+        decision: {
+            status: 'qualified',
+            authority: 'human',
+            qualificationLevel: 'bounded',
+            scope: {
+                fixtures: ['package-fixture'],
+                platforms: ['win32/x64'],
+                components: ['authority'],
+            },
+            rationale: 'Retained evidence supports the bounded Q1 claim.',
+        },
+        limitations: [{
+            id: 'scope',
+            kind: 'scope',
+            effect: 'narrows-claim',
+            statement: 'The retained fixture does not establish cross-platform behavior.',
+        }],
+        architecturalGaps: [],
+    };
+    return candidate;
 }
 
 function errorText(candidate, options = { verifyPackages: false }) {
@@ -113,6 +193,78 @@ test('the registry rejects aggregate pass flags and pre-closed gates', () => {
     const errors = errorText(candidate);
     assert.match(errors, /aggregate pass flags are forbidden/);
     assert.match(errors, /Q4 must remain not-run/);
+});
+
+test('the qualification manifest is valid while every gate remains not-run', () => {
+    const candidate = bundle();
+    assert.equal(candidate.qualification.runContext, null);
+    assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+});
+
+test('terminal qualification records require exact run context', () => {
+    const candidate = qualifiedCandidate();
+    candidate.qualification.runContext = null;
+    assert.match(errorText(candidate), /terminal records require runContext/);
+});
+
+test('qualification records must use the selected authority head', () => {
+    const candidate = qualifiedCandidate();
+    candidate.qualification.runContext.repository.headSha = '0000000000000000000000000000000000000000';
+    assert.match(errorText(candidate), /headSha must match selected authority/);
+});
+
+test('qualified records require a clean worktree', () => {
+    const candidate = qualifiedCandidate();
+    candidate.qualification.runContext.repository.dirty = true;
+    assert.match(errorText(candidate), /qualified records require a clean worktree/);
+});
+
+test('qualified decisions cannot be machine-only', () => {
+    const candidate = qualifiedCandidate();
+    candidate.qualification.gates.find(gate => gate.id === 'Q1').record.decision.authority = 'machine';
+    assert.match(errorText(candidate), /human or joint authority/);
+});
+
+test('changed fixture or evidence digests block qualification', () => {
+    const fixtureCandidate = qualifiedCandidate();
+    fixtureCandidate.qualification.gates.find(gate => gate.id === 'Q1').record.fixtures[0].sha256 = '0'.repeat(64);
+    assert.match(errorText(fixtureCandidate), /fixtures\[0\].*SHA-256 does not match/);
+
+    const evidenceCandidate = qualifiedCandidate();
+    evidenceCandidate.qualification.gates.find(gate => gate.id === 'Q1').record.evidence[0].sha256 = '0'.repeat(64);
+    assert.match(errorText(evidenceCandidate), /evidence\[0\].*SHA-256 does not match/);
+});
+
+test('every qualification record must retain a limitation', () => {
+    const candidate = qualifiedCandidate();
+    candidate.qualification.gates.find(gate => gate.id === 'Q1').record.limitations = [];
+    assert.match(errorText(candidate), /at least one limitation is required/);
+});
+
+test('architectural gaps must point to tracked IV41 issues', () => {
+    const candidate = qualifiedCandidate();
+    candidate.qualification.gates.find(gate => gate.id === 'Q1').record.architecturalGaps = [{
+        issue: 'session-note-7',
+        summary: 'A gap was found during qualification.',
+        status: 'open',
+    }];
+    assert.match(errorText(candidate), /must point to a tracked IV41 issue/);
+});
+
+test('qualification records reject duplicate gates and aggregate outcomes', () => {
+    const duplicateCandidate = bundle();
+    duplicateCandidate.qualification.gates.push(clone(duplicateCandidate.qualification.gates[0]));
+    assert.match(errorText(duplicateCandidate), /duplicate qualification gates/);
+
+    const aggregateCandidate = bundle();
+    aggregateCandidate.qualification.aggregatePass = true;
+    assert.match(errorText(aggregateCandidate), /aggregate outcome field aggregatePass is forbidden/);
+});
+
+test('qualification evidence paths cannot escape the repository', () => {
+    const candidate = qualifiedCandidate();
+    candidate.qualification.gates.find(gate => gate.id === 'Q1').record.fixtures[0].path = '../package.json';
+    assert.match(errorText(candidate), /must be a repository-relative POSIX path/);
 });
 
 

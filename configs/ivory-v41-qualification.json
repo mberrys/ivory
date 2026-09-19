@@ -1,0 +1,183 @@
+{
+  "schema": "ivory-v41-qualification/1",
+  "issue": "IV41-005",
+  "dependsOn": "V41-I01.4",
+  "basis": {
+    "heads": "configs/ivory-v41-authority-heads.json",
+    "owners": "configs/ivory-v41-owner-map.json",
+    "packageOwnership": "configs/ivory-v41-package-ownership.json",
+    "carriers": "configs/ivory-v41-carrier-matrix.json",
+    "gates": "configs/ivory-v41-gates.json"
+  },
+  "recordSchema": "ivory-v41-qualification-record/1",
+  "digestConvention": {
+    "algorithm": "sha256",
+    "encoding": "raw-bytes",
+    "pathSeparator": "/",
+    "lineEndingPolicy": "preserve-bytes"
+  },
+  "authorityBoundary": {
+    "role": "qualification-records-only",
+    "mayWriteCanonicalResearchState": false,
+    "mayDecideResearchAcceptance": false
+  },
+  "runContext": null,
+  "gates": [
+    {
+      "id": "DURABILITY",
+      "record": {
+        "schema": "ivory-v41-qualification-record/1",
+        "gate": "DURABILITY",
+        "fixtures": [],
+        "evidence": [],
+        "observations": {
+          "machine": { "status": "not-run" },
+          "human": { "status": "not-run" }
+        },
+        "decision": {
+          "status": "not-run",
+          "rationale": "No retained qualification run exists for this gate."
+        },
+        "limitations": [
+          {
+            "id": "not-run",
+            "kind": "status",
+            "effect": "blocks-closure",
+            "statement": "No retained qualification run exists for this gate."
+          }
+        ],
+        "architecturalGaps": []
+      }
+    },
+    {
+      "id": "Q1",
+      "record": {
+        "schema": "ivory-v41-qualification-record/1",
+        "gate": "Q1",
+        "fixtures": [],
+        "evidence": [],
+        "observations": {
+          "machine": { "status": "not-run" },
+          "human": { "status": "not-run" }
+        },
+        "decision": {
+          "status": "not-run",
+          "rationale": "No retained qualification run exists for this gate."
+        },
+        "limitations": [
+          {
+            "id": "not-run",
+            "kind": "status",
+            "effect": "blocks-closure",
+            "statement": "No retained qualification run exists for this gate."
+          }
+        ],
+        "architecturalGaps": []
+      }
+    },
+    {
+      "id": "Q2",
+      "record": {
+        "schema": "ivory-v41-qualification-record/1",
+        "gate": "Q2",
+        "fixtures": [],
+        "evidence": [],
+        "observations": {
+          "machine": { "status": "not-run" },
+          "human": { "status": "not-run" }
+        },
+        "decision": {
+          "status": "not-run",
+          "rationale": "No retained qualification run exists for this gate."
+        },
+        "limitations": [
+          {
+            "id": "not-run",
+            "kind": "status",
+            "effect": "blocks-closure",
+            "statement": "No retained qualification run exists for this gate."
+          }
+        ],
+        "architecturalGaps": []
+      }
+    },
+    {
+      "id": "REPLAY",
+      "record": {
+        "schema": "ivory-v41-qualification-record/1",
+        "gate": "REPLAY",
+        "fixtures": [],
+        "evidence": [],
+        "observations": {
+          "machine": { "status": "not-run" },
+          "human": { "status": "not-run" }
+        },
+        "decision": {
+          "status": "not-run",
+          "rationale": "No retained qualification run exists for this gate."
+        },
+        "limitations": [
+          {
+            "id": "not-run",
+            "kind": "status",
+            "effect": "blocks-closure",
+            "statement": "No retained qualification run exists for this gate."
+          }
+        ],
+        "architecturalGaps": []
+      }
+    },
+    {
+      "id": "Q3",
+      "record": {
+        "schema": "ivory-v41-qualification-record/1",
+        "gate": "Q3",
+        "fixtures": [],
+        "evidence": [],
+        "observations": {
+          "machine": { "status": "not-run" },
+          "human": { "status": "not-run" }
+        },
+        "decision": {
+          "status": "not-run",
+          "rationale": "No retained qualification run exists for this gate."
+        },
+        "limitations": [
+          {
+            "id": "not-run",
+            "kind": "status",
+            "effect": "blocks-closure",
+            "statement": "No retained qualification run exists for this gate."
+          }
+        ],
+        "architecturalGaps": []
+      }
+    },
+    {
+      "id": "Q4",
+      "record": {
+        "schema": "ivory-v41-qualification-record/1",
+        "gate": "Q4",
+        "fixtures": [],
+        "evidence": [],
+        "observations": {
+          "machine": { "status": "not-run" },
+          "human": { "status": "not-run" }
+        },
+        "decision": {
+          "status": "not-run",
+          "rationale": "No retained qualification run exists for this gate."
+        },
+        "limitations": [
+          {
+            "id": "not-run",
+            "kind": "status",
+            "effect": "blocks-closure",
+            "statement": "No retained qualification run exists for this gate."
+          }
+        ],
+        "architecturalGaps": []
+      }
+    }
+  ]
+}
