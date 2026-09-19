@@ -53,6 +53,17 @@ export function validateManifest(manifest) {
     const errors = [];
     if (manifest?.schema !== 'ivory-v4-1-authority/1') errors.push(`schema must be ivory-v4-1-authority/1`);
     if (manifest?.issue !== 'V41-P01') errors.push(`issue must be V41-P01`);
+    if (manifest?.leafIssue !== 'IV41-001') errors.push(`leafIssue must be IV41-001`);
+    if (manifest?.legacyLeafIssue !== 'V41-I01.1') errors.push(`legacyLeafIssue must be V41-I01.1`);
+
+    const repository = manifest?.repositoryContext;
+    if (repository?.fullName !== 'mberrys/ivory') errors.push('repository context must name mberrys/ivory');
+    if (repository?.pullRequest !== 2) errors.push('repository context must name PR #2');
+    if (repository?.workBranch !== 'v41-p01-authority-reconciliation') errors.push('repository context must name the PR #2 work branch');
+    if (repository?.packageRoot !== 'packages') errors.push('repository package root must be packages');
+    if (repository?.treeTraversal !== 'recursive') errors.push('repository tree traversal must be recursive');
+    if (!repository?.inspectionSource) errors.push('repository context must name its inspection source');
+    if (!repository?.runtimeQualification) errors.push('repository context must state its runtime qualification boundary');
 
     const heads = Array.isArray(manifest?.heads) ? manifest.heads : [];
     const headIds = heads.map(head => head?.id).filter(Boolean);
@@ -65,9 +76,14 @@ export function validateManifest(manifest) {
         if (!SHA.test(head?.sha ?? '')) errors.push(`${head?.id ?? 'head'} sha must be an exact 40-character commit id`);
         if (!SHA.test(head?.treeSha ?? '')) errors.push(`${head?.id ?? 'head'} treeSha must be an exact 40-character tree id`);
         const packages = Array.isArray(head?.packages) ? head.packages : [];
+        const packageLocations = Array.isArray(head?.packageLocations) ? head.packageLocations : [];
         const surfaces = Array.isArray(head?.surfaces) ? head.surfaces : [];
         if (duplicateValues(packages).length > 0) errors.push(`${head?.id ?? 'head'} package inventory contains duplicates`);
         if (JSON.stringify(packages) !== JSON.stringify([...packages].sort())) errors.push(`${head?.id ?? 'head'} package inventory must be sorted`);
+        const expectedPackageLocations = packages.map(name => `${repository?.packageRoot ?? 'packages'}/${name}`);
+        if (JSON.stringify(packageLocations) !== JSON.stringify(expectedPackageLocations)) errors.push(`${head?.id ?? 'head'} package locations must exactly match its package inventory`);
+        if (head?.treeListingTruncated !== false) errors.push(`${head?.id ?? 'head'} exact-tree inventory must record a non-truncated tree listing`);
+        if (!head?.evidenceBoundary) errors.push(`${head?.id ?? 'head'} must state its evidence boundary`);
         if (duplicateValues(surfaces).length > 0) errors.push(`${head?.id ?? 'head'} retained surface inventory contains duplicates`);
         if (JSON.stringify(surfaces) !== JSON.stringify([...surfaces].sort())) errors.push(`${head?.id ?? 'head'} retained surface inventory must be sorted`);
         if (head?.packageInventoryMode !== 'exact-tree') errors.push(`${head?.id ?? 'head'} package inventory must be exact-tree`);
@@ -77,6 +93,8 @@ export function validateManifest(manifest) {
     const base = heads.find(head => head.id === manifest?.implementationBase);
     if (!base) errors.push(`implementationBase must name one retained head`);
     else if (base.classification !== 'implementation-base') errors.push(`implementationBase head must be classified implementation-base`);
+    if (base && repository?.baseSha !== base.sha) errors.push('repository base SHA must equal the exact implementation-base head');
+    if (base && repository?.baseRef !== base.ref) errors.push('repository base ref must equal the implementation-base ref');
 
     if (manifest?.authorityPolicy?.headSelection !== 'exact-only') errors.push('head selection must be exact-only');
     if (manifest?.authorityPolicy?.latestHeadSubstitution !== 'forbidden') errors.push('latest-head substitution must be forbidden');
@@ -121,8 +139,8 @@ export function validateManifest(manifest) {
         if (owner?.state === 'owned' && (!owner.path || !owner.symbol || !owner.package || !owner.boundary)) {
             errors.push(`${owner?.concept ?? 'owner'} must name package, path, symbol and boundary`);
         }
-        if (owner?.state === 'owned-gap' && (!owner.ownedBy || !owner.reason)) {
-            errors.push(`${owner?.concept ?? 'owner'} gap must name its owning issue and reason`);
+        if (owner?.state === 'owned-gap' && (!owner.ownedBy || !owner.reason || !owner.trackingUrl)) {
+            errors.push(`${owner?.concept ?? 'owner'} gap must name its owning issue, tracking URL and reason`);
         }
         const description = [owner?.concept, owner?.package, owner?.symbol].filter(Boolean).join(' ').toLowerCase();
         for (const blocked of forbidden) {
@@ -251,13 +269,14 @@ export function compareObservedHeads(manifest, observed) {
 
 export function formatReport(manifest, gates, digest) {
     const lines = [
-        `V41-P01 authority contract: ${manifest.implementationBase} is the implementation base`,
+        `${manifest.leafIssue} authority manifest (${manifest.issue} parent): ${manifest.implementationBase} is the implementation base`,
+        `repository: ${manifest.repositoryContext.fullName} PR #${manifest.repositoryContext.pullRequest} (${manifest.repositoryContext.workBranch})`,
         `manifest sha256: ${digest}`,
         '',
-        '| head | sha | classification | packages |',
-        '|---|---|---|---:|',
+        '| head | commit | tree | classification | packages |',
+        '|---|---|---|---|---:|',
     ];
-    for (const head of manifest.heads) lines.push(`| ${head.id} | ${head.sha} | ${head.classification} | ${head.packages.length} |`);
+    for (const head of manifest.heads) lines.push(`| ${head.id} | ${head.sha} | ${head.treeSha} | ${head.classification} | ${head.packages.length} |`);
     lines.push('', '| gate | state | owner |', '|---|---|---|');
     for (const gate of gates) lines.push(`| ${gate.id} | ${gate.state} | ${gate.owner} |`);
     const passed = gates.filter(gate => gate.state === 'passed').length;
@@ -304,7 +323,26 @@ function main() {
     }
 
     if (process.argv.includes('--json')) {
-        process.stdout.write(`${JSON.stringify({ manifest: { issue: manifest.issue, implementationBase: manifest.implementationBase }, gates }, null, 2)}\n`);
+        process.stdout.write(`${JSON.stringify({
+            manifest: {
+                issue: manifest.issue,
+                leafIssue: manifest.leafIssue,
+                legacyLeafIssue: manifest.legacyLeafIssue,
+                implementationBase: manifest.implementationBase,
+                digest: manifestDigest(configBytes),
+            },
+            repository: manifest.repositoryContext,
+            heads: manifest.heads.map(head => ({
+                id: head.id,
+                ref: head.ref,
+                sha: head.sha,
+                treeSha: head.treeSha,
+                classification: head.classification,
+                packageLocations: head.packageLocations,
+                evidenceBoundary: head.evidenceBoundary,
+            })),
+            gates,
+        }, null, 2)}\n`);
     } else if (contractErrors.length === 0) {
         process.stdout.write(`${formatReport(manifest, gates, manifestDigest(configBytes))}\n`);
     }
