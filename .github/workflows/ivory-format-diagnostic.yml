@@ -1,0 +1,19 @@
+name: Ivory formatter diagnostic
+on:
+  push:
+    branches:
+      - feat/iv41-010a-i02-1-i02-2-verified
+jobs:
+  format-diff:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Print Prettier correction
+        run: |
+          ./node_modules/.bin/prettier --config configs/ivory-prettier.json --write packages/ivory-tower-research-kernel/src/node/kernel.ts
+          git diff -- packages/ivory-tower-research-kernel/src/node/kernel.ts
