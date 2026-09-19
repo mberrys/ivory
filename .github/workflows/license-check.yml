@@ -17,6 +17,8 @@ on:
 
 jobs:
   License-check:
+    # Eclipse Dash is the upstream Theia IP gate. Ivory uses its own fail-closed dependency policy.
+    if: github.repository == 'eclipse-theia/theia'
     name: 3PP License Check
 
     strategy:
