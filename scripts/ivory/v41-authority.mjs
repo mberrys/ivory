@@ -192,7 +192,7 @@ function validateOwners(owners, errors) {
     }
 }
 
-function validatePackageOwnership(packageOwnership, heads, errors) {
+function validatePackageOwnership(packageOwnership, heads, owners, errors) {
     push(packageOwnership.schema === 'ivory-v41-package-ownership/1', errors, 'IV41-003: unexpected schema');
     push(packageOwnership.issue === 'IV41-003', errors, 'IV41-003: issue id must be IV41-003');
     push(packageOwnership.dependsOn === 'IV41-001', errors, 'IV41-003: dependency must remain IV41-001');
@@ -243,10 +243,20 @@ function validatePackageOwnership(packageOwnership, heads, errors) {
     push(gapPolicy.sessionNotesAreAuthority === false, errors, 'IV41-003: session notes cannot be gap-tracking authority');
     push(gapPolicy.requiredIssuePrefix === 'IV41-', errors, 'IV41-003: gaps must use the IV41 issue namespace');
     push(Array.isArray(gapPolicy.discoveredGaps), errors, 'IV41-003: discovered gaps must be an explicit array');
+    const trackedGapKeys = [];
     for (const gap of gapPolicy.discoveredGaps ?? []) {
-        push(typeof gap.issue === 'string' && gap.issue.startsWith('IV41-'), errors, `IV41-003: architectural gap ${gap.id ?? 'unknown'} must point to a tracked IV41 issue`);
-        push(typeof gap.summary === 'string' && gap.summary.length > 0, errors, `IV41-003: architectural gap ${gap.id ?? 'unknown'} needs a summary`);
+        const label = `${gap.surface ?? 'unknown'}:${gap.missingField ?? 'unknown'}`;
+        push(typeof gap.issue === 'string' && gap.issue.startsWith('IV41-'), errors, `IV41-003: architectural gap ${label} must point to a tracked IV41 issue`);
+        push(typeof gap.summary === 'string' && gap.summary.length > 0, errors, `IV41-003: architectural gap ${label} needs a summary`);
+        push(typeof gap.surface === 'string' && gap.surface.length > 0, errors, `IV41-003: architectural gap ${label} must name its owner-map surface`);
+        push(typeof gap.missingField === 'string' && gap.missingField.length > 0, errors, `IV41-003: architectural gap ${label} must name the exact missing field`);
+        trackedGapKeys.push(`${gap.surface}::${gap.missingField}`);
     }
+    const expectedGapKeys = (owners.surfaces ?? []).flatMap(surface =>
+        (surface.missingFields ?? []).map(missingField => `${surface.canonicalKey}::${missingField}`),
+    );
+    push(sameSet(trackedGapKeys, expectedGapKeys), errors, 'IV41-003: every discovered owner-map gap must be tracked by an IV41 issue');
+    push(duplicates(trackedGapKeys).length === 0, errors, `IV41-003: duplicate tracked gap records: ${duplicates(trackedGapKeys).join(', ')}`);
 }
 
 function validateCarriers(carriers, errors) {
@@ -296,7 +306,7 @@ export function validateBundle(bundle, options = {}) {
     const root = options.root ?? ROOT;
     validateHeads(bundle.heads, root, options, errors);
     validateOwners(bundle.owners, errors);
-    validatePackageOwnership(bundle.packageOwnership, bundle.heads, errors);
+    validatePackageOwnership(bundle.packageOwnership, bundle.heads, bundle.owners, errors);
     validateCarriers(bundle.carriers, errors);
     validateGates(bundle.gates, errors);
     return errors;
