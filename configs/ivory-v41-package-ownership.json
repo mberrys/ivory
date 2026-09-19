@@ -1,0 +1,265 @@
+{
+  "schema": "ivory-v41-package-ownership/1",
+  "issue": "IV41-003",
+  "dependsOn": "IV41-001",
+  "basisManifest": "configs/ivory-v41-authority-heads.json",
+  "basisOwnerMap": "configs/ivory-v41-owner-map.json",
+  "evidenceContext": {
+    "repository": "mberrys/ivory",
+    "pullRequest": 3,
+    "branch": "feat/v41-p01-authority-carriers",
+    "architectureSource": "https://app.notion.com/p/3dd9cb079ddb80f49717e9d75ea2e223",
+    "issueSource": "https://app.notion.com/p/3dd9cb079ddb81e4b51bfe0b775c11f8",
+    "authorityBasis": {
+      "role": "selectedDev",
+      "sha": "bc3cd03b5b2d870d219797925d92edc48c33c6ca",
+      "packageInventory": "configs/ivory-v41-authority-heads.json"
+    },
+    "implementationObservation": {
+      "headBeforeIssue": "dce910e4a988ddfa6c1618f6b7e4a82b0adc25a8",
+      "packageManager": "npm@11.13.0",
+      "nodeEngine": ">=24"
+    }
+  },
+  "canonicalAuthority": {
+    "researchStateWrite": "@ivory-tower/research-kernel",
+    "researchAcceptance": "@ivory-tower/research-kernel",
+    "durableStorageImplementation": "@ivory-tower/infrastructure"
+  },
+  "packages": [
+    {
+      "name": "@theia/ivory-identity",
+      "responsibilityIds": [
+        "identity"
+      ],
+      "owns": [
+        "stable Source, Passage, and derived-artifact identifiers"
+      ],
+      "mustNotOwn": [
+        "canonical research revisions",
+        "research acceptance",
+        "durable persistence"
+      ],
+      "authority": {
+        "researchStateWrite": false,
+        "researchAcceptance": false,
+        "durableStorageImplementation": false
+      }
+    },
+    {
+      "name": "@ivory-tower/adapters",
+      "responsibilityIds": [
+        "adapters"
+      ],
+      "owns": [
+        "typed ports for storage, execution, and external adapters"
+      ],
+      "mustNotOwn": [
+        "adapter implementation state",
+        "research interpretation",
+        "research acceptance"
+      ],
+      "authority": {
+        "researchStateWrite": false,
+        "researchAcceptance": false,
+        "durableStorageImplementation": false
+      }
+    },
+    {
+      "name": "@ivory-tower/agent-experiment",
+      "responsibilityIds": [
+        "agentProposalHarness"
+      ],
+      "owns": [
+        "bounded N7 proposal qualification harness and retained experiment evidence"
+      ],
+      "mustNotOwn": [
+        "production service authority",
+        "canonical research credentials",
+        "research acceptance"
+      ],
+      "authority": {
+        "researchStateWrite": false,
+        "researchAcceptance": false,
+        "durableStorageImplementation": false
+      }
+    },
+    {
+      "name": "@ivory-tower/api",
+      "responsibilityIds": [
+        "clients"
+      ],
+      "owns": [
+        "versioned HTTP/SSE client boundary over application and Core-facing services"
+      ],
+      "mustNotOwn": [
+        "direct canonical persistence",
+        "research acceptance rules",
+        "shadow domain state"
+      ],
+      "authority": {
+        "researchStateWrite": false,
+        "researchAcceptance": false,
+        "durableStorageImplementation": false
+      }
+    },
+    {
+      "name": "@ivory-tower/application",
+      "responsibilityIds": [
+        "application"
+      ],
+      "owns": [
+        "application-service orchestration across reviewed domain and adapter ports"
+      ],
+      "mustNotOwn": [
+        "new evidence semantics",
+        "canonical persistence",
+        "independent acceptance logic"
+      ],
+      "authority": {
+        "researchStateWrite": false,
+        "researchAcceptance": false,
+        "durableStorageImplementation": false
+      }
+    },
+    {
+      "name": "@ivory-tower/content-policy",
+      "responsibilityIds": [
+        "contentPolicy"
+      ],
+      "owns": [
+        "content classes, rights bases, and content-admission policy"
+      ],
+      "mustNotOwn": [
+        "semantic evidence support",
+        "research interpretation",
+        "research acceptance"
+      ],
+      "authority": {
+        "researchStateWrite": false,
+        "researchAcceptance": false,
+        "durableStorageImplementation": false
+      }
+    },
+    {
+      "name": "@ivory-tower/contracts",
+      "responsibilityIds": [
+        "researchProtocol"
+      ],
+      "owns": [
+        "versioned HTTP/job contracts and ResearchProtocol structural schemas"
+      ],
+      "mustNotOwn": [
+        "runtime canonical state",
+        "protocol completion authority",
+        "research acceptance"
+      ],
+      "authority": {
+        "researchStateWrite": false,
+        "researchAcceptance": false,
+        "durableStorageImplementation": false
+      }
+    },
+    {
+      "name": "@ivory-tower/domain",
+      "responsibilityIds": [
+        "domain"
+      ],
+      "owns": [
+        "platform-independent execution/domain records and invariants"
+      ],
+      "mustNotOwn": [
+        "durable adapter implementation",
+        "canonical evidence persistence",
+        "research acceptance"
+      ],
+      "authority": {
+        "researchStateWrite": false,
+        "researchAcceptance": false,
+        "durableStorageImplementation": false
+      }
+    },
+    {
+      "name": "@ivory-tower/health",
+      "responsibilityIds": [
+        "healthDiagnostics"
+      ],
+      "owns": [
+        "health and diagnostics presentation surface"
+      ],
+      "mustNotOwn": [
+        "canonical research writes",
+        "research acceptance",
+        "storage authority"
+      ],
+      "authority": {
+        "researchStateWrite": false,
+        "researchAcceptance": false,
+        "durableStorageImplementation": false
+      }
+    },
+    {
+      "name": "@ivory-tower/infrastructure",
+      "responsibilityIds": [
+        "storage"
+      ],
+      "owns": [
+        "durable adapters, CAS/PGlite transactions, writer lease/fence, migrations, checkpoint/restore, and indexes"
+      ],
+      "mustNotOwn": [
+        "research interpretation",
+        "semantic acceptance",
+        "independent canonical write policy"
+      ],
+      "authority": {
+        "researchStateWrite": false,
+        "researchAcceptance": false,
+        "durableStorageImplementation": true
+      }
+    },
+    {
+      "name": "@ivory-tower/research-kernel",
+      "responsibilityIds": [
+        "evidence"
+      ],
+      "owns": [
+        "canonical research revisions, exact references, snapshots, evidence links, assessments, and decision receipts"
+      ],
+      "mustNotOwn": [
+        "provider/tool routing",
+        "client presentation state",
+        "durable adapter implementation"
+      ],
+      "authority": {
+        "researchStateWrite": true,
+        "researchAcceptance": true,
+        "durableStorageImplementation": false
+      }
+    },
+    {
+      "name": "@ivory-tower/worker",
+      "responsibilityIds": [
+        "compute"
+      ],
+      "owns": [
+        "durable bounded execution worker and execution-world processing"
+      ],
+      "mustNotOwn": [
+        "canonical research writes",
+        "research interpretation",
+        "research acceptance"
+      ],
+      "authority": {
+        "researchStateWrite": false,
+        "researchAcceptance": false,
+        "durableStorageImplementation": false
+      }
+    }
+  ],
+  "gapPolicy": {
+    "trackingRequired": true,
+    "sessionNotesAreAuthority": false,
+    "requiredIssuePrefix": "IV41-",
+    "discoveredGaps": []
+  }
+}
