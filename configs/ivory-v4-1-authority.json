@@ -1089,17 +1089,17 @@
         "evidenceBoundary": "No replay or independent-reproduction qualification is claimed by IV41-004."
       },
       {
-        "id": "second-canonical-authority",
+        "id": "v3-current-architecture-target",
         "source": "V3-ORX",
         "disposition": "superseded",
         "carriedBy": "ADR-007",
         "supersededBy": "ADR-007",
-        "statement": "Any interpretation of V3 planning artifacts as a second canonical store, workflow authority, or autonomous scientific acceptance layer is superseded by the V4.1 Core/harness boundary.",
+        "statement": "V3 ORX as the current architecture qualification target is superseded by the V4.1 authority/harness contract while its one-Core invariants remain inherited separately.",
         "evidenceHeads": [
           "pr1",
           "dev"
         ],
-        "evidenceBoundary": "Supersession applies to authority interpretation only; the historical V3 record remains intact."
+        "evidenceBoundary": "Supersession changes the current architecture target only; the historical V3 record and its retained one-Core decisions remain intact."
       },
       {
         "id": "semantic-assessment-carrier",
