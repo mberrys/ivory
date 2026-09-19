@@ -6,15 +6,16 @@ This record implements the four ordered leaves of V41-P01 without adding a secon
 
 ## Authority decision
 
-The implementation is stacked on the exact PR #1 foundation head because that head contains the complete N1-N7 retained-evidence and machine-gate surfaces. The selected `dev` head is retained as a compared authority, not substituted for the foundation head: it is a divergent line and does not contain `configs/ivory-n-gates.json` or the N5 client/shell packages present on PR #1.
+The authority manifest pins the exact **closed PR #1 head** because that snapshot contains the complete N1-N7 retained-evidence and machine-gate surfaces. The former PR #1 branch `pre-dev-foundation` advanced after PR #1 closed; its later head is retained separately as a moving branch observation and is not substituted for the PR #1 snapshot. The selected `dev` head remains a divergent compared authority.
 
 | authority | commit | tree | classification | Ivory packages |
 |---|---|---|---|---:|
 | detached planning baseline | `efec71ed83a1d0d9d513a4ead86369201cb5b401` | `b52b1aa0957e45f199f3e75bf99fdaad7ef972a1` | reference-only | 1 |
-| PR #1 / `pre-dev-foundation` | `904b6fb115740eb5c59e509ff5d8cce0a5b98766` | `5765b7dcf41d92ae216235acc5344059da4108e8` | implementation-base | 14 |
+| closed PR #1 head (`pre-dev-foundation`) | `d538fd44c25aa2403230b075c5e18613cea9b855` | `5d4aa6ec3e4c568e7babf26db8487f7abc6ec641` | implementation-base | 14 |
+| later `pre-dev-foundation` branch observation | `904b6fb115740eb5c59e509ff5d8cce0a5b98766` | `5765b7dcf41d92ae216235acc5344059da4108e8` | moving-branch-observation, 11 commits ahead / 0 behind PR #1 | 14 |
 | selected `dev` | `bc3cd03b5b2d870d219797925d92edc48c33c6ca` | `8edc9eab81e3733b60eb626c10ca91de63bd041c` | divergent-compared-head | 12 |
 
-The retained package inventory is exact to those tree objects. The detached baseline contains only `ivory-identity`. PR #1 adds the full Core/service package set plus `ivory-n5-client` and `ivory-n5-shell`; the selected `dev` head has the Core/service set but not those N5 packages or the N-gate manifest.
+The retained package inventory is exact to those tree objects. The detached baseline contains only `ivory-identity`. The closed PR #1 snapshot has the full Core/service package set plus `ivory-n5-client` and `ivory-n5-shell`. The later `pre-dev-foundation` branch observation retains the same 14 Ivory package locations and the N-gate surface at its own exact tree; that branch movement is evidence context, not authority replacement. The selected `dev` head has the Core/service set but not those N5 packages or the N-gate manifest.
 
 ## Canonical-owner map
 
@@ -80,7 +81,7 @@ Recheck the three observed heads against the retained exact values:
 ```text
 npm run verify:ivory-v4-1-authority -- \
   --observed-head detached=efec71ed83a1d0d9d513a4ead86369201cb5b401 \
-  --observed-head pr1=904b6fb115740eb5c59e509ff5d8cce0a5b98766 \
+  --observed-head pr1=d538fd44c25aa2403230b075c5e18613cea9b855 \
   --observed-head dev=bc3cd03b5b2d870d219797925d92edc48c33c6ca
 ```
 
@@ -90,9 +91,9 @@ The head and tree values above were read from the repository objects on 18 Septe
 
 ## Acceptance evidence
 
-IV41-001 is bound to repository `mberrys/ivory`, PR #2, work branch `v41-p01-authority-reconciliation`, and the exact PR #1/base head `904b6fb115740eb5c59e509ff5d8cce0a5b98766` / tree `5765b7dcf41d92ae216235acc5344059da4108e8`. GitHub repository objects were inspected directly for all three retained commit/tree pairs. Each recursive tree response was non-truncated, and Ivory package locations were derived from `packages/<name>/package.json` at those exact trees rather than inferred from branch names.
+IV41-001 is bound to repository `mberrys/ivory`, PR #2, work branch `v41-p01-authority-reconciliation`, and the exact **closed PR #1 head** `d538fd44c25aa2403230b075c5e18613cea9b855` / tree `5d4aa6ec3e4c568e7babf26db8487f7abc6ec641`. The former PR #1 branch `pre-dev-foundation` was separately observed later at `904b6fb115740eb5c59e509ff5d8cce0a5b98766` / tree `5765b7dcf41d92ae216235acc5344059da4108e8`, 11 commits ahead and 0 behind the closed PR snapshot. GitHub repository objects were inspected directly; recursive tree responses were non-truncated, and Ivory package locations were derived from `packages/<name>/package.json` at the exact trees rather than inferred from a moving branch name.
 
-The manifest records the leaf identity `IV41-001`, repository/PR/base context, explicit package locations, non-truncated-tree evidence, and a per-head evidence boundary. The verifier fails closed if repository base identity drifts from the implementation-base head, package locations stop matching the exact inventory, a tree inventory is marked truncated, or an owned architectural gap lacks a tracked issue URL. Its JSON report returns the manifest digest, repository context, exact commit/tree identities, package locations, evidence boundaries, and downstream gate states.
+The manifest records the leaf identity `IV41-001`, exact PR snapshot identity, separate moving-branch observations, explicit package locations, non-truncated-tree evidence, and per-observation evidence boundaries. The verifier fails closed if the retained PR #1 snapshot disagrees with the implementation-base head, if a later branch observation is substituted for that snapshot, if package locations stop matching the exact inventory, if a tree inventory is marked truncated, or if an owned architectural gap lacks a tracked issue URL. Its JSON report returns the manifest digest, repository context, exact commit/tree identities, package locations, evidence boundaries, and downstream gate states.
 
 The currently identified architectural gap—canonical semantic-support Assessment—is linked to the existing tracked issue `V41-I03.2` rather than retained as session notes.
 
@@ -102,4 +103,4 @@ The adversarial suite now covers stale/latest-head substitution, repository-base
 
 ## Limitations
 
-This PR is intentionally stacked on the exact PR #1 foundation branch so its diff contains only V41-P01. It does not merge or rewrite PR #1, reconcile the divergent `dev` commits into the foundation line, implement the missing semantic assessment carrier, or close any durability/replay/Q1-Q4 gate. Those remain owned by their declared downstream issues.
+This PR remains based on the `pre-dev-foundation` line, but the authority contract does not equate that moving branch with the immutable closed PR #1 snapshot. It does not merge or rewrite PR #1, reconcile the divergent `dev` commits into the foundation line, implement the missing semantic assessment carrier, or close any durability/replay/Q1-Q4 gate. Those remain owned by their declared downstream issues.
