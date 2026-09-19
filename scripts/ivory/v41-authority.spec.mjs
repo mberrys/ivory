@@ -145,10 +145,6 @@ test('IV41-003 binds evidence to the exact selected-dev repository context', () 
 
 test('IV41-003 refuses architectural gaps that are not tracked as issues', () => {
     const candidate = bundle();
-    candidate.packageOwnership.gapPolicy.discoveredGaps.push({
-        id: 'shadow-store',
-        summary: 'A new writable projection would create duplicate persistence authority',
-        issue: 'session-note-7',
-    });
+    candidate.packageOwnership.gapPolicy.discoveredGaps[0].issue = 'session-note-7';
     assert.match(errorText(candidate), /must point to a tracked IV41 issue/);
 });
