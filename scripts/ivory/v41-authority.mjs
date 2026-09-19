@@ -13,8 +13,10 @@ const CONFIGS = {
     packageOwnership: 'configs/ivory-v41-package-ownership.json',
     carriers: 'configs/ivory-v41-carrier-matrix.json',
     gates: 'configs/ivory-v41-gates.json',
+    qualification: 'configs/ivory-v41-qualification.json',
 };
 const SHA40 = /^[a-f0-9]{40}$/;
+const SHA256 = /^[a-f0-9]{64}$/;
 const EXPECTED_HEAD_ROLES = ['detachedBaseline', 'foundationPr', 'selectedDev'];
 const EXPECTED_N = ['N1', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7'];
 const EXPECTED_IVORY_PACKAGE_PATHS = [
@@ -46,6 +48,8 @@ const REQUIRED_SURFACES = [
     'CAS',
 ];
 const REQUIRED_GATES = ['DURABILITY', 'Q1', 'Q2', 'REPLAY', 'Q3', 'Q4'];
+const QUALIFICATION_STATUSES = ['not-run', 'qualified', 'no-go', 'inconclusive', 'blocked', 'deferred'];
+const GAP_STATUSES = ['open', 'deferred', 'resolved'];
 const REQUIRED_PACKAGE_RESPONSIBILITIES = [
     'identity',
     'domain',
@@ -97,6 +101,216 @@ function nonEmptyArray(value) {
 
 function push(condition, errors, message) {
     if (!condition) errors.push(message);
+}
+
+function isRecord(value) {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isRepoRelativePath(value) {
+    if (typeof value !== 'string' || value.length === 0 || value.includes('\\')) return false;
+    if (path.posix.isAbsolute(value) || /^[a-zA-Z]:/.test(value)) return false;
+    return value.split('/').every(part => part.length > 0 && part !== '.' && part !== '..');
+}
+
+function validateRepoRelativePath(value, label, errors) {
+    push(isRepoRelativePath(value), errors, `${label} must be a repository-relative POSIX path`);
+}
+
+function verifyQualificationFile(root, relative, expectedSha, expectedBytes, label, options, errors) {
+    if (options.verifyQualificationFiles === false) return;
+    try {
+        const bytes = readFileSync(path.join(root, relative));
+        if (expectedBytes !== undefined) push(bytes.length === expectedBytes, errors, `${label} byte count does not match retained evidence`);
+        const observedSha = createHash('sha256').update(bytes).digest('hex');
+        push(observedSha === expectedSha, errors, `${label} SHA-256 does not match retained evidence`);
+    } catch (error) {
+        errors.push(`${label} cannot be read: ${error.message}`);
+    }
+}
+
+function validateRunContext(context, selectedSha, root, options, errors) {
+    const repository = isRecord(context?.repository) ? context.repository : {};
+    push(typeof repository.remote === 'string' && repository.remote.length > 0, errors, 'IV41-005: runContext.repository.remote is required');
+    push(typeof repository.ref === 'string' && repository.ref.length > 0 && !/latest|current/i.test(repository.ref), errors, 'IV41-005: runContext.repository.ref must be an exact non-latest ref');
+    push(typeof repository.branch === 'string' && repository.branch.length > 0 && !/latest|current/i.test(repository.branch), errors, 'IV41-005: runContext.repository.branch must be an exact non-latest branch');
+    push(SHA40.test(repository.headSha ?? ''), errors, 'IV41-005: runContext.repository.headSha must be an exact 40-character SHA');
+    push(repository.headSha === selectedSha, errors, 'IV41-005: runContext.repository.headSha must match selected authority');
+    push(SHA40.test(repository.treeSha ?? ''), errors, 'IV41-005: runContext.repository.treeSha must be an exact 40-character SHA');
+    push(typeof repository.dirty === 'boolean', errors, 'IV41-005: runContext.repository.dirty is required');
+    const authorityBasis = isRecord(repository.authorityBasis) ? repository.authorityBasis : {};
+    push(authorityBasis.manifest === CONFIGS.heads, errors, 'IV41-005: runContext.repository.authorityBasis must name the exact-head manifest');
+    push(authorityBasis.role === 'selectedDev', errors, 'IV41-005: runContext.repository.authorityBasis role must be selectedDev');
+    push(authorityBasis.sha === selectedSha, errors, 'IV41-005: runContext.repository.authorityBasis SHA must match selected authority');
+    push(authorityBasis.relation === 'equal', errors, 'IV41-005: runContext.repository.authorityBasis relation must be equal');
+
+    const environment = isRecord(context?.environment) ? context.environment : {};
+    const os = isRecord(environment.os) ? environment.os : {};
+    const runtime = isRecord(environment.runtime) ? environment.runtime : {};
+    const configuration = isRecord(environment.configuration) ? environment.configuration : {};
+    push(typeof os.platform === 'string' && os.platform.length > 0, errors, 'IV41-005: runContext.environment.os.platform is required');
+    push(typeof os.release === 'string' && os.release.length > 0, errors, 'IV41-005: runContext.environment.os.release is required');
+    push(typeof os.arch === 'string' && os.arch.length > 0, errors, 'IV41-005: runContext.environment.os.arch is required');
+    push(typeof runtime.node === 'string' && runtime.node.length > 0, errors, 'IV41-005: runContext.environment.runtime.node is required');
+    push(typeof runtime.npm === 'string' && runtime.npm.length > 0, errors, 'IV41-005: runContext.environment.runtime.npm is required');
+    push(typeof configuration.profile === 'string' && configuration.profile.length > 0, errors, 'IV41-005: runContext.environment.configuration.profile is required');
+    push(configuration.secretValuesOmitted === true, errors, 'IV41-005: runContext.environment.configuration.secretValuesOmitted must be true');
+    push(SHA256.test(configuration.lockfileSha256 ?? ''), errors, 'IV41-005: runContext.environment.configuration.lockfileSha256 must be an exact SHA-256');
+    push(typeof environment.recordedAt === 'string' && !Number.isNaN(Date.parse(environment.recordedAt)), errors, 'IV41-005: runContext.environment.recordedAt must be a timestamp');
+
+    const verifier = isRecord(context?.verifier) ? context.verifier : {};
+    validateRepoRelativePath(verifier.module, 'IV41-005: runContext.verifier.module', errors);
+    push(SHA256.test(verifier.moduleSha256 ?? ''), errors, 'IV41-005: runContext.verifier.moduleSha256 must be an exact SHA-256');
+    push(typeof verifier.command === 'string' && verifier.command.length > 0, errors, 'IV41-005: runContext.verifier.command is required');
+    push(typeof verifier.startedAt === 'string' && !Number.isNaN(Date.parse(verifier.startedAt)), errors, 'IV41-005: runContext.verifier.startedAt must be a timestamp');
+    push(typeof verifier.finishedAt === 'string' && !Number.isNaN(Date.parse(verifier.finishedAt)), errors, 'IV41-005: runContext.verifier.finishedAt must be a timestamp');
+    push(Number.isInteger(verifier.exitCode), errors, 'IV41-005: runContext.verifier.exitCode is required');
+    if (isRepoRelativePath(verifier.module) && SHA256.test(verifier.moduleSha256 ?? '')) {
+        verifyQualificationFile(root, verifier.module, verifier.moduleSha256, undefined, 'IV41-005: verifier module', options, errors);
+    }
+}
+
+function validateQualificationFileRecord(record, label, root, options, errors, requireTracked) {
+    push(isRecord(record), errors, `${label} must be an object`);
+    if (!isRecord(record)) return;
+    push(typeof record.id === 'string' && record.id.length > 0, errors, `${label}.id is required`);
+    validateRepoRelativePath(record.path, `${label}.path`, errors);
+    push(SHA256.test(record.sha256 ?? ''), errors, `${label}.sha256 must be an exact SHA-256`);
+    push(Number.isInteger(record.bytes) && record.bytes >= 0, errors, `${label}.bytes must be a non-negative integer`);
+    if (requireTracked) push(typeof record.tracked === 'boolean', errors, `${label}.tracked is required`);
+    if (isRepoRelativePath(record.path) && SHA256.test(record.sha256 ?? '') && Number.isInteger(record.bytes) && record.bytes >= 0) {
+        verifyQualificationFile(root, record.path, record.sha256, record.bytes, label, options, errors);
+    }
+}
+
+function validateArchitecturalGap(gap, label, errors) {
+    push(isRecord(gap), errors, `${label} must be an object`);
+    if (!isRecord(gap)) return;
+    push(/^IV41-\d+$/.test(gap.issue ?? ''), errors, `${label} must point to a tracked IV41 issue`);
+    push(typeof gap.summary === 'string' && gap.summary.length > 0, errors, `${label}.summary is required`);
+    push(GAP_STATUSES.includes(gap.status), errors, `${label}.status is invalid`);
+    if (gap.surface !== undefined) push(typeof gap.surface === 'string' && gap.surface.length > 0, errors, `${label}.surface must be a non-empty string`);
+    if (gap.missingField !== undefined) push(typeof gap.missingField === 'string' && gap.missingField.length > 0, errors, `${label}.missingField must be a non-empty string`);
+}
+
+function validateObservation(value, label, errors) {
+    push(isRecord(value), errors, `${label} must be an object`);
+    if (isRecord(value)) push(typeof value.status === 'string' && value.status.length > 0, errors, `${label}.status is required`);
+}
+
+function validateQualificationRecord(record, gateId, root, options, errors) {
+    const label = `IV41-005 ${gateId}`;
+    push(isRecord(record), errors, `${label}: record must be an object`);
+    if (!isRecord(record)) return;
+    push(record.schema === 'ivory-v41-qualification-record/1', errors, `${label}: unexpected record schema`);
+    push(record.gate === gateId, errors, `${label}: record gate must match registry gate`);
+    for (const field of ['aggregatePass', 'overallPass', 'overallStatus']) {
+        push(record[field] === undefined, errors, `${label}: aggregate outcome field ${field} is forbidden`);
+    }
+
+    push(Array.isArray(record.fixtures), errors, `${label}: fixtures must be an array`);
+    push(Array.isArray(record.evidence), errors, `${label}: evidence must be an array`);
+    push(isRecord(record.observations), errors, `${label}: observations must be an object`);
+    push(isRecord(record.decision), errors, `${label}: decision must be an object`);
+    push(Array.isArray(record.limitations), errors, `${label}: limitations must be an array`);
+    push(Array.isArray(record.architecturalGaps), errors, `${label}: architecturalGaps must be an array`);
+
+    const fixtures = Array.isArray(record.fixtures) ? record.fixtures : [];
+    const evidence = Array.isArray(record.evidence) ? record.evidence : [];
+    const fixturePaths = fixtures.map(item => item?.path);
+    const evidencePaths = evidence.map(item => item?.path);
+    push(duplicates(fixturePaths).length === 0, errors, `${label}: duplicate fixture paths are forbidden`);
+    push(duplicates(evidencePaths).length === 0, errors, `${label}: duplicate evidence paths are forbidden`);
+    fixtures.forEach((item, index) => validateQualificationFileRecord(item, `${label}.fixtures[${index}]`, root, options, errors, false));
+    evidence.forEach((item, index) => validateQualificationFileRecord(item, `${label}.evidence[${index}]`, root, options, errors, true));
+
+    const observations = isRecord(record.observations) ? record.observations : {};
+    validateObservation(observations.machine, `${label}.observations.machine`, errors);
+    validateObservation(observations.human, `${label}.observations.human`, errors);
+    const decision = isRecord(record.decision) ? record.decision : {};
+    push(QUALIFICATION_STATUSES.includes(decision.status), errors, `${label}: decision.status is invalid`);
+    push(typeof decision.rationale === 'string' && decision.rationale.length > 0, errors, `${label}: decision.rationale is required`);
+
+    const limitations = Array.isArray(record.limitations) ? record.limitations : [];
+    for (const [index, limitation] of limitations.entries()) {
+        const limitationLabel = `${label}.limitations[${index}]`;
+        push(isRecord(limitation), errors, `${limitationLabel} must be an object`);
+        if (!isRecord(limitation)) continue;
+        for (const field of ['id', 'kind', 'effect', 'statement']) {
+            push(typeof limitation[field] === 'string' && limitation[field].length > 0, errors, `${limitationLabel}.${field} is required`);
+        }
+    }
+    push(limitations.length > 0, errors, `${label}: at least one limitation is required`);
+
+    const gaps = Array.isArray(record.architecturalGaps) ? record.architecturalGaps : [];
+    for (const [index, gap] of gaps.entries()) validateArchitecturalGap(gap, `${label}.architecturalGaps[${index}]`, errors);
+
+    if (decision.status === 'not-run') {
+        push(fixtures.length === 0, errors, `${label}: not-run records cannot claim fixtures`);
+        push(evidence.length === 0, errors, `${label}: not-run records cannot claim evidence`);
+        push(observations.machine?.status === 'not-run', errors, `${label}: not-run machine observation is required`);
+        push(observations.human?.status === 'not-run', errors, `${label}: not-run human observation is required`);
+        return;
+    }
+
+    push(nonEmptyArray(fixtures), errors, `${label}: terminal records require retained fixtures`);
+    push(nonEmptyArray(evidence), errors, `${label}: terminal records require retained evidence`);
+    if (decision.status === 'qualified') {
+        push(isRecord(options.runContext), errors, `${label}: qualified records require run context`);
+        push(options.runContext?.repository?.dirty === false, errors, `${label}: qualified records require a clean worktree`);
+        push(options.runContext?.verifier?.exitCode === 0, errors, `${label}: qualified records require a zero verifier exit code`);
+        push(['human', 'joint'].includes(decision.authority), errors, `${label}: qualified decisions require human or joint authority`);
+        push(typeof decision.qualificationLevel === 'string' && decision.qualificationLevel.length > 0, errors, `${label}: qualified decisions require a qualification level`);
+        push(isRecord(decision.scope), errors, `${label}: qualified decisions require scope`);
+        for (const field of ['fixtures', 'platforms', 'components']) {
+            push(nonEmptyArray(decision.scope?.[field]), errors, `${label}: qualified decision scope requires ${field}`);
+        }
+        push(evidence.some(item => item?.tracked === true), errors, `${label}: qualified decisions require tracked evidence`);
+    }
+}
+
+function validateQualification(qualification, bundle, options, errors) {
+    push(isRecord(qualification), errors, 'IV41-005: qualification manifest must be an object');
+    if (!isRecord(qualification)) return;
+    push(qualification.schema === 'ivory-v41-qualification/1', errors, 'IV41-005: unexpected schema');
+    push(qualification.issue === 'IV41-005', errors, 'IV41-005: issue id must be IV41-005');
+    push(qualification.dependsOn === 'V41-I01.4', errors, 'IV41-005: dependency must remain V41-I01.4');
+    push(qualification.recordSchema === 'ivory-v41-qualification-record/1', errors, 'IV41-005: unexpected record schema');
+    push(qualification.basis?.heads === CONFIGS.heads, errors, 'IV41-005: basis must bind to the exact-head manifest');
+    push(qualification.basis?.owners === CONFIGS.owners, errors, 'IV41-005: basis must bind to the owner map');
+    push(qualification.basis?.packageOwnership === CONFIGS.packageOwnership, errors, 'IV41-005: basis must bind to package ownership');
+    push(qualification.basis?.carriers === CONFIGS.carriers, errors, 'IV41-005: basis must bind to the carrier matrix');
+    push(qualification.basis?.gates === CONFIGS.gates, errors, 'IV41-005: basis must bind to the gate registry');
+    push(qualification.digestConvention?.algorithm === 'sha256', errors, 'IV41-005: digest algorithm must be SHA-256');
+    push(qualification.digestConvention?.encoding === 'raw-bytes', errors, 'IV41-005: digest encoding must be raw bytes');
+    push(qualification.digestConvention?.pathSeparator === '/', errors, 'IV41-005: digest paths must use POSIX separators');
+    push(qualification.digestConvention?.lineEndingPolicy === 'preserve-bytes', errors, 'IV41-005: digest line-ending policy must preserve bytes');
+    push(qualification.authorityBoundary?.role === 'qualification-records-only', errors, 'IV41-005: qualification authority boundary is invalid');
+    push(qualification.authorityBoundary?.mayWriteCanonicalResearchState === false, errors, 'IV41-005: qualification records cannot write canonical research state');
+    push(qualification.authorityBoundary?.mayDecideResearchAcceptance === false, errors, 'IV41-005: qualification records cannot decide research acceptance');
+    for (const field of ['aggregatePass', 'overallPass', 'overallStatus']) {
+        push(qualification[field] === undefined, errors, `IV41-005: aggregate outcome field ${field} is forbidden`);
+    }
+
+    const rows = Array.isArray(qualification.gates) ? qualification.gates : [];
+    const ids = rows.map(row => row?.id);
+    push(sameSet(ids, REQUIRED_GATES), errors, 'IV41-005: qualification records must cover every V4.1 gate exactly once');
+    push(duplicates(ids).length === 0, errors, `IV41-005: duplicate qualification gates: ${duplicates(ids).join(', ')}`);
+    const records = rows.map(row => row?.record);
+    const statuses = records.map(record => record?.decision?.status);
+    const allNotRun = ids.length === REQUIRED_GATES.length && statuses.every(status => status === 'not-run');
+    if (allNotRun) {
+        push(qualification.runContext === null, errors, 'IV41-005: not-run manifest must have a null runContext');
+    } else {
+        push(isRecord(qualification.runContext), errors, 'IV41-005: terminal records require runContext');
+        if (isRecord(qualification.runContext)) {
+            const selectedDev = (bundle.heads?.heads ?? []).find(head => head.role === 'selectedDev');
+            validateRunContext(qualification.runContext, selectedDev?.sha, options.root, options, errors);
+        }
+    }
+    for (const row of rows) {
+        validateQualificationRecord(row?.record, row?.id, options.root, { ...options, runContext: qualification.runContext }, errors);
+    }
 }
 
 function validateHeads(heads, root, options, errors) {
@@ -309,6 +523,7 @@ export function validateBundle(bundle, options = {}) {
     validatePackageOwnership(bundle.packageOwnership, bundle.heads, bundle.owners, errors);
     validateCarriers(bundle.carriers, errors);
     validateGates(bundle.gates, errors);
+    validateQualification(bundle.qualification, bundle, { ...options, root }, errors);
     return errors;
 }
 
@@ -319,6 +534,7 @@ export function loadBundle(root = ROOT) {
         packageOwnership: readJson(root, CONFIGS.packageOwnership),
         carriers: readJson(root, CONFIGS.carriers),
         gates: readJson(root, CONFIGS.gates),
+        qualification: readJson(root, CONFIGS.qualification),
     };
 }
 
@@ -344,7 +560,7 @@ function main() {
     for (const [leaf, relative] of Object.entries(CONFIGS)) {
         process.stdout.write(`${leaf} ${sha256File(ROOT, relative)} ${relative}\n`);
     }
-    process.stdout.write('V4.1 authority reconciliation: valid (V41-P01 4/4 leaves + IV41-003 package ownership)\n');
+    process.stdout.write('V4.1 authority reconciliation: valid (V41-P01 4/4 leaves + IV41-003 package ownership + IV41-005 qualification manifest)\n');
 }
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
