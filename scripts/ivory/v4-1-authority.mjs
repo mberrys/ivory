@@ -22,6 +22,7 @@ const REQUIRED_CONCEPTS = [
     'CAS',
 ];
 const REQUIRED_LESSONS = ['N1', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7'];
+const REQUIRED_CARRIER_KINDS = ['type', 'receipt', 'predicate', 'manifest', 'schema', 'fixture', 'owned-gap'];
 const REQUIRED_GATES = ['DURABILITY', 'REPLAY', 'Q1', 'Q2', 'Q3', 'Q4'];
 const SHA = /^[0-9a-f]{40}$/;
 
@@ -177,18 +178,47 @@ export function validateManifest(manifest) {
         }
     }
 
+    if (manifest?.carrierMappingIssue !== 'IV41-002') errors.push('carrier mapping issue must be IV41-002');
+    const carrierPolicy = manifest?.carrierMappingPolicy;
+    if (carrierPolicy?.evidenceBinding !== 'exact-retained-record') errors.push('lesson evidence binding must be exact-retained-record');
+    if (carrierPolicy?.repositoryContext !== 'exact-commit') errors.push('lesson repository context must be exact-commit');
+    if (carrierPolicy?.environmentContext !== 'exact-recorded-values') errors.push('lesson environment context must use exact recorded values');
+    if (carrierPolicy?.unownedSessionNotes !== 'forbidden') errors.push('unowned architectural session notes must be forbidden');
+    if (JSON.stringify(carrierPolicy?.allowedKinds ?? []) !== JSON.stringify(REQUIRED_CARRIER_KINDS)) errors.push('carrier mapping policy must enumerate the approved structural carrier kinds');
+
     const lessons = Array.isArray(manifest?.lessonCarriers) ? manifest.lessonCarriers : [];
     const lessonIds = lessons.map(lesson => lesson?.id).filter(Boolean);
     for (const id of setDifference(REQUIRED_LESSONS, lessonIds)) errors.push(`missing lesson carrier ${id}`);
     for (const id of duplicateValues(lessonIds)) errors.push(`duplicate lesson carrier ${id}`);
     for (const lesson of lessons) {
-        const hasCarrier = lesson?.carrier && lesson.carrier.path && lesson.carrier.symbol;
+        const hasCarrier = lesson?.carrier && lesson.carrier.path && lesson.carrier.symbol && lesson.carrier.kind;
         const hasGap = lesson?.ownedGap && lesson.ownedGap.issue && lesson.ownedGap.reason;
         if (Boolean(hasCarrier) === Boolean(hasGap)) errors.push(`${lesson?.id ?? 'lesson'} must have exactly one carrier or owned gap`);
+        if (hasCarrier && !REQUIRED_CARRIER_KINDS.includes(lesson.carrier.kind)) errors.push(`${lesson?.id ?? 'lesson'} carrier kind ${lesson.carrier.kind} is not approved`);
         for (const field of ['predicate', 'fixture', 'evidence', 'gate', 'scope']) {
             if (!lesson?.[field]) errors.push(`${lesson?.id ?? 'lesson'} must name ${field}`);
         }
         if (lesson?.gate !== lesson?.id) errors.push(`${lesson?.id ?? 'lesson'} must point to its matching N-gate`);
+
+        const evidenceRepository = lesson?.evidenceContext?.repository;
+        const repositoryBindings = Array.isArray(evidenceRepository?.bindings) ? evidenceRepository.bindings : [];
+        const environmentBindings = Array.isArray(lesson?.evidenceContext?.environment?.bindings) ? lesson.evidenceContext.environment.bindings : [];
+        if (evidenceRepository?.fullName !== repository?.fullName) errors.push(`${lesson?.id ?? 'lesson'} evidence context must retain the repository full name`);
+        if (repositoryBindings.length === 0) errors.push(`${lesson?.id ?? 'lesson'} must retain repository evidence bindings`);
+        if (environmentBindings.length < 3) errors.push(`${lesson?.id ?? 'lesson'} must retain exact environment evidence bindings`);
+        const exactCommitBinding = repositoryBindings.some(binding =>
+            SHA.test(String(binding?.value ?? '')) && /commit|head/i.test(`${binding?.name ?? ''} ${binding?.sourcePath ?? ''}`)
+        );
+        if (!exactCommitBinding) errors.push(`${lesson?.id ?? 'lesson'} must retain an exact evidence commit binding`);
+        for (const [kind, bindings] of [['repository', repositoryBindings], ['environment', environmentBindings]]) {
+            const names = bindings.map(binding => binding?.name).filter(Boolean);
+            for (const name of duplicateValues(names)) errors.push(`${lesson?.id ?? 'lesson'} has duplicate ${kind} evidence binding ${name}`);
+            for (const binding of bindings) {
+                if (!binding?.name || !binding?.sourcePath || !Object.prototype.hasOwnProperty.call(binding, 'value')) {
+                    errors.push(`${lesson?.id ?? 'lesson'} ${kind} evidence bindings must name name, sourcePath and value`);
+                }
+            }
+        }
     }
 
     const harness = manifest?.harnessBoundary;
@@ -245,6 +275,32 @@ export function validateRepositorySurfaces(manifest, options = {}) {
     const root = options.root ?? ROOT;
     const exists = options.exists ?? (relative => existsSync(path.join(root, relative)));
     return requiredSurfacePaths(manifest).filter(relative => !exists(relative)).map(relative => `missing retained surface ${relative}`);
+}
+
+export function validateLessonEvidenceBindings(manifest, options = {}) {
+    const root = options.root ?? ROOT;
+    const exists = options.exists ?? (relative => existsSync(path.join(root, relative)));
+    const readJson = options.readJson ?? (relative => JSON.parse(readFileSync(path.join(root, relative), 'utf8')));
+    const errors = [];
+    for (const lesson of manifest.lessonCarriers ?? []) {
+        if (!lesson?.evidence || !exists(lesson.evidence)) {
+            errors.push(`${lesson?.id ?? 'lesson'} retained evidence is missing: ${lesson?.evidence ?? 'unnamed'}`);
+            continue;
+        }
+        const record = readJson(lesson.evidence);
+        for (const [kind, bindings] of [
+            ['repository', lesson?.evidenceContext?.repository?.bindings ?? []],
+            ['environment', lesson?.evidenceContext?.environment?.bindings ?? []],
+        ]) {
+            for (const binding of bindings) {
+                const observed = valueAt(record, binding.sourcePath);
+                if (JSON.stringify(observed) !== JSON.stringify(binding.value)) {
+                    errors.push(`${lesson.id} ${kind} binding ${binding.name} does not match retained evidence at ${binding.sourcePath}: expected ${JSON.stringify(binding.value)}, observed ${JSON.stringify(observed)}`);
+                }
+            }
+        }
+    }
+    return errors;
 }
 
 export function manifestDigest(content) {
@@ -342,7 +398,8 @@ function main() {
     const contractErrors = validateManifest(manifest);
     const headErrors = compareObservedHeads(manifest, parseObservedHeads(valuesForArgument('--observed-head')));
     const surfaceErrors = process.env.IVORY_V41_AUTHORITY_SKIP_SURFACE_CHECK === '1' ? [] : validateRepositorySurfaces(manifest);
-    const gates = contractErrors.length === 0 ? evaluateGateRegistry(manifest) : [];
+    const evidenceBindingErrors = contractErrors.length === 0 ? validateLessonEvidenceBindings(manifest) : [];
+    const gates = contractErrors.length === 0 && evidenceBindingErrors.length === 0 ? evaluateGateRegistry(manifest) : [];
     const required = valuesForArgument('--require-gate').flatMap(value => value.split(',')).map(value => value.trim()).filter(Boolean);
     const gateById = new Map(gates.map(gate => [gate.id, gate]));
     const gateErrors = [];
@@ -379,8 +436,9 @@ function main() {
     for (const error of contractErrors) process.stderr.write(`CONTRACT: ${error}\n`);
     for (const error of headErrors) process.stderr.write(`HEAD MISMATCH: ${error}\n`);
     for (const error of surfaceErrors) process.stderr.write(`SURFACE: ${error}\n`);
+    for (const error of evidenceBindingErrors) process.stderr.write(`EVIDENCE: ${error}\n`);
     for (const error of gateErrors) process.stderr.write(`GATE: ${error}\n`);
-    process.exitCode = contractErrors.length + headErrors.length + surfaceErrors.length + gateErrors.length === 0 ? 0 : 1;
+    process.exitCode = contractErrors.length + headErrors.length + surfaceErrors.length + evidenceBindingErrors.length + gateErrors.length === 0 ? 0 : 1;
 }
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) main();
