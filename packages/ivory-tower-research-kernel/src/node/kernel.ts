@@ -1103,15 +1103,17 @@ export class ResearchKernel {
             return context.basis === 'no-material-structure' && Boolean(context.reason.trim()) ? 'not-applicable' : 'mismatch';
         }
         for (const reference of context.references) {
-            const representation =
-                reference.representation === 'source'
-                    ? this.requireRevision<SourcePayload>(reference.representationRef, 'source').payload
-                    : this.requireRevision<ArtifactPayload>(reference.representationRef, 'artifact').payload;
-            const digest = reference.representation === 'source' ? representation.contentDigest : representation.outputDigest;
-            const text =
-                reference.representation === 'source'
-                    ? this.decodeSourceText(representation as SourcePayload)
-                    : (representation as ArtifactPayload).output;
+            let digest: string;
+            let text: string;
+            if (reference.representation === 'source') {
+                const source = this.requireRevision<SourcePayload>(reference.representationRef, 'source').payload;
+                digest = source.contentDigest;
+                text = this.decodeSourceText(source);
+            } else {
+                const artifact = this.requireRevision<ArtifactPayload>(reference.representationRef, 'artifact').payload;
+                digest = artifact.outputDigest;
+                text = artifact.output;
+            }
             if (digest !== reference.representationDigest || !this.selectorMatches(reference.selector, text)) {
                 return 'mismatch';
             }
