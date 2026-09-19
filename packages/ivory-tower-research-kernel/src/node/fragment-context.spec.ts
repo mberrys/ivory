@@ -190,7 +190,7 @@ describe('V41-P02 fragment context and exact evidence', () => {
                     end: text.indexOf(quote) + quote.length,
                     quote,
                 },
-                context: { state: 'not-applicable', basis: 'no-material-structure', reason: 'bounded fixture leaf' },
+                context: { state: 'unavailable', reason: 'the EvidenceLink role fixture has not inspected source structure' },
                 actor: 'Maya',
                 fragmentKey: key,
             });
@@ -390,5 +390,136 @@ describe('V41-P02 fragment context and exact evidence', () => {
         expect(first.receipt.status).to.equal('EXACT');
         expect(reconstructed.receipt.status).to.equal('EXACT');
         expect(first.receipt.receiptDigest).to.equal(reconstructed.receipt.receiptDigest);
+    });
+
+    it('rejects not-applicable when structural context could be concealed, without writing a Fragment', () => {
+        const quote = 'The effect was 12%.';
+        for (const heading of [
+            'Table header: treatment',
+            'Units: percent',
+            'Denominator: 50',
+            'Legend: red is control',
+            'Footnote: subgroup only',
+            'Methods: pilot study',
+            'Limitations: pilot only',
+            'Figure 1',
+        ]) {
+            const kernel = new ResearchKernel();
+            const text = `${heading}\n${quote}`;
+            const source = kernel.admitSource({ name: heading, bytes: text, actor: 'Maya' });
+            const artifact = kernel.admitArtifact({ key: heading, sourceRefs: [source], output: text, actor: 'Maya' });
+            const before = kernel.sequence;
+            expect(() =>
+                kernel.createFragment({
+                    sourceRef: source,
+                    artifactRef: artifact,
+                    representation: 'artifact',
+                    selector: {
+                        kind: 'text',
+                        start: text.indexOf(quote),
+                        end: text.indexOf(quote) + quote.length,
+                        quote,
+                    },
+                    context: { state: 'not-applicable', basis: 'no-material-structure', reason: 'context does not matter' },
+                    actor: 'Maya',
+                    fragmentKey: heading,
+                }),
+            ).to.throw('not-applicable Fragment context is unproven');
+            expect(kernel.sequence).to.equal(before);
+        }
+    });
+
+    it('accepts only a bounded standalone no-structure witness and rejects inconsistent source/artifact lineage', () => {
+        const kernel = new ResearchKernel();
+        const quote = 'The effect was 12%.';
+        const source = kernel.admitSource({ name: 'standalone', bytes: quote, actor: 'Maya' });
+        const artifact = kernel.admitArtifact({ key: 'standalone', sourceRefs: [source], output: quote, actor: 'Maya' });
+        const fragment = kernel.createFragment({
+            sourceRef: source,
+            artifactRef: artifact,
+            representation: 'artifact',
+            selector: { kind: 'text', start: 0, end: quote.length, quote },
+            context: { state: 'not-applicable', basis: 'no-material-structure', reason: 'entire single-line retained representation' },
+            actor: 'Maya',
+            fragmentKey: 'standalone',
+        });
+        expect(kernel.verifyCitation(fragment).checks.context).to.equal('not-applicable');
+
+        const otherSource = kernel.admitSource({ name: 'other study', bytes: quote, actor: 'Maya' });
+        const before = kernel.sequence;
+        expect(() =>
+            kernel.createFragment({
+                sourceRef: otherSource,
+                artifactRef: artifact,
+                representation: 'artifact',
+                selector: { kind: 'text', start: 0, end: quote.length, quote },
+                context: { state: 'not-applicable', basis: 'no-material-structure', reason: 'unrelated source' },
+                actor: 'Maya',
+                fragmentKey: 'cross-source',
+            }),
+        ).to.throw('exact selected source revision');
+        expect(kernel.sequence).to.equal(before);
+
+        const tableKernel = new ResearchKernel();
+        const tableSource = tableKernel.admitSource({ name: 'table', bytes: '12%', actor: 'Maya' });
+        const tableArtifact = tableKernel.admitArtifact({
+            key: 'table',
+            sourceRefs: [tableSource],
+            output: '12%',
+            actor: 'Maya',
+        });
+        expect(() =>
+            tableKernel.createFragment({
+                sourceRef: tableSource,
+                artifactRef: tableArtifact,
+                selector: { kind: 'table', sheet: 'Table 1', row: 1, column: 'effect', value: '12%' },
+                context: { state: 'not-applicable', basis: 'no-material-structure', reason: 'table cannot waive structure' },
+                actor: 'Maya',
+                fragmentKey: 'table',
+            }),
+        ).to.throw('not-applicable Fragment context is unproven');
+    });
+
+    it('does not infer absent structure from an excerpt or a material qualifier inside one line', () => {
+        const kernel = new ResearchKernel();
+        const source = kernel.admitSource({
+            name: 'study',
+            bytes: 'Table header: treatment\\nThe effect was 12%.',
+            actor: 'Maya',
+        });
+        const artifact = kernel.admitArtifact({
+            key: 'excerpt',
+            sourceRefs: [source],
+            output: 'The effect was 12%.',
+            actor: 'Maya',
+        });
+        expect(() =>
+            kernel.createFragment({
+                sourceRef: source,
+                artifactRef: artifact,
+                representation: 'artifact',
+                selector: { kind: 'text', start: 0, end: 19, quote: 'The effect was 12%.' },
+                context: { state: 'not-applicable', basis: 'no-material-structure', reason: 'excerpt only' },
+                actor: 'Maya',
+            }),
+        ).to.throw('not-applicable Fragment context is unproven');
+
+        const material = 'Methods: pilot sample only.';
+        const materialSource = kernel.admitSource({ name: 'methods', bytes: material, actor: 'Maya' });
+        const materialArtifact = kernel.admitArtifact({
+            key: 'methods',
+            sourceRefs: [materialSource],
+            output: material,
+            actor: 'Maya',
+        });
+        expect(() =>
+            kernel.createFragment({
+                sourceRef: materialSource,
+                artifactRef: materialArtifact,
+                selector: { kind: 'text', start: 0, end: material.length, quote: material },
+                context: { state: 'not-applicable', basis: 'no-material-structure', reason: 'has structured method' },
+                actor: 'Maya',
+            }),
+        ).to.throw('not-applicable Fragment context is unproven');
     });
 });
