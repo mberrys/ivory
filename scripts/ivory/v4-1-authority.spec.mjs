@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import test from 'node:test';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { compareObservedHeads, evaluateGateRegistry, manifestDigest, validateManifest, validateRepositorySurfaces } from './v4-1-authority.mjs';
+import { compareObservedHeads, evaluateGateRegistry, manifestDigest, validateLessonEvidenceBindings, validateManifest, validateRepositorySurfaces } from './v4-1-authority.mjs';
 
 const MANIFEST = JSON.parse(readFileSync(new URL('../../configs/ivory-v4-1-authority.json', import.meta.url), 'utf8'));
 const SCRIPT = fileURLToPath(new URL('./v4-1-authority.mjs', import.meta.url));
@@ -35,6 +35,7 @@ function runCli(root, manifest, args = []) {
             IVORY_V41_AUTHORITY_ROOT: root,
             IVORY_V41_AUTHORITY_CONFIG: config,
             IVORY_V41_AUTHORITY_SKIP_SURFACE_CHECK: '1',
+            IVORY_V41_AUTHORITY_SKIP_EVIDENCE_CHECK: '1',
         },
     });
 }
@@ -137,6 +138,38 @@ test('every N1-N7 lesson must resolve to exactly one structural carrier or owned
     const broken = clone(MANIFEST);
     delete broken.lessonCarriers[0].carrier;
     assert.match(validateManifest(broken).join('\n'), /N1 must have exactly one carrier or owned gap/);
+});
+
+test('IV41-002 requires approved structural carrier kinds and exact evidence context', () => {
+    assert.equal(MANIFEST.carrierMappingIssue, 'IV41-002');
+    assert.deepEqual(MANIFEST.lessonCarriers.map(lesson => [lesson.id, lesson.carrier.kind]), [
+        ['N1', 'type'],
+        ['N2', 'schema'],
+        ['N3', 'type'],
+        ['N4', 'type'],
+        ['N5', 'type'],
+        ['N6', 'manifest'],
+        ['N7', 'receipt'],
+    ]);
+    assert.deepEqual(validateLessonEvidenceBindings(MANIFEST), []);
+});
+
+test('a lesson without an exact retained commit or environment binding is rejected', () => {
+    const noCommit = clone(MANIFEST);
+    noCommit.lessonCarriers[0].evidenceContext.repository.bindings =
+        noCommit.lessonCarriers[0].evidenceContext.repository.bindings.filter(binding => !/commit|head/i.test(`${binding.name} ${binding.sourcePath}`));
+    assert.match(validateManifest(noCommit).join('\n'), /N1 must retain an exact evidence commit binding/);
+
+    const noEnvironment = clone(MANIFEST);
+    noEnvironment.lessonCarriers[1].evidenceContext.environment.bindings = [];
+    assert.match(validateManifest(noEnvironment).join('\n'), /N2 must retain exact environment evidence bindings/);
+});
+
+test('retained evidence drift fails the IV41-002 binding check', () => {
+    const broken = clone(MANIFEST);
+    broken.lessonCarriers.find(lesson => lesson.id === 'N7').evidenceContext.environment.bindings
+        .find(binding => binding.name === 'typescript').value = '0.0.0';
+    assert.match(validateLessonEvidenceBindings(broken).join('\n'), /N7 environment binding typescript does not match retained evidence/);
 });
 
 test('a broken retained carrier path is rejected by the repository-surface check', () => {
