@@ -66,4 +66,4 @@ Package-level authority is retained in `configs/ivory-v41-package-ownership.json
 | content policy | `@ivory-tower/content-policy` | rights/content admission, not research support |
 | agent proposal harness | `@ivory-tower/agent-experiment` | bounded qualification harness, not a production authority |
 
-The validator fails closed if the exact package inventory is not covered, a responsibility gains multiple owners, another package acquires research acceptance or canonical-write authority, the evidence context no longer matches the selected-dev SHA, or a discovered architecture gap is recorded without an `IV41-*` tracking issue.
+The validator fails closed if the exact package inventory is not covered, a responsibility gains multiple owners, another package acquires research acceptance or canonical-write authority, or the evidence context no longer matches the selected-dev SHA. The 18 missing fields already retained in the V41-I01.2 owner map are each mapped to an existing `IV41-*` roadmap issue; dropping one, duplicating one, or replacing its issue with session notes is also a validation failure.
