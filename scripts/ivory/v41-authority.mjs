@@ -16,6 +16,20 @@ const CONFIGS = {
 const SHA40 = /^[a-f0-9]{40}$/;
 const EXPECTED_HEAD_ROLES = ['detachedBaseline', 'foundationPr', 'selectedDev'];
 const EXPECTED_N = ['N1', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7'];
+const EXPECTED_IVORY_PACKAGE_PATHS = [
+    'packages/ivory-identity/package.json',
+    'packages/ivory-tower-adapters/package.json',
+    'packages/ivory-tower-agent-experiment/package.json',
+    'packages/ivory-tower-api/package.json',
+    'packages/ivory-tower-application/package.json',
+    'packages/ivory-tower-content-policy/package.json',
+    'packages/ivory-tower-contracts/package.json',
+    'packages/ivory-tower-domain/package.json',
+    'packages/ivory-tower-health/package.json',
+    'packages/ivory-tower-infrastructure/package.json',
+    'packages/ivory-tower-research-kernel/package.json',
+    'packages/ivory-tower-worker/package.json',
+];
 const REQUIRED_SURFACES = [
     'Source',
     'Fragment',
@@ -92,6 +106,7 @@ function validateHeads(heads, root, options, errors) {
 
     const packages = heads.packages ?? [];
     push(packages.length > 0, errors, 'I01.1: package inventory is empty');
+    push(sameSet(packages.map(item => item.path), EXPECTED_IVORY_PACKAGE_PATHS), errors, 'I01.1: package inventory must exactly match the selected-dev Ivory package tree');
     push(duplicates(packages.map(item => item.name)).length === 0, errors, 'I01.1: package inventory contains duplicate names');
     push(duplicates(packages.map(item => item.path)).length === 0, errors, 'I01.1: package inventory contains duplicate paths');
     for (const item of packages) {
