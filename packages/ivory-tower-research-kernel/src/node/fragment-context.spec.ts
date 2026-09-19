@@ -117,6 +117,18 @@ describe('V41-P02 fragment context and exact evidence', () => {
                 sourceRef: source,
                 artifactRef: artifact,
                 representation: 'artifact',
+                selector: { ...selector, prefix: 'wrong-prefix' },
+                context: { state: 'not-applicable', basis: 'no-material-structure', reason: 'selector profile probe' },
+                actor: 'Maya',
+                fragmentKey: 'wrong-prefix',
+            }),
+        ).to.throw('selected retained representation');
+
+        expect(() =>
+            kernel.createFragment({
+                sourceRef: source,
+                artifactRef: artifact,
+                representation: 'artifact',
                 selector,
                 context: { state: 'applicable', references: [] },
                 actor: 'Maya',
