@@ -11,7 +11,7 @@ The implementation is stacked on the exact PR #1 foundation head because that he
 | authority | commit | tree | classification | Ivory packages |
 |---|---|---|---|---:|
 | detached planning baseline | `efec71ed83a1d0d9d513a4ead86369201cb5b401` | `b52b1aa0957e45f199f3e75bf99fdaad7ef972a1` | reference-only | 1 |
-| PR #1 / `pre-dev-foundation` | `ecc406d34a9bf49d8e2f165b994a919ca90ff718` | `d2b74a2d3125d10fc8e71af2486657b06cde64f0` | implementation-base | 14 |
+| PR #1 / `pre-dev-foundation` | `387411255a0de9ae10924609bac85472f58d992f` | `53f8b5621fc0eefc4ad1764e4b49a6ad4b6d7dd2` | implementation-base | 14 |
 | selected `dev` | `bc3cd03b5b2d870d219797925d92edc48c33c6ca` | `8edc9eab81e3733b60eb626c10ca91de63bd041c` | divergent-compared-head | 12 |
 
 The retained package inventory is exact to those tree objects. The detached baseline contains only `ivory-identity`. PR #1 adds the full Core/service package set plus `ivory-n5-client` and `ivory-n5-shell`; the selected `dev` head has the Core/service set but not those N5 packages or the N-gate manifest.
@@ -80,7 +80,7 @@ Recheck the three observed heads against the retained exact values:
 ```text
 npm run verify:ivory-v4-1-authority -- \
   --observed-head detached=efec71ed83a1d0d9d513a4ead86369201cb5b401 \
-  --observed-head pr1=ecc406d34a9bf49d8e2f165b994a919ca90ff718 \
+  --observed-head pr1=387411255a0de9ae10924609bac85472f58d992f \
   --observed-head dev=bc3cd03b5b2d870d219797925d92edc48c33c6ca
 ```
 
@@ -90,7 +90,7 @@ The head and tree values above were read from the repository objects on 18 Septe
 
 ## Acceptance evidence
 
-The local contract test run on 18 September 2026 produced 17/17 passing tests. The verifier reported the PR #1 head as the implementation base and `0/6 V4.1 gates passed; 6 not-run.` Its retained manifest SHA-256 at that run was `2665b980ad886c0fd09a5efc0c36bc8d6ba50735c59f23f4e5226b0bc9019edd`.
+The local contract test run on 18 September 2026 produced 17/17 passing tests. The verifier reported the PR #1 head as the implementation base and `0/6 V4.1 gates passed; 6 not-run.` Its retained manifest SHA-256 at that run was `d31af012ee1e07ef21e5c46d3adf999a6a023b37f3145c7b60ffa0254d9468dc`.
 
 Negative cases exercised by the test suite include latest-head substitution, duplicate canonical ownership, forbidden authority creation, a missing N1 carrier, a broken retained carrier path, machine-only gate evidence, human-only gate evidence, rejected human review, requiring an unrun gate, a planning status promoted to pass, a harness canonical write, and a client that implicitly selects latest.
 
