@@ -2,7 +2,7 @@
 // @ts-check
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -60,6 +60,10 @@ const REQUIRED_SURFACES = [
     'CAS',
 ];
 const REQUIRED_GATES = ['DURABILITY', 'Q1', 'Q2', 'REPLAY', 'Q3', 'Q4'];
+/** Outcome fields a gate registry must never carry: a runner existing is not a qualification. */
+const GATE_OUTCOME_FIELDS = ['aggregatePass', 'overallPass', 'overallStatus', 'passed', 'qualified', 'closureClaim'];
+/** Tracked issue ids an unbound-gate reason must name, anywhere in the sentence. */
+const TRACKED_ISSUE_ANYWHERE = /(?:IV41-\d+[A-Z]?|V41-I\d+(?:\.\d+)?)/g;
 const QUALIFICATION_STATUSES = ['not-run', 'qualified', 'no-go', 'inconclusive', 'blocked', 'deferred'];
 const GAP_STATUSES = ['open', 'deferred', 'resolved'];
 const CARRIER_OWNER_CLASSES = ['production-package', 'closed-experiment'];
@@ -402,7 +406,7 @@ function normalizeAuthorityLabel(value) {
 
 /** A carrier symbol must be declared in its carrier file: a declaration or a member signature, never an import or a passing mention. */
 function declaresCarrierSymbol(contents, symbol) {
-    const escaped = symbol.replace(/[.*+?^${}()|[\]\\]/g, '\\function validateOwners(owners, errors) {');
+    const escaped = symbol.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const declaration = new RegExp(
         `\\b(?:export\\s+)?(?:abstract\\s+)?(?:interface|type|class|const|let|var|function|enum)\\s+${escaped}\\b`,
     );
@@ -855,25 +859,162 @@ function validateCarriers(carriers, root, options, errors) {
     }
 }
 
-function validateGates(gates, errors) {
+function isFileOnDisk(root, relative) {
+    try {
+        return statSync(path.join(root, relative)).isFile();
+    } catch {
+        return false;
+    }
+}
+
+function readRootScripts(root, errors) {
+    try {
+        const manifest = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+        return isRecord(manifest.scripts) ? manifest.scripts : {};
+    } catch (error) {
+        errors.push(`I01.4: the root package.json scripts cannot be read: ${error.message}`);
+        return {};
+    }
+}
+
+function validateMachineRunner(runner, label, root, options, scripts, errors) {
+    push(isRecord(runner), errors, `${label} must be an object`);
+    if (!isRecord(runner)) return;
+    validateRepoRelativePath(runner.module, `${label}.module`, errors);
+    validateRepoRelativePath(runner.evidence, `${label}.evidence`, errors);
+    const hasCommand = typeof runner.command === 'string' && runner.command.length > 0;
+    push(hasCommand, errors, `${label}.command must declare the root package.json script that runs it`);
+    if (hasCommand) {
+        push(
+            Object.hasOwn(scripts, runner.command),
+            errors,
+            `${label}.command ${runner.command} is not declared in the root package.json scripts`,
+        );
+    }
+    if (options.verifyFiles === false) return;
+    if (isRepoRelativePath(runner.module)) {
+        push(isFileOnDisk(root, runner.module), errors, `${label}.module must name a file that exists on disk: ${runner.module}`);
+    }
+    if (isRepoRelativePath(runner.evidence)) {
+        push(isFileOnDisk(root, runner.evidence), errors, `${label}.evidence must name a file that exists on disk: ${runner.evidence}`);
+    }
+}
+
+function validateMachineReadback(gates, readback, root, options, errors) {
+    push(isRecord(readback), errors, 'I01.4: registry must retain its machine readback record');
+    if (!isRecord(readback)) return;
+    push(readback.algorithm === 'sha256', errors, 'I01.4: machine readback algorithm must be SHA-256');
+    push(readback.encoding === 'raw-bytes', errors, 'I01.4: machine readback encoding must be raw bytes');
+    push(readback.pathSeparator === '/', errors, 'I01.4: machine readback paths must use POSIX separators');
+
+    push(Array.isArray(readback.files), errors, 'I01.4: machine readback must list the runner and evidence files it hashes');
+    const files = Array.isArray(readback.files) ? readback.files : [];
+    push(nonEmptyArray(files), errors, 'I01.4: machine readback must hash the runner and evidence files the registry binds');
+    const ids = files.map(file => file?.id);
+    push(duplicates(ids).length === 0, errors, `I01.4: machine readback repeats an id: ${duplicates(ids).join(', ')}`);
+    const paths = files.map(file => file?.path);
+    push(duplicates(paths).length === 0, errors, `I01.4: machine readback repeats a file: ${duplicates(paths).join(', ')}`);
+
+    files.forEach((file, index) => {
+        const label = `I01.4: machine readback files[${index}]`;
+        push(isRecord(file), errors, `${label} must be an object`);
+        if (!isRecord(file)) return;
+        push(typeof file.id === 'string' && file.id.length > 0, errors, `${label}.id is required`);
+        validateRepoRelativePath(file.path, `${label}.path`, errors);
+        push(SHA256.test(file.sha256 ?? ''), errors, `${label}.sha256 must be an exact SHA-256`);
+        push(Number.isInteger(file.bytes) && file.bytes >= 0, errors, `${label}.bytes must be a non-negative integer`);
+        if (options.verifyFiles === false || !isRepoRelativePath(file.path)) return;
+        const full = path.join(root, file.path);
+        push(isFileOnDisk(root, file.path), errors, `${label} must name a file that exists on disk: ${file.path}`);
+        if (!isFileOnDisk(root, file.path)) return;
+        let bytes;
+        try {
+            bytes = readFileSync(full);
+        } catch (error) {
+            errors.push(`${label} cannot be read: ${error.message}`);
+            return;
+        }
+        if (Number.isInteger(file.bytes) && file.bytes >= 0) {
+            push(bytes.length === file.bytes, errors, `${label} byte count does not match the retained readback`);
+        }
+        if (SHA256.test(file.sha256 ?? '')) {
+            push(
+                createHash('sha256').update(bytes).digest('hex') === file.sha256,
+                errors,
+                `${label} SHA-256 does not match the retained readback`,
+            );
+        }
+    });
+
+    const boundPaths = new Set();
+    for (const gate of gates ?? []) {
+        for (const runner of Array.isArray(gate?.machineRunners) ? gate.machineRunners : []) {
+            if (isRepoRelativePath(runner?.module)) boundPaths.add(runner.module);
+            if (isRepoRelativePath(runner?.evidence)) boundPaths.add(runner.evidence);
+        }
+    }
+    push(
+        sameSet(paths.filter(candidate => typeof candidate === 'string'), [...boundPaths]),
+        errors,
+        'I01.4: machine readback must hash exactly the runner and evidence files the registry binds',
+    );
+}
+
+function validateGates(gates, root, options, errors) {
     push(gates.schema === 'ivory-v41-gates/1', errors, 'I01.4: unexpected schema');
     push(gates.issue === 'V41-I01.4', errors, 'I01.4: issue id must be V41-I01.4');
     push(gates.dependsOn === 'V41-I01.3', errors, 'I01.4: dependency must remain V41-I01.3');
     push(gates.initialState === 'not-run', errors, 'I01.4: registry must start at Not run');
-    push(gates.aggregatePass === undefined, errors, 'I01.4: aggregate pass flags are forbidden');
+    for (const field of GATE_OUTCOME_FIELDS) {
+        push(
+            gates[field] === undefined,
+            errors,
+            field === 'aggregatePass'
+                ? 'I01.4: aggregate pass flags are forbidden'
+                : `I01.4: the registry cannot carry the outcome field ${field}`,
+        );
+    }
+    const scripts = readRootScripts(root, errors);
     const rows = gates.gates ?? [];
     const ids = rows.map(gate => gate.id);
     push(sameSet(ids, REQUIRED_GATES), errors, 'I01.4: registry must contain Q1-Q4 plus DURABILITY and REPLAY');
     push(duplicates(ids).length === 0, errors, `I01.4: duplicate gate ids: ${duplicates(ids).join(', ')}`);
     for (const gate of rows) {
+        const label = `I01.4: ${typeof gate?.id === 'string' && gate.id.length > 0 ? gate.id : 'gate'}`;
         push(gate.state === 'not-run', errors, `I01.4: ${gate.id} must remain not-run until executable retained proof exists`);
-        push(gate.aggregatePass === undefined, errors, `I01.4: ${gate.id} cannot define an aggregate pass flag`);
+        for (const field of GATE_OUTCOME_FIELDS) {
+            push(gate[field] === undefined, errors, `I01.4: ${gate.id} cannot define an aggregate pass flag or outcome field ${field}`);
+        }
         push(nonEmptyArray(gate.machineEvidence), errors, `I01.4: ${gate.id} is missing machine evidence requirements`);
         push(nonEmptyArray(gate.humanEvidence), errors, `I01.4: ${gate.id} is missing human receipt requirements`);
         push(nonEmptyArray(gate.negativeCases), errors, `I01.4: ${gate.id} is missing adversarial cases`);
         push(nonEmptyArray(gate.stopConditions), errors, `I01.4: ${gate.id} is missing stop conditions`);
         push(gate.humanOutcomeInferredFromMachine === false, errors, `I01.4: ${gate.id} must forbid inferring human outcome from machine evidence`);
+
+        push(Array.isArray(gate.machineRunners), errors, `${label} must explicitly bind its machine runners, even when none exist`);
+        const runners = Array.isArray(gate.machineRunners) ? gate.machineRunners : [];
+        const hasUnboundReason = typeof gate.unboundReason === 'string' && gate.unboundReason.trim().length > 0;
+        if (runners.length === 0) {
+            push(
+                hasUnboundReason,
+                errors,
+                `${label} must bind a machine runner or declare an unboundReason naming the missing observable and its tracked issue`,
+            );
+        } else {
+            push(gate.unboundReason === undefined, errors, `${label} binds machine runners and cannot also declare an unboundReason`);
+        }
+        if (hasUnboundReason) {
+            push(
+                (gate.unboundReason.match(TRACKED_ISSUE_ANYWHERE) ?? []).length > 0,
+                errors,
+                `${label} unboundReason must name the tracked issue that would supply the missing observable`,
+            );
+        }
+        runners.forEach((runner, index) =>
+            validateMachineRunner(runner, `${label} machineRunners[${index}]`, root, options, scripts, errors),
+        );
     }
+    validateMachineReadback(rows, gates.machineReadback, root, options, errors);
 }
 
 function lineageAuthorityClaims(value) {
@@ -1043,7 +1184,7 @@ export function validateBundle(bundle, options = {}) {
     validateOwners(bundle.owners, bundle.heads, root, options, errors);
     validatePackageOwnership(bundle.packageOwnership, bundle.heads, bundle.owners, errors);
     validateCarriers(bundle.carriers, root, options, errors);
-    validateGates(bundle.gates, errors);
+    validateGates(bundle.gates, root, options, errors);
     validateQualification(bundle.qualification, bundle, { ...options, root }, errors);
     validateAdrLineage(bundle.adrLineage, bundle, root, options, errors);
     return errors;

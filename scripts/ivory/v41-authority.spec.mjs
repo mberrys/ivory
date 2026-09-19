@@ -304,6 +304,193 @@ test('the registry rejects aggregate pass flags and pre-closed gates', () => {
     assert.match(errors, /Q4 must remain not-run/);
 });
 
+function gateOf(candidate, id) {
+    return candidate.gates.gates.find(gate => gate.id === id);
+}
+
+function boundPaths(candidate) {
+    return candidate.gates.gates.flatMap(gate => gate.machineRunners.flatMap(runner => [runner.module, runner.evidence]));
+}
+
+test('V41-I01.4 binds every gate to a real runner module, a declared npm alias, and a retained record', () => {
+    const candidate = bundle();
+    assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+    assert.equal(candidate.gates.machineReadback.algorithm, 'sha256');
+    assert.equal(candidate.gates.machineReadback.encoding, 'raw-bytes');
+    assert.equal(candidate.gates.machineReadback.pathSeparator, '/');
+
+    for (const gate of candidate.gates.gates) {
+        assert.ok(Array.isArray(gate.machineRunners), `${gate.id} must bind machineRunners explicitly`);
+        assert.ok(
+            gate.machineRunners.length > 0 || typeof gate.unboundReason === 'string',
+            `${gate.id} must bind a runner or declare why it is unbound`,
+        );
+        for (const runner of gate.machineRunners) {
+            assert.ok(existsSync(join(ROOT, runner.module)), `${gate.id} runner ${runner.module} must exist`);
+            assert.ok(existsSync(join(ROOT, runner.evidence)), `${gate.id} record ${runner.evidence} must exist`);
+        }
+    }
+
+    assert.deepEqual(
+        candidate.gates.gates.map(gate => [gate.id, gate.machineRunners.map(runner => runner.command)]),
+        [
+            ['DURABILITY', ['verify:ivory-n2-v2']],
+            ['Q1', ['verify:ivory-n1', 'verify:ivory-n4-v2']],
+            ['Q2', []],
+            ['REPLAY', ['verify:ivory-n6']],
+            ['Q3', ['test:n5', 'evidence:n5']],
+            ['Q4', ['verify:ivory-n3', 'retain:ivory-n3', 'verify:ivory-n7']],
+        ],
+    );
+
+    const q2 = gateOf(candidate, 'Q2');
+    assert.deepEqual(q2.machineRunners, []);
+    assert.match(q2.unboundReason, /IV41-036/);
+    assert.equal(q2.state, 'not-run');
+
+    const audited = candidate.gates.machineReadback.files.map(file => file.path);
+    assert.deepEqual([...audited].sort(), [...new Set(boundPaths(candidate))].sort());
+});
+
+test('V41-I01.4 fails closed on a fictitious runner module or record', () => {
+    const moduleCandidate = bundle();
+    gateOf(moduleCandidate, 'Q4').machineRunners[0].module = 'scripts/ivory/zz-no-such-runner.mjs';
+    assert.match(
+        errorText(moduleCandidate),
+        /Q4 machineRunners\[0\]\.module must name a file that exists on disk: scripts\/ivory\/zz-no-such-runner\.mjs/,
+    );
+
+    const directoryCandidate = bundle();
+    gateOf(directoryCandidate, 'Q3').machineRunners[0].module = 'packages/ivory-n5-client';
+    assert.match(errorText(directoryCandidate), /Q3 machineRunners\[0\]\.module must name a file that exists on disk/);
+
+    const evidenceCandidate = bundle();
+    gateOf(evidenceCandidate, 'Q1').machineRunners[1].evidence = 'docs/experiments/zz-no-such-record.json';
+    assert.match(errorText(evidenceCandidate), /Q1 machineRunners\[1\]\.evidence must name a file that exists on disk/);
+
+    const missingEvidence = bundle();
+    delete gateOf(missingEvidence, 'REPLAY').machineRunners[0].evidence;
+    assert.match(errorText(missingEvidence), /REPLAY machineRunners\[0\]\.evidence must be a repository-relative POSIX path/);
+
+    const escaping = bundle();
+    gateOf(escaping, 'DURABILITY').machineRunners[0].module = '../outside.mjs';
+    assert.match(errorText(escaping), /DURABILITY machineRunners\[0\]\.module must be a repository-relative POSIX path/);
+});
+
+test('V41-I01.4 fails closed on a command the root package.json does not declare', () => {
+    const unknownCommand = bundle();
+    gateOf(unknownCommand, 'Q4').machineRunners[1].command = 'verify:zz-not-a-script';
+    assert.match(
+        errorText(unknownCommand),
+        /Q4 machineRunners\[1\]\.command verify:zz-not-a-script is not declared in the root package\.json scripts/,
+    );
+
+    const noCommand = bundle();
+    delete gateOf(noCommand, 'Q1').machineRunners[0].command;
+    assert.match(errorText(noCommand), /Q1 machineRunners\[0\]\.command must declare the root package\.json script that runs it/);
+
+    const emptyCommand = bundle();
+    gateOf(emptyCommand, 'Q3').machineRunners[0].command = '';
+    assert.match(errorText(emptyCommand), /Q3 machineRunners\[0\]\.command must declare the root package\.json script that runs it/);
+});
+
+test('V41-I01.4 fails closed when a runner or record digest no longer matches the bytes on disk', () => {
+    const runnerDigest = bundle();
+    runnerDigest.gates.machineReadback.files[0].sha256 = '0'.repeat(64);
+    assert.match(errorText(runnerDigest), /machine readback files\[0\] SHA-256 does not match the retained readback/);
+
+    const runnerBytes = bundle();
+    runnerBytes.gates.machineReadback.files[2].bytes += 1;
+    assert.match(errorText(runnerBytes), /machine readback files\[2\] byte count does not match the retained readback/);
+
+    const recordDigest = bundle();
+    recordDigest.gates.machineReadback.files.find(file => file.id === 'q4-n7-record').sha256 = '1'.repeat(64);
+    assert.match(errorText(recordDigest), /machine readback files\[\d+\] SHA-256 does not match the retained readback/);
+
+    const unhashed = bundle();
+    delete unhashed.gates.machineReadback.files.find(file => file.id === 'q3-n5-record').sha256;
+    assert.match(errorText(unhashed), /machine readback files\[10\]\.sha256 must be an exact SHA-256/);
+
+    const dropped = bundle();
+    dropped.gates.machineReadback.files.pop();
+    assert.match(errorText(dropped), /machine readback must hash exactly the runner and evidence files the registry binds/);
+
+    const extra = bundle();
+    extra.gates.machineReadback.files.push({
+        id: 'zz-extra',
+        path: 'configs/ivory-v41-gates.json',
+        sha256: '2'.repeat(64),
+        bytes: 1,
+    });
+    assert.match(errorText(extra), /machine readback must hash exactly the runner and evidence files the registry binds/);
+
+    const absent = bundle();
+    delete absent.gates.machineReadback;
+    assert.match(errorText(absent), /registry must retain its machine readback record/);
+
+    const driftedConvention = bundle();
+    driftedConvention.gates.machineReadback.algorithm = 'sha1';
+    driftedConvention.gates.machineReadback.encoding = 'utf8';
+    driftedConvention.gates.machineReadback.pathSeparator = '\\';
+    const conventionErrors = errorText(driftedConvention);
+    assert.match(conventionErrors, /machine readback algorithm must be SHA-256/);
+    assert.match(conventionErrors, /machine readback encoding must be raw bytes/);
+    assert.match(conventionErrors, /machine readback paths must use POSIX separators/);
+});
+
+test('V41-I01.4 rejects a passing state, an inferred human outcome, or any closure field', () => {
+    const passed = bundle();
+    gateOf(passed, 'Q1').state = 'passed';
+    assert.match(errorText(passed), /Q1 must remain not-run/);
+
+    const qualified = bundle();
+    gateOf(qualified, 'DURABILITY').state = 'qualified';
+    assert.match(errorText(qualified), /DURABILITY must remain not-run/);
+
+    const inferred = bundle();
+    gateOf(inferred, 'Q4').humanOutcomeInferredFromMachine = true;
+    assert.match(errorText(inferred), /Q4 must forbid inferring human outcome from machine evidence/);
+
+    const registryOutcome = bundle();
+    registryOutcome.gates.overallStatus = 'passed';
+    assert.match(errorText(registryOutcome), /the registry cannot carry the outcome field overallStatus/);
+
+    const gateOutcome = bundle();
+    gateOutcome.gates.closureClaim = false;
+    gateOf(gateOutcome, 'REPLAY').closureClaim = false;
+    const outcomeErrors = errorText(gateOutcome);
+    assert.match(outcomeErrors, /the registry cannot carry the outcome field closureClaim/);
+    assert.match(outcomeErrors, /REPLAY cannot define an aggregate pass flag or outcome field closureClaim/);
+});
+
+test('V41-I01.4 keeps an unbound gate explicit instead of silently runner-less', () => {
+    const missingReason = bundle();
+    delete gateOf(missingReason, 'Q2').unboundReason;
+    assert.match(errorText(missingReason), /Q2 must bind a machine runner or declare an unboundReason/);
+
+    const emptyReason = bundle();
+    gateOf(emptyReason, 'Q2').unboundReason = '   ';
+    assert.match(errorText(emptyReason), /Q2 must bind a machine runner or declare an unboundReason/);
+
+    const untrackedReason = bundle();
+    gateOf(untrackedReason, 'Q2').unboundReason = 'Coverage receipts are not implemented yet.';
+    assert.match(errorText(untrackedReason), /Q2 unboundReason must name the tracked issue that would supply the missing observable/);
+
+    const silentGate = bundle();
+    gateOf(silentGate, 'Q3').machineRunners = [];
+    assert.match(errorText(silentGate), /Q3 must bind a machine runner or declare an unboundReason/);
+
+    const both = bundle();
+    gateOf(both, 'Q2').machineRunners = [
+        { module: 'scripts/n5/compare.mjs', command: 'test:n5', evidence: 'docs/experiments/n5-v2-evidence.json' },
+    ];
+    assert.match(errorText(both), /Q2 binds machine runners and cannot also declare an unboundReason/);
+
+    const implicit = bundle();
+    delete gateOf(implicit, 'Q1').machineRunners;
+    assert.match(errorText(implicit), /Q1 must explicitly bind its machine runners, even when none exist/);
+});
+
 test('the qualification manifest is valid while every gate remains not-run', () => {
     const candidate = bundle();
     assert.equal(candidate.qualification.runContext, null);
