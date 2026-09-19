@@ -58,6 +58,9 @@ export function validateManifest(manifest) {
     const headIds = heads.map(head => head?.id).filter(Boolean);
     for (const id of setDifference(REQUIRED_HEADS, headIds)) errors.push(`missing required head ${id}`);
     for (const id of duplicateValues(headIds)) errors.push(`duplicate head ${id}`);
+    const unexpectedHeads = setDifference(headIds, REQUIRED_HEADS);
+    for (const id of unexpectedHeads) errors.push(`unexpected authority head ${id}`);
+    if (heads.length !== REQUIRED_HEADS.length) errors.push('authority manifest must contain exactly three heads');
     for (const head of heads) {
         if (!SHA.test(head?.sha ?? '')) errors.push(`${head?.id ?? 'head'} sha must be an exact 40-character commit id`);
         if (!SHA.test(head?.treeSha ?? '')) errors.push(`${head?.id ?? 'head'} treeSha must be an exact 40-character tree id`);
@@ -67,13 +70,26 @@ export function validateManifest(manifest) {
         if (JSON.stringify(packages) !== JSON.stringify([...packages].sort())) errors.push(`${head?.id ?? 'head'} package inventory must be sorted`);
         if (duplicateValues(surfaces).length > 0) errors.push(`${head?.id ?? 'head'} retained surface inventory contains duplicates`);
         if (JSON.stringify(surfaces) !== JSON.stringify([...surfaces].sort())) errors.push(`${head?.id ?? 'head'} retained surface inventory must be sorted`);
+        if (head?.packageInventoryMode !== 'exact-tree') errors.push(`${head?.id ?? 'head'} package inventory must be exact-tree`);
+        if (head?.schemaInspectionMode !== 'exact-source-readback') errors.push(`${head?.id ?? 'head'} schema inspection must be exact-source-readback`);
+        if (/latest|head/i.test(head?.ref ?? '')) errors.push(`${head?.id ?? 'head'} cannot use latest/HEAD substitution`);
     }
     const base = heads.find(head => head.id === manifest?.implementationBase);
     if (!base) errors.push(`implementationBase must name one retained head`);
     else if (base.classification !== 'implementation-base') errors.push(`implementationBase head must be classified implementation-base`);
 
+    if (manifest?.authorityPolicy?.headSelection !== 'exact-only') errors.push('head selection must be exact-only');
+    if (manifest?.authorityPolicy?.latestHeadSubstitution !== 'forbidden') errors.push('latest-head substitution must be forbidden');
+    if (manifest?.authorityPolicy?.packageInventory !== 'exact-tree-only') errors.push('package inventory policy must be exact-tree-only');
+    if (manifest?.authorityPolicy?.planningStatusIsAuthority !== false) errors.push('planning status cannot be semantic authority');
+
     const headById = new Map(heads.map(head => [head.id, head]));
     for (const fact of manifest?.requiredPackageFacts ?? []) {
+        const classified = [...(fact.presentAt ?? []), ...(fact.absentAt ?? [])];
+        for (const id of duplicateValues(classified)) errors.push(`${fact.package} classifies head ${id} more than once`);
+        if (classified.length !== REQUIRED_HEADS.length || setDifference(REQUIRED_HEADS, classified).length > 0) {
+            errors.push(`${fact.package} must classify every exact head once`);
+        }
         for (const id of fact.presentAt ?? []) {
             const head = headById.get(id);
             if (!head?.packages?.includes(fact.package)) errors.push(`${fact.package} must be present at ${id}`);
@@ -128,11 +144,26 @@ export function validateManifest(manifest) {
         if (lesson?.gate !== lesson?.id) errors.push(`${lesson?.id ?? 'lesson'} must point to its matching N-gate`);
     }
 
+    const harness = manifest?.harnessBoundary;
+    if (harness?.semanticAuthority?.owner !== 'Core') errors.push('Core must remain the semantic authority');
+    if (harness?.executionAuthority?.owner !== 'Harness') errors.push('Harness must own execution authority');
+    if (harness?.executionAuthority?.mayAcceptInterpretation !== false) errors.push('Harness cannot accept interpretation');
+    if (harness?.executionAuthority?.mayWriteCanonicalResearchState !== false) errors.push('Harness cannot write canonical research state');
+    if (harness?.executionAuthority?.mustReturnThroughCore !== true) errors.push('Harness results must return through Core');
+    if (harness?.clients?.owner !== 'Projection') errors.push('clients must remain projections');
+    if (harness?.clients?.mayAcceptInterpretation !== false) errors.push('clients cannot accept interpretation');
+    if (harness?.clients?.mayWriteCanonicalResearchState !== false) errors.push('clients cannot write canonical research state');
+    if (harness?.clients?.maySelectLatestImplicitly !== false) errors.push('clients cannot select latest implicitly');
+    if (harness?.recursiveImprovement?.replayableTraces !== true) errors.push('recursive improvement must retain replayable traces');
+    if (harness?.recursiveImprovement?.canonicalEvidenceMutation !== 'forbidden') errors.push('recursive improvement cannot mutate canonical evidence');
+    if (harness?.recursiveImprovement?.semanticEvaluatorBypass !== 'forbidden') errors.push('recursive improvement cannot bypass semantic evaluation');
+
     const gates = Array.isArray(manifest?.gates) ? manifest.gates : [];
     const gateIds = gates.map(gate => gate?.id).filter(Boolean);
     for (const id of setDifference(REQUIRED_GATES, gateIds)) errors.push(`missing gate ${id}`);
     for (const id of duplicateValues(gateIds)) errors.push(`duplicate gate ${id}`);
     for (const gate of gates) {
+        if (gate?.status !== 'not-run') errors.push(`${gate?.id ?? 'gate'} must begin not-run; this contract cannot claim closure`);
         if (!gate?.owner) errors.push(`${gate?.id ?? 'gate'} must name an owner`);
         if (!gate?.machineEvidence?.path || !gate.machineEvidence?.predicate?.path || gate.machineEvidence?.predicate?.equals === undefined) {
             errors.push(`${gate?.id ?? 'gate'} must name machine evidence and predicate`);
@@ -143,6 +174,9 @@ export function validateManifest(manifest) {
         if (gate?.machineEvidence?.path === gate?.humanReceipt?.path) errors.push(`${gate?.id ?? 'gate'} cannot use one artifact as both machine and human evidence`);
         if (!Array.isArray(gate?.negativeCases) || gate.negativeCases.length === 0) errors.push(`${gate?.id ?? 'gate'} must retain negative cases`);
         if (!Array.isArray(gate?.stopConditions) || gate.stopConditions.length === 0) errors.push(`${gate?.id ?? 'gate'} must retain stop conditions`);
+    }
+    if ('aggregatePass' in (manifest ?? {}) || 'overallPass' in (manifest ?? {})) {
+        errors.push('aggregate pass flags are forbidden');
     }
     return errors;
 }
