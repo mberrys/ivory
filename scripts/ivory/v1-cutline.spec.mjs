@@ -53,7 +53,7 @@ test('accepts generated cutline blocks with CRLF line endings', () => {
     const documentPath = path.join(ROOT, 'docs/v1-build-vs-open-source.md');
     const document = fs.readFileSync(documentPath, 'utf8');
     const crlfDocumentPath = path.join(ROOT, 'docs/.v1-cutline-crlf-test.md');
-    fs.writeFileSync(crlfDocumentPath, document.replace(/\n/g, '\r\n'), 'utf8');
+    fs.writeFileSync(crlfDocumentPath, document.replace(/\r?\n/g, '\r\n'), 'utf8');
     try {
         assert.equal(verifyGeneratedMap(crlfDocumentPath, manifest).ok, true);
     } finally {
