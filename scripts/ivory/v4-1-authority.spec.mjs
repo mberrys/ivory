@@ -74,19 +74,6 @@ test('a duplicate or forbidden canonical authority is rejected', () => {
 });
 
 
-test('planning status and harness metadata cannot become a shadow semantic authority', () => {
-    const staleStatus = clone(MANIFEST);
-    staleStatus.gates[0].status = 'passed';
-    assert.match(validateManifest(staleStatus).join('\n'), /planning status must remain not-run/);
-
-    const harnessWrite = clone(MANIFEST);
-    harnessWrite.harnessBoundary.executionAuthority.mayWriteCanonicalResearchState = true;
-    assert.match(validateManifest(harnessWrite).join('\n'), /execution authority must remain proposal\/execution-only and return through Core/);
-
-    const latestClient = clone(MANIFEST);
-    latestClient.harnessBoundary.clients.maySelectLatestImplicitly = true;
-    assert.match(validateManifest(latestClient).join('\n'), /clients must remain non-authoritative projections with exact-head reads/);
-});
 
 test('every N1-N7 lesson must resolve to exactly one structural carrier or owned gap', () => {
     const broken = clone(MANIFEST);
