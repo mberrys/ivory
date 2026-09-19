@@ -38,17 +38,21 @@ The manifest rejects canonical-owner entries that introduce the planned-but-forb
 
 ## N1-N7 carrier reconciliation
 
-Each retained N-gate now has an explicit structural carrier, closing predicate, fixture, evidence record, and scope limitation in the manifest. This prevents a later V4.1 issue from citing an experiment paragraph as if it were a production carrier.
+IV41-002 makes the N1-N7 crosswalk executable rather than leaving it as prose. Each retained lesson has exactly one approved structural carrier kind (type, receipt, predicate, manifest, schema, fixture, or an explicitly owned gap), its N-gate predicate, a concrete fixture, the retained evidence record, and exact repository/environment bindings read from that record. The verifier compares every bound value against the retained JSON before any downstream gate can be evaluated.
 
-| gate | structural carrier | retained limitation |
-|---|---|---|
-| N1 | research-kernel revisions, snapshots and evidence links | exact-reference experiment evidence is not V4.1 production qualification |
-| N2 | durable-store experiment contract | bounded to the recorded reference machine and unclean process termination |
-| N3 | execution record/event model | bounded to the decided Windows 11 x64 + Docker Desktop pilot runtime |
-| N4 | fragment-anchor identity | observed converter pair was all-exact; ambiguous/unresolved are harness coverage |
-| N5 | N5 canonical client boundary | unsupported language-observation cells remain unsupported |
-| N6 | portable-reproduction contract | no retained second-machine clean-install evidence |
-| N7 | proposal-integrity experiment Core | bounded local loopback provider run; hosted qualification remains open |
+| gate | kind | structural carrier | exact retained repository context | retained limitation |
+|---|---|---|---|---|
+| N1 | type | research-kernel revisions, snapshots and evidence links | record commit `3f0eade59167d273bf0154861482947565d358c5`; human exercise commit `0c6e7de41e787ccf7e46da9f18cacaad520b3868` | exact-reference experiment evidence is not V4.1 production qualification |
+| N2 | schema | revision/activity durable SQL schema | `dda5c294b8493fbc49ffac94712a7dd03d05e698` | bounded to the recorded reference machine and unclean process termination |
+| N3 | type | execution record/event model | `e21cd613ee49f206c3e82aef2d00499bb60f5386` | bounded to the decided Windows 11 x64 + Docker Desktop pilot runtime |
+| N4 | type | fragment-anchor identity | `707bd3f327c3bbc99c480d853b694fef0466fd5e` | observed converter pair was all-exact; ambiguous/unresolved are harness coverage |
+| N5 | type | N5 canonical client boundary | `2796af12dbddb444329edcee89025f007e34c4a9` | unsupported language-observation cells remain unsupported |
+| N6 | manifest | portable reproduction manifest contract | `7c3f732a0d95e1fb489c67a0b46d69e09b501b55` | no retained second-machine clean-install evidence |
+| N7 | receipt | `AgentProposalReceipt` | `6b4ebebe06a04e2810e87557f0dc8faf0155257c` | bounded local loopback provider run; hosted qualification remains open |
+
+The environment bindings are also exact rather than descriptive summaries. They retain the recorded OS/release/architecture and applicable runtime/toolchain values (Node for every gate where recorded; Docker/image digests for N3; PGlite for N2; Theia/Python/R for N5; Python/R/Quarto for N6; TypeScript/MCP SDK for N7). Empty clean-worktree markers and boolean dirty-state observations are preserved as values, not normalized away.
+
+This closes IV41-002's mapping requirement without creating a second research authority. Structural carriers remain owned by the existing Core/contract/experiment surfaces; qualification scope remains bounded to the retained evidence.
 
 ## Machine gate registry
 
@@ -99,7 +103,7 @@ The currently identified architectural gap—canonical semantic-support Assessme
 
 A fresh executable test run is **not claimed** by this update. PR #2 currently has no hosted workflow run because it is stacked on `pre-dev-foundation`; the available isolated execution service also rejected the attempted run for account/billing reasons. The focused tests and verifier therefore still need to be rerun in a normal repository checkout before review closure. Prior test claims are not used as evidence for this refreshed manifest.
 
-The adversarial suite now covers stale/latest-head substitution, repository-base drift, package-location mismatch, truncated-tree rejection, untracked architectural gaps, duplicate canonical ownership, forbidden authority creation, missing N1 carriers, broken retained carrier paths, one-sided gate evidence, rejected human review, an unrun required gate, planning status promoted to pass, harness canonical writes, and implicit latest selection.
+The adversarial suite now covers stale/latest-head substitution, repository-base drift, package-location mismatch, truncated-tree rejection, untracked architectural gaps, duplicate canonical ownership, forbidden authority creation, missing N1 carriers, unapproved carrier kinds, missing exact repository/environment bindings, retained-evidence drift, broken retained carrier paths, one-sided gate evidence, rejected human review, an unrun required gate, planning status promoted to pass, harness canonical writes, and implicit latest selection.
 
 ## Limitations
 
