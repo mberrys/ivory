@@ -55,7 +55,7 @@ test('the retained manifest is structurally complete and every V4.1 gate starts 
 test('exact observed heads pass while a stale or substituted dev head fails', () => {
     assert.deepEqual(compareObservedHeads(MANIFEST, {
         detached: 'efec71ed83a1d0d9d513a4ead86369201cb5b401',
-        pr1: '904b6fb115740eb5c59e509ff5d8cce0a5b98766',
+        pr1: 'd538fd44c25aa2403230b075c5e18613cea9b855',
         dev: 'bc3cd03b5b2d870d219797925d92edc48c33c6ca',
     }), []);
     assert.deepEqual(compareObservedHeads(MANIFEST, {
@@ -63,14 +63,28 @@ test('exact observed heads pass while a stale or substituted dev head fails', ()
     }), ['head dev is 98d1a268f03bc1a6709b0fbf6842c54c2ee13ccb; expected bc3cd03b5b2d870d219797925d92edc48c33c6ca']);
 });
 
-test('repository context is bound to the exact implementation-base head', () => {
+test('closed PR #1 authority is retained separately from later branch drift', () => {
     const broken = clone(MANIFEST);
-    broken.repositoryContext.baseSha = 'a'.repeat(40);
-    assert.match(validateManifest(broken).join('\n'), /repository base SHA must equal the exact implementation-base head/);
+    broken.repositoryContext.pullRequest1.headSha = 'a'.repeat(40);
+    assert.match(validateManifest(broken).join('\n'), /retained PR #1 head SHA must equal the exact implementation-base head/);
 
-    broken.repositoryContext.baseSha = MANIFEST.repositoryContext.baseSha;
-    broken.repositoryContext.baseRef = 'latest';
-    assert.match(validateManifest(broken).join('\n'), /repository base ref must equal the implementation-base ref/);
+    const substituted = clone(MANIFEST);
+    const observation = substituted.repositoryContext.branchObservations[0];
+    substituted.heads.find(head => head.id === 'pr1').sha = observation.sha;
+    substituted.heads.find(head => head.id === 'pr1').treeSha = observation.treeSha;
+    substituted.repositoryContext.pullRequest1.headSha = observation.sha;
+    substituted.repositoryContext.pullRequest1.headTreeSha = observation.treeSha;
+    assert.match(validateManifest(substituted).join('\n'), /advanced PR #1 branch observation cannot replace the closed PR #1 head/);
+});
+
+test('moving branch observation must also retain exact package locations and evidence limits', () => {
+    const broken = clone(MANIFEST);
+    broken.repositoryContext.branchObservations[0].packageLocations.pop();
+    assert.match(validateManifest(broken).join('\n'), /branch observation pre-dev-foundation package locations must exactly match its package inventory/);
+
+    const truncated = clone(MANIFEST);
+    truncated.repositoryContext.branchObservations[0].treeListingTruncated = true;
+    assert.match(validateManifest(truncated).join('\n'), /branch observation pre-dev-foundation exact-tree inventory must record a non-truncated tree listing/);
 });
 
 test('package locations must be explicit and derived from the exact package inventory', () => {
@@ -96,11 +110,13 @@ test('JSON verification output carries exact repository, manifest and head ident
     const output = JSON.parse(result.stdout);
     assert.equal(output.manifest.leafIssue, 'IV41-001');
     assert.equal(output.repository.fullName, 'mberrys/ivory');
-    assert.equal(output.repository.baseSha, '904b6fb115740eb5c59e509ff5d8cce0a5b98766');
+    assert.equal(output.repository.pullRequest1.headSha, 'd538fd44c25aa2403230b075c5e18613cea9b855');
+    assert.equal(output.repository.branchObservations[0].sha, '904b6fb115740eb5c59e509ff5d8cce0a5b98766');
+    assert.equal(output.repository.branchObservations[0].relationshipToPr1Head, 'descendant');
     assert.match(output.manifest.digest, /^[0-9a-f]{64}$/);
     assert.deepEqual(output.heads.map(head => [head.id, head.sha, head.treeSha]), [
         ['detached', 'efec71ed83a1d0d9d513a4ead86369201cb5b401', 'b52b1aa0957e45f199f3e75bf99fdaad7ef972a1'],
-        ['pr1', '904b6fb115740eb5c59e509ff5d8cce0a5b98766', '5765b7dcf41d92ae216235acc5344059da4108e8'],
+        ['pr1', 'd538fd44c25aa2403230b075c5e18613cea9b855', '5d4aa6ec3e4c568e7babf26db8487f7abc6ec641'],
         ['dev', 'bc3cd03b5b2d870d219797925d92edc48c33c6ca', '8edc9eab81e3733b60eb626c10ca91de63bd041c'],
     ]);
 });
