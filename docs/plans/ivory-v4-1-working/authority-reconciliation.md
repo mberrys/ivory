@@ -45,3 +45,25 @@ npm run test:ivory-v41-authority
 ```
 
 The first command emits SHA-256 digests for all four contract artifacts and fails closed on authority drift. The second covers stale/latest-head selection, inferred package inventories, package-manifest drift, duplicate semantic authority, harness/RSI authority leakage, prose-only carrier claims, and aggregate/pre-closed gates.
+
+
+## IV41-003 package ownership reconciliation
+
+Package-level authority is retained in `configs/ivory-v41-package-ownership.json`, bound to the same exact selected-dev package inventory as V41-I01.1. The reconciliation separates package scope from authority: only `@ivory-tower/research-kernel` owns canonical research-state writes and research acceptance, while `@ivory-tower/infrastructure` owns the durable storage implementation. Adapter, client, worker, policy, and experiment packages remain non-authoritative over research meaning.
+
+| V4.1 responsibility | canonical package owner | authority limit |
+|---|---|---|
+| identity | `@theia/ivory-identity` | identifiers only; no acceptance or persistence |
+| domain | `@ivory-tower/domain` | platform-free execution/domain invariants |
+| application | `@ivory-tower/application` | use-case orchestration only |
+| adapters | `@ivory-tower/adapters` | typed ports only |
+| storage | `@ivory-tower/infrastructure` | durable implementation; no semantic acceptance |
+| research protocol | `@ivory-tower/contracts` | versioned structural contracts |
+| evidence | `@ivory-tower/research-kernel` | sole canonical research writer and acceptance owner |
+| compute | `@ivory-tower/worker` | bounded execution; proposal/result production only |
+| clients | `@ivory-tower/api` | HTTP/SSE client boundary; no shadow kernel |
+| health/diagnostics | `@ivory-tower/health` | diagnostics surface only |
+| content policy | `@ivory-tower/content-policy` | rights/content admission, not research support |
+| agent proposal harness | `@ivory-tower/agent-experiment` | bounded qualification harness, not a production authority |
+
+The validator fails closed if the exact package inventory is not covered, a responsibility gains multiple owners, another package acquires research acceptance or canonical-write authority, the evidence context no longer matches the selected-dev SHA, or a discovered architecture gap is recorded without an `IV41-*` tracking issue.
