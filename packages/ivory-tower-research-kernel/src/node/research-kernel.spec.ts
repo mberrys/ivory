@@ -159,7 +159,7 @@ describe('N1 research identity kernel', () => {
                 actor: 'Maya',
                 fragmentKey: 'out-of-range',
             }),
-        ).to.throw('retained representation');
+        ).to.throw(/retained (?:source|artifact) representation/);
         expect(() =>
             kernel.createFragment({
                 sourceRef: source,
@@ -168,7 +168,7 @@ describe('N1 research identity kernel', () => {
                 actor: 'Maya',
                 fragmentKey: 'wrong-quote',
             }),
-        ).to.throw('retained representation');
+        ).to.throw(/retained (?:source|artifact) representation/);
         expect(() =>
             kernel.createFragment({
                 sourceRef: source,
@@ -177,7 +177,7 @@ describe('N1 research identity kernel', () => {
                 actor: 'Maya',
                 fragmentKey: 'missing-cell',
             }),
-        ).to.throw('retained representation');
+        ).to.throw(/retained (?:source|artifact) representation/);
         const fragment = kernel.createFragment({
             sourceRef: source,
             artifactRef: artifact,
