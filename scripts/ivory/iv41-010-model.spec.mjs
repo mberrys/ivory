@@ -5,8 +5,8 @@ import { loadCanonicalBundle, validateCanonicalModel } from './iv41-010-model.mj
 
 const initial = loadCanonicalBundle();
 const clone = () => structuredClone(initial);
-const errors = candidate => validateCanonicalModel(
-    candidate.model, candidate.owners, candidate.packageOwnership, candidate.heads, { verifyCarriers: false },
+const errors = (candidate, options = { verifyCarriers: false }) => validateCanonicalModel(
+    candidate.model, candidate.owners, candidate.packageOwnership, candidate.heads, candidate.carriers, candidate.adrLineage, options,
 ).join('\n');
 
 test('IV41-010A-E committed canonical model satisfies all structural invariants', () => {
@@ -96,14 +96,101 @@ test('IV41-010E requires the exact base and PR context', () => {
 test('IV41-010E fails closed when carrier symbol is absent on disk', () => {
     const candidate = clone();
     candidate.model.concepts[0].carrier = 'packages/ivory-tower-research-kernel/src/node/types.ts#ImaginaryCanonicalWriter';
-    const actual = validateCanonicalModel(
-        candidate.model, candidate.owners, candidate.packageOwnership, candidate.heads,
-    ).join('\n');
+    const actual = errors(candidate, {});
     assert.match(actual, /structural carrier symbol absent/);
 });
 
-test('IV41-010A cannot replace the canonical record with a writable sidecar', () => {
+test('IV41-010A rejects a CAS row that contradicts the owner map and the carrier matrix', () => {
+    const ownerDrift = clone();
+    const cas = ownerDrift.model.concepts.find(item => item.concept === 'CAS');
+    cas.owner = '@ivory-tower/adapters';
+    cas.carrier = 'packages/ivory-tower-adapters/src/execution-ports.ts#ObjectStorePort';
+    const ownerErrors = errors(ownerDrift);
+    assert.match(ownerErrors, /owner @ivory-tower\/adapters contradicts the owner map owner @ivory-tower\/contracts for CAS/);
+    assert.match(ownerErrors, /is neither the owner-map primary carrier nor a carrier-matrix unit/);
+
+    const outsidePackage = clone();
+    outsidePackage.model.concepts.find(item => item.concept === 'CAS').carrier =
+        'packages/ivory-tower-adapters/src/execution-ports.ts#ObjectStorePort';
+    const outsideErrors = errors(outsidePackage);
+    assert.match(outsideErrors, /carrier .*execution-ports\.ts#ObjectStorePort is not inside the package owned by @ivory-tower\/contracts/);
+    assert.match(outsideErrors, /is neither the owner-map primary carrier nor a carrier-matrix unit/);
+
+    const matrixDrift = clone();
+    matrixDrift.carriers.lessons.find(lesson => lesson.id === 'N2').carrier.units[0].owner = '@ivory-tower/research-kernel';
+    assert.match(
+        errors(matrixDrift),
+        /carrier .*durable-store-port\.ts#DurableStorePort is owned by @ivory-tower\/research-kernel in the carrier matrix, not @ivory-tower\/contracts/,
+    );
+});
+test('IV41-010A requires an owner that exists in the exact-head package inventory', () => {
     const candidate = clone();
-    candidate.model.concepts.find(item => item.concept === 'Adjudication').persistence = 'new-writable-store';
-    assert.match(errors(candidate), /persistence must reuse a declared canonical contract mode/);
+    candidate.model.concepts.find(item => item.concept === 'Snapshot').owner = '@ivory-tower/not-a-package';
+    const actual = errors(candidate);
+    assert.match(actual, /owner @ivory-tower\/not-a-package is not a package in the exact-head inventory/);
+    assert.match(actual, /contradicts the owner map owner @ivory-tower\/research-kernel for Snapshot/);
+});
+test('IV41-010A rejects an authority package outside the exact-head inventory', () => {
+    const candidate = clone();
+    candidate.model.authority.durableImplementation = '@ivory-tower/not-a-package';
+    const actual = errors(candidate);
+    assert.match(actual, /durableImplementation @ivory-tower\/not-a-package is not a package in the exact-head inventory/);
+    assert.match(actual, /storage authority must agree with package ownership/);
+});
+test('IV41-010 rejects a missing, unbound, incomplete or drifted exact-head readback', () => {
+    const dropped = clone();
+    delete dropped.model.readback;
+    assert.match(errors(dropped), /the model must retain its exact-head readback/);
+
+    const unbound = clone();
+    unbound.model.readback.auditedHead = { ref: 'latest', sha: 'not-a-sha', mode: 'inferred' };
+    const unboundErrors = errors(unbound);
+    assert.match(unboundErrors, /readback must record the exact 40-character head SHA it audited/);
+    assert.match(unboundErrors, /readback head ref must be an exact non-latest ref/);
+    assert.match(unboundErrors, /readback must be an exact working-tree audit/);
+
+    const incomplete = clone();
+    incomplete.model.readback.files = incomplete.model.readback.files.filter(file => file.id !== 'durableStorePort');
+    assert.match(errors(incomplete), /readback must hash exactly the contract and carrier files the model cites/);
+
+    const wrongConvention = clone();
+    wrongConvention.model.readback.encoding = 'raw-bytes';
+    wrongConvention.model.readback.lineEndingPolicy = 'preserve-bytes';
+    const conventionErrors = errors(wrongConvention);
+    assert.match(conventionErrors, /readback encoding must be UTF-8 text/);
+    assert.match(conventionErrors, /readback line endings must be normalized to LF/);
+
+    const digestDrift = clone();
+    digestDrift.model.readback.files[0].sha256 = '0'.repeat(64);
+    assert.match(errors(digestDrift), /readback files\[0\] SHA-256 does not match the retained readback/);
+
+    const byteDrift = clone();
+    byteDrift.model.readback.files[1].bytes = 1;
+    assert.match(errors(byteDrift), /readback files\[1\] byte count does not match the retained readback/);
+
+    const unhashed = clone();
+    unhashed.model.readback.files[0].sha256 = 'not-a-digest';
+    assert.match(errors(unhashed), /readback files\[0\]\.sha256 must be an exact SHA-256/);
+});
+test('IV41-010 rejects ADR-lineage authority that does not resolve to a real decision or ADR', () => {
+    const undeclared = clone();
+    undeclared.model.concepts.find(item => item.concept === 'Statement/Claim').adrDecision = 'invented-decision';
+    assert.match(errors(undeclared), /references ADR lineage decision invented-decision, which the model does not declare/);
+
+    const missingDecision = clone();
+    missingDecision.model.authorityRecords.decisions[0].decision = 'invented-decision';
+    const missingErrors = errors(missingDecision);
+    assert.match(missingErrors, /invented-decision: referenced ADR lineage decision does not exist/);
+    assert.match(missingErrors, /references ADR lineage decision one-core-authority, which the model does not declare/);
+    assert.match(missingErrors, /declared ADR lineage decision invented-decision is not referenced by any model row/);
+
+    const uncitedAdr = clone();
+    uncitedAdr.model.authorityRecords.adrs = uncitedAdr.model.authorityRecords.adrs.filter(adr => adr.id !== 'ADR-008');
+    assert.match(errors(uncitedAdr), /the ADR that carries the lineage decision \(ADR-008\) must be cited by path/);
+
+    const pathDrift = clone();
+    pathDrift.model.authorityRecords.adrs[0].path = 'docs/adr-999-missing.md';
+    const pathErrors = errors(pathDrift);
+    assert.match(pathErrors, /cited path docs\/adr-999-missing\.md contradicts the ADR lineage path docs\/adr-007-v41-authority-harness-boundary\.md/);
+    assert.match(pathErrors, /readback must hash exactly the contract and carrier files the model cites/);
 });

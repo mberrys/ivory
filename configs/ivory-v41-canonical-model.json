@@ -16,6 +16,8 @@
   "ownerMap": "configs/ivory-v41-owner-map.json",
   "packageOwnership": "configs/ivory-v41-package-ownership.json",
   "exactAuthority": "configs/ivory-v41-authority-heads.json",
+  "carrierMatrix": "configs/ivory-v41-carrier-matrix.json",
+  "adrLineage": "configs/ivory-v41-adr-lineage.json",
   "evidenceContext": {
     "repository": "mberrys/ivory",
     "pullRequest": 5,
@@ -38,12 +40,43 @@
     "durableImplementation": "@ivory-tower/infrastructure",
     "proposalExecution": "@ivory-tower/agent-experiment",
     "clientAcceptance": false,
-    "harnessSemanticAuthority": false
+    "harnessSemanticAuthority": false,
+    "adrDecision": "one-core-authority"
+  },
+  "authorityRecords": {
+    "adrLineage": "configs/ivory-v41-adr-lineage.json",
+    "adrs": [
+      {
+        "id": "ADR-007",
+        "path": "docs/adr-007-v41-authority-harness-boundary.md",
+        "carries": "authority carriers and harness boundary"
+      },
+      {
+        "id": "ADR-008",
+        "path": "docs/adr-008-v41-adr-lineage-supersession.md",
+        "carries": "ADR lineage and explicit supersession"
+      }
+    ],
+    "decisions": [
+      {
+        "decision": "one-core-authority",
+        "carriedBy": "ADR-007"
+      },
+      {
+        "decision": "claim-card-authority",
+        "carriedBy": "ADR-008"
+      },
+      {
+        "decision": "semantic-assessment-carrier",
+        "carriedBy": "ADR-008"
+      }
+    ]
   },
   "concepts": [
     {
       "concept": "Source",
       "ownerSurface": "Source",
+      "owner": "@ivory-tower/research-kernel",
       "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#SourcePayload",
       "canonicalWriter": "@ivory-tower/research-kernel",
       "identity": "projectId/objectId/revisionId + sourceVersionId/contentDigest",
@@ -59,6 +92,7 @@
     {
       "concept": "Artifact",
       "ownerSurface": "Artifact",
+      "owner": "@ivory-tower/research-kernel",
       "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ArtifactPayload",
       "canonicalWriter": "@ivory-tower/research-kernel",
       "identity": "projectId/objectId/revisionId + artifactId/outputDigest",
@@ -72,6 +106,7 @@
     {
       "concept": "Fragment",
       "ownerSurface": "Fragment",
+      "owner": "@ivory-tower/research-kernel",
       "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#FragmentPayload",
       "canonicalWriter": "@ivory-tower/research-kernel",
       "identity": "projectId/objectId/revisionId",
@@ -89,6 +124,7 @@
     {
       "concept": "Statement/Claim",
       "ownerSurface": "Statement",
+      "owner": "@ivory-tower/research-kernel",
       "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ClaimPayload",
       "canonicalWriter": "@ivory-tower/research-kernel",
       "identity": "projectId/objectId/revisionId",
@@ -98,11 +134,13 @@
       "evidenceStatus": "implemented-reference-kernel",
       "canonicalKey": "Statement",
       "runtimeKey": "claim",
-      "compatibility": "Statement is planning terminology; ClaimPayload / claim revision remains the existing canonical carrier"
+      "adrDecision": "claim-card-authority",
+      "compatibility": "naming and projection authority is the cited ADR lineage decision; Statement is not a second canonical identity or writer"
     },
     {
       "concept": "EvidenceLink",
       "ownerSurface": "EvidenceLink",
+      "owner": "@ivory-tower/research-kernel",
       "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#EvidenceLinkPayload",
       "canonicalWriter": "@ivory-tower/research-kernel",
       "identity": "projectId/objectId/revisionId",
@@ -119,6 +157,7 @@
     {
       "concept": "ResearchProtocol",
       "ownerSurface": "ResearchProtocol",
+      "owner": "@ivory-tower/contracts",
       "carrier": "packages/ivory-tower-contracts/src/research-protocol-contract.ts#researchProtocolVersionSchema",
       "canonicalWriter": "@ivory-tower/research-kernel",
       "identity": "protocolId/protocolVersionId/branchId",
@@ -137,6 +176,7 @@
     {
       "concept": "Activity",
       "ownerSurface": "Activity",
+      "owner": "@ivory-tower/research-kernel",
       "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ActivityRecord",
       "canonicalWriter": "@ivory-tower/research-kernel",
       "identity": "projectId/activityId/projectSequence",
@@ -151,6 +191,7 @@
     {
       "concept": "Proposal",
       "ownerSurface": "Activity",
+      "owner": "@ivory-tower/research-kernel",
       "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#AcceptAgentProposalInput",
       "canonicalWriter": "@ivory-tower/research-kernel",
       "identity": "proposalDigest/idempotencyKey + expectedClaim exact ref",
@@ -167,6 +208,7 @@
     {
       "concept": "Adjudication",
       "ownerSurface": "ResearchDecisionReceipt",
+      "owner": "@ivory-tower/research-kernel",
       "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ActivityRecord",
       "canonicalWriter": "@ivory-tower/research-kernel",
       "identity": "projectId/activityId + exact assessment/snapshot basis",
@@ -182,6 +224,7 @@
     {
       "concept": "Receipt",
       "ownerSurface": "ResearchDecisionReceipt",
+      "owner": "@ivory-tower/research-kernel",
       "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#AgentProposalReceipt",
       "canonicalWriter": "@ivory-tower/research-kernel",
       "identity": "requestDigest/claimRef/linkRef/activityId",
@@ -198,6 +241,7 @@
     {
       "concept": "Snapshot",
       "ownerSurface": "Snapshot",
+      "owner": "@ivory-tower/research-kernel",
       "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#SnapshotRecord",
       "canonicalWriter": "@ivory-tower/research-kernel",
       "identity": "projectId/snapshotId/digest",
@@ -215,6 +259,7 @@
     {
       "concept": "Assessment",
       "ownerSurface": "Assessment",
+      "owner": "@ivory-tower/research-kernel",
       "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ActivityRecord",
       "canonicalWriter": "@ivory-tower/research-kernel",
       "identity": "projectId/activityId + exact evidence basis",
@@ -225,20 +270,22 @@
       ],
       "evidenceStatus": "owned-gap",
       "trackingIssue": "IV41-021",
+      "adrDecision": "semantic-assessment-carrier",
       "compatibility": "mechanical equality is not semantic support"
     },
     {
       "concept": "CAS",
       "ownerSurface": "CAS",
-      "carrier": "packages/ivory-tower-adapters/src/execution-ports.ts#ObjectStorePort",
+      "owner": "@ivory-tower/contracts",
+      "carrier": "packages/ivory-tower-contracts/src/durable-store-port.ts#DurableStorePort",
       "canonicalWriter": "@ivory-tower/research-kernel",
-      "identity": "content digest / immutable object key",
+      "identity": "blobDigest/objectKey + idempotencyKey/expectedHeads",
       "revision": "content-addressed immutable bytes, not a canonical research revision",
-      "persistence": "immutable-bytes-port",
+      "persistence": "durable-store-port-admit-before-commit",
       "semanticRefs": [],
       "evidenceStatus": "storage-port-durability-unqualified",
       "trackingIssue": "IV41-016",
-      "compatibility": "durable adapter never acquires semantic research acceptance"
+      "compatibility": "the durable adapter never acquires semantic research acceptance; @ivory-tower/adapters#ObjectStorePort and @ivory-tower/infrastructure#FilesystemObjectStore stay non-canonical secondaries in the owner map, and production CAS-first commit/recovery with checkpoint/restore readback remains an owned gap of IV41-016 and V41-I07.4"
     }
   ],
   "receiptVariants": [
@@ -332,8 +379,9 @@
     },
     {
       "term": "Claim Card",
-      "canonical": "Claim + EvidenceLink + Activity",
-      "mode": "derived-view-only"
+      "canonical": "regenerated projection, see the cited ADR lineage decision",
+      "mode": "derived-view-only",
+      "adrDecision": "claim-card-authority"
     },
     {
       "term": "ResearchCase",
@@ -351,6 +399,91 @@
       "mode": "owned-gap"
     }
   ],
+  "readback": {
+    "algorithm": "sha256",
+    "encoding": "utf-8",
+    "pathSeparator": "/",
+    "lineEndingPolicy": "normalize-lf",
+    "auditedHead": {
+      "ref": "refs/heads/dev",
+      "sha": "5c2b6d464cbbd727f24587bd44834199e19777a1",
+      "mode": "exact-working-tree"
+    },
+    "files": [
+      {
+        "id": "ownerMap",
+        "path": "configs/ivory-v41-owner-map.json",
+        "sha256": "861ac8af90da03cd3009a0da1227c17dcd0bc927b8d6608c6315ef1f5906861d",
+        "bytes": 7307
+      },
+      {
+        "id": "packageOwnership",
+        "path": "configs/ivory-v41-package-ownership.json",
+        "sha256": "671e846ff741eb61b2a66f14cffc3587c94ceedc4851a0ed5d8cf3c84f0b68c5",
+        "bytes": 11075
+      },
+      {
+        "id": "exactAuthority",
+        "path": "configs/ivory-v41-authority-heads.json",
+        "sha256": "277e549d4d94e52fe3d8f38b0aa654b53bfb8dc1a2377d5b34dfe186093f09b4",
+        "bytes": 5392
+      },
+      {
+        "id": "carrierMatrix",
+        "path": "configs/ivory-v41-carrier-matrix.json",
+        "sha256": "ee19961a23c630504341cbf575f37fb41d76c2d92a0ed224565d916a6c13e669",
+        "bytes": 13190
+      },
+      {
+        "id": "adrLineage",
+        "path": "configs/ivory-v41-adr-lineage.json",
+        "sha256": "6c91f1337dbb2d0b0bf96e9b08f08f8cbee449116c70752bb8566d5322ca9852",
+        "bytes": 5925
+      },
+      {
+        "id": "researchKernelTypes",
+        "path": "packages/ivory-tower-research-kernel/src/node/types.ts",
+        "sha256": "f0f211eaa78376cfe04a95e0e1ba0afefc3681008fcb7103c69438c29c4efdbb",
+        "bytes": 12097
+      },
+      {
+        "id": "researchProtocolContract",
+        "path": "packages/ivory-tower-contracts/src/research-protocol-contract.ts",
+        "sha256": "44190d90eb5c9d79248118e762a8ad39debb6620f91c59793b0a0ec351bae57d",
+        "bytes": 6766
+      },
+      {
+        "id": "durableStorePort",
+        "path": "packages/ivory-tower-contracts/src/durable-store-port.ts",
+        "sha256": "5f07b7fce6ece6c2e1696b57784df165f600e599121decea46907a9c69fda580",
+        "bytes": 2466
+      },
+      {
+        "id": "domainExecution",
+        "path": "packages/ivory-tower-domain/src/execution.ts",
+        "sha256": "7f27555fef7d207c08dd8629d970485dc28d949fef6b2bb494ef304030edf9de",
+        "bytes": 2196
+      },
+      {
+        "id": "migrationRunner",
+        "path": "packages/ivory-tower-infrastructure/src/node/migrate.ts",
+        "sha256": "2b60512028030ada9b490f8b84ee7df8429d468579d229547c73f4702aeafd39",
+        "bytes": 3240
+      },
+      {
+        "id": "adr-007",
+        "path": "docs/adr-007-v41-authority-harness-boundary.md",
+        "sha256": "e3d0e623e7f57c171cc06b89446e5dbac4431a42a60254beca466e9b350cbea5",
+        "bytes": 5173
+      },
+      {
+        "id": "adr-008",
+        "path": "docs/adr-008-v41-adr-lineage-supersession.md",
+        "sha256": "2d3e945a473dbec90e0d3996099f12371160e5440fb123f31e9baea6d959d2bb",
+        "bytes": 5372
+      }
+    ]
+  },
   "gates": {
     "DURABILITY": "not-run",
     "Q1": "not-run",
