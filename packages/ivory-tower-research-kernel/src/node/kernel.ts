@@ -244,6 +244,9 @@ export class ResearchKernel {
     createFragment(input: CreateFragmentInput): ExactRef {
         const source = this.requireRevision<SourcePayload>(input.sourceRef, 'source').payload;
         const artifact = this.requireRevision<ArtifactPayload>(input.artifactRef, 'artifact').payload;
+        if (!artifact.sourceRefs.some(ref => sameRef(ref, input.sourceRef))) {
+            throw new ResearchKernelError('Fragment artifact must retain the exact selected source revision');
+        }
         const representation = this.selectFragmentRepresentation(
             input.selector,
             input.representation,
@@ -255,7 +258,7 @@ export class ResearchKernel {
         const profile = this.normalizeFragmentProfile(input.profile, representation);
         const selector = this.normalizeFragmentSelector(input.selector, representation, source.sourceVersionId, input.artifactRef);
         const anchor = this.createFragmentAnchor(representation, selector, profile);
-        const context = this.normalizeFragmentContext(input.context, anchor, input.sourceRef, source, input.artifactRef, artifact);
+        const context = this.normalizeFragmentContext(input.context, selector, anchor, input.sourceRef, source, input.artifactRef, artifact);
         const objectId = deterministicId('frg', {
             projectId: this.projectId,
             key: input.fragmentKey,
@@ -603,8 +606,22 @@ export class ResearchKernel {
         const fragment = revision.payload;
         const representation = this.loadAnchorRepresentation(fragment.anchor);
         const representationDigest = representation.digest === fragment.anchor.representationDigest;
-        const selectorBytes = this.selectorMatches(fragment.selector, representation.text);
-        const context = this.verifyFragmentContext(fragment.context);
+        const selectorBytes =
+            fragment.anchor.brand === 'ivory.fragment-anchor/1' &&
+            fragment.anchor.selectorKind === fragment.selector.kind &&
+            (fragment.anchor.representation === 'source'
+                ? sameRef(fragment.anchor.representationRef, fragment.sourceRef)
+                : sameRef(fragment.anchor.representationRef, fragment.artifactRef)) &&
+            [fragment.anchor.converter, fragment.anchor.converterRevision, fragment.anchor.selectorProfileRevision].every(
+                value => typeof value === 'string' && value.trim().length > 0,
+            ) &&
+            fragment.anchor.orderedSpanIdentity ===
+                deterministicId('spn', {
+                    representationDigest: fragment.anchor.representationDigest,
+                    selector: fragment.selector,
+                }) &&
+            this.selectorMatches(fragment.selector, representation.text);
+        const context = this.verifyFragmentContext(fragment.context, fragment, representation);
         const status: MechanicalCitationReceipt['status'] =
             !representationDigest || !selectorBytes || context === 'mismatch'
                 ? 'MISMATCH'
@@ -1001,6 +1018,7 @@ export class ResearchKernel {
 
     private normalizeFragmentContext(
         input: FragmentContextInput | undefined,
+        citedSelector: FragmentSelector,
         citedAnchor: FragmentAnchorIdentity,
         sourceRef: ExactRef,
         source: SourcePayload,
@@ -1022,6 +1040,18 @@ export class ResearchKernel {
         if (input.state === 'not-applicable') {
             if (input.basis !== 'no-material-structure' || !input.reason.trim()) {
                 throw new ResearchKernelError('not-applicable Fragment context requires no-material-structure basis and a reason');
+            }
+            const representation = this.getFragmentRepresentation(
+                citedAnchor.representation,
+                sourceRef,
+                source,
+                artifactRef,
+                artifact,
+            );
+            if (!this.hasNoMaterialStructure(citedSelector, representation, source, artifact)) {
+                throw new ResearchKernelError(
+                    'not-applicable Fragment context is unproven: retain structural context or mark it unavailable',
+                );
             }
             return cloneValue(input);
         }
@@ -1090,16 +1120,52 @@ export class ResearchKernel {
         };
     }
 
-    private verifyFragmentContext(context: FragmentContext): MechanicalCitationReceipt['checks']['context'] {
+    /**
+     * Conservative, mechanically checkable absence witness. A full-span single-line quote
+     * from identical retained source and artifact bytes has no omitted outside structure.
+     * Converted, tabular, multipart, or uncertain material must supply context or remain unavailable.
+     */
+    private hasNoMaterialStructure(
+        selector: FragmentSelector,
+        representation: RetainedRepresentation,
+        source: SourcePayload,
+        artifact: ArtifactPayload,
+    ): boolean {
+        return (
+            selector.kind === 'text' &&
+            selector.start === 0 &&
+            selector.end === representation.text.length &&
+            this.decodeSourceText(source) === representation.text &&
+            artifact.output === representation.text &&
+            !/[\r\n\t|]/.test(representation.text) &&
+            !/\b(?:table|figure|footnote|methods?|limitations?|denominator|legend|units?|headers?|sample size)\b/i.test(
+                representation.text,
+            )
+        );
+    }
+
+    private verifyFragmentContext(
+        context: FragmentContext,
+        fragment: FragmentPayload,
+        representation: RetainedRepresentation,
+    ): MechanicalCitationReceipt['checks']['context'] {
         if (context.state === 'unavailable') {
             return 'unavailable';
         }
         if (context.state === 'not-applicable') {
-            return context.basis === 'no-material-structure' && Boolean(context.reason.trim()) ? 'not-applicable' : 'mismatch';
+            if (context.basis !== 'no-material-structure' || !context.reason.trim()) {
+                return 'mismatch';
+            }
+            const source = this.requireRevision<SourcePayload>(fragment.sourceRef, 'source').payload;
+            const artifact = this.requireRevision<ArtifactPayload>(fragment.artifactRef, 'artifact').payload;
+            return this.hasNoMaterialStructure(fragment.selector, representation, source, artifact)
+                ? 'not-applicable'
+                : 'mismatch';
         }
-        if (context.references.length === 0) {
+        if (context.references.length === 0 || context.references.length > MAX_FRAGMENT_CONTEXT_REFERENCES) {
             return 'mismatch';
         }
+        const identities = new Set<string>();
         for (const reference of context.references) {
             let digest: string;
             let text: string;
@@ -1112,9 +1178,24 @@ export class ResearchKernel {
                 digest = artifact.outputDigest;
                 text = artifact.output;
             }
-            if (digest !== reference.representationDigest || !this.selectorMatches(reference.selector, text)) {
+            const spanIdentity = deterministicId('spn', {
+                representationDigest: reference.representationDigest,
+                selector: reference.selector,
+            });
+            if (
+                digest !== reference.representationDigest ||
+                !this.selectorMatches(reference.selector, text) ||
+                !sameRef(
+                    reference.representationRef,
+                    reference.representation === 'source' ? fragment.sourceRef : fragment.artifactRef,
+                ) ||
+                spanIdentity !== reference.orderedSpanIdentity ||
+                spanIdentity === fragment.anchor.orderedSpanIdentity ||
+                identities.has(spanIdentity)
+            ) {
                 return 'mismatch';
             }
+            identities.add(spanIdentity);
         }
         return 'exact';
     }
