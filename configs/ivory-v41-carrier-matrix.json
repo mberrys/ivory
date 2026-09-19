@@ -65,7 +65,10 @@
         "owner": "@ivory-tower/research-kernel",
         "types": [
           "FragmentPayload",
-          "FragmentSelector",
+          "FragmentAnchorIdentity",
+          "FragmentContext",
+          "MechanicalCitationReceipt",
+          "FragmentRemapReceipt",
           "ExactRef"
         ]
       },
