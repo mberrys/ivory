@@ -255,14 +255,7 @@ export class ResearchKernel {
         const profile = this.normalizeFragmentProfile(input.profile, representation);
         const selector = this.normalizeFragmentSelector(input.selector, representation, source.sourceVersionId, input.artifactRef);
         const anchor = this.createFragmentAnchor(representation, selector, profile);
-        const context = this.normalizeFragmentContext(
-            input.context,
-            anchor,
-            input.sourceRef,
-            source,
-            input.artifactRef,
-            artifact,
-        );
+        const context = this.normalizeFragmentContext(input.context, anchor, input.sourceRef, source, input.artifactRef, artifact);
         const objectId = deterministicId('frg', {
             projectId: this.projectId,
             key: input.fragmentKey,
@@ -321,13 +314,7 @@ export class ResearchKernel {
             };
         }
 
-        const remappedContext = this.remapFragmentContext(
-            previous.context,
-            previous.sourceRef,
-            source,
-            input.artifactRef,
-            artifact,
-        );
+        const remappedContext = this.remapFragmentContext(previous.context, previous.sourceRef, source, input.artifactRef, artifact);
         if (remappedContext.status !== 'EXACT' || remappedContext.context === undefined) {
             return {
                 status: remappedContext.status,
@@ -1039,9 +1026,7 @@ export class ResearchKernel {
             return cloneValue(input);
         }
         if (input.references.length === 0 || input.references.length > MAX_FRAGMENT_CONTEXT_REFERENCES) {
-            throw new ResearchKernelError(
-                `applicable Fragment context requires 1..${MAX_FRAGMENT_CONTEXT_REFERENCES} bounded references`,
-            );
+            throw new ResearchKernelError(`applicable Fragment context requires 1..${MAX_FRAGMENT_CONTEXT_REFERENCES} bounded references`);
         }
         const identities = new Set<string>();
         const references: FragmentContextReference[] = input.references.map(reference => {
@@ -1177,13 +1162,7 @@ export class ResearchKernel {
         }
         const references: FragmentContextReference[] = [];
         for (const previous of context.references) {
-            const representation = this.getFragmentRepresentation(
-                previous.representation,
-                sourceRef,
-                source,
-                artifactRef,
-                artifact,
-            );
+            const representation = this.getFragmentRepresentation(previous.representation, sourceRef, source, artifactRef, artifact);
             const candidates = this.findSelectorCandidates(
                 previous.selector,
                 representation.text,
