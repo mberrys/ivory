@@ -14,7 +14,9 @@
       "packages": [
         "ivory-identity"
       ],
-      "surfaces": []
+      "surfaces": [],
+      "packageInventoryMode": "exact-tree",
+      "schemaInspectionMode": "exact-source-readback"
     },
     {
       "id": "pr1",
@@ -41,7 +43,9 @@
       ],
       "surfaces": [
         "configs/ivory-n-gates.json"
-      ]
+      ],
+      "packageInventoryMode": "exact-tree",
+      "schemaInspectionMode": "exact-source-readback"
     },
     {
       "id": "dev",
@@ -64,7 +68,9 @@
         "ivory-tower-research-kernel",
         "ivory-tower-worker"
       ],
-      "surfaces": []
+      "surfaces": [],
+      "packageInventoryMode": "exact-tree",
+      "schemaInspectionMode": "exact-source-readback"
     }
   ],
   "requiredPackageFacts": [
@@ -294,7 +300,7 @@
         "symbol": "proposal-integrity experiment Core"
       },
       "predicate": "configs/ivory-n-gates.json#N7: decision=bounded-experiment-pass",
-      "fixture": "scripts/n7/adversarial.test.mjs",
+      "fixture": "scripts/n7/core.test.mjs",
       "evidence": "docs/experiments/n7-v1-evidence.json",
       "gate": "N7",
       "scope": "One bounded local loopback provider run is retained; hosted/live-provider qualification remains separately open."
@@ -328,7 +334,8 @@
         "missing committed blob",
         "duplicate writer authority",
         "unrecoverable accepted receipt"
-      ]
+      ],
+      "status": "not-run"
     },
     {
       "id": "REPLAY",
@@ -357,7 +364,8 @@
         "independent operator absent",
         "CAS closure incomplete",
         "source status changes during assembly"
-      ]
+      ],
+      "status": "not-run"
     },
     {
       "id": "Q1",
@@ -386,7 +394,8 @@
         "ambiguous remap",
         "synthetic context",
         "semantic support inferred from exactness"
-      ]
+      ],
+      "status": "not-run"
     },
     {
       "id": "Q2",
@@ -415,7 +424,8 @@
         "coverage boundary absent",
         "contrary-search obligation missing",
         "bounded stopping rationale missing"
-      ]
+      ],
+      "status": "not-run"
     },
     {
       "id": "Q3",
@@ -444,7 +454,8 @@
         "independent replay missing",
         "historical snapshot mutated",
         "source freshness cannot be established"
-      ]
+      ],
+      "status": "not-run"
     },
     {
       "id": "Q4",
@@ -474,7 +485,52 @@
         "direct canonical write by worker",
         "revocation not rechecked at adoption",
         "uncertain external effect retried blindly"
-      ]
+      ],
+      "status": "not-run"
     }
-  ]
+  ],
+  "authorityPolicy": {
+    "headSelection": "exact-only",
+    "latestHeadSubstitution": "forbidden",
+    "packageInventory": "exact-tree-only",
+    "planningStatusIsAuthority": false
+  },
+  "harnessBoundary": {
+    "semanticAuthority": {
+      "owner": "Core",
+      "boundary": "canonical immutable revisions, activities, receipts, snapshots, and explicit human research decisions",
+      "mayAcceptInterpretation": true
+    },
+    "executionAuthority": {
+      "owner": "Harness",
+      "surfaces": [
+        "run scheduling",
+        "tool and provider routing",
+        "attempt fencing and cancellation",
+        "replay and evaluation",
+        "immutable execution traces"
+      ],
+      "mayAcceptInterpretation": false,
+      "mayWriteCanonicalResearchState": false,
+      "mustReturnThroughCore": true
+    },
+    "clients": {
+      "owner": "Projection",
+      "surfaces": [
+        "Theia",
+        "CLI",
+        "MCP",
+        "R/Python helpers"
+      ],
+      "mayAcceptInterpretation": false,
+      "mayWriteCanonicalResearchState": false,
+      "maySelectLatestImplicitly": false
+    },
+    "recursiveImprovement": {
+      "replayableTraces": true,
+      "policyEvolutionScope": "harness exploration and orchestration policy only",
+      "canonicalEvidenceMutation": "forbidden",
+      "semanticEvaluatorBypass": "forbidden"
+    }
+  }
 }
