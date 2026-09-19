@@ -81,10 +81,7 @@
       "secondary": [
         "@theia/ivory-identity"
       ],
-      "missingFields": [
-        "selector profile/version",
-        "explicit context/not-applicable reason"
-      ]
+      "missingFields": []
     },
     {
       "canonicalKey": "EvidenceLink",
@@ -93,8 +90,7 @@
       "secondary": [],
       "missingFields": [
         "explicit transformation mode",
-        "typed qualification payload",
-        "per-target cited/context role"
+        "typed qualification payload"
       ]
     },
     {
