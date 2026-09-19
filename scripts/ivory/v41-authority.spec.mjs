@@ -49,6 +49,12 @@ test('an inferred package inventory is rejected', () => {
     assert.match(errorText(candidate), /package inventory must be exact-tree/);
 });
 
+test('the selected-dev Ivory package inventory must be exhaustive', () => {
+    const candidate = bundle();
+    candidate.heads.packages = candidate.heads.packages.slice(0, -1);
+    assert.match(errorText(candidate), /package inventory must exactly match the selected-dev Ivory package tree/);
+});
+
 test('package manifest drift blocks the exact-head contract', () => {
     const candidate = bundle();
     const root = mkdtempSync(join(tmpdir(), 'v41-authority-'));
