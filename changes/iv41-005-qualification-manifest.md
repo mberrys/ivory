@@ -15,6 +15,7 @@
 - Added adversarial tests for missing context, stale heads, dirty worktrees, machine-only decisions, digest drift, missing limitations, untracked gaps, duplicate gates, aggregate outcomes, and path traversal.
 - Set the shared Prettier policy to `endOfLine: auto` so the existing source formatting passes consistently on LF and CRLF checkouts.
 - Normalized the V1 cutline CRLF fixture source before generating CRLF so its cross-platform regression test does not create doubled carriage returns on Windows.
+- Removed the pre-existing duplicate inherited Theia color-registration method exposed by the required Windows Electron compatibility build.
 
 ## Validation
 
