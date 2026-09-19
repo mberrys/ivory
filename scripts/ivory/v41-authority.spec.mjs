@@ -300,3 +300,105 @@ test('IV41-003 refuses architectural gaps that are not tracked as issues', () =>
     candidate.packageOwnership.gapPolicy.discoveredGaps[0].issue = 'session-note-7';
     assert.match(errorText(candidate), /must point to a tracked IV41 issue/);
 });
+
+test('IV41-004 registers every ADR on this line and covers each lineage disposition', () => {
+    const candidate = bundle();
+    assert.equal(candidate.adrLineage.issue, 'IV41-004');
+    assert.deepEqual(
+        candidate.adrLineage.registry.map(record => record.id),
+        ['V3-ORX', 'ADR-001', 'ADR-002', 'ADR-003', 'ADR-004', 'ADR-005', 'ADR-006', 'ADR-007', 'ADR-008'],
+    );
+    assert.equal(candidate.adrLineage.registry.find(record => record.id === 'ADR-004').retainedIntact, true);
+    assert.deepEqual(
+        [...new Set(candidate.adrLineage.decisions.map(decision => decision.disposition))].sort(),
+        ['amended', 'deferred', 'inherited', 'superseded'],
+    );
+    const roles = candidate.heads.heads.map(head => head.role);
+    for (const decision of candidate.adrLineage.decisions) {
+        assert.ok(decision.evidenceHeads.every(head => roles.includes(head)));
+    }
+    assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+});
+
+test('IV41-004 rejects duplicate ADR ids, repeated paths, and non-increasing numbering', () => {
+    const candidate = bundle();
+    candidate.adrLineage.registry.push(clone(candidate.adrLineage.registry.find(record => record.id === 'ADR-007')));
+    const errors = errorText(candidate);
+    assert.match(errors, /duplicate ADR lineage registry id ADR-007/);
+    assert.match(errors, /duplicate ADR lineage path docs\/adr-007-v41-authority-harness-boundary\.md/);
+    assert.match(errors, /ADR numbering must be strictly increasing in registry order/);
+});
+
+test('IV41-004 requires every ADR file on this line to be registered', () => {
+    const candidate = bundle();
+    candidate.adrLineage.registry = candidate.adrLineage.registry.filter(record => record.id !== 'ADR-004');
+    assert.match(errorText(candidate), /docs\/adr-004-n1-exact-reference-contract\.md must be registered in the ADR lineage registry/);
+});
+
+test('IV41-004 fails closed on dangling, self-referential, and cyclic supersession', () => {
+    const dangling = bundle();
+    dangling.adrLineage.decisions.find(decision => decision.disposition === 'superseded').supersededBy = 'ADR-999';
+    assert.match(errorText(dangling), /superseded disposition must name an existing supersededBy ADR/);
+
+    const selfReference = bundle();
+    selfReference.adrLineage.registry.find(record => record.id === 'ADR-007').supersededBy = 'ADR-007';
+    assert.match(errorText(selfReference), /ADR-007 cannot supersede itself/);
+
+    const cycle = bundle();
+    cycle.adrLineage.registry.find(record => record.id === 'ADR-007').supersededBy = 'ADR-008';
+    cycle.adrLineage.registry.find(record => record.id === 'ADR-008').supersededBy = 'ADR-007';
+    assert.match(errorText(cycle), /supersession chain must not form a cycle/);
+});
+
+test('IV41-004 keeps historical ADR records retained intact', () => {
+    const candidate = bundle();
+    candidate.adrLineage.registry.find(record => record.id === 'ADR-004').retainedIntact = false;
+    assert.match(errorText(candidate), /ADR-004 must be retained intact/);
+
+    const policyDrift = bundle();
+    policyDrift.adrLineage.policy.untrackedArchitecturalGaps = 'allowed';
+    assert.match(errorText(policyDrift), /untracked architectural gaps must be forbidden/);
+});
+
+test('IV41-004 keeps deferred architectural gaps tracked rather than in session notes', () => {
+    const stripped = bundle();
+    const assessment = stripped.adrLineage.decisions.find(decision => decision.id === 'semantic-assessment-carrier');
+    delete assessment.trackingUrl;
+    assert.match(errorText(stripped), /tracked architectural gap must retain its issue URL/);
+
+    const untracked = bundle();
+    untracked.adrLineage.decisions.find(decision => decision.id === 'research-capsule-qualification').trackedBy = 'session-notes';
+    assert.match(errorText(untracked), /trackedBy must be a registered gate or a tracked issue/);
+
+    const bare = bundle();
+    delete bare.adrLineage.decisions.find(decision => decision.id === 'research-capsule-qualification').trackedBy;
+    assert.match(errorText(bare), /deferred disposition must name its tracked gate or issue/);
+});
+
+test('IV41-004 refuses lineage entries that claim research acceptance or canonical writes', () => {
+    const decision = bundle();
+    decision.adrLineage.decisions.find(entry => entry.id === 'one-core-authority').authority = { researchAcceptance: true };
+    assert.match(errorText(decision), /cannot declare authority\.researchAcceptance/);
+
+    const record = bundle();
+    record.adrLineage.registry.find(entry => entry.id === 'ADR-007').researchStateWrite = true;
+    assert.match(errorText(record), /cannot declare researchStateWrite/);
+});
+
+test('IV41-004 keeps decisions unique, referenced, and bound to dev head roles', () => {
+    const duplicate = bundle();
+    duplicate.adrLineage.decisions.push(clone(duplicate.adrLineage.decisions[0]));
+    assert.match(errorText(duplicate), /duplicate ADR lineage decision one-core-authority/);
+
+    const staleHead = bundle();
+    staleHead.adrLineage.decisions[0].evidenceHeads = ['pr1'];
+    assert.match(errorText(staleHead), /references unknown evidence head pr1/);
+
+    const unknownCarrier = bundle();
+    unknownCarrier.adrLineage.decisions[0].carriedBy = 'ADR-999';
+    assert.match(errorText(unknownCarrier), /carrier ADR-999 is not in the lineage registry/);
+
+    const missingDisposition = bundle();
+    missingDisposition.adrLineage.decisions = missingDisposition.adrLineage.decisions.filter(decision => decision.disposition !== 'superseded');
+    assert.match(errorText(missingDisposition), /missing superseded decision coverage/);
+});

@@ -2,7 +2,7 @@
 // @ts-check
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -14,9 +14,21 @@ const CONFIGS = {
     carriers: 'configs/ivory-v41-carrier-matrix.json',
     gates: 'configs/ivory-v41-gates.json',
     qualification: 'configs/ivory-v41-qualification.json',
+    adrLineage: 'configs/ivory-v41-adr-lineage.json',
 };
 const SHA40 = /^[a-f0-9]{40}$/;
 const SHA256 = /^[a-f0-9]{64}$/;
+const ADR_ID = /^ADR-(\d{3})$/;
+const ADR_FILE = /^adr-(\d{3})-[a-z0-9-]+\.md$/;
+const TRACKED_ISSUE = /^(IV41-\d+[A-Z]?|V41-I\d+(\.\d+)?)$/;
+const REQUIRED_ADR_DISPOSITIONS = ['inherited', 'amended', 'deferred', 'superseded'];
+const LINEAGE_AUTHORITY_FLAGS = [
+    'researchAcceptance',
+    'researchStateWrite',
+    'canonicalResearchStateWrite',
+    'mayDecideResearchAcceptance',
+    'mayWriteCanonicalResearchState',
+];
 const EXPECTED_HEAD_ROLES = ['detachedBaseline', 'foundationPr', 'selectedDev'];
 const EXPECTED_N = ['N1', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7'];
 const EXPECTED_IVORY_PACKAGE_PATHS = [
@@ -515,6 +527,166 @@ function validateGates(gates, errors) {
     }
 }
 
+function lineageAuthorityClaims(value) {
+    const claims = [];
+    for (const field of LINEAGE_AUTHORITY_FLAGS) {
+        if (value?.[field] !== undefined && value[field] !== false) claims.push(field);
+        if (value?.authority?.[field] !== undefined && value.authority[field] !== false) claims.push(`authority.${field}`);
+    }
+    return claims;
+}
+
+function supersessionCycles(nodes, edges) {
+    const next = new Map();
+    for (const [from, to] of edges) if (!next.has(from)) next.set(from, to);
+    const cycles = [];
+    for (const start of nodes) {
+        const visited = new Set();
+        let current = next.get(start);
+        while (current !== undefined) {
+            if (current === start) {
+                cycles.push(start);
+                break;
+            }
+            if (visited.has(current)) break;
+            visited.add(current);
+            current = next.get(current);
+        }
+    }
+    return cycles;
+}
+
+function validateAdrLineage(lineage, bundle, root, options, errors) {
+    const label = 'IV41-004';
+    push(isRecord(lineage), errors, `${label}: ADR lineage manifest must be an object`);
+    if (!isRecord(lineage)) return;
+    push(lineage.schema === 'ivory-v41-adr-lineage/1', errors, `${label}: unexpected schema`);
+    push(lineage.issue === label, errors, `${label}: issue id must be IV41-004`);
+    push(lineage.dependsOn === 'IV41-001', errors, `${label}: dependency must remain IV41-001`);
+    push(lineage.basisManifest === CONFIGS.heads, errors, `${label}: lineage must bind to the exact-head manifest`);
+
+    const policy = isRecord(lineage.policy) ? lineage.policy : {};
+    push(policy.historicalRecords === 'immutable', errors, `${label}: historical ADR records must remain immutable`);
+    push(policy.supersession === 'explicit-only', errors, `${label}: ADR supersession must be explicit-only`);
+    push(policy.untrackedArchitecturalGaps === 'forbidden', errors, `${label}: untracked architectural gaps must be forbidden in ADR lineage`);
+    push(policy.evidenceContext === 'exact-repository-environment', errors, `${label}: ADR lineage evidence context must remain exact repository/environment`);
+    push(JSON.stringify(policy.decisionDispositions ?? []) === JSON.stringify(REQUIRED_ADR_DISPOSITIONS), errors, `${label}: ADR lineage must enumerate inherited, amended, deferred, and superseded dispositions`);
+
+    const selectedDev = (bundle.heads?.heads ?? []).find(head => head.role === 'selectedDev');
+    const context = isRecord(lineage.evidenceContext) ? lineage.evidenceContext : {};
+    push(context.repository === 'mberrys/ivory', errors, `${label}: evidence context must identify mberrys/ivory`);
+    push(sameSet(context.headRoles ?? [], EXPECTED_HEAD_ROLES), errors, `${label}: evidence context must name the exact head roles detachedBaseline, foundationPr, and selectedDev`);
+    push(context.priorSelectedDevHead === selectedDev?.sha, errors, `${label}: retained selected-dev head must match the exact-head manifest`);
+    push(SHA40.test(context.reconciliationMerge ?? ''), errors, `${label}: reconciliation merge must be an exact 40-character SHA`);
+    push(typeof context.reconciliationMergeSubject === 'string' && context.reconciliationMergeSubject.length > 0, errors, `${label}: reconciliation merge must record its exact subject`);
+
+    const registry = Array.isArray(lineage.registry) ? lineage.registry : [];
+    push(registry.length > 0, errors, `${label}: ADR lineage registry is empty`);
+    const registryIds = registry.map(record => record?.id).filter(Boolean);
+    for (const id of duplicates(registryIds)) errors.push(`${label}: duplicate ADR lineage registry id ${id}`);
+    const adrNumbers = [];
+    const adrPaths = [];
+    for (const record of registry) {
+        push(isRecord(record), errors, `${label}: ADR lineage registry records must be objects`);
+        if (!isRecord(record)) continue;
+        if (!record.id || !record.kind || !record.title) errors.push(`${label}: ADR lineage registry records must name id, kind, and title`);
+        push(typeof record.historical === 'boolean', errors, `${label}: ${record.id ?? 'registry record'} must declare whether it is historical`);
+        if (record.historical === true && record.retainedIntact !== true) errors.push(`${label}: ${record.id ?? 'historical record'} must be retained intact`);
+        for (const claim of lineageAuthorityClaims(record)) {
+            errors.push(`${label}: ${record.id ?? 'registry record'} cannot declare ${claim}; research acceptance and canonical research-state writes stay with the owner map and package ownership`);
+        }
+        if (record.kind === 'architecture-source') {
+            push(/^https?:\/\//.test(record.sourceUrl ?? ''), errors, `${label}: architecture source ${record.id ?? 'unknown'} must name its source URL`);
+        }
+        if (record.kind === 'adr') {
+            const match = ADR_ID.exec(record.id ?? '');
+            if (!match) errors.push(`${label}: ${record.id ?? 'ADR'} must use zero-padded ADR-### numbering`);
+            else adrNumbers.push(Number(match[1]));
+            if (!record.path) errors.push(`${label}: ${record.id ?? 'ADR'} must name its repository path`);
+            else {
+                validateRepoRelativePath(record.path, `${label}: ${record.id} path`, errors);
+                adrPaths.push(record.path);
+            }
+        }
+    }
+    for (const path of duplicates(adrPaths)) errors.push(`${label}: duplicate ADR lineage path ${path}`);
+    for (let index = 1; index < adrNumbers.length; index += 1) {
+        if (adrNumbers[index] <= adrNumbers[index - 1]) errors.push(`${label}: ADR numbering must be strictly increasing in registry order`);
+    }
+
+    if (options.verifyFiles !== false) {
+        for (const record of registry) {
+            if (record?.kind !== 'adr' || !isRepoRelativePath(record.path)) continue;
+            push(existsSync(path.join(root, record.path)), errors, `${label}: registered ADR file is missing: ${record.path}`);
+        }
+        let entries = [];
+        try {
+            entries = readdirSync(path.join(root, 'docs'), { withFileTypes: true });
+        } catch (error) {
+            errors.push(`${label}: cannot read the docs directory: ${error.message}`);
+        }
+        const registered = new Set(adrPaths);
+        for (const entry of entries) {
+            if (!entry.isFile() || !ADR_FILE.test(entry.name)) continue;
+            const relative = `docs/${entry.name}`;
+            push(registered.has(relative), errors, `${label}: ${relative} must be registered in the ADR lineage registry`);
+        }
+    }
+
+    const decisions = Array.isArray(lineage.decisions) ? lineage.decisions : [];
+    const decisionIds = decisions.map(decision => decision?.id).filter(Boolean);
+    for (const id of duplicates(decisionIds)) errors.push(`${label}: duplicate ADR lineage decision ${id}`);
+    const dispositions = decisions.map(decision => decision?.disposition).filter(Boolean);
+    for (const disposition of REQUIRED_ADR_DISPOSITIONS) {
+        if (!dispositions.includes(disposition)) errors.push(`${label}: ADR lineage is missing ${disposition} decision coverage`);
+    }
+    const gateIds = (bundle.gates?.gates ?? []).map(gate => gate?.id).filter(Boolean);
+    const supersessionEdges = [];
+    for (const decision of decisions) {
+        push(isRecord(decision), errors, `${label}: ADR lineage decisions must be objects`);
+        if (!isRecord(decision)) continue;
+        if (!decision.id || !decision.source || !decision.carriedBy || !decision.statement || !decision.evidenceBoundary) {
+            errors.push(`${label}: ${decision.id ?? 'ADR decision'} must name source, carrier, statement, and evidence boundary`);
+        }
+        if (!registryIds.includes(decision.source)) errors.push(`${label}: ${decision.id ?? 'ADR decision'} source ${decision.source ?? 'missing'} is not in the lineage registry`);
+        if (!registryIds.includes(decision.carriedBy)) errors.push(`${label}: ${decision.id ?? 'ADR decision'} carrier ${decision.carriedBy ?? 'missing'} is not in the lineage registry`);
+        if (!REQUIRED_ADR_DISPOSITIONS.includes(decision.disposition)) errors.push(`${label}: ${decision.id ?? 'ADR decision'} has invalid disposition ${decision.disposition ?? 'missing'}`);
+        if (!Array.isArray(decision.evidenceHeads) || decision.evidenceHeads.length === 0) errors.push(`${label}: ${decision.id ?? 'ADR decision'} must retain exact evidence heads`);
+        for (const head of decision.evidenceHeads ?? []) {
+            if (!EXPECTED_HEAD_ROLES.includes(head)) errors.push(`${label}: ${decision.id ?? 'ADR decision'} references unknown evidence head ${head}`);
+        }
+        for (const claim of lineageAuthorityClaims(decision)) {
+            errors.push(`${label}: ${decision.id ?? 'ADR decision'} cannot declare ${claim}; research acceptance and canonical research-state writes stay with the owner map and package ownership`);
+        }
+        if (decision.disposition === 'amended' && !registryIds.includes(decision.amendedBy)) {
+            errors.push(`${label}: ${decision.id ?? 'ADR decision'} amended disposition must name an existing amendedBy ADR`);
+        }
+        if (decision.disposition === 'superseded') {
+            if (!decision.supersededBy) errors.push(`${label}: ${decision.id ?? 'ADR decision'} superseded disposition must name an existing supersededBy ADR`);
+            else if (decision.supersededBy === decision.id) errors.push(`${label}: ${decision.id} cannot supersede itself`);
+            else if (!registryIds.includes(decision.supersededBy)) errors.push(`${label}: ${decision.id ?? 'ADR decision'} superseded disposition must name an existing supersededBy ADR`);
+            else supersessionEdges.push([decision.id, decision.supersededBy]);
+        }
+        if (decision.disposition === 'deferred') {
+            if (!decision.trackedBy) errors.push(`${label}: ${decision.id ?? 'ADR decision'} deferred disposition must name its tracked gate or issue`);
+            else if (!gateIds.includes(decision.trackedBy) && !TRACKED_ISSUE.test(decision.trackedBy)) errors.push(`${label}: ${decision.id ?? 'ADR decision'} trackedBy must be a registered gate or a tracked issue`);
+            if (TRACKED_ISSUE.test(decision.trackedBy ?? '') && !/^https?:\/\//.test(decision.trackingUrl ?? '')) {
+                errors.push(`${label}: ${decision.id ?? 'ADR decision'} tracked architectural gap must retain its issue URL`);
+            }
+        }
+    }
+
+    for (const record of registry) {
+        if (!isRecord(record) || !record.id || record.supersededBy === undefined) continue;
+        if (record.supersededBy === record.id) errors.push(`${label}: ${record.id} cannot supersede itself`);
+        else if (!registryIds.includes(record.supersededBy)) errors.push(`${label}: ${record.id} supersededBy ${record.supersededBy} is not in the lineage registry`);
+        else supersessionEdges.push([record.id, record.supersededBy]);
+    }
+    for (const cycle of supersessionCycles([...registryIds, ...decisionIds], supersessionEdges)) {
+        errors.push(`${label}: ${cycle} supersession chain must not form a cycle`);
+    }
+}
+
 export function validateBundle(bundle, options = {}) {
     const errors = [];
     const root = options.root ?? ROOT;
@@ -524,6 +696,7 @@ export function validateBundle(bundle, options = {}) {
     validateCarriers(bundle.carriers, errors);
     validateGates(bundle.gates, errors);
     validateQualification(bundle.qualification, bundle, { ...options, root }, errors);
+    validateAdrLineage(bundle.adrLineage, bundle, root, options, errors);
     return errors;
 }
 
@@ -535,6 +708,7 @@ export function loadBundle(root = ROOT) {
         carriers: readJson(root, CONFIGS.carriers),
         gates: readJson(root, CONFIGS.gates),
         qualification: readJson(root, CONFIGS.qualification),
+        adrLineage: readJson(root, CONFIGS.adrLineage),
     };
 }
 
@@ -560,7 +734,7 @@ function main() {
     for (const [leaf, relative] of Object.entries(CONFIGS)) {
         process.stdout.write(`${leaf} ${sha256File(ROOT, relative)} ${relative}\n`);
     }
-    process.stdout.write('V4.1 authority reconciliation: valid (V41-P01 4/4 leaves + IV41-003 package ownership + IV41-005 qualification manifest)\n');
+    process.stdout.write('V4.1 authority reconciliation: valid (V41-P01 4/4 leaves + IV41-003 package ownership + IV41-004 ADR lineage + IV41-005 qualification manifest)\n');
 }
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {

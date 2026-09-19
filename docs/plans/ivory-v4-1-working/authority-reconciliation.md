@@ -67,3 +67,22 @@ Package-level authority is retained in `configs/ivory-v41-package-ownership.json
 | agent proposal harness | `@ivory-tower/agent-experiment` | bounded qualification harness, not a production authority |
 
 The validator fails closed if the exact package inventory is not covered, a responsibility gains multiple owners, another package acquires research acceptance or canonical-write authority, or the evidence context no longer matches the selected-dev SHA. The 18 missing fields already retained in the V41-I01.2 owner map are each mapped to an existing `IV41-*` roadmap issue; dropping one, duplicating one, or replacing its issue with session notes is also a validation failure.
+
+## ADRs and lineage (IV41-004)
+
+`configs/ivory-v41-adr-lineage.json` is the machine contract: one registry and one decision list, loaded and validated by `scripts/ivory/v41-authority.mjs` in the same whole-bundle check as the rest of the V4.1 contracts. The registry covers the historical V3 ORX architecture source and every ADR that exists on this line — `docs/adr-001-application-platform.md` through `docs/adr-006-n5-harness-dependencies.md`, plus the two this issue adds, `docs/adr-007-v41-authority-harness-boundary.md` and `docs/adr-008-v41-adr-lineage-supersession.md`. Identifiers are zero-padded `ADR-###`, registry order is strictly increasing, paths are unique, and ADR-001 through ADR-006 are neither renumbered nor rewritten.
+
+Every reconciled decision is classified as `inherited`, `amended`, `deferred`, or `superseded` — those four and nothing else — and must name its `source`, `carriedBy`, `statement`, `evidenceBoundary`, and `evidenceHeads`. Historical records stay `retainedIntact`; supersession is explicit-only, so the target must exist in the registry, cannot be the record itself, and cannot form a cycle; a deferred architectural gap must name a registered gate id or a tracked issue id, and an issue-tracked gap carries its tracking URL, so a gap cannot survive as session notes. A lineage entry may not declare research acceptance or canonical research-state writes: `configs/ivory-v41-owner-map.json` and `configs/ivory-v41-package-ownership.json` remain the single sources for that.
+
+The evidence context is the exact-head manifest rather than a narrative: `configs/ivory-v41-authority-heads.json` names the three roles `detachedBaseline`, `foundationPr`, and `selectedDev`, and the lineage is bound to the same selectedDev head `bc3cd03b5b2d870d219797925d92edc48c33c6ca`, retained intact as history. The reconciliation merge `f8d0af66aa10d419cd18fb5f649f0eabfc63cd5d` is recorded as an exact observation of the line these ADRs land on, and lineage decisions may name only those three head ids.
+
+The machine contract currently records: one-Core authority as inherited; Claim Card authority as amended to a non-canonical projection; Research Capsule independent-reproduction qualification as deferred to gate `Q3`; V3 ORX as the current architecture qualification target superseded by ADR-007 while its one-Core invariants remain inherited separately; and the semantic-support Assessment carrier as deferred to tracked issue `IV41-021`.
+
+Verify with:
+
+```text
+node scripts/ivory/v41-authority.mjs
+node --test scripts/ivory/v41-authority.spec.mjs
+```
+
+ADR text cannot close a gate. None of these lineage entries executes Q1-Q4, durability, or replay evidence, none moves a gate off `not-run`, and none implements a deferred carrier: ADR-007 and ADR-008 record decisions the existing V4.1 contracts already carry structurally, and IV41-004 introduces no second status or qualification registry.
