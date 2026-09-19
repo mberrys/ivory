@@ -55,7 +55,7 @@ test('the retained manifest is structurally complete and every V4.1 gate starts 
 test('exact observed heads pass while a stale or substituted dev head fails', () => {
     assert.deepEqual(compareObservedHeads(MANIFEST, {
         detached: 'efec71ed83a1d0d9d513a4ead86369201cb5b401',
-        pr1: 'ecc406d34a9bf49d8e2f165b994a919ca90ff718',
+        pr1: '387411255a0de9ae10924609bac85472f58d992f',
         dev: 'bc3cd03b5b2d870d219797925d92edc48c33c6ca',
     }), []);
     assert.deepEqual(compareObservedHeads(MANIFEST, {
