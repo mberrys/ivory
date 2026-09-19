@@ -96,11 +96,11 @@ test('JSON verification output carries exact repository, manifest and head ident
     const output = JSON.parse(result.stdout);
     assert.equal(output.manifest.leafIssue, 'IV41-001');
     assert.equal(output.repository.fullName, 'mberrys/ivory');
-    assert.equal(output.repository.baseSha, '387411255a0de9ae10924609bac85472f58d992f');
+    assert.equal(output.repository.baseSha, 'd538fd44c25aa2403230b075c5e18613cea9b855');
     assert.match(output.manifest.digest, /^[0-9a-f]{64}$/);
     assert.deepEqual(output.heads.map(head => [head.id, head.sha, head.treeSha]), [
         ['detached', 'efec71ed83a1d0d9d513a4ead86369201cb5b401', 'b52b1aa0957e45f199f3e75bf99fdaad7ef972a1'],
-        ['pr1', '387411255a0de9ae10924609bac85472f58d992f', '53f8b5621fc0eefc4ad1764e4b49a6ad4b6d7dd2'],
+        ['pr1', 'd538fd44c25aa2403230b075c5e18613cea9b855', '5d4aa6ec3e4c568e7babf26db8487f7abc6ec641'],
         ['dev', 'bc3cd03b5b2d870d219797925d92edc48c33c6ca', '8edc9eab81e3733b60eb626c10ca91de63bd041c'],
     ]);
 });
