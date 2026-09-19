@@ -1,0 +1,480 @@
+{
+  "schema": "ivory-v4-1-authority/1",
+  "issue": "V41-P01",
+  "observedAt": "2026-09-18",
+  "implementationBase": "pr1",
+  "heads": [
+    {
+      "id": "detached",
+      "ref": "detached-planning-baseline",
+      "sha": "efec71ed83a1d0d9d513a4ead86369201cb5b401",
+      "treeSha": "b52b1aa0957e45f199f3e75bf99fdaad7ef972a1",
+      "role": "historical inspected checkout",
+      "classification": "reference-only",
+      "packages": [
+        "ivory-identity"
+      ],
+      "surfaces": []
+    },
+    {
+      "id": "pr1",
+      "ref": "pre-dev-foundation",
+      "sha": "ecc406d34a9bf49d8e2f165b994a919ca90ff718",
+      "treeSha": "d2b74a2d3125d10fc8e71af2486657b06cde64f0",
+      "role": "PR #1 foundation head",
+      "classification": "implementation-base",
+      "packages": [
+        "ivory-identity",
+        "ivory-n5-client",
+        "ivory-n5-shell",
+        "ivory-tower-adapters",
+        "ivory-tower-agent-experiment",
+        "ivory-tower-api",
+        "ivory-tower-application",
+        "ivory-tower-content-policy",
+        "ivory-tower-contracts",
+        "ivory-tower-domain",
+        "ivory-tower-health",
+        "ivory-tower-infrastructure",
+        "ivory-tower-research-kernel",
+        "ivory-tower-worker"
+      ],
+      "surfaces": [
+        "configs/ivory-n-gates.json"
+      ]
+    },
+    {
+      "id": "dev",
+      "ref": "dev",
+      "sha": "bc3cd03b5b2d870d219797925d92edc48c33c6ca",
+      "treeSha": "8edc9eab81e3733b60eb626c10ca91de63bd041c",
+      "role": "selected development head",
+      "classification": "divergent-compared-head",
+      "packages": [
+        "ivory-identity",
+        "ivory-tower-adapters",
+        "ivory-tower-agent-experiment",
+        "ivory-tower-api",
+        "ivory-tower-application",
+        "ivory-tower-content-policy",
+        "ivory-tower-contracts",
+        "ivory-tower-domain",
+        "ivory-tower-health",
+        "ivory-tower-infrastructure",
+        "ivory-tower-research-kernel",
+        "ivory-tower-worker"
+      ],
+      "surfaces": []
+    }
+  ],
+  "requiredPackageFacts": [
+    {
+      "package": "ivory-identity",
+      "presentAt": [
+        "detached",
+        "pr1",
+        "dev"
+      ],
+      "absentAt": []
+    },
+    {
+      "package": "ivory-tower-research-kernel",
+      "presentAt": [
+        "pr1",
+        "dev"
+      ],
+      "absentAt": [
+        "detached"
+      ]
+    },
+    {
+      "package": "ivory-n5-client",
+      "presentAt": [
+        "pr1"
+      ],
+      "absentAt": [
+        "detached",
+        "dev"
+      ]
+    },
+    {
+      "package": "ivory-n5-shell",
+      "presentAt": [
+        "pr1"
+      ],
+      "absentAt": [
+        "detached",
+        "dev"
+      ]
+    }
+  ],
+  "retainedSurfaceFacts": [
+    {
+      "path": "configs/ivory-n-gates.json",
+      "presentAt": [
+        "pr1"
+      ],
+      "absentAt": [
+        "detached",
+        "dev"
+      ]
+    }
+  ],
+  "canonicalOwners": [
+    {
+      "concept": "Source",
+      "state": "owned",
+      "package": "@ivory-tower/research-kernel",
+      "path": "packages/ivory-tower-research-kernel/src/node/types.ts",
+      "symbol": "SourcePayload",
+      "boundary": "immutable semantic source revision; durable admitted bytes remain behind SourceRecordPort/ObjectStorePort"
+    },
+    {
+      "concept": "Fragment",
+      "state": "owned",
+      "package": "@ivory-tower/research-kernel",
+      "path": "packages/ivory-tower-research-kernel/src/node/types.ts",
+      "symbol": "FragmentPayload",
+      "boundary": "exact source/artifact revision plus selector identity"
+    },
+    {
+      "concept": "EvidenceLink",
+      "state": "owned",
+      "package": "@ivory-tower/research-kernel",
+      "path": "packages/ivory-tower-research-kernel/src/node/types.ts",
+      "symbol": "EvidenceLinkPayload",
+      "boundary": "claim-to-fragment relation; does not own fragment selector identity"
+    },
+    {
+      "concept": "Statement",
+      "state": "owned",
+      "package": "@ivory-tower/research-kernel",
+      "path": "packages/ivory-tower-research-kernel/src/node/types.ts",
+      "symbol": "ClaimPayload",
+      "boundary": "canonical statement/claim revision; Claim Card remains a projection"
+    },
+    {
+      "concept": "Artifact",
+      "state": "owned",
+      "package": "@ivory-tower/research-kernel",
+      "path": "packages/ivory-tower-research-kernel/src/node/types.ts",
+      "symbol": "ArtifactPayload",
+      "boundary": "immutable retained derived output revision"
+    },
+    {
+      "concept": "Activity",
+      "state": "owned",
+      "package": "@ivory-tower/research-kernel",
+      "path": "packages/ivory-tower-research-kernel/src/node/types.ts",
+      "symbol": "ActivityRecord",
+      "boundary": "producing action, actor, inputs and outputs"
+    },
+    {
+      "concept": "ResearchProtocol",
+      "state": "owned",
+      "package": "@ivory-tower/contracts",
+      "path": "packages/ivory-tower-contracts/src/research-protocol-contract.ts",
+      "symbol": "researchProtocolVersionSchema",
+      "boundary": "versioned protocol contract; services and stores implement this contract without becoming semantic owners"
+    },
+    {
+      "concept": "Assessment",
+      "state": "owned-gap",
+      "ownedBy": "V41-I03.2",
+      "reason": "The exact PR #1 head has no canonical semantic-support assessment carrier. P01 records the gap instead of creating a second acceptance owner."
+    },
+    {
+      "concept": "Receipt",
+      "state": "owned",
+      "package": "@ivory-tower/research-kernel",
+      "path": "packages/ivory-tower-research-kernel/src/node/types.ts",
+      "symbol": "ActivityRecord / AgentProposalReceipt",
+      "boundary": "immutable action/decision receipts are retained on the Core revision/activity boundary; specialized receipts may refine this boundary"
+    },
+    {
+      "concept": "CAS",
+      "state": "owned",
+      "package": "@ivory-tower/adapters",
+      "path": "packages/ivory-tower-adapters/src/execution-ports.ts",
+      "symbol": "ObjectStorePort",
+      "boundary": "immutable byte-store contract; infrastructure implementations do not own research semantics"
+    }
+  ],
+  "forbiddenAuthorities": [
+    "Paper Store",
+    "Claim Card store",
+    "ResearchCase",
+    "secondary writer",
+    "universal acceptance aggregate"
+  ],
+  "lessonCarriers": [
+    {
+      "id": "N1",
+      "lesson": "Exact research identity, immutable revisions, deterministic snapshot closure and explicit interpretation carry-forward.",
+      "carrier": {
+        "path": "packages/ivory-tower-research-kernel/src/node/types.ts",
+        "symbol": "RevisionRecord / SnapshotManifest / EvidenceLinkPayload"
+      },
+      "predicate": "configs/ivory-n-gates.json#N1: automatedPass=true and humanValidation.status=closed",
+      "fixture": "packages/ivory-tower-research-kernel/src/node/research-kernel.spec.ts",
+      "evidence": "docs/experiments/n1-v2-evidence.json",
+      "gate": "N1",
+      "scope": "Retained experiment evidence; it establishes the exact-reference contract but does not itself qualify V4.1 production behavior."
+    },
+    {
+      "id": "N2",
+      "lesson": "One durable engine, idempotent semantic effects, CAS admission, interruption recovery and semantic export/import.",
+      "carrier": {
+        "path": "spikes/n2-durable-store/src/durable-store.mjs",
+        "symbol": "DurableStore experiment contract"
+      },
+      "predicate": "configs/ivory-n-gates.json#N2: automatedPass=true and decision.architectureStatus=engine-decided",
+      "fixture": "spikes/n2-durable-store/test/interrupt.spec.mjs",
+      "evidence": "docs/experiments/n2-v2-evidence.json",
+      "gate": "N2",
+      "scope": "Bounded to the recorded reference machine and unclean process termination; not hardware power loss, removable media or cloud-sync qualification."
+    },
+    {
+      "id": "N3",
+      "lesson": "Governed execution uses attempt fencing, cancellation/restart recovery and publication receipts under one protocol.",
+      "carrier": {
+        "path": "packages/ivory-tower-domain/src/execution.ts",
+        "symbol": "ExecutionRecord / execution event model"
+      },
+      "predicate": "configs/ivory-n-gates.json#N3: status=runtime-qualified and decision.supportMatrix=pilot-decided",
+      "fixture": "scripts/ivory/n3-protocol.spec.mjs",
+      "evidence": "docs/experiments/n3-evidence.json",
+      "gate": "N3",
+      "scope": "Runtime qualification is bounded to Windows 11 x64 with Docker Desktop Linux containers; onboarding observation is not a closing predicate."
+    },
+    {
+      "id": "N4",
+      "lesson": "Fragment anchors bind exact retained source/artifact identity to inspectable selectors without false-exact promotion.",
+      "carrier": {
+        "path": "packages/ivory-identity/src/node/fragment-anchor.ts",
+        "symbol": "fragment anchor identity"
+      },
+      "predicate": "configs/ivory-n-gates.json#N4: status=qualified",
+      "fixture": "scripts/verify-ivory-n4-v2.mjs",
+      "evidence": "docs/experiments/n4-v2-evidence.json",
+      "gate": "N4",
+      "scope": "The retained converter pair produced exact output across the qualified corpus; ambiguous and unresolved branches are harness coverage, not observed converter drift."
+    },
+    {
+      "id": "N5",
+      "lesson": "Theia, CLI and helper clients are replaceable projections over one canonical Core and reject competing stale edits.",
+      "carrier": {
+        "path": "packages/ivory-n5-client/src/client.cjs",
+        "symbol": "N5 canonical client boundary"
+      },
+      "predicate": "configs/ivory-n-gates.json#N5: decision=passed",
+      "fixture": "scripts/n5/compare.test.mjs",
+      "evidence": "docs/experiments/n5-v2-evidence.json",
+      "gate": "N5",
+      "scope": "The retained language matrix includes unsupported observation cells; those cells are not rounded up to client equivalence."
+    },
+    {
+      "id": "N6",
+      "lesson": "Portable reproduction separates integrity, replay and presentation while retaining exact citation resolution.",
+      "carrier": {
+        "path": "spikes/n6-portable-reproduction/portable.mjs",
+        "symbol": "portable reproduction contract"
+      },
+      "predicate": "configs/ivory-n-gates.json#N6: status=technical-pass",
+      "fixture": "spikes/n6-portable-reproduction/test/portable.spec.mjs",
+      "evidence": "docs/experiments/n6-evidence.json",
+      "gate": "N6",
+      "scope": "No second-machine clean installation evidence is retained; independent-replay qualification remains a later gate."
+    },
+    {
+      "id": "N7",
+      "lesson": "Agents propose under exact scope; Core owns adoption, stale/revoked results fail closed and transmissions remain attributable.",
+      "carrier": {
+        "path": "packages/ivory-tower-agent-experiment/src/core.ts",
+        "symbol": "proposal-integrity experiment Core"
+      },
+      "predicate": "configs/ivory-n-gates.json#N7: decision=bounded-experiment-pass",
+      "fixture": "scripts/n7/adversarial.test.mjs",
+      "evidence": "docs/experiments/n7-v1-evidence.json",
+      "gate": "N7",
+      "scope": "One bounded local loopback provider run is retained; hosted/live-provider qualification remains separately open."
+    }
+  ],
+  "gates": [
+    {
+      "id": "DURABILITY",
+      "owner": "V41-I07.1-V41-I07.6",
+      "machineEvidence": {
+        "path": "docs/evidence/v4-1/durability.json",
+        "predicate": {
+          "path": "status",
+          "equals": "passed"
+        }
+      },
+      "humanReceipt": {
+        "path": "docs/evidence/v4-1/durability-review.json",
+        "predicate": {
+          "path": "decision",
+          "equals": "accepted"
+        }
+      },
+      "negativeCases": [
+        "two writers",
+        "stale owner",
+        "CAS-before-SQL crash",
+        "acknowledgement loss"
+      ],
+      "stopConditions": [
+        "missing committed blob",
+        "duplicate writer authority",
+        "unrecoverable accepted receipt"
+      ]
+    },
+    {
+      "id": "REPLAY",
+      "owner": "V41-I09.1-V41-I09.4",
+      "machineEvidence": {
+        "path": "docs/evidence/v4-1/replay.json",
+        "predicate": {
+          "path": "status",
+          "equals": "passed"
+        }
+      },
+      "humanReceipt": {
+        "path": "docs/evidence/v4-1/replay-operator.json",
+        "predicate": {
+          "path": "decision",
+          "equals": "accepted"
+        }
+      },
+      "negativeCases": [
+        "missing blob",
+        "licensed omission",
+        "stale source during assembly",
+        "omitted dependency"
+      ],
+      "stopConditions": [
+        "independent operator absent",
+        "CAS closure incomplete",
+        "source status changes during assembly"
+      ]
+    },
+    {
+      "id": "Q1",
+      "owner": "V41-I02 and V41-I03",
+      "machineEvidence": {
+        "path": "docs/evidence/v4-1/q1-exact-context.json",
+        "predicate": {
+          "path": "status",
+          "equals": "passed"
+        }
+      },
+      "humanReceipt": {
+        "path": "docs/evidence/v4-1/q1-research-review.json",
+        "predicate": {
+          "path": "decision",
+          "equals": "accepted"
+        }
+      },
+      "negativeCases": [
+        "misleading exact quote",
+        "omitted table header",
+        "wrong selector profile",
+        "unreviewed qualification"
+      ],
+      "stopConditions": [
+        "ambiguous remap",
+        "synthetic context",
+        "semantic support inferred from exactness"
+      ]
+    },
+    {
+      "id": "Q2",
+      "owner": "V41-I04 through V41-I06",
+      "machineEvidence": {
+        "path": "docs/evidence/v4-1/q2-coverage.json",
+        "predicate": {
+          "path": "status",
+          "equals": "passed"
+        }
+      },
+      "humanReceipt": {
+        "path": "docs/evidence/v4-1/q2-completeness-review.json",
+        "predicate": {
+          "path": "decision",
+          "equals": "accepted"
+        }
+      },
+      "negativeCases": [
+        "support-only search",
+        "abstract-only treated as full text",
+        "duplicate metadata merge",
+        "unsupported exhaustive claim"
+      ],
+      "stopConditions": [
+        "coverage boundary absent",
+        "contrary-search obligation missing",
+        "bounded stopping rationale missing"
+      ]
+    },
+    {
+      "id": "Q3",
+      "owner": "V41-I08 through V41-I10",
+      "machineEvidence": {
+        "path": "docs/evidence/v4-1/q3-capsule.json",
+        "predicate": {
+          "path": "status",
+          "equals": "passed"
+        }
+      },
+      "humanReceipt": {
+        "path": "docs/evidence/v4-1/q3-independent-replay.json",
+        "predicate": {
+          "path": "decision",
+          "equals": "accepted"
+        }
+      },
+      "negativeCases": [
+        "missing blob",
+        "licensed omission",
+        "latest-head substitution",
+        "client reconnect to latest snapshot"
+      ],
+      "stopConditions": [
+        "independent replay missing",
+        "historical snapshot mutated",
+        "source freshness cannot be established"
+      ]
+    },
+    {
+      "id": "Q4",
+      "owner": "V41-I11 after Q3 and V41-I12 evaluation",
+      "machineEvidence": {
+        "path": "docs/evidence/v4-1/q4-agent-boundary.json",
+        "predicate": {
+          "path": "status",
+          "equals": "passed"
+        }
+      },
+      "humanReceipt": {
+        "path": "docs/evidence/v4-1/q4-adoption-review.json",
+        "predicate": {
+          "path": "decision",
+          "equals": "accepted"
+        }
+      },
+      "negativeCases": [
+        "late or revoked result",
+        "cross-project ref",
+        "prompt injection",
+        "same idempotency key with different body",
+        "disabled external effect attempted"
+      ],
+      "stopConditions": [
+        "direct canonical write by worker",
+        "revocation not rechecked at adoption",
+        "uncertain external effect retried blindly"
+      ]
+    }
+  ]
+}
