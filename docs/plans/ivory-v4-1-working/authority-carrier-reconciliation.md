@@ -58,9 +58,13 @@ P01 registers six downstream gates: `DURABILITY`, `REPLAY`, and `Q1` through `Q4
 - both present but a predicate fails: `failed`
 - both independent predicates pass: `passed`
 
-There is no aggregate pass flag in the manifest. `--require-gate <id>` exits non-zero unless that gate is actually `passed`.
+The manifest retains `status: not-run` only as the declared planning baseline; `authorityPolicy.planningStatusIsAuthority` is false and the verifier rejects any attempt to turn that field into a pass. Executable state is derived only from retained machine evidence plus its independent human receipt. `--require-gate <id>` exits non-zero unless that derived state is actually `passed`.
 
 At this implementation point all six downstream gates are intentionally `not-run`. That is the correct result for P01; this issue defines authority and carriers but does not manufacture qualification evidence for later workstreams.
+
+## Core and harness boundary
+
+The retained contract keeps semantic authority in Core. The harness may schedule runs, route tools/providers, fence attempts, replay/evaluate traces, and evolve exploration/orchestration policy, but it cannot accept interpretation or write canonical research state. Theia, CLI, MCP, and R/Python remain non-authoritative projections and cannot silently select a latest head. Recursive-improvement traces are replayable, while canonical evidence mutation and semantic-evaluator bypass remain forbidden.
 
 ## Reproduction
 
@@ -86,9 +90,9 @@ The head and tree values above were read from the repository objects on 18 Septe
 
 ## Acceptance evidence
 
-The local contract test run on 18 September 2026 produced 12/12 passing tests. The verifier reported the PR #1 head as the implementation base and `0/6 V4.1 gates passed; 6 not-run.` Its retained manifest SHA-256 at that run was `c25fcc467f6a358ebf9d4b1ae5bca1065d8a3a654674452b833d40bfc3b14519`.
+The local contract test run on 18 September 2026 produced 13/13 passing tests. The verifier reported the PR #1 head as the implementation base and `0/6 V4.1 gates passed; 6 not-run.` Its retained manifest SHA-256 at that run was `2665b980ad886c0fd09a5efc0c36bc8d6ba50735c59f23f4e5226b0bc9019edd`.
 
-Negative cases exercised by the test suite include latest-head substitution, duplicate canonical ownership, forbidden authority creation, a missing N1 carrier, a broken retained carrier path, machine-only gate evidence, human-only gate evidence, rejected human review, and requiring an unrun gate.
+Negative cases exercised by the test suite include latest-head substitution, duplicate canonical ownership, forbidden authority creation, a missing N1 carrier, a broken retained carrier path, machine-only gate evidence, human-only gate evidence, rejected human review, requiring an unrun gate, a planning status promoted to pass, a harness canonical write, and a client that implicitly selects latest.
 
 ## Limitations
 
