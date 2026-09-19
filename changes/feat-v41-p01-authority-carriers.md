@@ -12,7 +12,7 @@
 
 ## Proof
 
-Local isolated validator tests: `node --test scripts/ivory/v41-authority.spec.mjs` -> 10/10 passing.
+Local isolated validator tests: `node --test scripts/ivory/v41-authority.spec.mjs` -> 11/11 passing.
 
 Adversarial cases cover stale/alternate authority, latest-head substitution, inferred inventory, package drift, harness semantic authority, recursive-improvement mutation of Core authority, missing carriers, prose-only gate closure, aggregate pass flags, and pre-closed gates.
 
