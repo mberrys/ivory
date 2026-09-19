@@ -63,6 +63,48 @@ test('exact observed heads pass while a stale or substituted dev head fails', ()
     }), ['head dev is 98d1a268f03bc1a6709b0fbf6842c54c2ee13ccb; expected bc3cd03b5b2d870d219797925d92edc48c33c6ca']);
 });
 
+test('repository context is bound to the exact implementation-base head', () => {
+    const broken = clone(MANIFEST);
+    broken.repositoryContext.baseSha = 'a'.repeat(40);
+    assert.match(validateManifest(broken).join('\n'), /repository base SHA must equal the exact implementation-base head/);
+
+    broken.repositoryContext.baseSha = MANIFEST.repositoryContext.baseSha;
+    broken.repositoryContext.baseRef = 'latest';
+    assert.match(validateManifest(broken).join('\n'), /repository base ref must equal the implementation-base ref/);
+});
+
+test('package locations must be explicit and derived from the exact package inventory', () => {
+    const broken = clone(MANIFEST);
+    broken.heads.find(head => head.id === 'pr1').packageLocations.pop();
+    assert.match(validateManifest(broken).join('\n'), /pr1 package locations must exactly match its package inventory/);
+
+    const truncated = clone(MANIFEST);
+    truncated.heads.find(head => head.id === 'dev').treeListingTruncated = true;
+    assert.match(validateManifest(truncated).join('\n'), /dev exact-tree inventory must record a non-truncated tree listing/);
+});
+
+test('architectural gaps must be linked to a tracked issue rather than retained as session notes', () => {
+    const broken = clone(MANIFEST);
+    delete broken.canonicalOwners.find(owner => owner.concept === 'Assessment').trackingUrl;
+    assert.match(validateManifest(broken).join('\n'), /Assessment gap must name its owning issue, tracking URL and reason/);
+});
+
+test('JSON verification output carries exact repository, manifest and head identity', () => {
+    const root = fixture();
+    const result = runCli(root, MANIFEST, ['--json']);
+    assert.equal(result.status, 0, result.stderr);
+    const output = JSON.parse(result.stdout);
+    assert.equal(output.manifest.leafIssue, 'IV41-001');
+    assert.equal(output.repository.fullName, 'mberrys/ivory');
+    assert.equal(output.repository.baseSha, '387411255a0de9ae10924609bac85472f58d992f');
+    assert.match(output.manifest.digest, /^[0-9a-f]{64}$/);
+    assert.deepEqual(output.heads.map(head => [head.id, head.sha, head.treeSha]), [
+        ['detached', 'efec71ed83a1d0d9d513a4ead86369201cb5b401', 'b52b1aa0957e45f199f3e75bf99fdaad7ef972a1'],
+        ['pr1', '387411255a0de9ae10924609bac85472f58d992f', '53f8b5621fc0eefc4ad1764e4b49a6ad4b6d7dd2'],
+        ['dev', 'bc3cd03b5b2d870d219797925d92edc48c33c6ca', '8edc9eab81e3733b60eb626c10ca91de63bd041c'],
+    ]);
+});
+
 test('a duplicate or forbidden canonical authority is rejected', () => {
     const duplicate = clone(MANIFEST);
     duplicate.canonicalOwners.push(clone(duplicate.canonicalOwners[0]));
