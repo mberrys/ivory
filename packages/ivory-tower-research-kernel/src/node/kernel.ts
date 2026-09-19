@@ -258,7 +258,15 @@ export class ResearchKernel {
         const profile = this.normalizeFragmentProfile(input.profile, representation);
         const selector = this.normalizeFragmentSelector(input.selector, representation, source.sourceVersionId, input.artifactRef);
         const anchor = this.createFragmentAnchor(representation, selector, profile);
-        const context = this.normalizeFragmentContext(input.context, selector, anchor, input.sourceRef, source, input.artifactRef, artifact);
+        const context = this.normalizeFragmentContext(
+            input.context,
+            selector,
+            anchor,
+            input.sourceRef,
+            source,
+            input.artifactRef,
+            artifact,
+        );
         const objectId = deterministicId('frg', {
             projectId: this.projectId,
             key: input.fragmentKey,
