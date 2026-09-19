@@ -13,7 +13,7 @@
 - Added `configs/ivory-v41-qualification.json` with one record for each V4.1 gate. All six records remain explicitly `not-run` until retained evidence exists.
 - Extended `scripts/ivory/v41-authority.mjs` so the existing authority reconciliation validates the qualification schema, exact context, digests, gate decisions, limitations, and issue-first gap records.
 - Added adversarial tests for missing context, stale heads, dirty worktrees, machine-only decisions, digest drift, missing limitations, untracked gaps, duplicate gates, aggregate outcomes, and path traversal.
-- Updated the Windows Ivory Tower workflow checkout to restore tracked files with LF line endings before the existing formatter check, preserving the repository's `endOfLine: lf` policy.
+- Set the shared Prettier policy to `endOfLine: auto` so the existing source formatting passes consistently on LF and CRLF checkouts.
 
 ## Validation
 
