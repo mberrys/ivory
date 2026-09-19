@@ -108,3 +108,10 @@ The adversarial suite now covers stale/latest-head substitution, repository-base
 ## Limitations
 
 This PR remains based on the `pre-dev-foundation` line, but the authority contract does not equate that moving branch with the immutable closed PR #1 snapshot. It does not merge or rewrite PR #1, reconcile the divergent `dev` commits into the foundation line, implement the missing semantic assessment carrier, or close any durability/replay/Q1-Q4 gate. Those remain owned by their declared downstream issues.
+
+
+## ADR lineage and supersession
+
+IV41-004 is recorded in `configs/ivory-v4-1-authority.json#adrLineage` and ADR-008. The lineage registry keeps V3 ORX and ADR-007 intact, adds ADR-008 as the current reconciliation decision, and classifies reconciled decisions only as inherited, amended, deferred, or superseded. Supersession targets must exist in the registry, ADR numbering must remain strictly increasing, and issue-owned deferred gaps must retain their tracking URL.
+
+The machine contract currently records: one-Core authority as inherited; Claim Card authority as amended to a non-canonical projection; Research Capsule independent-reproduction qualification as deferred to Q3; any second canonical/workflow/scientific-acceptance authority interpretation as superseded by ADR-007; and the semantic Assessment carrier as deferred to tracked issue V41-I03.2. None of these lineage entries closes a downstream qualification gate.
