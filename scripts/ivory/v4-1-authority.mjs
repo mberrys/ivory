@@ -64,6 +64,27 @@ export function validateManifest(manifest) {
     if (repository?.treeTraversal !== 'recursive') errors.push('repository tree traversal must be recursive');
     if (!repository?.inspectionSource) errors.push('repository context must name its inspection source');
     if (!repository?.runtimeQualification) errors.push('repository context must state its runtime qualification boundary');
+    const pr1Context = repository?.pullRequest1;
+    if (pr1Context?.number !== 1) errors.push('repository context must retain PR #1');
+    if (pr1Context?.state !== 'closed') errors.push('PR #1 repository context must retain its closed state');
+    if (pr1Context?.merged !== false) errors.push('PR #1 repository context must retain merged=false');
+    if (!SHA.test(pr1Context?.headSha ?? '')) errors.push('PR #1 repository context must retain an exact head SHA');
+    if (!SHA.test(pr1Context?.headTreeSha ?? '')) errors.push('PR #1 repository context must retain an exact head tree SHA');
+    const branchObservations = Array.isArray(repository?.branchObservations) ? repository.branchObservations : [];
+    if (branchObservations.length === 0) errors.push('repository context must retain at least one exact branch observation');
+    for (const observation of branchObservations) {
+        if (!observation?.ref) errors.push('branch observation must name a ref');
+        if (!SHA.test(observation?.sha ?? '')) errors.push(`branch observation ${observation?.ref ?? 'unknown'} must retain an exact SHA`);
+        if (!SHA.test(observation?.treeSha ?? '')) errors.push(`branch observation ${observation?.ref ?? 'unknown'} must retain an exact tree SHA`);
+        const packages = Array.isArray(observation?.packages) ? observation.packages : [];
+        const locations = Array.isArray(observation?.packageLocations) ? observation.packageLocations : [];
+        if (JSON.stringify(locations) !== JSON.stringify(packages.map(name => `${repository?.packageRoot ?? 'packages'}/${name}`))) {
+            errors.push(`branch observation ${observation?.ref ?? 'unknown'} package locations must exactly match its package inventory`);
+        }
+        if (observation?.treeListingTruncated !== false) errors.push(`branch observation ${observation?.ref ?? 'unknown'} exact-tree inventory must record a non-truncated tree listing`);
+        if (!observation?.evidenceBoundary) errors.push(`branch observation ${observation?.ref ?? 'unknown'} must state its evidence boundary`);
+        if (!observation?.classification) errors.push(`branch observation ${observation?.ref ?? 'unknown'} must state its classification`);
+    }
 
     const heads = Array.isArray(manifest?.heads) ? manifest.heads : [];
     const headIds = heads.map(head => head?.id).filter(Boolean);
@@ -93,8 +114,16 @@ export function validateManifest(manifest) {
     const base = heads.find(head => head.id === manifest?.implementationBase);
     if (!base) errors.push(`implementationBase must name one retained head`);
     else if (base.classification !== 'implementation-base') errors.push(`implementationBase head must be classified implementation-base`);
-    if (base && repository?.baseSha !== base.sha) errors.push('repository base SHA must equal the exact implementation-base head');
-    if (base && repository?.baseRef !== base.ref) errors.push('repository base ref must equal the implementation-base ref');
+    if (base && pr1Context?.headSha !== base.sha) errors.push('retained PR #1 head SHA must equal the exact implementation-base head');
+    if (base && pr1Context?.headTreeSha !== base.treeSha) errors.push('retained PR #1 tree SHA must equal the exact implementation-base tree');
+    if (base && pr1Context?.headRef !== base.ref) errors.push('retained PR #1 head ref must equal the implementation-base ref');
+    for (const observation of branchObservations) {
+        if (observation?.ref === base?.ref && observation?.relationshipToPr1Head === 'descendant') {
+            if (!(Number.isInteger(observation?.aheadBy) && observation.aheadBy > 0)) errors.push('advanced PR #1 branch observation must record aheadBy > 0');
+            if (observation?.behindBy !== 0) errors.push('advanced PR #1 branch observation must record behindBy = 0');
+            if (observation?.sha === base.sha) errors.push('advanced PR #1 branch observation cannot replace the closed PR #1 head');
+        }
+    }
 
     if (manifest?.authorityPolicy?.headSelection !== 'exact-only') errors.push('head selection must be exact-only');
     if (manifest?.authorityPolicy?.latestHeadSubstitution !== 'forbidden') errors.push('latest-head substitution must be forbidden');
@@ -271,6 +300,7 @@ export function formatReport(manifest, gates, digest) {
     const lines = [
         `${manifest.leafIssue} authority manifest (${manifest.issue} parent): ${manifest.implementationBase} is the implementation base`,
         `repository: ${manifest.repositoryContext.fullName} PR #${manifest.repositoryContext.pullRequest} (${manifest.repositoryContext.workBranch})`,
+        `closed PR #1: ${manifest.repositoryContext.pullRequest1.headSha} / ${manifest.repositoryContext.pullRequest1.headTreeSha}`,
         `manifest sha256: ${digest}`,
         '',
         '| head | commit | tree | classification | packages |',
