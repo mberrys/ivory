@@ -18,7 +18,7 @@ The lineage is evidence-bound to the exact repository heads already retained by 
 4. **Inheritance preserves the one-Core model.** V3's single canonical Core authority remains inherited through ADR-007.
 5. **Amendment narrows Claim Card authority.** Claim Card is a projection over canonical research state, not a second canonical aggregate or store.
 6. **Deferred work remains owned and fail-closed.** Research Capsule independent-reproduction qualification stays behind Q3. The missing semantic-support Assessment carrier stays owned by V41-I03.2; this ADR does not fill it with prose.
-7. **Supersession is explicit and narrow.** Any reading of V3 planning material as authorizing a second canonical store, workflow authority, or autonomous scientific acceptance layer is superseded by ADR-007. The V3 record itself is not edited or deleted.
+7. **Supersession is explicit and narrow.** V3 ORX is superseded only as the current architecture qualification target by the V4.1 authority/harness contract. Its historical record and inherited one-Core decisions remain intact.
 8. **Architectural gaps cannot live only in session notes.** A deferred architectural gap must name its tracked gate or issue, and issue-owned gaps must retain the tracking URL in the manifest.
 
 ## Evidence context
