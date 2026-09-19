@@ -619,11 +619,11 @@ export class ResearchKernel {
         const selectorBytes = this.selectorMatches(fragment.selector, representation.text);
         const context = this.verifyFragmentContext(fragment.context);
         const status =
-            representationDigest && selectorBytes && (context === 'exact' || context === 'not-applicable')
-                ? 'EXACT'
+            !representationDigest || !selectorBytes || context === 'mismatch'
+                ? 'MISMATCH'
                 : context === 'unavailable'
                   ? 'BLOCKED'
-                  : 'MISMATCH';
+                  : 'EXACT';
         const receiptWithoutDigest = {
             kind: 'mechanical-citation' as const,
             fragmentRef,
@@ -1101,6 +1101,9 @@ export class ResearchKernel {
         }
         if (context.state === 'not-applicable') {
             return context.basis === 'no-material-structure' && Boolean(context.reason.trim()) ? 'not-applicable' : 'mismatch';
+        }
+        if (context.references.length === 0) {
+            return 'mismatch';
         }
         for (const reference of context.references) {
             let digest: string;
