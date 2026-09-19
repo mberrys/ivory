@@ -37,9 +37,29 @@
       "packageJsonGitBlob": "81cfcdc3235864762fc8f4212432dde2ebdd88ba"
     },
     {
-      "name": "@ivory-tower/research-kernel",
-      "path": "packages/ivory-tower-research-kernel/package.json",
-      "packageJsonGitBlob": "bf61a3f46cb4e3dcb1cb26f8ddcd0b4f0afb5ac2"
+      "name": "@ivory-tower/adapters",
+      "path": "packages/ivory-tower-adapters/package.json",
+      "packageJsonGitBlob": "c27e75c987cfd83429470aaa307775e45224bc15"
+    },
+    {
+      "name": "@ivory-tower/agent-experiment",
+      "path": "packages/ivory-tower-agent-experiment/package.json",
+      "packageJsonGitBlob": "db86de6ddb2c49702304943c97c1c4cc85076cd7"
+    },
+    {
+      "name": "@ivory-tower/api",
+      "path": "packages/ivory-tower-api/package.json",
+      "packageJsonGitBlob": "f2c60629f94813c078432dfd59fb18afe4618107"
+    },
+    {
+      "name": "@ivory-tower/application",
+      "path": "packages/ivory-tower-application/package.json",
+      "packageJsonGitBlob": "8eaa297c23873bcb9a10b238162d6f893a9f9cd6"
+    },
+    {
+      "name": "@ivory-tower/content-policy",
+      "path": "packages/ivory-tower-content-policy/package.json",
+      "packageJsonGitBlob": "030a596be7604c18adac0808125664ab3788a6a1"
     },
     {
       "name": "@ivory-tower/contracts",
@@ -52,14 +72,9 @@
       "packageJsonGitBlob": "cbb8082d12759befbcb3b1fc4e1f48dc741c2521"
     },
     {
-      "name": "@ivory-tower/adapters",
-      "path": "packages/ivory-tower-adapters/package.json",
-      "packageJsonGitBlob": "c27e75c987cfd83429470aaa307775e45224bc15"
-    },
-    {
-      "name": "@ivory-tower/application",
-      "path": "packages/ivory-tower-application/package.json",
-      "packageJsonGitBlob": "8eaa297c23873bcb9a10b238162d6f893a9f9cd6"
+      "name": "@ivory-tower/health",
+      "path": "packages/ivory-tower-health/package.json",
+      "packageJsonGitBlob": "7eb510ff4424827a7f93ee165b156a230c76e152"
     },
     {
       "name": "@ivory-tower/infrastructure",
@@ -67,9 +82,9 @@
       "packageJsonGitBlob": "2fccd05ca02a7751f5855af5f9d0faf32a29c5c1"
     },
     {
-      "name": "@ivory-tower/api",
-      "path": "packages/ivory-tower-api/package.json",
-      "packageJsonGitBlob": "f2c60629f94813c078432dfd59fb18afe4618107"
+      "name": "@ivory-tower/research-kernel",
+      "path": "packages/ivory-tower-research-kernel/package.json",
+      "packageJsonGitBlob": "bf61a3f46cb4e3dcb1cb26f8ddcd0b4f0afb5ac2"
     },
     {
       "name": "@ivory-tower/worker",
