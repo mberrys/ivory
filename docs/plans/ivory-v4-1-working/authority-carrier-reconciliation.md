@@ -11,7 +11,7 @@ The implementation is stacked on the exact PR #1 foundation head because that he
 | authority | commit | tree | classification | Ivory packages |
 |---|---|---|---|---:|
 | detached planning baseline | `efec71ed83a1d0d9d513a4ead86369201cb5b401` | `b52b1aa0957e45f199f3e75bf99fdaad7ef972a1` | reference-only | 1 |
-| PR #1 / `pre-dev-foundation` | `d538fd44c25aa2403230b075c5e18613cea9b855` | `5d4aa6ec3e4c568e7babf26db8487f7abc6ec641` | implementation-base | 14 |
+| PR #1 / `pre-dev-foundation` | `904b6fb115740eb5c59e509ff5d8cce0a5b98766` | `5765b7dcf41d92ae216235acc5344059da4108e8` | implementation-base | 14 |
 | selected `dev` | `bc3cd03b5b2d870d219797925d92edc48c33c6ca` | `8edc9eab81e3733b60eb626c10ca91de63bd041c` | divergent-compared-head | 12 |
 
 The retained package inventory is exact to those tree objects. The detached baseline contains only `ivory-identity`. PR #1 adds the full Core/service package set plus `ivory-n5-client` and `ivory-n5-shell`; the selected `dev` head has the Core/service set but not those N5 packages or the N-gate manifest.
@@ -80,7 +80,7 @@ Recheck the three observed heads against the retained exact values:
 ```text
 npm run verify:ivory-v4-1-authority -- \
   --observed-head detached=efec71ed83a1d0d9d513a4ead86369201cb5b401 \
-  --observed-head pr1=d538fd44c25aa2403230b075c5e18613cea9b855 \
+  --observed-head pr1=904b6fb115740eb5c59e509ff5d8cce0a5b98766 \
   --observed-head dev=bc3cd03b5b2d870d219797925d92edc48c33c6ca
 ```
 
@@ -90,7 +90,7 @@ The head and tree values above were read from the repository objects on 18 Septe
 
 ## Acceptance evidence
 
-IV41-001 is bound to repository `mberrys/ivory`, PR #2, work branch `v41-p01-authority-reconciliation`, and the exact PR #1/base head `d538fd44c25aa2403230b075c5e18613cea9b855` / tree `5d4aa6ec3e4c568e7babf26db8487f7abc6ec641`. GitHub repository objects were inspected directly for all three retained commit/tree pairs. Each recursive tree response was non-truncated, and Ivory package locations were derived from `packages/<name>/package.json` at those exact trees rather than inferred from branch names.
+IV41-001 is bound to repository `mberrys/ivory`, PR #2, work branch `v41-p01-authority-reconciliation`, and the exact PR #1/base head `904b6fb115740eb5c59e509ff5d8cce0a5b98766` / tree `5765b7dcf41d92ae216235acc5344059da4108e8`. GitHub repository objects were inspected directly for all three retained commit/tree pairs. Each recursive tree response was non-truncated, and Ivory package locations were derived from `packages/<name>/package.json` at those exact trees rather than inferred from branch names.
 
 The manifest records the leaf identity `IV41-001`, repository/PR/base context, explicit package locations, non-truncated-tree evidence, and a per-head evidence boundary. The verifier fails closed if repository base identity drifts from the implementation-base head, package locations stop matching the exact inventory, a tree inventory is marked truncated, or an owned architectural gap lacks a tracked issue URL. Its JSON report returns the manifest digest, repository context, exact commit/tree identities, package locations, evidence boundaries, and downstream gate states.
 
