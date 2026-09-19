@@ -67,10 +67,10 @@ export class PostgresN4QualificationStore implements N4QualificationStore {
         return { id: row.id, name: row.name, createdAt: row.created_at.toISOString() };
     }
     async addSourceToProject(projectId: string, contentHash: string): Promise<void> {
-        await this.pool.query(
-            'INSERT INTO ivory_n4_project_sources (project_id, content_hash) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-            [projectId, contentHash],
-        );
+        await this.pool.query('INSERT INTO ivory_n4_project_sources (project_id, content_hash) VALUES ($1, $2) ON CONFLICT DO NOTHING', [
+            projectId,
+            contentHash,
+        ]);
     }
     async listProjectSourceHashes(projectId: string): Promise<readonly string[]> {
         const result = await this.pool.query<{ content_hash: string }>(
