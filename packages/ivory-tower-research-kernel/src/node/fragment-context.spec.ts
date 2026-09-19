@@ -84,9 +84,9 @@ describe('V41-P02 fragment context and exact evidence', () => {
         expect(payload.context.state).to.equal('applicable');
         if (payload.context.state === 'applicable') {
             expect(payload.context.references.map(reference => reference.kind)).to.deep.equal(['heading', 'limitation']);
-            expect(payload.context.references.every(reference => reference.orderedSpanIdentity !== payload.anchor.orderedSpanIdentity)).to.equal(
-                true,
-            );
+            expect(
+                payload.context.references.every(reference => reference.orderedSpanIdentity !== payload.anchor.orderedSpanIdentity),
+            ).to.equal(true);
         }
 
         const receipt = kernel.verifyCitation(fragment);
@@ -334,7 +334,9 @@ describe('V41-P02 fragment context and exact evidence', () => {
         expect(kernel.getHead(fragment.objectId)).to.equal(exact.to?.revisionId);
     });
 
-    it('rejects converter/profile drift through createFragment and yields deterministic mechanical receipts from exact reconstruction', () => {
+    it(
+        'rejects converter/profile drift through createFragment and yields deterministic mechanical receipts from exact reconstruction',
+        () => {
         const build = (): { kernel: ResearchKernel; receipt: MechanicalCitationReceipt } => {
             const kernel = new ResearchKernel();
             const text = 'Quoted statement.';
@@ -377,6 +379,7 @@ describe('V41-P02 fragment context and exact evidence', () => {
         const reconstructed = build();
         expect(first.receipt.status).to.equal('EXACT');
         expect(reconstructed.receipt.status).to.equal('EXACT');
-        expect(first.receipt.receiptDigest).to.equal(reconstructed.receipt.receiptDigest);
-    });
+            expect(first.receipt.receiptDigest).to.equal(reconstructed.receipt.receiptDigest);
+        },
+    );
 });
