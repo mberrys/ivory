@@ -101,3 +101,9 @@ test('IV41-010E fails closed when carrier symbol is absent on disk', () => {
     ).join('\n');
     assert.match(actual, /structural carrier symbol absent/);
 });
+
+test('IV41-010A cannot replace the canonical record with a writable sidecar', () => {
+    const candidate = clone();
+    candidate.model.concepts.find(item => item.concept === 'Adjudication').persistence = 'new-writable-store';
+    assert.match(errors(candidate), /persistence must reuse a declared canonical contract mode/);
+});
