@@ -258,6 +258,7 @@
       "id": "N1",
       "lesson": "Exact research identity, immutable revisions, deterministic snapshot closure and explicit interpretation carry-forward.",
       "carrier": {
+        "kind": "type",
         "path": "packages/ivory-tower-research-kernel/src/node/types.ts",
         "symbol": "RevisionRecord / SnapshotManifest / EvidenceLinkPayload"
       },
@@ -265,25 +266,129 @@
       "fixture": "packages/ivory-tower-research-kernel/src/node/research-kernel.spec.ts",
       "evidence": "docs/experiments/n1-v2-evidence.json",
       "gate": "N1",
-      "scope": "Retained experiment evidence; it establishes the exact-reference contract but does not itself qualify V4.1 production behavior."
+      "scope": "Retained experiment evidence; it establishes the exact-reference contract but does not itself qualify V4.1 production behavior.",
+      "evidenceContext": {
+        "repository": {
+          "fullName": "mberrys/ivory",
+          "bindings": [
+            {
+              "name": "recordCommit",
+              "sourcePath": "repositoryCommit",
+              "value": "3f0eade59167d273bf0154861482947565d358c5"
+            },
+            {
+              "name": "recordBranch",
+              "sourcePath": "repositoryBranch",
+              "value": "closeout/n1-record"
+            },
+            {
+              "name": "humanExerciseCommit",
+              "sourcePath": "humanValidation.observedResults.exercisedCommit",
+              "value": "0c6e7de41e787ccf7e46da9f18cacaad520b3868"
+            },
+            {
+              "name": "humanExerciseBranch",
+              "sourcePath": "humanValidation.observedResults.exercisedBranch",
+              "value": "v2-n1-experiment"
+            }
+          ]
+        },
+        "environment": {
+          "bindings": [
+            {
+              "name": "os",
+              "sourcePath": "platform.os",
+              "value": "win32"
+            },
+            {
+              "name": "release",
+              "sourcePath": "platform.release",
+              "value": "10.0.26200"
+            },
+            {
+              "name": "arch",
+              "sourcePath": "platform.arch",
+              "value": "x64"
+            },
+            {
+              "name": "node",
+              "sourcePath": "runtime.node",
+              "value": "v24.16.0"
+            }
+          ]
+        }
+      }
     },
     {
       "id": "N2",
       "lesson": "One durable engine, idempotent semantic effects, CAS admission, interruption recovery and semantic export/import.",
       "carrier": {
-        "path": "spikes/n2-durable-store/src/durable-store.mjs",
-        "symbol": "DurableStore experiment contract"
+        "kind": "schema",
+        "path": "spikes/n2-durable-store/sql/001_revision_activity.sql",
+        "symbol": "revision/activity durable schema"
       },
       "predicate": "configs/ivory-n-gates.json#N2: automatedPass=true and decision.architectureStatus=engine-decided",
       "fixture": "spikes/n2-durable-store/test/interrupt.spec.mjs",
       "evidence": "docs/experiments/n2-v2-evidence.json",
       "gate": "N2",
-      "scope": "Bounded to the recorded reference machine and unclean process termination; not hardware power loss, removable media or cloud-sync qualification."
+      "scope": "Bounded to the recorded reference machine and unclean process termination; not hardware power loss, removable media or cloud-sync qualification.",
+      "evidenceContext": {
+        "repository": {
+          "fullName": "mberrys/ivory",
+          "bindings": [
+            {
+              "name": "recordCommit",
+              "sourcePath": "repositoryCommit",
+              "value": "dda5c294b8493fbc49ffac94712a7dd03d05e698"
+            },
+            {
+              "name": "recordBranch",
+              "sourcePath": "repositoryBranch",
+              "value": "closeout/n2-record"
+            },
+            {
+              "name": "verifierCommit",
+              "sourcePath": "qualification.verifierStartedFromCommit",
+              "value": "dda5c294b8493fbc49ffac94712a7dd03d05e698"
+            }
+          ]
+        },
+        "environment": {
+          "bindings": [
+            {
+              "name": "os",
+              "sourcePath": "platform.platform",
+              "value": "win32"
+            },
+            {
+              "name": "release",
+              "sourcePath": "platform.release",
+              "value": "10.0.26200"
+            },
+            {
+              "name": "arch",
+              "sourcePath": "platform.arch",
+              "value": "x64"
+            },
+            {
+              "name": "node",
+              "sourcePath": "platform.node",
+              "value": "v24.16.0"
+            },
+            {
+              "name": "pglite",
+              "sourcePath": "platform.pgliteVersion",
+              "value": "0.3.16"
+            }
+          ]
+        }
+      }
     },
     {
       "id": "N3",
       "lesson": "Governed execution uses attempt fencing, cancellation/restart recovery and publication receipts under one protocol.",
       "carrier": {
+        "kind": "type",
         "path": "packages/ivory-tower-domain/src/execution.ts",
         "symbol": "ExecutionRecord / execution event model"
       },
@@ -291,12 +396,64 @@
       "fixture": "scripts/ivory/n3-protocol.spec.mjs",
       "evidence": "docs/experiments/n3-evidence.json",
       "gate": "N3",
-      "scope": "Runtime qualification is bounded to Windows 11 x64 with Docker Desktop Linux containers; onboarding observation is not a closing predicate."
+      "scope": "Runtime qualification is bounded to Windows 11 x64 with Docker Desktop Linux containers; onboarding observation is not a closing predicate.",
+      "evidenceContext": {
+        "repository": {
+          "fullName": "mberrys/ivory",
+          "bindings": [
+            {
+              "name": "recordCommit",
+              "sourcePath": "gitCommit",
+              "value": "e21cd613ee49f206c3e82aef2d00499bb60f5386"
+            }
+          ]
+        },
+        "environment": {
+          "bindings": [
+            {
+              "name": "os",
+              "sourcePath": "platform.platform",
+              "value": "win32"
+            },
+            {
+              "name": "release",
+              "sourcePath": "platform.release",
+              "value": "10.0.26200"
+            },
+            {
+              "name": "arch",
+              "sourcePath": "platform.arch",
+              "value": "x64"
+            },
+            {
+              "name": "node",
+              "sourcePath": "platform.nodeVersion",
+              "value": "v24.16.0"
+            },
+            {
+              "name": "dockerServer",
+              "sourcePath": "python.runtimeVersions.docker.server.version",
+              "value": "29.7.2"
+            },
+            {
+              "name": "pythonImage",
+              "sourcePath": "images.python",
+              "value": "python@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea"
+            },
+            {
+              "name": "rImage",
+              "sourcePath": "images.r",
+              "value": "r-base@sha256:e7032f2f6fd273ee944a717b436bc66d1a89b1b90a9bbcaafcf1318d68a7d8b2"
+            }
+          ]
+        }
+      }
     },
     {
       "id": "N4",
       "lesson": "Fragment anchors bind exact retained source/artifact identity to inspectable selectors without false-exact promotion.",
       "carrier": {
+        "kind": "type",
         "path": "packages/ivory-identity/src/node/fragment-anchor.ts",
         "symbol": "fragment anchor identity"
       },
@@ -304,12 +461,54 @@
       "fixture": "scripts/verify-ivory-n4-v2.mjs",
       "evidence": "docs/experiments/n4-v2-evidence.json",
       "gate": "N4",
-      "scope": "The retained converter pair produced exact output across the qualified corpus; ambiguous and unresolved branches are harness coverage, not observed converter drift."
+      "scope": "The retained converter pair produced exact output across the qualified corpus; ambiguous and unresolved branches are harness coverage, not observed converter drift.",
+      "evidenceContext": {
+        "repository": {
+          "fullName": "mberrys/ivory",
+          "bindings": [
+            {
+              "name": "recordCommit",
+              "sourcePath": "repositoryCommit",
+              "value": "707bd3f327c3bbc99c480d853b694fef0466fd5e"
+            }
+          ]
+        },
+        "environment": {
+          "bindings": [
+            {
+              "name": "os",
+              "sourcePath": "runtime.platform.name",
+              "value": "win32"
+            },
+            {
+              "name": "release",
+              "sourcePath": "runtime.platform.release",
+              "value": "10.0.26200"
+            },
+            {
+              "name": "arch",
+              "sourcePath": "runtime.platform.arch",
+              "value": "x64"
+            },
+            {
+              "name": "node",
+              "sourcePath": "runtime.node",
+              "value": "v24.16.0"
+            },
+            {
+              "name": "dockerServer",
+              "sourcePath": "runtime.dockerServer",
+              "value": "29.7.2"
+            }
+          ]
+        }
+      }
     },
     {
       "id": "N5",
       "lesson": "Theia, CLI and helper clients are replaceable projections over one canonical Core and reject competing stale edits.",
       "carrier": {
+        "kind": "type",
         "path": "packages/ivory-n5-client/src/client.cjs",
         "symbol": "N5 canonical client boundary"
       },
@@ -317,33 +516,188 @@
       "fixture": "scripts/n5/compare.test.mjs",
       "evidence": "docs/experiments/n5-v2-evidence.json",
       "gate": "N5",
-      "scope": "The retained language matrix includes unsupported observation cells; those cells are not rounded up to client equivalence."
+      "scope": "The retained language matrix includes unsupported observation cells; those cells are not rounded up to client equivalence.",
+      "evidenceContext": {
+        "repository": {
+          "fullName": "mberrys/ivory",
+          "bindings": [
+            {
+              "name": "recordCommit",
+              "sourcePath": "baseCommit",
+              "value": "2796af12dbddb444329edcee89025f007e34c4a9"
+            },
+            {
+              "name": "workingTree",
+              "sourcePath": "workingTree",
+              "value": ""
+            }
+          ]
+        },
+        "environment": {
+          "bindings": [
+            {
+              "name": "platform",
+              "sourcePath": "platform",
+              "value": "win32/x64"
+            },
+            {
+              "name": "node",
+              "sourcePath": "runtimes.node.version",
+              "value": "v24.16.0"
+            },
+            {
+              "name": "python",
+              "sourcePath": "runtimes.python.version",
+              "value": "Python 3.11.9"
+            },
+            {
+              "name": "r",
+              "sourcePath": "runtimes.r.version",
+              "value": "Rscript (R) version 4.6.1 (2026-06-24)"
+            },
+            {
+              "name": "theia",
+              "sourcePath": "extensions.theiaVersion",
+              "value": "1.75.0"
+            }
+          ]
+        }
+      }
     },
     {
       "id": "N6",
       "lesson": "Portable reproduction separates integrity, replay and presentation while retaining exact citation resolution.",
       "carrier": {
+        "kind": "manifest",
         "path": "spikes/n6-portable-reproduction/portable.mjs",
-        "symbol": "portable reproduction contract"
+        "symbol": "portable reproduction manifest contract"
       },
       "predicate": "configs/ivory-n-gates.json#N6: status=technical-pass",
       "fixture": "spikes/n6-portable-reproduction/test/portable.spec.mjs",
       "evidence": "docs/experiments/n6-evidence.json",
       "gate": "N6",
-      "scope": "No second-machine clean installation evidence is retained; independent-replay qualification remains a later gate."
+      "scope": "No second-machine clean installation evidence is retained; independent-replay qualification remains a later gate.",
+      "evidenceContext": {
+        "repository": {
+          "fullName": "mberrys/ivory",
+          "bindings": [
+            {
+              "name": "recordCommit",
+              "sourcePath": "baseCommit",
+              "value": "7c3f732a0d95e1fb489c67a0b46d69e09b501b55"
+            },
+            {
+              "name": "workingTree",
+              "sourcePath": "worktreeStatus",
+              "value": ""
+            }
+          ]
+        },
+        "environment": {
+          "bindings": [
+            {
+              "name": "os",
+              "sourcePath": "platform.os",
+              "value": "win32"
+            },
+            {
+              "name": "release",
+              "sourcePath": "platform.release",
+              "value": "10.0.26200"
+            },
+            {
+              "name": "node",
+              "sourcePath": "platform.node",
+              "value": "v24.16.0"
+            },
+            {
+              "name": "python",
+              "sourcePath": "baseline.versions.python",
+              "value": "3.12.12"
+            },
+            {
+              "name": "r",
+              "sourcePath": "baseline.versions.r",
+              "value": "4.6.1"
+            },
+            {
+              "name": "quarto",
+              "sourcePath": "baseline.versions.quarto",
+              "value": "1.8.27"
+            }
+          ]
+        }
+      }
     },
     {
       "id": "N7",
       "lesson": "Agents propose under exact scope; Core owns adoption, stale/revoked results fail closed and transmissions remain attributable.",
       "carrier": {
-        "path": "packages/ivory-tower-agent-experiment/src/core.ts",
-        "symbol": "proposal-integrity experiment Core"
+        "kind": "receipt",
+        "path": "packages/ivory-tower-research-kernel/src/node/types.ts",
+        "symbol": "AgentProposalReceipt"
       },
       "predicate": "configs/ivory-n-gates.json#N7: decision=bounded-experiment-pass",
       "fixture": "scripts/n7/core.test.mjs",
       "evidence": "docs/experiments/n7-v1-evidence.json",
       "gate": "N7",
-      "scope": "One bounded local loopback provider run is retained; hosted/live-provider qualification remains separately open."
+      "scope": "One bounded local loopback provider run is retained; hosted/live-provider qualification remains separately open.",
+      "evidenceContext": {
+        "repository": {
+          "fullName": "mberrys/ivory",
+          "bindings": [
+            {
+              "name": "recordCommit",
+              "sourcePath": "repository.head",
+              "value": "6b4ebebe06a04e2810e87557f0dc8faf0155257c"
+            },
+            {
+              "name": "recordBranch",
+              "sourcePath": "repository.branch",
+              "value": "closeout/n7-canonicalization"
+            },
+            {
+              "name": "workingTreeDirty",
+              "sourcePath": "repository.dirty",
+              "value": false
+            }
+          ]
+        },
+        "environment": {
+          "bindings": [
+            {
+              "name": "os",
+              "sourcePath": "platform.os",
+              "value": "win32"
+            },
+            {
+              "name": "release",
+              "sourcePath": "platform.release",
+              "value": "10.0.26200"
+            },
+            {
+              "name": "arch",
+              "sourcePath": "platform.arch",
+              "value": "x64"
+            },
+            {
+              "name": "node",
+              "sourcePath": "platform.node",
+              "value": "v24.16.0"
+            },
+            {
+              "name": "typescript",
+              "sourcePath": "platform.typescript",
+              "value": "5.9.3"
+            },
+            {
+              "name": "mcpSdk",
+              "sourcePath": "platform.mcpSdk",
+              "value": "1.30.0"
+            }
+          ]
+        }
+      }
     }
   ],
   "gates": [
@@ -640,5 +994,21 @@
         "evidenceBoundary": "The former PR #1 branch advanced after PR #1 closed. This exact observation makes branch drift reviewable; it is not an authority substitution for the closed PR #1 head."
       }
     ]
+  },
+  "carrierMappingIssue": "IV41-002",
+  "carrierMappingPolicy": {
+    "allowedKinds": [
+      "type",
+      "receipt",
+      "predicate",
+      "manifest",
+      "schema",
+      "fixture",
+      "owned-gap"
+    ],
+    "evidenceBinding": "exact-retained-record",
+    "repositoryContext": "exact-commit",
+    "environmentContext": "exact-recorded-values",
+    "unownedSessionNotes": "forbidden"
   }
 }
