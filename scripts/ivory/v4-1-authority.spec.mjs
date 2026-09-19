@@ -122,6 +122,35 @@ test('JSON verification output carries exact repository, manifest and head ident
     ]);
 });
 
+test('IV41-004 retains historical ADRs and covers every lineage disposition', () => {
+    assert.equal(MANIFEST.adrLineage.issue, 'IV41-004');
+    assert.deepEqual(MANIFEST.adrLineage.registry.map(record => record.id), ['V3-ORX', 'ADR-007', 'ADR-008']);
+    assert.deepEqual([...new Set(MANIFEST.adrLineage.decisions.map(decision => decision.disposition))].sort(), ['amended', 'deferred', 'inherited', 'superseded']);
+    assert.equal(MANIFEST.adrLineage.registry.find(record => record.id === 'ADR-007').retainedIntact, true);
+    assert.deepEqual(validateManifest(MANIFEST), []);
+});
+
+test('ADR numbering, supersession targets, and historical immutability fail closed', () => {
+    const duplicateNumber = clone(MANIFEST);
+    duplicateNumber.adrLineage.registry.push({ ...clone(duplicateNumber.adrLineage.registry[2]), id: 'ADR-007' });
+    assert.match(validateManifest(duplicateNumber).join('\n'), /duplicate ADR lineage registry id ADR-007|ADR numbering must be strictly increasing/);
+
+    const dangling = clone(MANIFEST);
+    dangling.adrLineage.decisions.find(decision => decision.disposition === 'superseded').supersededBy = 'ADR-999';
+    assert.match(validateManifest(dangling).join('\n'), /superseded disposition must name an existing supersededBy ADR/);
+
+    const rewritten = clone(MANIFEST);
+    rewritten.adrLineage.registry.find(record => record.id === 'ADR-007').retainedIntact = false;
+    assert.match(validateManifest(rewritten).join('\n'), /ADR-007 must be retained intact/);
+});
+
+test('deferred architectural gaps require tracked ownership rather than session notes', () => {
+    const broken = clone(MANIFEST);
+    const assessment = broken.adrLineage.decisions.find(decision => decision.id === 'semantic-assessment-carrier');
+    delete assessment.trackingUrl;
+    assert.match(validateManifest(broken).join('\n'), /tracked architectural gap must retain its issue URL/);
+});
+
 test('a duplicate or forbidden canonical authority is rejected', () => {
     const duplicate = clone(MANIFEST);
     duplicate.canonicalOwners.push(clone(duplicate.canonicalOwners[0]));
