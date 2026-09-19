@@ -90,7 +90,7 @@ The head and tree values above were read from the repository objects on 18 Septe
 
 ## Acceptance evidence
 
-The local contract test run on 18 September 2026 produced 13/13 passing tests. The verifier reported the PR #1 head as the implementation base and `0/6 V4.1 gates passed; 6 not-run.` Its retained manifest SHA-256 at that run was `2665b980ad886c0fd09a5efc0c36bc8d6ba50735c59f23f4e5226b0bc9019edd`.
+The local contract test run on 18 September 2026 produced 17/17 passing tests. The verifier reported the PR #1 head as the implementation base and `0/6 V4.1 gates passed; 6 not-run.` Its retained manifest SHA-256 at that run was `2665b980ad886c0fd09a5efc0c36bc8d6ba50735c59f23f4e5226b0bc9019edd`.
 
 Negative cases exercised by the test suite include latest-head substitution, duplicate canonical ownership, forbidden authority creation, a missing N1 carrier, a broken retained carrier path, machine-only gate evidence, human-only gate evidence, rejected human review, requiring an unrun gate, a planning status promoted to pass, a harness canonical write, and a client that implicitly selects latest.
 
