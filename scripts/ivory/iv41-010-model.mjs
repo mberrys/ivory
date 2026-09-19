@@ -18,6 +18,14 @@ const CONCEPTS = [
 const LEAVES = ['IV41-010A', 'IV41-010B', 'IV41-010C', 'IV41-010D', 'IV41-010E'];
 const GATES = ['DURABILITY', 'Q1', 'Q2', 'REPLAY', 'Q3', 'Q4'];
 const SHA40 = /^[a-f0-9]{40}$/;
+const EXACT_PR_HEAD_BEFORE_ISSUE = '1aba5b8625af377396b4c6dd362dcf8b49782c34';
+const ALLOWED_PERSISTENCE = new Set([
+    'canonical-revision-and-content-bytes', 'canonical-revision-and-retained-output',
+    'canonical-revision-and-representation-refs', 'canonical-revision', 'structural-contract-only',
+    'canonical-append-only-activity', 'pending-noncanonical-until-Core-adoption',
+    'Core-decision-activity-contract-pending', 'immutable-Core-receipt-contract',
+    'immutable-frozen-closure', 'immutable-bytes-port',
+]);
 const fail = (errors, condition, message) => { if (!condition) errors.push(message); };
 const unique = array => new Set(array).size === array.length;
 const sameSet = (a, b) => a.length === b.length && unique(a) && b.every(item => a.includes(item));
@@ -51,7 +59,7 @@ export function validateCanonicalModel(model, owners, packageOwnership, heads, o
     const selected = (heads.heads ?? []).find(head => head.role === 'selectedDev');
     fail(errors, context.repository === 'mberrys/ivory' && context.pullRequest === 5, '010: exact repository/PR context is required');
     fail(errors, context.branch === 'feat/v41-p02-fragment-context', '010: expected exact PR branch context');
-    fail(errors, SHA40.test(context.headBeforeIssue ?? ''), '010: exact pre-issue PR commit SHA is required');
+    fail(errors, SHA40.test(context.headBeforeIssue ?? '') && context.headBeforeIssue === EXACT_PR_HEAD_BEFORE_ISSUE, '010: exact pre-issue PR commit SHA is required');
     fail(errors, context.selectedDev === selected?.sha, '010: selected dev SHA must match pinned historical basis');
     fail(errors, context.packageManager === 'npm@11.13.0' && context.nodeEngine === '>=24', '010: pinned toolchain mismatch');
     fail(errors, nonempty(context.operator) && nonempty(context.runtimeObservation) && (context.limits ?? []).length > 0, '010: evidence context/limitations missing');
@@ -66,6 +74,7 @@ export function validateCanonicalModel(model, owners, packageOwnership, heads, o
             fail(errors, concept.canonicalWriter === '@ivory-tower/research-kernel', `${label}: cannot add a second semantic writer`);
         }
         fail(errors, nonempty(concept.identity) && nonempty(concept.revision) && nonempty(concept.persistence), `${label}: identity/revision/persistence required`);
+        fail(errors, ALLOWED_PERSISTENCE.has(concept.persistence), `${label}: persistence must reuse a declared canonical contract mode`);
         fail(errors, !/\blatest\b/i.test(concept.identity ?? ''), `${label}: identity cannot silently use latest`);
         fail(errors, Array.isArray(concept.semanticRefs), `${label}: semantic references must be declared, even when empty`);
         fail(errors, nonempty(concept.carrier) && concept.carrier?.includes('#'), `${label}: existing structural carrier required`);
