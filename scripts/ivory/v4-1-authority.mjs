@@ -70,8 +70,6 @@ export function validateManifest(manifest) {
         if (JSON.stringify(packages) !== JSON.stringify([...packages].sort())) errors.push(`${head?.id ?? 'head'} package inventory must be sorted`);
         if (duplicateValues(surfaces).length > 0) errors.push(`${head?.id ?? 'head'} retained surface inventory contains duplicates`);
         if (JSON.stringify(surfaces) !== JSON.stringify([...surfaces].sort())) errors.push(`${head?.id ?? 'head'} retained surface inventory must be sorted`);
-        if (head?.packageInventoryMode !== 'exact-tree') errors.push(`${head?.id ?? 'head'} package inventory mode must be exact-tree`);
-        if (head?.schemaInspectionMode !== 'exact-source-readback') errors.push(`${head?.id ?? 'head'} schema inspection mode must be exact-source-readback`);
         if (head?.packageInventoryMode !== 'exact-tree') errors.push(`${head?.id ?? 'head'} package inventory must be exact-tree`);
         if (head?.schemaInspectionMode !== 'exact-source-readback') errors.push(`${head?.id ?? 'head'} schema inspection must be exact-source-readback`);
         if (/latest|head/i.test(head?.ref ?? '')) errors.push(`${head?.id ?? 'head'} cannot use latest/HEAD substitution`);
