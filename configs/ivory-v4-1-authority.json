@@ -1010,5 +1010,110 @@
     "repositoryContext": "exact-commit",
     "environmentContext": "exact-recorded-values",
     "unownedSessionNotes": "forbidden"
+  },
+  "adrLineage": {
+    "issue": "IV41-004",
+    "policy": {
+      "historicalRecords": "immutable",
+      "decisionDispositions": [
+        "inherited",
+        "amended",
+        "deferred",
+        "superseded"
+      ],
+      "supersession": "explicit-only",
+      "untrackedArchitecturalGaps": "forbidden",
+      "evidenceContext": "exact-repository-environment"
+    },
+    "registry": [
+      {
+        "id": "V3-ORX",
+        "kind": "architecture-source",
+        "title": "Ivory v3 ORX",
+        "sourceUrl": "https://app.notion.com/p/3db9cb079ddb819a8f8cd71468db5aca",
+        "historical": true,
+        "retainedIntact": true
+      },
+      {
+        "id": "ADR-007",
+        "kind": "adr",
+        "title": "V4.1 authority carriers and harness boundary",
+        "path": "docs/adr-007-v41-authority-harness-boundary.md",
+        "historical": true,
+        "retainedIntact": true
+      },
+      {
+        "id": "ADR-008",
+        "kind": "adr",
+        "title": "V4.1 ADR lineage and supersession",
+        "path": "docs/adr-008-v41-adr-lineage-supersession.md",
+        "historical": false,
+        "retainedIntact": true
+      }
+    ],
+    "decisions": [
+      {
+        "id": "one-core-authority",
+        "source": "V3-ORX",
+        "disposition": "inherited",
+        "carriedBy": "ADR-007",
+        "statement": "One canonical Core remains the sole semantic authority; clients, agents, and the harness do not become parallel research authorities.",
+        "evidenceHeads": [
+          "pr1",
+          "dev"
+        ],
+        "evidenceBoundary": "Architecture inheritance only; qualification remains bounded to exact retained repository heads and gate evidence."
+      },
+      {
+        "id": "claim-card-authority",
+        "source": "V3-ORX",
+        "disposition": "amended",
+        "carriedBy": "ADR-007",
+        "amendedBy": "ADR-008",
+        "statement": "Claim Card remains a regenerated projection over canonical Statement/EvidenceLink/Fragment/Artifact/Activity state rather than a canonical aggregate or store.",
+        "evidenceHeads": [
+          "pr1"
+        ],
+        "evidenceBoundary": "Amends terminology and authority placement without rewriting the historical V3 source."
+      },
+      {
+        "id": "research-capsule-qualification",
+        "source": "V3-ORX",
+        "disposition": "deferred",
+        "carriedBy": "ADR-008",
+        "trackedBy": "Q3",
+        "statement": "Portable Research Capsule profile and independent reproduction remain deferred until the Q3 evidence gate is executed.",
+        "evidenceHeads": [
+          "pr1"
+        ],
+        "evidenceBoundary": "No replay or independent-reproduction qualification is claimed by IV41-004."
+      },
+      {
+        "id": "second-canonical-authority",
+        "source": "V3-ORX",
+        "disposition": "superseded",
+        "carriedBy": "ADR-007",
+        "supersededBy": "ADR-007",
+        "statement": "Any interpretation of V3 planning artifacts as a second canonical store, workflow authority, or autonomous scientific acceptance layer is superseded by the V4.1 Core/harness boundary.",
+        "evidenceHeads": [
+          "pr1",
+          "dev"
+        ],
+        "evidenceBoundary": "Supersession applies to authority interpretation only; the historical V3 record remains intact."
+      },
+      {
+        "id": "semantic-assessment-carrier",
+        "source": "ADR-007",
+        "disposition": "deferred",
+        "carriedBy": "ADR-008",
+        "trackedBy": "V41-I03.2",
+        "trackingUrl": "https://app.notion.com/p/3de9cb079ddb81988941e1ce9bf8def5",
+        "statement": "The missing canonical semantic-support Assessment carrier remains an owned downstream gap rather than being filled by ADR prose.",
+        "evidenceHeads": [
+          "pr1"
+        ],
+        "evidenceBoundary": "IV41-004 records lineage only and does not broaden the Assessment schema."
+      }
+    ]
   }
 }
