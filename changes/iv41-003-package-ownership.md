@@ -14,6 +14,7 @@
 - Kept `@ivory-tower/research-kernel` as the only canonical research-state writer and research-acceptance owner.
 - Assigned durable storage implementation to `@ivory-tower/infrastructure` without granting it research interpretation authority.
 - Added validation and adversarial tests for package coverage, authority duplication, exact evidence context, and issue-first gap tracking.
+- Mapped all 18 missing fields already recorded by V41-I01.2 to existing `IV41-*` roadmap issues; the validator rejects dropped, duplicated, or session-note-only gap records.
 
 ## Validation
 
