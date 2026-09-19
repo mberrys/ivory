@@ -53,9 +53,6 @@ jobs:
       - name: Run the required Ivory Tower gate (Unix)
         if: runner.os != 'Windows'
         run: npm run verify:ivory-tower
-      - name: Capture exact P02 formatter repair on failure (temporary)
-        if: failure() && runner.os != 'Windows'
-        run: node scripts/ivory/print-prettier-repairs.mjs
       - name: Build inherited Theia Electron target (Windows compatibility gate)
         if: runner.os == 'Windows'
         shell: pwsh
