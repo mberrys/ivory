@@ -26,9 +26,9 @@
     {
       "id": "pr1",
       "ref": "pre-dev-foundation",
-      "sha": "904b6fb115740eb5c59e509ff5d8cce0a5b98766",
-      "treeSha": "5765b7dcf41d92ae216235acc5344059da4108e8",
-      "role": "PR #1 foundation head",
+      "sha": "d538fd44c25aa2403230b075c5e18613cea9b855",
+      "treeSha": "5d4aa6ec3e4c568e7babf26db8487f7abc6ec641",
+      "role": "closed PR #1 foundation head",
       "classification": "implementation-base",
       "packages": [
         "ivory-identity",
@@ -68,7 +68,7 @@
         "packages/ivory-tower-worker"
       ],
       "treeListingTruncated": false,
-      "evidenceBoundary": "Implementation-base repository evidence only. Package, schema-owner, and retained-surface claims are bounded to this exact commit/tree and do not imply downstream DURABILITY, REPLAY, or Q1-Q4 qualification."
+      "evidenceBoundary": "Closed PR #1 head only. Package, schema-owner, and retained-surface claims are bounded to this exact commit/tree; later movement of its former branch is retained separately and must not replace this authority input."
     },
     {
       "id": "dev",
@@ -579,12 +579,66 @@
     "fullName": "mberrys/ivory",
     "pullRequest": 2,
     "workBranch": "v41-p01-authority-reconciliation",
-    "baseRef": "pre-dev-foundation",
-    "baseSha": "904b6fb115740eb5c59e509ff5d8cce0a5b98766",
     "packageRoot": "packages",
     "packageSelection": "packages/<name>/package.json where <name> begins ivory-",
-    "inspectionSource": "GitHub exact commit and tree objects",
+    "inspectionSource": "GitHub pull-request, branch, commit, and exact recursive tree objects",
     "treeTraversal": "recursive",
-    "runtimeQualification": "none; repository authority audit only"
+    "runtimeQualification": "none; repository authority audit only",
+    "pullRequest1": {
+      "number": 1,
+      "state": "closed",
+      "merged": false,
+      "headRef": "pre-dev-foundation",
+      "headSha": "d538fd44c25aa2403230b075c5e18613cea9b855",
+      "headTreeSha": "5d4aa6ec3e4c568e7babf26db8487f7abc6ec641"
+    },
+    "branchObservations": [
+      {
+        "ref": "pre-dev-foundation",
+        "sha": "904b6fb115740eb5c59e509ff5d8cce0a5b98766",
+        "treeSha": "5765b7dcf41d92ae216235acc5344059da4108e8",
+        "relationshipToPr1Head": "descendant",
+        "aheadBy": 11,
+        "behindBy": 0,
+        "classification": "moving-branch-observation",
+        "packages": [
+          "ivory-identity",
+          "ivory-n5-client",
+          "ivory-n5-shell",
+          "ivory-tower-adapters",
+          "ivory-tower-agent-experiment",
+          "ivory-tower-api",
+          "ivory-tower-application",
+          "ivory-tower-content-policy",
+          "ivory-tower-contracts",
+          "ivory-tower-domain",
+          "ivory-tower-health",
+          "ivory-tower-infrastructure",
+          "ivory-tower-research-kernel",
+          "ivory-tower-worker"
+        ],
+        "packageLocations": [
+          "packages/ivory-identity",
+          "packages/ivory-n5-client",
+          "packages/ivory-n5-shell",
+          "packages/ivory-tower-adapters",
+          "packages/ivory-tower-agent-experiment",
+          "packages/ivory-tower-api",
+          "packages/ivory-tower-application",
+          "packages/ivory-tower-content-policy",
+          "packages/ivory-tower-contracts",
+          "packages/ivory-tower-domain",
+          "packages/ivory-tower-health",
+          "packages/ivory-tower-infrastructure",
+          "packages/ivory-tower-research-kernel",
+          "packages/ivory-tower-worker"
+        ],
+        "surfaces": [
+          "configs/ivory-n-gates.json"
+        ],
+        "treeListingTruncated": false,
+        "evidenceBoundary": "The former PR #1 branch advanced after PR #1 closed. This exact observation makes branch drift reviewable; it is not an authority substitution for the closed PR #1 head."
+      }
+    ]
   }
 }
