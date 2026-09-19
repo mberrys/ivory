@@ -3,9 +3,10 @@ import { spawnSync, execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
+import { implementationFingerprints } from './fingerprint.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const require = createRequire(import.meta.url);
@@ -27,24 +28,10 @@ function run(name, args, extraEnv = {}) {
     process.stdout.write(`${name}: ${observation.passed ? 'PASS' : 'FAIL'}\n`);
     return { ...observation, log };
 }
-function fingerprints() {
-    const files = [];
-    const visit = path => {
-        for (const entry of readdirSync(path, { withFileTypes: true })) {
-            if (['lib', 'node_modules'].includes(entry.name)) continue;
-            const full = join(path, entry.name);
-            if (entry.isDirectory()) visit(full);
-            else if (!entry.name.endsWith('.tsbuildinfo')) files.push(full);
-        }
-    };
-    for (const folder of ['packages/ivory-identity/src', 'packages/ivory-tower-research-kernel/src', 'packages/ivory-tower-agent-experiment', 'scripts/n7']) visit(join(root, folder));
-    files.push(join(root, 'package.json'), join(root, 'package-lock.json'));
-    return Object.fromEntries(files.sort().map(path => [relative(root, path).replaceAll('\\', '/'), hash(readFileSync(path, 'utf8').replaceAll('\r\n', '\n'))]));
-}
 const evidence = {
     experiment: 'N7', contractVersion: 'n7/1', observedAt: new Date().toISOString(),
     repository: { head: git('rev-parse', 'HEAD'), branch: git('branch', '--show-current'),
-        dirty: Boolean(git('status', '--porcelain', '--untracked-files=normal')), sourceDigestEncoding: 'SHA-256 of UTF-8 text with LF line endings', sourceDigests: fingerprints() },
+        dirty: Boolean(git('status', '--porcelain', '--untracked-files=normal')), sourceDigestEncoding: 'SHA-256 of UTF-8 text with LF line endings', sourceDigests: implementationFingerprints(root) },
     platform: { os: os.platform(), release: os.release(), arch: os.arch(), cpu: os.cpus()[0]?.model,
         totalMemoryBytes: os.totalmem(), node: process.version,
         typescript: require('typescript/package.json').version,
@@ -83,6 +70,32 @@ try {
     if (existsSync(join(output, 'transmissions.json'))) evidence.transmissionEvidence = {
         path: 'n7-evidence/transmissions.json', digest: hash(readFileSync(join(output, 'transmissions.json'))),
     };
+    // The retained live-provider run (scripts/n7/live-provider.mjs) is bound by digest like every
+    // other raw artifact; a stale or failed run cannot close the live gate. `--live` still runs the
+    // attended interactive review and supersedes the retained block when it passes.
+    let retainedLivePassed = false;
+    const liveRecordPath = 'docs/experiments/n7-live-provider/run.json';
+    if (existsSync(join(root, liveRecordPath))) {
+        const live = JSON.parse(readFileSync(join(root, liveRecordPath), 'utf8'));
+        const baseline = live.implementation?.fingerprints ?? {};
+        const current = implementationFingerprints(root);
+        const staleFiles = Object.keys(current).filter(file => baseline[file] !== current[file]);
+        const evidenceRoot = 'docs/experiments/n7-live-provider/';
+        evidence.liveProvider = {
+            status: 'run', outcome: live.outcome, observedAt: live.observedAt,
+            endpoint: live.endpoint?.kind, model: live.modelIdentity?.served,
+            observationSummary: Object.fromEntries((live.observations ?? []).map(observation => [observation.name, observation.passed])),
+            retained: {
+                record: liveRecordPath, recordDigest: hash(readFileSync(join(root, liveRecordPath))),
+                outgoingBody: live.transmission?.file === undefined ? undefined : { path: `${evidenceRoot}${live.transmission.file}`, digest: live.transmission.fileDigest },
+                response: live.response?.file === undefined ? undefined : { path: `${evidenceRoot}${live.response.file}`, digest: live.response.digest },
+            },
+            stale: staleFiles.length > 0, staleFiles,
+        };
+        retainedLivePassed = live.outcome === 'passed' && staleFiles.length === 0;
+        if (live.outcome !== 'passed') failed = true;
+        if (staleFiles.length > 0) evidence.liveProvider.note = 'The retained live run predates the current implementation fingerprints; it does not speak for this revision.';
+    }
     if (process.argv.includes('--live')) {
         if (!process.env.N7_ENDPOINT || !process.env.N7_MODEL) {
             evidence.liveProvider = { status: 'blocked', reason: 'N7_ENDPOINT and N7_MODEL are required; N7_API_KEY is optional for a local endpoint.' };
@@ -94,10 +107,16 @@ try {
             evidence.liveProvider = await review({ live: true });
             failed ||= evidence.liveProvider.status !== 'passed';
         }
-    } else {
+    } else if (evidence.liveProvider.status !== 'run') {
         evidence.liveProvider = { status: 'not-run', reason: 'Live qualification is opt-in and requires researcher review of exact transmission and proposal digests.' };
     }
-    evidence.decision = failed ? 'failed-or-incomplete' : evidence.liveProvider.status === 'passed' ? 'bounded-experiment-pass' : 'deterministic-pass-live-provider-open';
+    const liveQualified = evidence.liveProvider.status === 'passed' || retainedLivePassed;
+    if (liveQualified) {
+        evidence.limitations = evidence.limitations.map(limitation => limitation.startsWith('Synthetic fixtures and local HTTP observations')
+            ? 'One bounded run against a real local llama.cpp model is retained (docs/experiments/n7-live-provider/run.json); no hosted provider or multi-run qualification is claimed.'
+            : limitation);
+    }
+    evidence.decision = failed ? 'failed-or-incomplete' : liveQualified ? 'bounded-experiment-pass' : 'deterministic-pass-live-provider-open';
 } catch (error) {
     failed = true;
     evidence.error = /^[a-z_]+$/.test(error.message) ? error.message : 'qualification_failed';

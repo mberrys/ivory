@@ -119,11 +119,11 @@ const evidence = {
     automatedPass,
     decision: automatedPass
         ? {
-            architectureStatus: 'protocol-pass-engine-decision-provisional',
+            architectureStatus: 'engine-decided',
             engine: raw.decision?.engine ?? 'undecided',
             engineEvidenceStatus: 'pglite-default-on-recorded-reference-machine',
             engineDecisionUnlocked: true,
-            productionDependency: 'Final production persistence implementation waits for selected-engine sign-off.',
+            productionDependency: 'Production persistence implements the port accepted in docs/adr-005-storage-engine.md.',
             sqliteComparison: raw.sqliteComparison,
         }
         : {

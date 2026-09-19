@@ -23,10 +23,11 @@ test('N3 retained record and documentation never disagree about the gate', async
     assert.notEqual(doc, undefined, 'docs/iv-n3-compute.md must exist');
 
     if (recordText === undefined) {
-        // No retained OCI record: the document must say the runtime gate is open.
-        // This is the check that prevents a silent "deferred" or "done" claim.
-        assert.match(doc, /Runtime qualification open/u,
-            'without docs/experiments/n3-evidence.json the doc must state the runtime qualification is open');
+        // No retained OCI record: nothing may claim a decided support matrix,
+        // and a deferral still requires an amended V1 plan of record. This is
+        // the check that prevents a silent "deferred" or "done" claim.
+        assert.doesNotMatch(doc, /pilot-decided/u,
+            'without docs/experiments/n3-evidence.json the doc must not claim the support matrix is decided');
         assert.doesNotMatch(doc, /Deferred post-1\.0/u,
             'a deferral claim requires an amended V1 plan of record, not a docs edit');
         return;
@@ -62,12 +63,40 @@ test('N3 retained record and documentation never disagree about the gate', async
     assert.equal(record.python.configuration.publicationInterruptionRequested, true);
     assert.equal(record.python.acceptance.publicationRecoveredAfterInterrupt, true);
 
-    // A support-matrix decision requires the human onboarding observation.
+    // The support matrix is decided by the platform decision and the retained
+    // runtime qualification — never by an onboarding cohort. A decided matrix
+    // is valid with no cohort at all.
+    assert.ok(
+        record.decision.supportMatrix === 'pilot-decided' || record.decision.supportMatrix === 'open-pending-qualification',
+        `unexpected supportMatrix: ${record.decision.supportMatrix}`,
+    );
     if (record.decision.supportMatrix === 'pilot-decided') {
-        assert.equal(record.onboarding?.observed, true);
-        assert.ok((record.onboarding?.record?.participants?.length ?? 0) >= 5);
+        assert.equal(record.status, 'runtime-qualified',
+            'a decided matrix is backed by the retained runtime qualification');
+    }
+
+    // An onboarding observation is optional: absent or empty is not-applicable,
+    // never a failure, and a retained observation is reported as-is.
+    if (record.onboarding !== null && record.onboarding !== undefined) {
+        assert.equal(typeof record.onboarding.observed, 'boolean',
+            'a retained onboarding block carries its observed flag');
+        assert.ok(record.onboarding.acceptance === null || typeof record.onboarding.acceptance === 'object',
+            'a retained onboarding block carries an acceptance object or null (not-applicable)');
+    }
+
+    // The document must not contradict the record: it may not describe the
+    // matrix as waiting on a cohort, and it must cite the state the record
+    // carries.
+    assert.doesNotMatch(doc, /open-pending-onboarding/u,
+        'the doc must not cite the retired onboarding-gated state');
+    assert.doesNotMatch(doc, /pending the onboarding cohort/u,
+        'the doc must not claim the support matrix waits on a cohort');
+    if (record.decision.supportMatrix === 'pilot-decided') {
+        assert.match(doc, /supportMatrix: pilot-decided/u,
+            'the doc must cite the decided support matrix the record carries');
     } else {
-        assert.equal(record.decision.supportMatrix, 'open-pending-onboarding');
+        assert.doesNotMatch(doc, /supportMatrix: pilot-decided/u,
+            'the doc must not cite a decided matrix the record does not carry');
     }
 
     // Sanitization: no local machine paths in a committed record.

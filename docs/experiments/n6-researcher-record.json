@@ -1,0 +1,14 @@
+{
+  "schema": "ivory-n6-researcher-record/1",
+  "studyKit": "docs/experiments/n6-researcher-study-kit.md",
+  "recorded": "",
+  "requiredResearchers": 5,
+  "requiredPasses": 4,
+  "participantKind": "human-researcher",
+  "attestation": {
+    "attestedBy": "",
+    "attestedOn": "",
+    "basis": "Each participant completed the qualitative loop without writing code; no model was used."
+  },
+  "participants": []
+}

@@ -1,4 +1,9 @@
-# N6 researcher study kit — not yet conducted
+# N6 researcher study kit — optional measurement (not yet conducted)
+
+This kit is an optional measurement of real research value: it may be conducted
+and its observations reported, but no exit criterion, format-freeze condition or
+release claim depends on it (owner decision 2026-09-13). N6 closes on its
+technical pass; a cohort result is reported, never gated.
 
 ## Readiness and facilitator setup
 
@@ -7,9 +12,10 @@ participant that all interviews, survey values and attributed authors are
 synthetic. Do not substitute scripted agents for participants.
 
 The product's executable no-code loop must be available before conducting this
-protocol. The present spike supplies portable research records, a rendered reader
-and automated analysis; its command-line fixture generator is not a no-code UI.
-Until that product surface exists, mark every participant row **not conducted**.
+optional protocol (a prerequisite of the measurement, not of the N6 gate). The
+present spike supplies portable research records, a rendered reader and automated
+analysis; its command-line fixture generator is not a no-code UI. Until that
+product surface exists, mark every participant row **not conducted**.
 
 Prepare a fresh restored study per participant. Open it in the no-code research
 surface and provide the rendered HTML dossier. Disable optional model providers.
@@ -63,7 +69,8 @@ completion. Accessibility accommodations should be recorded, not scored as rescu
 - Supporting and challenging links correctly explained: not measured
 - Old/current evidence or attribution confusion observed:
 - Workflow refinements and exact retest conditions:
-- Human gate: **pending** (requires at least four of five passes)
+- Optional measurement: **not conducted** — a qualified observation needs at least four of five passes; the study is not an exit criterion and never gates N6.
 
-Retain technical and human decisions separately. Do not mark the public format
-frozen or N6 fully complete solely because automated reproduction passes.
+Retain the optional cohort observations separately from the technical record. N6
+closes on its technical pass (owner decision 2026-09-13); the public format stays
+unfrozen, and this measurement never gates — if a cohort runs, report it verbatim.

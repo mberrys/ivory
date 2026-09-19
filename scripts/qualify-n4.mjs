@@ -16,7 +16,11 @@ const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 const pullTimeoutMs = Number(process.env.N4_DOCKER_PULL_TIMEOUT_MS ?? 600_000);
 const anchorCountPerFixture = 6;
 const minimumAnchorsPerFixture = 5;
+const anchorMinimumLength = 24;
+const anchorMaximumLength = 240;
 const n4PolicyVersion = 'iv-policy/n4-v2';
+const REQUIRED_FIXTURES = 22;
+const REQUIRED_TEXT_FIXTURES = 2;
 const converters = [
     {
         label: 'A',
@@ -37,6 +41,12 @@ const manifestFixtures = manifest.fixtures.map(fixture => ({
     kind: fixture.kind,
     sha256: fixture.sha256,
 }));
+
+function contentTypeFor(fixturePath) {
+    if (fixturePath.endsWith('.csv')) return 'text/csv';
+    if (fixturePath.endsWith('.txt')) return 'text/plain';
+    return 'application/pdf';
+}
 
 function sha256(value) {
     return createHash('sha256').update(value).digest('hex');
@@ -83,8 +93,11 @@ function safeDocker(args) {
 function validateManifest() {
     const errors = [];
     if (manifest.schemaVersion !== 1) errors.push('manifest schemaVersion must be 1');
-    if (!Array.isArray(manifest.fixtures) || manifest.fixtures.length !== 20) {
-        errors.push('manifest must contain exactly 20 fixtures');
+    if (!Array.isArray(manifest.fixtures) || manifest.fixtures.length !== REQUIRED_FIXTURES) {
+        errors.push(`manifest must contain exactly ${REQUIRED_FIXTURES} fixtures`);
+    }
+    if (manifest.fixtures.filter(fixture => fixture.kind === 'text').length !== REQUIRED_TEXT_FIXTURES) {
+        errors.push(`manifest must contain exactly ${REQUIRED_TEXT_FIXTURES} text fixtures`);
     }
     if (manifest.fixtures.filter(fixture => fixture.kind === 'scanned').length !== 2) {
         errors.push('manifest must contain exactly two scanned PDFs');
@@ -242,7 +255,7 @@ function parseJsonContent(value) {
 async function convert(converter, fixture, bytes) {
     const startedAt = Date.now();
     const form = new FormData();
-    const contentType = fixture.path.endsWith('.csv') ? 'text/csv' : 'application/pdf';
+    const contentType = contentTypeFor(fixture.path);
     form.append('files', new Blob([bytes], { type: contentType }), path.basename(fixture.path));
     form.append('to_formats', 'md');
     form.append('to_formats', 'json');
@@ -363,18 +376,71 @@ function independentOracle(anchorText, nextText) {
     };
 }
 
+/**
+ * Embedded binary payloads (`data:<mime>;base64,…`) are markdown serialisations of images, not
+ * readable fragments: they can never carry page coordinates and are not valid anchors, so they are
+ * excluded from candidate selection instead of being counted as text.
+ */
+const embeddedPayloadPattern = /data:[\w.+-]+\/[\w.+-]+;base64,[A-Za-z0-9+/=]+/gu;
+
+/**
+ * Candidate anchors are sentence/span units, not physical lines: converters collapse plain-text
+ * input to a single line and emit one short fragment per line for CID fonts, so line windows are
+ * an unstable granularity. A unit longer than the anchor maximum is windowed at word boundaries.
+ * The exact-quote-plus-context selector contract, the 24-character minimum, NFC/whitespace
+ * normalisation and the within-document uniqueness rule are unchanged.
+ */
 function selectAnchors(text, fixturePath) {
+    const excludedRanges = [...text.matchAll(embeddedPayloadPattern)]
+        .map(match => [match.index, match.index + match[0].length]);
+    const isExcluded = (start, end) => excludedRanges.some(([from, to]) => start < to && end > from);
     const candidates = [];
     const seen = new Set();
-    for (const match of text.matchAll(/[^\r\n]{24,240}/gu)) {
-        const raw = match[0];
+    const consider = (start, end) => {
+        const raw = text.slice(start, end);
         const exact = raw.trim();
-        const start = match.index + raw.indexOf(exact);
+        if (exact.length < anchorMinimumLength || exact.length > anchorMaximumLength) return;
+        const offset = start + raw.indexOf(exact);
+        if (isExcluded(offset, offset + exact.length)) return;
         const key = normalizeIndependent(exact);
-        if (key.length < 24 || seen.has(key)) continue;
+        if (key.length < anchorMinimumLength || seen.has(key)) return;
         seen.add(key);
-        candidates.push({ start, end: start + exact.length, fixturePath });
-        if (candidates.length === anchorCountPerFixture) break;
+        candidates.push({ start: offset, end: offset + exact.length, fixturePath });
+    };
+    const units = [];
+    for (const line of text.matchAll(/[^\r\n]+/gu)) {
+        const span = line[0];
+        const lineStart = line.index;
+        let from = 0;
+        const boundary = /[.!?]+/gu;
+        let match;
+        while ((match = boundary.exec(span)) !== null) {
+            const after = match.index + match[0].length;
+            const next = span.slice(after, after + 1);
+            if (!(next === '' || /\s/u.test(next))) continue;
+            units.push([lineStart + from, lineStart + after]);
+            from = after;
+        }
+        units.push([lineStart + from, lineStart + span.length]);
+    }
+    for (const [unitStart, unitEnd] of units) {
+        if (candidates.length >= anchorCountPerFixture) break;
+        const exact = text.slice(unitStart, unitEnd).trim();
+        if (exact.length < anchorMinimumLength) continue;
+        if (exact.length <= anchorMaximumLength) {
+            consider(unitStart, unitEnd);
+            continue;
+        }
+        let cursor = unitStart;
+        while (unitEnd - cursor > anchorMaximumLength && candidates.length < anchorCountPerFixture) {
+            let cut = cursor + anchorMaximumLength;
+            const window = text.slice(cursor, cut);
+            const trimAt = window.search(/\s+\S*$/u);
+            if (trimAt >= anchorMinimumLength) cut = cursor + trimAt;
+            consider(cursor, cut);
+            cursor = cut;
+        }
+        if (candidates.length < anchorCountPerFixture) consider(cursor, unitEnd);
     }
     if (candidates.length < minimumAnchorsPerFixture) {
         throw new Error('Only ' + candidates.length + ' real anchor candidates found for ' + fixturePath);
@@ -538,7 +604,7 @@ function sourceRecord(fixture, transferPermitted = true) {
         id: 'src_' + fixture.sha256.slice(0, 32),
         contentHash: fixture.sha256,
         objectKey: 'sources/' + fixture.sha256 + '/raw/' + path.basename(fixture.path),
-        contentType: fixture.path.endsWith('.csv') ? 'text/csv' : 'application/pdf',
+        contentType: contentTypeFor(fixture.path),
         license: 'MPL-2.0',
         authorizationEvidence: 'fixtures/n4/NOTICE.md and checked-in manifest',
         admissionPolicyVersion: 'iv-policy/n4-v2',
@@ -567,7 +633,7 @@ function deriveRepresentation(identity, bytes, fixture, converter, text) {
         inputIds: [pipeline.sourceVersionId],
         parameters: {
             outputFormats: 'md,json',
-            inputContentType: fixture.path.endsWith('.csv') ? 'text/csv' : 'application/pdf',
+            inputContentType: contentTypeFor(fixture.path),
             layoutRetention: true,
         },
         policyVersion: n4PolicyVersion,
@@ -651,7 +717,7 @@ function makeArchitectureDecision(ledger) {
         primaryConverter: qualified ? 'Docling v1.21.0 (A) as the pinned reference representation' : undefined,
         representationFormat: 'raw source bytes plus markdown/text and retained Docling JSON layout output',
         selectorProfile: 'exact quote plus prefix/suffix context; no ranking or silent fallback',
-        supportedInputs: 'plain, multilingual, columns/tables/footnotes, CSV typed rows, and explicit scanned/OCR handling',
+        supportedInputs: 'plain text (UTF-8), multilingual, columns/tables/footnotes, CSV typed rows, and explicit scanned/OCR handling',
         unresolvedLimitations: limitations,
     };
 }
@@ -806,6 +872,27 @@ async function main() {
             try {
                 selected = selectAnchors(results.A.text, fixture.path);
             } catch (error) {
+                if (fixture.kind === 'scanned') {
+                    // Scanned inputs verify explicit OCR-needed handling: with no usable text layer the
+                    // declared outcome is a schema-valid ocr_required record with a next action, which
+                    // satisfies the corpus coverage and is never an anchor-selection failure.
+                    const declared = {
+                        fixture: fixture.path,
+                        converter: converters.map(converter => converter.label).join('+'),
+                        converterRef: converters[0].image,
+                        kind: fixture.kind,
+                        extractionFailure: extractionFailureSchema.parse({
+                            code: 'ocr_required',
+                            message: 'No anchorable text was extracted from the scanned fixture (' + describeError(error) + '); provide OCR output before anchor selection.',
+                            retryable: false,
+                            attempt: 1,
+                            nextAction: 'provide_ocr',
+                        }),
+                    };
+                    ledger.failures.push(declared);
+                    ledger.fixturesDetail.push({ ...attempt, representations: representationDetails, anchors: [], tableFidelity: rawTableFidelity });
+                    continue;
+                }
                 ledger.anchorSelectionFailures.push({
                     fixture: fixture.path,
                     message: describeError(error),
@@ -951,7 +1038,7 @@ async function main() {
             return fixture?.kind === 'scanned';
         });
         const unexpectedFailures = ledger.failures.filter(failure => !scannedFailures.includes(failure));
-        const pdfAnchors = ledger.anchors.filter(anchor => !anchor.fixture.endsWith('.csv'));
+        const pdfAnchors = ledger.anchors.filter(anchor => anchor.fixture.endsWith('.pdf'));
         const pdfAnchorsWithoutCoordinates = pdfAnchors.filter(anchor => anchor.coordinatesA.length === 0);
         const csvDetails = ledger.fixturesDetail.filter(fixture => fixture.path.endsWith('.csv'));
         const tables = csvDetails.map(fixture => fixture.tableFidelity).filter(table => table !== undefined);
@@ -959,7 +1046,7 @@ async function main() {
             && tables.every(tableFidelityIsComplete)
             && tables.some(table => table.headers.some(hasNonAscii) || table.rows.some(row => row.cells.some(cell => hasNonAscii(cell.rawText))));
         ledger.criteria = {
-            exactly20FixturesAttempted: ledger.fixtureAttempts.length === 20,
+            allFixturesAttempted: ledger.fixtureAttempts.length === manifest.fixtures.length,
             twoGenuinelyPinnedConverters: ledger.converters.length === 2 && ledger.converters.every(converter => converter.status === 'ready' && converter.image.includes('@sha256:')),
             atLeast100RealAnchorsFromA: ledger.anchors.length >= 100,
             originalRepresentationsReopenExactly: ledger.persistence.exactReopenChecks === ledger.anchors.length && exactReopenFailures.length === 0,

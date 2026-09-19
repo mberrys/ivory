@@ -1,5 +1,9 @@
 # N3 v2 - Governed computation and publication
 
+**Status:** decided — pilot platform Windows 11 x64 + Docker Desktop (Linux containers); the support
+matrix is decided by that platform decision and the retained runtime qualification, not by the
+onboarding cohort `docs/experiments/n3-onboarding-record.json`.
+
 N3 v2 is an experimental proof harness for the local Compute boundary. It
 answers a narrow question: can one captured table be processed by a bounded
 runtime while the semantic execution protocol fences stale attempts, survives
@@ -11,8 +15,8 @@ and Core-only publication as the protocol. OCI/container technology is only the
 current runtime adapter.
 
 This is evidence tooling, not a production Compute adapter. It does not change
-the existing IV-14 execution API or claim that any operating system is
-supported.
+the existing IV-14 execution API, and it does not claim platform support by
+itself: support follows only from the retained evidence recorded below.
 
 ## Status
 
@@ -43,8 +47,9 @@ cold-install and warm-launch measurements retained).
 An implementation detail worth recording: the document must *stop* claiming the
 runtime qualification is still open in the same commit that adds the retained
 record. `scripts/ivory/n3-retained.spec.mjs` enforces that the two never
-disagree — with no retained record it requires the document to state the gate is
-open, and with one it validates the record's contents.
+disagree — with no retained record it rejects any claim that the support matrix
+is decided, and with one it validates the record's contents and the document's
+agreement with the decision.
 
 Do not defer N3 to a later release without amending the V1 plan first. An
 earlier revision of this file declared N3 deferred past 1.0 and claimed it did
@@ -170,23 +175,38 @@ and digest evidence. Python success alone does not unlock an R-capable adapter.
 
 ## Supported platform
 
-The pilot platform is **not yet decided**. Evidence collected on Windows 11 x64
-with Docker Desktop (Linux containers) proves the protocol and the declared
-controls on that platform; it does not qualify macOS or Linux.
+The pilot platform is **decided: Windows 11 x64 with Docker Desktop (Linux
+containers)**. That is where the retained qualification was measured, and the
+record
+[`docs/experiments/n3-evidence.json`](experiments/n3-evidence.json) carries the
+whole chain for it: the hostile-runtime canaries and their enforcement bases
+(`read-only-filesystem`, `permission-denied`, `network-unreachable`), the
+`docker inspect` mount-surface and privilege inspection (`mountSurfaceMinimal`,
+`noPrivilegedEscalation`), the cold-install and warm-launch measurements for
+both images, and Python and R executed under one protocol to the same
+`n3-result-v1` result contract.
 
-The canonical V1 plan's default pilot target is macOS on Apple Silicon with a
-maintained local container runtime, subject to Phase 0 cohort confirmation, and
-it states that other operating systems gain support "through the same evidence,
-not assertion".
+macOS on Apple Silicon was the plan's earlier default pilot target; it is **not**
+the pilot. **macOS/Apple Silicon is not qualified**, because none of that
+evidence exists on it — no canaries, no mount-surface or privilege inspection,
+no cold-install or warm-launch measurement. It gains support only by passing the
+same evidence, "through the same evidence, not assertion"; it may not be
+advertised as supported before that evidence is retained.
 
-Until the retained record carries a `supportMatrix` decision, every platform
-stays unqualified. Reporting Windows evidence as macOS support, or as a
-support-matrix decision, is a release-blocking misstatement.
+The support matrix is decided by that platform decision plus the retained
+runtime qualification: `decision.supportMatrix` in the retained record is
+`pilot-decided` for Windows 11 x64 + Docker Desktop, and no onboarding cohort is
+required to reach or keep that state. The onboarding protocol is an optional
+adoption measurement — if a cohort ever runs, its observation is retained and
+reported next to the decision and gates nothing. Reporting Windows evidence as
+macOS support, or citing a cohort as the support-matrix decision, is a
+release-blocking misstatement.
 
 ## Decision boundary
 
-N3 is closed for **protocol semantics** and for the **OCI runtime proof on the
-recorded platform**. What remains open, and what each item unlocks:
+N3 is closed for **protocol semantics**, the **OCI runtime proof on the recorded
+platform**, and the **support-matrix decision for that platform**. What each
+item is, and what it unlocks:
 
 | Item | State | Unlocks |
 | --- | --- | --- |
@@ -194,23 +214,26 @@ recorded platform**. What remains open, and what each item unlocks:
 | OCI runtime controls observed as enforced (canaries, mount surface, privilege, termination) | **closed** on Windows 11 x64 + Docker Desktop (Linux containers) | runtime adapter choice: a replaceable OCI adapter |
 | Python and R under one protocol | **closed**, language-neutral result verified in the retained record | language-neutral execution semantics |
 | Cold-install and warm-launch measurements | **closed** on the recorded platform | provisioning cost for that platform |
-| Supported pilot OS / support matrix | **open** — `supportMatrix: open-pending-onboarding` | which operating systems may ship as "supported" |
-| Onboarding observation (provisional target: four of five users within 15 minutes) | **open** — protocol and record defined, no participants recorded yet | input to the support-matrix decision only |
+| Supported pilot OS / support matrix | **decided** — `supportMatrix: pilot-decided` for Windows 11 x64 + Docker Desktop; other platforms remain unqualified | which operating systems may ship as "supported" |
+| Onboarding observation (provisional target: four of five users within 15 minutes) | **optional — adoption measurement only; not an N3 gate** | adoption signal if a cohort runs; no gate, no `supportMatrix` condition and no release claim depends on it |
 
-`Open` items are not "failed". They are the reason every platform remains
-unqualified and why the support matrix cannot be declared. Other operating
-systems gain support through the same evidence, not assertion.
+`Optional` is not an open gate: nothing waits on the onboarding observation and
+no decision changes with it. The support matrix is decided by the platform
+decision above plus the retained runtime qualification, never by a participant
+count; a cohort observation would be reported but is not required. Other
+operating systems gain support through the same evidence, not assertion.
 
-The onboarding step is executable as soon as five users are available: the
-protocol is
+The onboarding observation is optional and executable whenever participants are
+available: the protocol is
 [`docs/experiments/n3-onboarding-protocol.md`](experiments/n3-onboarding-protocol.md),
 the record is
 [`docs/experiments/n3-onboarding-record.json`](experiments/n3-onboarding-record.json),
 and `npm.cmd run verify:ivory-n3-onboarding` reports `not-applicable` while the
-record is empty. Filling the record and re-running
-`npm.cmd run retain:ivory-n3 -- --python … --r … --onboarding <record>` is the
-only thing that can move `supportMatrix` to `pilot-decided`, and
-`scripts/ivory/n3-retained.spec.mjs` fails if the two files disagree.
+record is empty — an absent observation is neither a pass nor a failure. If a
+cohort runs, `npm.cmd run retain:ivory-n3 -- --python … --r … --onboarding
+<record>` retains the observation next to the decision; `decision.supportMatrix`
+is `pilot-decided` without it, and `scripts/ivory/n3-retained.spec.mjs` fails if
+the document and the record disagree.
 
 ### If Compute has genuinely moved out of V1
 

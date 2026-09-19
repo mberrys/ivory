@@ -1,0 +1,21 @@
+{
+  "schema": "ivory-n1-human-record/1",
+  "protocol": "docs/experiments/n1-reader-protocol.md",
+  "exercisedBranch": "v2-n1-experiment",
+  "exercisedCommit": "0c6e7de41e787ccf7e46da9f18cacaad520b3868",
+  "fixture": "buildAdvisingAgencyFixture / advising-agency-protocol",
+  "recorded": "2026-09-10",
+  "requiredResearchers": 3,
+  "requiredPasses": 2,
+  "participantKind": "human-qualitative-researcher",
+  "attestation": {
+    "attestedBy": "Michael Berry",
+    "attestedOn": "2026-09-13",
+    "basis": "Each seat was occupied by a human participant with qualitative-research training or equivalent research practice. Identities are withheld by agreement."
+  },
+  "seats": [
+    { "seat": "A", "result": "pass", "criteria": { "provenanceNotEndorsement": true, "silentReanchor": false, "citationSurvival": true, "carryForwardSeparate": true } },
+    { "seat": "B", "result": "pass", "criteria": { "provenanceNotEndorsement": true, "silentReanchor": false, "citationSurvival": true, "carryForwardSeparate": true } },
+    { "seat": "C", "result": "pass", "criteria": { "provenanceNotEndorsement": true, "silentReanchor": false, "citationSurvival": true, "carryForwardSeparate": true } }
+  ]
+}

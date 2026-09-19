@@ -1,12 +1,23 @@
-# N3 — Compute onboarding protocol
+# N3 — Compute onboarding protocol (optional adoption measurement)
+
+This protocol is an **optional adoption measurement, not a gate and not an exit
+criterion**. N3's gates — the semantic execution protocol and the OCI runtime
+qualification on the recorded platform — are closed by retained evidence; no
+gate waits on this cohort, no `supportMatrix` condition depends on it, and no
+release claim is blocked by it. If a cohort ever runs, the observation is
+retained as-is and reported.
 
 Target: **four of five pilot users enable the Compute runtime from these
 instructions within 15 minutes**, excluding an explicitly reported large
 download.
 
-This target is recorded in the canonical V1 plan as **provisional**, and it feeds
-the **support-matrix decision only**. It never changes `runtime-qualified` in
-[`n3-evidence.json`](n3-evidence.json).
+The target is recorded in the canonical V1 plan as **provisional**. It measures
+adoption of an already-qualified runtime and produces no architecture evidence.
+The support matrix is decided by the platform decision (Windows 11 x64 + Docker
+Desktop, Linux containers) and the retained runtime qualification in
+[`n3-evidence.json`](n3-evidence.json); a cohort result would only ever be
+reported as an adoption observation, and it never changes `runtime-qualified` in
+that record.
 
 Authority: `Ivory Tower V1 High-Level Architecture and Implementation Plan`
 (Notion) and the mirrored Linear document `Architectural spikes N1–N7`, which
@@ -79,16 +90,20 @@ neither a pass nor a failure, exactly like a `null` acceptance check in the OCI
 evidence. Once participants are recorded, the command exits 1 unless at least
 four of five enabled within 15 minutes.
 
-## Folding the result into the retained record
+## Folding the result into the retained record (optional)
 
 ```powershell
 npm.cmd run retain:ivory-n3 -- ^
   --python artifacts/n3/python/evidence.json ^
   --r artifacts/n3/r/evidence.json ^
-  --onboarding docs/experiments/n3-onboarding-record.json ^
   --out docs/experiments/n3-evidence.json
 ```
 
-`decision.supportMatrix` becomes `pilot-decided` **only** when the record shows
-the target met. Until then it stays `open-pending-onboarding`, and
-`scripts/ivory/n3-retained.spec.mjs` fails if the two files disagree.
+`--onboarding docs/experiments/n3-onboarding-record.json` stays an **optional**
+input. When supplied, the record is retained as an adoption observation block
+with its own `observed` and `acceptance` fields; it does not gate
+`decision.supportMatrix`, which is decided by the platform decision and the
+retained runtime qualification carried in the evidence. If a cohort ever runs,
+its observation is reported as-is next to that decision, and
+`scripts/ivory/n3-retained.spec.mjs` fails if the document and the record
+disagree.

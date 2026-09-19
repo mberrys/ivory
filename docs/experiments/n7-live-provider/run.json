@@ -1,0 +1,368 @@
+{
+  "schema": "ivory-n7-live-provider/1",
+  "experiment": "N7",
+  "contractVersion": "n7/1",
+  "observedAt": "2026-09-13T23:25:37.110Z",
+  "outcome": "passed",
+  "decision": "bounded-experiment-pass",
+  "endpoint": {
+    "kind": "loopback-http",
+    "url": "http://127.0.0.1:8080/v1/chat/completions",
+    "host": "127.0.0.1",
+    "port": "8080",
+    "loopback": true,
+    "tls": false,
+    "policy": "this experiment transmits only to a loopback HTTP endpoint"
+  },
+  "modelIdentity": {
+    "served": "qwen3-4b-instruct-2507",
+    "requestedOverride": "qwen3-4b-instruct-2507",
+    "servedIds": [
+      "qwen3-4b-instruct-2507"
+    ],
+    "modelsUrl": "http://127.0.0.1:8080/v1/models",
+    "modelsDigest": "cab28a03395725b3c39ce83649222212d2592677d21fc72069e67e5170be5d47",
+    "server": {
+      "kind": "llama.cpp llama-server (local, CPU-only, loopback)",
+      "release": "b10948",
+      "releaseUrl": "https://github.com/ggml-org/llama.cpp/releases/tag/b10948",
+      "binaryAsset": "llama-b10948-bin-win-cpu-x64.zip",
+      "binaryAssetSha256": "b6924454c00942f6c97e464fd1cc459e8c88fcc75cbf5b7fdb92ee2d6c7ced79",
+      "version": "0.4.0-dev (build 10948, commit 5f436dddb), Clang 20.1.8, Windows x86_64",
+      "command": "llama-server.exe -m Qwen3-4B-Instruct-2507-Q4_K_M.gguf --jinja --host 127.0.0.1 --port 8080 -c 8192 -t 16 --alias qwen3-4b-instruct-2507",
+      "model": {
+        "repo": "unsloth/Qwen3-4B-Instruct-2507-GGUF",
+        "file": "Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
+        "bytes": 2497281120,
+        "sha256": "3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597",
+        "verified": "sha256sum of the served file equals the Hugging Face LFS object id for the repo revision"
+      },
+      "servedDetails": {
+        "n_params": 4022468096,
+        "n_ctx": 8192,
+        "ftype": "Q4_K - Medium",
+        "n_slots": 4
+      },
+      "flagging": "--jinja enables the model's tool-call chat template; the served model id is the explicit alias"
+    }
+  },
+  "transmission": {
+    "digest": "14ed27980a1b18eca5fd3eadaed70e0a68eee9377583a6a4c50c9aa7c5515318",
+    "bytes": 2293,
+    "file": "outgoing-body.txt",
+    "fileDigest": "9b59bbe389e78e6662d4af672e395717cd31eed5186fab58c54d0294cf871dda"
+  },
+  "response": {
+    "status": 200,
+    "redirected": false,
+    "finalUrl": "http://127.0.0.1:8080/v1/chat/completions",
+    "bytes": 1443,
+    "digest": "85044a29e91774c76e70f89692a056212894cf2dd7103659969b0f435fd21cdd",
+    "file": "response-body.json",
+    "latencyMs": 17505,
+    "tool": {
+      "name": "propose_claim",
+      "argumentKeys": [
+        "excerptDigest",
+        "fragmentRef",
+        "rationale",
+        "role",
+        "text"
+      ]
+    },
+    "usage": {
+      "completion_tokens": 235,
+      "prompt_tokens": 753,
+      "total_tokens": 988,
+      "prompt_tokens_details": {
+        "cached_tokens": 352
+      }
+    }
+  },
+  "egress": {
+    "wireRequests": 1,
+    "dispatcherObservedTransmissions": 1,
+    "requestHeaders": [
+      "content-type"
+    ],
+    "authorizationHeaderPresent": false,
+    "redirectPolicy": "error",
+    "credentials": "none-configured",
+    "serverLog": {
+      "path": null,
+      "digest": null,
+      "lines": null,
+      "note": "the server did not flush a matching request line within the polling window; the wire capture is the egress proof"
+    }
+  },
+  "timings": {
+    "previewMs": 0,
+    "dispatchMs": 17506,
+    "totalMs": 22636
+  },
+  "observations": [
+    {
+      "name": "preview-within-request-limit",
+      "passed": true,
+      "observed": {
+        "bytes": 2293,
+        "limit": 65536
+      }
+    },
+    {
+      "name": "preview-excludes-private-canary",
+      "passed": true,
+      "observed": {
+        "canaryPresent": false
+      }
+    },
+    {
+      "name": "dispatch-refused-before-approval",
+      "passed": true,
+      "observed": {
+        "error": "transmission_not_approved",
+        "wireRequests": 0
+      }
+    },
+    {
+      "name": "exactly-one-wire-request",
+      "passed": true,
+      "observed": {
+        "requests": 1
+      }
+    },
+    {
+      "name": "approved-bytes-are-transmitted-bytes",
+      "passed": true,
+      "observed": {
+        "equal": true,
+        "previewDigest": "14ed27980a1b18eca5fd3eadaed70e0a68eee9377583a6a4c50c9aa7c5515318",
+        "bodyDigest": "9b59bbe389e78e6662d4af672e395717cd31eed5186fab58c54d0294cf871dda"
+      }
+    },
+    {
+      "name": "content-type-only-headers",
+      "passed": true,
+      "observed": {
+        "headerNames": [
+          "content-type"
+        ],
+        "authorizationHeaderPresent": false,
+        "note": "headers supplied by the dispatcher to fetch; transport headers are not part of this claim"
+      }
+    },
+    {
+      "name": "no-redirect",
+      "passed": true,
+      "observed": {
+        "redirected": false,
+        "finalUrl": "http://127.0.0.1:8080/v1/chat/completions",
+        "redirectPolicy": "error"
+      }
+    },
+    {
+      "name": "http-200",
+      "passed": true,
+      "observed": {
+        "status": 200
+      }
+    },
+    {
+      "name": "one-propose_claim-tool-call",
+      "passed": true,
+      "observed": {
+        "choices": 1,
+        "toolCalls": 1,
+        "tool": "propose_claim"
+      }
+    },
+    {
+      "name": "response-excludes-private-canary",
+      "passed": true,
+      "observed": {
+        "canaryPresent": false
+      }
+    },
+    {
+      "name": "dispatcher-observations-match-wire",
+      "passed": true,
+      "observed": {
+        "observedTransmissions": 1
+      }
+    },
+    {
+      "name": "candidate-strict-schema",
+      "passed": true,
+      "observed": {
+        "argumentKeys": [
+          "excerptDigest",
+          "fragmentRef",
+          "rationale",
+          "role",
+          "text"
+        ]
+      }
+    },
+    {
+      "name": "no-accepted-state-from-dispatch",
+      "passed": true,
+      "observed": {
+        "sequenceBefore": 5,
+        "sequenceAfter": 5
+      }
+    },
+    {
+      "name": "proposal-is-pending",
+      "passed": true,
+      "observed": {
+        "state": "pending",
+        "digest": "e69b8038e391561bfbef3310e533883db0ce0473303e8a8abe2019fafda820bb"
+      }
+    },
+    {
+      "name": "proposal-bound-to-application-capability",
+      "passed": true,
+      "observed": {
+        "capabilityId": "b8acd0f2-4da5-4cd1-bc90-607ec3a06919",
+        "coreCapabilityId": "b8acd0f2-4da5-4cd1-bc90-607ec3a06919",
+        "provider": "http://127.0.0.1:8080/v1/chat/completions",
+        "model": "qwen3-4b-instruct-2507"
+      }
+    },
+    {
+      "name": "proposal-does-not-publish-state",
+      "passed": true,
+      "observed": {
+        "sequence": 5
+      }
+    },
+    {
+      "name": "acceptance-requires-researcher-identity",
+      "passed": true,
+      "observed": {
+        "error": "approval_mismatch"
+      }
+    },
+    {
+      "name": "acceptance-publishes-model-claim-and-human-activity",
+      "passed": true,
+      "observed": {
+        "sequence": 7,
+        "claimAuthorType": "model",
+        "activityActor": "local-researcher"
+      }
+    },
+    {
+      "name": "no-implicit-retry-after-dispatch",
+      "passed": true,
+      "observed": {
+        "error": "transmission_not_approved",
+        "wireRequests": 1
+      }
+    },
+    {
+      "name": "stale-head-fences-acceptance",
+      "passed": true,
+      "observed": {
+        "error": "stale_proposal"
+      }
+    },
+    {
+      "name": "decline-preserves-state-and-is-not-reversible",
+      "passed": true,
+      "observed": {
+        "error": "proposal_declined"
+      }
+    },
+    {
+      "name": "revocation-causes-zero-egress",
+      "passed": true,
+      "observed": {
+        "error": "capability_revoked",
+        "wireRequests": 1
+      }
+    },
+    {
+      "name": "credential-free:outgoing-body",
+      "passed": true,
+      "observed": {
+        "findings": []
+      }
+    },
+    {
+      "name": "credential-free:response-body",
+      "passed": true,
+      "observed": {
+        "findings": []
+      }
+    },
+    {
+      "name": "credential-free:server-log",
+      "passed": true,
+      "observed": {
+        "findings": []
+      }
+    },
+    {
+      "name": "no-configured-credential-leaked",
+      "passed": true,
+      "observed": {
+        "credentialConfigured": false
+      }
+    }
+  ],
+  "implementation": {
+    "encoding": "SHA-256 of UTF-8 text with LF line endings",
+    "fingerprints": {
+      "package-lock.json": "0d1894a4231c4dc352969581e61f5d8750625e690ab5ba4e25ebd49865fafbcc",
+      "package.json": "a9e5d22ab1add0d59e1c78f1c153de34796a1d13901491754b16df99f0908fad",
+      "packages/ivory-identity/src/common/canonical-preimage.spec.ts": "81157f441a70713a86582e45c847ef22ed4f14103e68d2fcc7dc0990063f7e6c",
+      "packages/ivory-identity/src/common/canonical-preimage.ts": "10a7561de5c39023c515b18e607ee2ab983914edd05ee46e1fe55e587f8d8b11",
+      "packages/ivory-identity/src/common/identifier-alias.spec.ts": "bd1eef50ded8301a56c1e3346f9e8f1c76096b4598c1568d0cef1ff56197a2cc",
+      "packages/ivory-identity/src/common/identifier-alias.ts": "f68bdc1869c60fd6c5f4d5d7b5721bcb91d03e70fcfba605f3f750e0f9e427e0",
+      "packages/ivory-identity/src/common/identifier.spec.ts": "f4ef696a37deb7127d21459597db2a495da098f06c0d0986eb03862161aff8e1",
+      "packages/ivory-identity/src/common/identifier.ts": "b7d1b15eff939f2c9fc81dd8380c81c58611acf8c50e857982fa9e28bfcbbafe",
+      "packages/ivory-identity/src/common/identity-scheme.ts": "0dabd19a2d35f349d82a29d44895995ddbaed2e3611d5e4d8538317c4d0fe994",
+      "packages/ivory-identity/src/common/passage-anchor.ts": "16aa30a269a525bfae6429a042b89a226d34178cc35327f668bb1f2f82d8c721",
+      "packages/ivory-identity/src/node/digest.ts": "bfb9fd82bc8015b1113e86bb2be76f4cbd8f05e414ff2e5c7fdc1f9168cc0e12",
+      "packages/ivory-identity/src/node/fragment-anchor.spec.ts": "43fc3f763760f3adf81a17ffb8ebe094287bbcbd57bff869c74b2fd3350cfbc5",
+      "packages/ivory-identity/src/node/fragment-anchor.ts": "353ff1d3466bad014edd1638fb9ec51c378cfe90e2b71dd820cb2d9e62a14988",
+      "packages/ivory-identity/src/node/identity-boundaries.spec.ts": "a7df8068880de3ec16f967cfe95c763cb3e0cf43e811944d884b2290f0d8ff35",
+      "packages/ivory-identity/src/node/identity.spec.ts": "bbd13287e4655d6bc34982e7802f4e20f7927cfbf6041bf2451f150f9decd5f7",
+      "packages/ivory-identity/src/node/identity.ts": "bb558eb270731f13b0553685edf0398a2bc2b5f565fe507c8b6b35f2feea0b20",
+      "packages/ivory-identity/src/node/test/identity-fixtures.ts": "c11ac9e2ee5402d8d616edf69aeb985b92e3df0ebb19ff4e641868d08b30f630",
+      "packages/ivory-tower-agent-experiment/fixtures/recorded-response.json": "2aec0b0a18d96fc61da7f2b062ff5c30edbe3cf0277840e03dc4b3e5569b2c60",
+      "packages/ivory-tower-agent-experiment/package.json": "928e33916d94c529a893729a79886b22de059ea00dde76807d4f8559d9e6db73",
+      "packages/ivory-tower-agent-experiment/src/core.ts": "49edfc6dbefd7675a80ca5f4609a4323e6575ffa01c0b477772ae98925d4153e",
+      "packages/ivory-tower-agent-experiment/src/provider.ts": "a00794d78f82b64c9141d128017bcd0bc8f860c6c81b3ee28b924267d8d07c59",
+      "packages/ivory-tower-agent-experiment/src/server.ts": "940e927925414c3c14a057e072e26ae32b27d96f3fc24c4dc4856753cf850979",
+      "packages/ivory-tower-agent-experiment/tsconfig.json": "a98416008ff09c5b51f3e240b28eeca496da2f013e6f32ca755aca79e655b7bb",
+      "packages/ivory-tower-research-kernel/src/node/canonical.ts": "094b91a847a2bf0df2b929b2fb4801bcd601ebf42102efd6dc91cbf84b941b43",
+      "packages/ivory-tower-research-kernel/src/node/clients.ts": "fbcd81fa56d66b22aca673ebbd8ed72bdb8eda6cf6d43e65c7ea37ffff78ac53",
+      "packages/ivory-tower-research-kernel/src/node/fixture.ts": "e804015969d71624493ebcb419140dffa435bdf29967d7bbee035453333cc989",
+      "packages/ivory-tower-research-kernel/src/node/fixtures/advising-agency-protocol.md": "7f005f53639b22ac805778d9251735b8d49ea93a31654217c1aa0f788527b9da",
+      "packages/ivory-tower-research-kernel/src/node/index.ts": "20a8974ba590dddf6946d481bc785742a8bcf07dd12a22cfa6f854781bee84f6",
+      "packages/ivory-tower-research-kernel/src/node/kernel.ts": "8cd36ef2b92bca544b38cc35491ea4f26b678705fde50ff68e292ad0c25d8168",
+      "packages/ivory-tower-research-kernel/src/node/reader.ts": "1a2dfd55066c83921737ec39773c11f614a14af1074b8dd5ea612ae0958c694f",
+      "packages/ivory-tower-research-kernel/src/node/research-kernel.spec.ts": "5d7f5f827fa7232c52cfb6012a4f2780c731f1a7a65400492e0e3fb3feecc614",
+      "packages/ivory-tower-research-kernel/src/node/types.ts": "eb6577fd217060efa6f7e17e8eaa7ae158af1c356a535623f792e1e4f5983c39",
+      "scripts/n7/adversarial.test.mjs": "2729ccb2755b4a4d678e3e262ab8f331ed961b85399896114dfa3bf87e690958",
+      "scripts/n7/build.mjs": "2b396bce3ddc2de84b5705f98fc36ccf6316e52afbc6a5e87703226a8149fe69",
+      "scripts/n7/client.mjs": "d7c5cb8fa9d1a8ad015c6e232814337942021141c50bcf034262f1400ae80945",
+      "scripts/n7/core.test.mjs": "856fcdda54b90884b89e9c0ebb54385195206e7f477a1f2b37fd4cd4fb43753c",
+      "scripts/n7/fingerprint.mjs": "d5527e67d75c36bc622249db9a5ba9654d53cb06db2eac6a71833518914d5259",
+      "scripts/n7/live-provider.mjs": "a6315c6af44e2208918b24b0e0827c93d25d8dc3a521788b24f5940c994f56ec",
+      "scripts/n7/mcp.test.mjs": "241359dba88a5dcec621ec7069b5a0c671d1e734291052a11611a5d9900d3e8f",
+      "scripts/n7/provider.test.mjs": "4e888e52c529dc74f622bd27108757a313289bca3f4ee93eef25b83b572f65e6",
+      "scripts/n7/review.mjs": "8c3ca1be3d2281f779737294c325242f396ca0b880d711c5b7f310a31b386bff",
+      "scripts/n7/review.test.mjs": "1f1cd8cb51c0cb73ae44297242e80a03300888714c8483df9b843a82e4d574c6",
+      "scripts/n7/verify.mjs": "425e40f2b9fb77a1ac313967943d2bbf5e4fbf96c5866792f933cfcf99edd8b7"
+    }
+  },
+  "limitations": [
+    "One bounded request to one local llama.cpp model; no hosted-provider or multi-provider claim.",
+    "Revocation cannot recall bytes already transmitted; this run proves the pre-dispatch fence only.",
+    "In-memory acceptance and receipts only; no restart or crash durability claim.",
+    "The declared loopback endpoint is trusted to handle its received data; this experiment observes local egress only."
+  ]
+}

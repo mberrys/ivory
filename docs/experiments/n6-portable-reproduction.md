@@ -1,9 +1,16 @@
 # N6 — Portable reproduction and real research value
 
+**Status:** technical-pass — the HTML and Typst/PDF lanes are qualified and presentation-independent; the five-researcher product-value study is an optional measurement, not a gate (owner decision 2026-09-13).
+
 N6 is a disposable technical experiment, not a production project format. See
 [retained evidence](n6-evidence.json) for the observed result and exact source
-digests. Human qualification and the executable no-code product workflow remain
-pending; the experiment does not authorize public-format freeze.
+digests. The second-machine clean install has **not** been performed — its
+[runbook](n6-clean-install-runbook.md) records `blocked`, and the retained clean
+reproduction is an isolated same-machine restore — so this record must not read
+as a claim that a clean second installation was done. The five-researcher
+product-value study has not been conducted and is an optional measurement: no
+exit criterion, format-freeze condition or release claim depends on it (owner
+decision 2026-09-13). The experiment does not authorize public-format freeze.
 
 Authority: [Architectural spikes N1–N7](https://linear.app/mbx2/document/architectural-spikes-n1-n7-17f7e0721f67).
 
@@ -49,10 +56,12 @@ R and Quarto licenses remain with the installed distributions; runtime binaries
 are not checked into this repository.
 
 The captured runtime lock declares standard-library-only Python and R's base and
-utils packages. Execution uses `-I -S`, R `--vanilla`, disabled default R packages,
-empty user library paths, and fresh HOME/cache directories. No credentials are
-forwarded to analysis processes. This is trusted-fixture portability evidence,
-not an operating-system sandbox or N3 isolation qualification.
+utils packages, the render lanes (`html`, `typst`), and the pinned Typst binary
+by path, version, build and digest. Execution uses `-I -S`, R `--vanilla`,
+disabled default R packages, empty user library paths, and fresh HOME/cache
+directories. No credentials are forwarded to analysis processes. This is
+trusted-fixture portability evidence, not an operating-system sandbox or N3
+isolation qualification.
 
 The verifier creates a study, executes a baseline, exports it, and restores into
 a new directory in another process. Original project/export paths are renamed
@@ -96,9 +105,21 @@ fail. Source, code, record and blob integrity use exact digests, not tolerances.
 Quarto renders an HTML dossier with exact retained/current source citations,
 link roles and author attribution. Every declared dossier citation must be
 present in the rendered document. Presentation digests are reported separately;
-HTML byte variation cannot change analytical acceptance. PDF rendering is not
-qualified by this HTML fixture. A PDF lane must use the same analytical and
-citation gates before gaining an equivalent result.
+HTML byte variation cannot change analytical acceptance. The fixture declares
+`format-links: false` so that adding a second format cannot inject Quarto's
+"Other Formats" navigation into the HTML lane: the retained HTML digest is
+reproduced exactly.
+
+The same document also renders to PDF through Quarto's bundled Typst engine
+(`--to typst`, pinned in the runtime lock as Typst 0.13.0 (8dce676d) with its
+binary digest); no LaTeX distribution is installed or required. The PDF digest
+is recorded as presentation-only beside the HTML digest — Typst embeds a
+creation timestamp and does not guarantee byte-reproducible PDFs, so neither
+digest can feed an analytical or citation acceptance decision. Citation
+assertions for this lane read `analysis/dossier.typ`, the literal text compiled
+into the PDF (retained with `keep-typ: true`), never the PDF bytes, which embed
+subsetted fonts and glyph-indexed text operators. A changed analytical value
+still fails even when both presentation digests match.
 
 `test:ivory-n6` runs the 12 imported N1 tests and the N6 contract tests. Full
 qualification also runs the N2 regression suite, including process interruption.
@@ -112,14 +133,21 @@ blocked by the isolated checkout's missing root dependency bootstrap (and one
 invocation used npm 11.17.0 instead of the pinned 11.13.0). No full Theia build,
 browser qualification, or hosted CI success is claimed.
 
-## Decision and remaining human gate
+## Decision and optional measurement
 
 A technical pass supports further development of deterministic semantic export,
 strict restoration and separate analytical/presentation comparisons. It does not
 establish a public reproducibility badge, a production UI, another supported OS,
-or completion of the researcher study.
+or a clean second-machine installation: the
+[clean-install runbook](n6-clean-install-runbook.md) records `blocked`, and the
+retained evidence is same-machine.
 
-Use the [researcher study kit](n6-researcher-study-kit.md) when the executable
-no-code workflow is available. At least four of five researchers must finish the
-qualitative loop without code and explain both a supporting and a challenging
-link before N6's human gate can pass. No researcher result is inferred from tests.
+The [researcher study kit](n6-researcher-study-kit.md) describes an optional
+measurement of real research value that may be conducted and reported once the
+executable no-code workflow exists; no exit criterion, format-freeze condition or
+release claim depends on it (owner decision 2026-09-13). Its own reporting bar
+stays at least four of five researchers finishing the qualitative loop without
+code and explaining both a supporting and a challenging link; those observations,
+if a cohort ever runs, are retained verbatim in
+[n6-researcher-record.json](n6-researcher-record.json) and reported beside this
+record — never as an N6 condition. No researcher result is inferred from tests.

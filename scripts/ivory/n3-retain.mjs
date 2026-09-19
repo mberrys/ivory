@@ -10,7 +10,21 @@ import { onboardingAcceptance } from './n3-onboarding.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 export const N3_RETAIN_SCHEMA = 'ivory-n3-evidence/1';
-export const N3_SUPPORT_MATRIX_PENDING = 'open-pending-onboarding';
+export const N3_SUPPORT_MATRIX_DECIDED = 'pilot-decided';
+export const N3_SUPPORT_MATRIX_OPEN = 'open-pending-qualification';
+
+/**
+ * The owner decision of 2026-09-13: the support matrix is decided by the pilot
+ * platform decision — Windows 11 x64 with Docker Desktop (Linux containers) —
+ * plus the retained runtime qualification. The onboarding cohort is an optional
+ * adoption measurement; it is recorded, never a gate.
+ */
+export function supportMatrixState({ qualified, platform, runtimeVersions }) {
+    const onDecidedPlatform = platform?.platform === 'win32'
+        && platform?.arch === 'x64'
+        && runtimeVersions?.docker?.server?.os === 'linux';
+    return qualified && onDecidedPlatform ? N3_SUPPORT_MATRIX_DECIDED : N3_SUPPORT_MATRIX_OPEN;
+}
 
 function argumentValue(name) {
     const index = process.argv.indexOf(name);
@@ -78,7 +92,11 @@ export function buildRecord({ python, r, onboarding, retainedAt = new Date().toI
         },
         decision: {
             runtimeAdapter: qualified ? 'oci-container-probed' : 'open',
-            supportMatrix: onboarding?.observed === true ? 'pilot-decided' : N3_SUPPORT_MATRIX_PENDING,
+            supportMatrix: supportMatrixState({
+                qualified,
+                platform: python?.platform,
+                runtimeVersions: python?.runtimeVersions,
+            }),
             publicationStateMachine: 'retained-semantic-protocol',
         },
         onboarding: onboarding ?? null,
