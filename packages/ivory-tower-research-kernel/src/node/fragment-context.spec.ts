@@ -346,52 +346,49 @@ describe('V41-P02 fragment context and exact evidence', () => {
         expect(kernel.getHead(fragment.objectId)).to.equal(exact.to?.revisionId);
     });
 
-    it(
-        'rejects converter/profile drift through createFragment and yields deterministic mechanical receipts from exact reconstruction',
-        () => {
-            const build = (): { kernel: ResearchKernel; receipt: MechanicalCitationReceipt } => {
-                const kernel = new ResearchKernel();
-                const text = 'Quoted statement.';
-                const source = kernel.admitSource({ name: 'study', bytes: text, actor: 'Maya' });
-                const artifact = kernel.admitArtifact({ key: 'converted', sourceRefs: [source], output: text, actor: 'Maya' });
-                const fragment = kernel.createFragment({
+    it('rejects converter/profile drift through createFragment and yields deterministic mechanical receipts from exact reconstruction', () => {
+        const build = (): { kernel: ResearchKernel; receipt: MechanicalCitationReceipt } => {
+            const kernel = new ResearchKernel();
+            const text = 'Quoted statement.';
+            const source = kernel.admitSource({ name: 'study', bytes: text, actor: 'Maya' });
+            const artifact = kernel.admitArtifact({ key: 'converted', sourceRefs: [source], output: text, actor: 'Maya' });
+            const fragment = kernel.createFragment({
+                sourceRef: source,
+                artifactRef: artifact,
+                representation: 'artifact',
+                profile: {
+                    converter: 'fixture.converter',
+                    converterRevision: '1',
+                    selectorProfileRevision: 'text-offset-v1',
+                },
+                selector: { kind: 'text', start: 0, end: text.length, quote: text },
+                context: { state: 'not-applicable', basis: 'no-material-structure', reason: 'single sentence fixture' },
+                actor: 'Maya',
+                fragmentKey: 'quote',
+            });
+            expect(() =>
+                kernel.createFragment({
                     sourceRef: source,
                     artifactRef: artifact,
                     representation: 'artifact',
                     profile: {
                         converter: 'fixture.converter',
-                        converterRevision: '1',
-                        selectorProfileRevision: 'text-offset-v1',
+                        converterRevision: '2',
+                        selectorProfileRevision: 'text-offset-v2',
                     },
                     selector: { kind: 'text', start: 0, end: text.length, quote: text },
                     context: { state: 'not-applicable', basis: 'no-material-structure', reason: 'single sentence fixture' },
                     actor: 'Maya',
                     fragmentKey: 'quote',
-                });
-                expect(() =>
-                    kernel.createFragment({
-                        sourceRef: source,
-                        artifactRef: artifact,
-                        representation: 'artifact',
-                        profile: {
-                            converter: 'fixture.converter',
-                            converterRevision: '2',
-                            selectorProfileRevision: 'text-offset-v2',
-                        },
-                        selector: { kind: 'text', start: 0, end: text.length, quote: text },
-                        context: { state: 'not-applicable', basis: 'no-material-structure', reason: 'single sentence fixture' },
-                        actor: 'Maya',
-                        fragmentKey: 'quote',
-                    }),
-                ).to.throw(ResearchKernelError);
-                return { kernel, receipt: kernel.verifyCitation(fragment) };
-            };
+                }),
+            ).to.throw(ResearchKernelError);
+            return { kernel, receipt: kernel.verifyCitation(fragment) };
+        };
 
-            const first = build();
-            const reconstructed = build();
-            expect(first.receipt.status).to.equal('EXACT');
-            expect(reconstructed.receipt.status).to.equal('EXACT');
-            expect(first.receipt.receiptDigest).to.equal(reconstructed.receipt.receiptDigest);
-        },
-    );
+        const first = build();
+        const reconstructed = build();
+        expect(first.receipt.status).to.equal('EXACT');
+        expect(reconstructed.receipt.status).to.equal('EXACT');
+        expect(first.receipt.receiptDigest).to.equal(reconstructed.receipt.receiptDigest);
+    });
 });
