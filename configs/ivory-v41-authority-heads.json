@@ -1,0 +1,157 @@
+{
+  "schema": "ivory-v41-authority-heads/1",
+  "issue": "V41-I01.1",
+  "parent": "V41-P01",
+  "selectedAuthorityRole": "selectedDev",
+  "heads": [
+    {
+      "role": "detachedBaseline",
+      "sha": "efec71ed83a1d0d9d513a4ead86369201cb5b401",
+      "identity": "detached checkout recorded by V4 plan C",
+      "selectable": false
+    },
+    {
+      "role": "foundationPr",
+      "sha": "ecc406d34a9bf49d8e2f165b994a919ca90ff718",
+      "identity": "PR #1 head",
+      "pullRequest": 1,
+      "selectable": false
+    },
+    {
+      "role": "selectedDev",
+      "sha": "bc3cd03b5b2d870d219797925d92edc48c33c6ca",
+      "identity": "refs/heads/dev",
+      "ref": "refs/heads/dev",
+      "selectable": true
+    }
+  ],
+  "packageInventorySource": {
+    "role": "selectedDev",
+    "sha": "bc3cd03b5b2d870d219797925d92edc48c33c6ca",
+    "mode": "exact-tree"
+  },
+  "packages": [
+    {
+      "name": "@theia/ivory-identity",
+      "path": "packages/ivory-identity/package.json",
+      "packageJsonGitBlob": "81cfcdc3235864762fc8f4212432dde2ebdd88ba"
+    },
+    {
+      "name": "@ivory-tower/adapters",
+      "path": "packages/ivory-tower-adapters/package.json",
+      "packageJsonGitBlob": "c27e75c987cfd83429470aaa307775e45224bc15"
+    },
+    {
+      "name": "@ivory-tower/agent-experiment",
+      "path": "packages/ivory-tower-agent-experiment/package.json",
+      "packageJsonGitBlob": "db86de6ddb2c49702304943c97c1c4cc85076cd7"
+    },
+    {
+      "name": "@ivory-tower/api",
+      "path": "packages/ivory-tower-api/package.json",
+      "packageJsonGitBlob": "f2c60629f94813c078432dfd59fb18afe4618107"
+    },
+    {
+      "name": "@ivory-tower/application",
+      "path": "packages/ivory-tower-application/package.json",
+      "packageJsonGitBlob": "8eaa297c23873bcb9a10b238162d6f893a9f9cd6"
+    },
+    {
+      "name": "@ivory-tower/content-policy",
+      "path": "packages/ivory-tower-content-policy/package.json",
+      "packageJsonGitBlob": "030a596be7604c18adac0808125664ab3788a6a1"
+    },
+    {
+      "name": "@ivory-tower/contracts",
+      "path": "packages/ivory-tower-contracts/package.json",
+      "packageJsonGitBlob": "8aedb131b0a1c2fdbd1fe522b9aa5db3ef753501"
+    },
+    {
+      "name": "@ivory-tower/domain",
+      "path": "packages/ivory-tower-domain/package.json",
+      "packageJsonGitBlob": "cbb8082d12759befbcb3b1fc4e1f48dc741c2521"
+    },
+    {
+      "name": "@ivory-tower/health",
+      "path": "packages/ivory-tower-health/package.json",
+      "packageJsonGitBlob": "7eb510ff4424827a7f93ee165b156a230c76e152"
+    },
+    {
+      "name": "@ivory-tower/infrastructure",
+      "path": "packages/ivory-tower-infrastructure/package.json",
+      "packageJsonGitBlob": "2fccd05ca02a7751f5855af5f9d0faf32a29c5c1"
+    },
+    {
+      "name": "@ivory-tower/research-kernel",
+      "path": "packages/ivory-tower-research-kernel/package.json",
+      "packageJsonGitBlob": "bf61a3f46cb4e3dcb1cb26f8ddcd0b4f0afb5ac2"
+    },
+    {
+      "name": "@ivory-tower/worker",
+      "path": "packages/ivory-tower-worker/package.json",
+      "packageJsonGitBlob": "b849bf2c4aba029d528fc922a1b7461e718c9f5a"
+    }
+  ],
+  "nEvidence": [
+    {
+      "id": "N1",
+      "path": "docs/experiments/n1-v2-evidence.json",
+      "classification": "accepted",
+      "selectedDevAvailability": "present",
+      "limit": "bounded architecture experiment; not production qualification"
+    },
+    {
+      "id": "N2",
+      "path": "docs/experiments/n2-v2-evidence.json",
+      "classification": "accepted",
+      "selectedDevAvailability": "present",
+      "limit": "PGlite/reference-machine interruption evidence; not the selected production persistence proof"
+    },
+    {
+      "id": "N3",
+      "path": "docs/experiments/n3-evidence.json",
+      "classification": "accepted",
+      "selectedDevAvailability": "present",
+      "limit": "Windows 11 x64/Docker Desktop pilot scope"
+    },
+    {
+      "id": "N4",
+      "path": "docs/experiments/n4-v2-evidence.json",
+      "classification": "accepted",
+      "selectedDevAvailability": "present",
+      "limit": "retained converter/corpus scope only"
+    },
+    {
+      "id": "N5",
+      "path": "docs/experiments/n5-v2-evidence.json",
+      "classification": "open",
+      "selectedDevAvailability": "missing",
+      "limit": "foundation-PR evidence is not present on selected dev and cannot be inferred"
+    },
+    {
+      "id": "N6",
+      "path": "docs/experiments/n6-evidence.json",
+      "classification": "open",
+      "selectedDevAvailability": "present",
+      "limit": "technical replay evidence exists; independent second-machine installation remains unproven"
+    },
+    {
+      "id": "N7",
+      "path": "docs/experiments/n7-v1-evidence.json",
+      "classification": "accepted",
+      "selectedDevAvailability": "present",
+      "limit": "bounded local provider qualification only"
+    }
+  ],
+  "sourceRegister": {
+    "masterPlan": "https://app.notion.com/p/3dd9cb079ddb80f49717e9d75ea2e223",
+    "plans": {
+      "A": "https://app.notion.com/p/3dc9cb079ddb8171b3e8ecc88e2317f0",
+      "B": "https://app.notion.com/p/3dc9cb079ddb80b29661cb48ad57399e",
+      "C": "https://app.notion.com/p/3dc9cb079ddb80c39069c4bd1e6d440c",
+      "D": "https://app.notion.com/p/3dc9cb079ddb8069bab5fbe9799b4824",
+      "E": "https://app.notion.com/p/3dc9cb079ddb80968527f8f7767d8c13",
+      "F": "https://app.notion.com/p/3dc9cb079ddb807582cde4efb2549492"
+    }
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "schema": "ivory-v41-gates/1",
+  "issue": "V41-I01.4",
+  "dependsOn": "V41-I01.3",
+  "initialState": "not-run",
+  "gates": [
+    {
+      "id": "DURABILITY",
+      "state": "not-run",
+      "machineEvidence": [
+        "CAS-before-SQL crash fixture",
+        "writer lease/fence conflict fixture",
+        "acknowledgement-loss idempotency fixture",
+        "checkpoint/restore semantic readback"
+      ],
+      "humanEvidence": [
+        "reviewer decision over exact head, fixture digests, environment, observations, and limitations"
+      ],
+      "negativeCases": [
+        "two writers",
+        "stale owner",
+        "CAS-before-SQL crash",
+        "accepted receipt after acknowledgement loss"
+      ],
+      "stopConditions": [
+        "missing committed blob",
+        "lost receipt",
+        "writer authority cannot be established"
+      ],
+      "humanOutcomeInferredFromMachine": false
+    },
+    {
+      "id": "Q1",
+      "state": "not-run",
+      "machineEvidence": [
+        "exact quote/context fixture",
+        "selector/converter identity",
+        "mechanical citation receipt"
+      ],
+      "humanEvidence": [
+        "semantic-support assessment",
+        "qualification/current-applicability decision"
+      ],
+      "negativeCases": [
+        "misleading exact quote",
+        "omitted table header",
+        "wrong selector profile",
+        "unreviewed qualification"
+      ],
+      "stopConditions": [
+        "context basis unavailable",
+        "ambiguous remap guessed",
+        "machine exactness treated as semantic support"
+      ],
+      "humanOutcomeInferredFromMachine": false
+    },
+    {
+      "id": "Q2",
+      "state": "not-run",
+      "machineEvidence": [
+        "bounded alternate-query record",
+        "contrary/null result artifact",
+        "coverage computation"
+      ],
+      "humanEvidence": [
+        "reviewed stopping rationale",
+        "counterevidence disposition"
+      ],
+      "negativeCases": [
+        "support-only search",
+        "duplicate query counted as coverage",
+        "unsupported exhaustive claim"
+      ],
+      "stopConditions": [
+        "coverage boundary cannot be stated",
+        "contrary evidence is hidden",
+        "old snapshot silently rebased"
+      ],
+      "humanOutcomeInferredFromMachine": false
+    },
+    {
+      "id": "REPLAY",
+      "state": "not-run",
+      "machineEvidence": [
+        "capsule closure/CAS presence check",
+        "loss/disclosure manifest",
+        "source-status-at-authorization check"
+      ],
+      "humanEvidence": [
+        "named independent-operator replay record"
+      ],
+      "negativeCases": [
+        "missing blob",
+        "licensed omission hidden",
+        "source status changes during assembly"
+      ],
+      "stopConditions": [
+        "dependency closure incomplete",
+        "replay level overstated",
+        "operator/environment unnamed"
+      ],
+      "humanOutcomeInferredFromMachine": false
+    },
+    {
+      "id": "Q3",
+      "state": "not-run",
+      "machineEvidence": [
+        "strict/archive renderer comparison",
+        "CLI/Theia requested-snapshot parity",
+        "reconnect/latest-head negative test"
+      ],
+      "humanEvidence": [
+        "independent reproduction/review decision at declared disclosure level"
+      ],
+      "negativeCases": [
+        "client reconnects to latest",
+        "archive draft rendered as accepted",
+        "client-side adjudication"
+      ],
+      "stopConditions": [
+        "client requires divergent domain logic",
+        "requested snapshot cannot be resolved",
+        "independent replay absent"
+      ],
+      "humanOutcomeInferredFromMachine": false
+    },
+    {
+      "id": "Q4",
+      "state": "not-run",
+      "machineEvidence": [
+        "proposal-envelope replay fixture",
+        "revocation/admission fence",
+        "provider egress and prompt-injection boundary",
+        "stale-attempt/cross-project fence"
+      ],
+      "humanEvidence": [
+        "researcher adoption or rejection receipt",
+        "method-stratified evaluation decision"
+      ],
+      "negativeCases": [
+        "late worker",
+        "prompt injection",
+        "direct canonical write",
+        "uncertain external-effect retry"
+      ],
+      "stopConditions": [
+        "worker has canonical write authority",
+        "researcher authority bypassed",
+        "protected evaluation/rollback state becomes recursively mutable"
+      ],
+      "humanOutcomeInferredFromMachine": false
+    }
+  ]
+}

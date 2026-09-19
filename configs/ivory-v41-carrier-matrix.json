@@ -1,0 +1,126 @@
+{
+  "schema": "ivory-v41-carrier-matrix/1",
+  "issue": "V41-I01.3",
+  "dependsOn": "V41-I01.2",
+  "lessons": [
+    {
+      "id": "N1",
+      "lesson": "exact research identity, immutable revisions, snapshot closure, and attribution separate from endorsement",
+      "carrier": {
+        "owner": "@ivory-tower/research-kernel",
+        "types": [
+          "ExactRef",
+          "RevisionRecord",
+          "SnapshotRecord",
+          "EvidenceLinkPayload",
+          "ActivityRecord"
+        ]
+      },
+      "predicate": "exact refs resolve at their recorded revisions and semantic carry-forward is explicit",
+      "fixture": "docs/experiments/n1-v2-evidence.json",
+      "gate": "Q1",
+      "limit": "bounded N1 experiment evidence; later acceptance leaves still require retained proof"
+    },
+    {
+      "id": "N2",
+      "lesson": "durability requires CAS/semantic ordering, idempotency, writer exclusion, and semantic restore readback",
+      "ownedGap": {
+        "issue": "V41-I07",
+        "leaves": [
+          "V41-I07.1",
+          "V41-I07.2",
+          "V41-I07.3",
+          "V41-I07.4"
+        ]
+      },
+      "predicate": "acknowledged semantic effects survive tested interruption and restore without duplicate effect",
+      "fixture": "docs/experiments/n2-v2-evidence.json",
+      "gate": "DURABILITY",
+      "limit": "reference-machine PGlite evidence does not qualify the selected production persistence path"
+    },
+    {
+      "id": "N3",
+      "lesson": "governed computation is attempt-fenced, cancellable, provider-bounded, and receipt-producing",
+      "carrier": {
+        "owner": "@ivory-tower/domain",
+        "types": [
+          "ExecutionRecord",
+          "ExecutionEvent"
+        ],
+        "ports": [
+          "ExecutionJob",
+          "EgressPolicyPort",
+          "ProviderPort"
+        ]
+      },
+      "predicate": "stale or revoked attempts cannot publish and execution remains replayable from typed inputs/receipts",
+      "fixture": "docs/experiments/n3-evidence.json",
+      "gate": "Q4",
+      "limit": "Windows 11 x64/Docker Desktop pilot evidence only"
+    },
+    {
+      "id": "N4",
+      "lesson": "exact fragment anchors remain tied to retained source/artifact revisions and converter identity",
+      "carrier": {
+        "owner": "@ivory-tower/research-kernel",
+        "types": [
+          "FragmentPayload",
+          "FragmentSelector",
+          "ExactRef"
+        ]
+      },
+      "predicate": "an exact anchor reopens to the same retained bytes or remains explicitly ambiguous/unresolved",
+      "fixture": "docs/experiments/n4-v2-evidence.json",
+      "gate": "Q1",
+      "limit": "retained corpus and pinned converter scope only"
+    },
+    {
+      "id": "N5",
+      "lesson": "clients must resolve the same snapshot and may not become a second semantic kernel",
+      "carrier": {
+        "owner": "@ivory-tower/research-kernel",
+        "types": [
+          "SnapshotRecord"
+        ],
+        "projection": "packages/ivory-tower-research-kernel/src/node/clients.ts"
+      },
+      "predicate": "Theia/CLI/API reads use the requested snapshot and return semantically identical resolved data",
+      "fixture": "docs/experiments/n5-v2-evidence.json",
+      "gate": "Q3",
+      "limit": "evidence is absent on the selected dev head; no closure may be inferred from PR #1"
+    },
+    {
+      "id": "N6",
+      "lesson": "reproduction requires explicit closure, loss/disclosure reporting, and independent replay rather than export success",
+      "ownedGap": {
+        "issue": "V41-I09",
+        "leaves": [
+          "V41-I09.1",
+          "V41-I09.2",
+          "V41-I09.3",
+          "V41-I09.4"
+        ]
+      },
+      "predicate": "capsule closure verifies retained dependencies and an independent operator can replay the declared level",
+      "fixture": "docs/experiments/n6-evidence.json",
+      "gate": "REPLAY",
+      "limit": "second-machine clean-install evidence remains open"
+    },
+    {
+      "id": "N7",
+      "lesson": "agents and recursive improvement may propose and optimize orchestration but cannot acquire semantic acceptance authority",
+      "carrier": {
+        "owner": "@ivory-tower/research-kernel",
+        "types": [
+          "AcceptAgentProposalInput",
+          "AgentProposalReceipt"
+        ],
+        "harnessBoundary": "proposal-only"
+      },
+      "predicate": "stale/revoked/cross-project proposals fail closed and researcher adoption remains explicit",
+      "fixture": "docs/experiments/n7-v1-evidence.json",
+      "gate": "Q4",
+      "limit": "bounded local-provider evidence; live-provider qualification remains separately scoped"
+    }
+  ]
+}

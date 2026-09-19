@@ -1,0 +1,198 @@
+{
+  "schema": "ivory-v41-owner-map/1",
+  "issue": "V41-I01.2",
+  "dependsOn": "V41-I01.1",
+  "basisManifest": "configs/ivory-v41-authority-heads.json",
+  "authorityBoundaries": {
+    "core": {
+      "semanticAuthority": true,
+      "responsibilities": [
+        "canonical research revisions",
+        "exact references",
+        "snapshots",
+        "research decisions through typed Activity/receipt carriers"
+      ]
+    },
+    "harness": {
+      "semanticAuthority": false,
+      "responsibilities": [
+        "runs",
+        "tool and provider routing",
+        "permissions",
+        "immutable execution traces",
+        "evaluation and replay orchestration"
+      ],
+      "forbidden": [
+        "accept research meaning",
+        "write canonical research state from workers",
+        "infer human approval from machine success"
+      ]
+    },
+    "clients": {
+      "semanticAuthority": false,
+      "responsibilities": [
+        "render snapshot-scoped reads",
+        "submit commands and researcher decisions"
+      ],
+      "forbidden": [
+        "adjudicate locally",
+        "substitute latest head",
+        "persist a second research store"
+      ]
+    },
+    "recursiveImprovement": {
+      "semanticAuthority": false,
+      "researchStateSeparatedFromImprovementState": true,
+      "mayEvolve": [
+        "skills",
+        "prompts",
+        "tool strategy",
+        "exploration/orchestration policy",
+        "reflection policy"
+      ],
+      "mayMutateCore": false,
+      "protected": [
+        "Core evidence semantics",
+        "provenance",
+        "evaluation standards",
+        "researcher authority",
+        "acceptance rules",
+        "rollback and regression fixtures"
+      ]
+    }
+  },
+  "surfaces": [
+    {
+      "canonicalKey": "Source",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#SourcePayload",
+      "secondary": [
+        "@ivory-tower/adapters#SourceRecordPort"
+      ],
+      "missingFields": [
+        "scholarly alias/version assertions",
+        "source-status assertion history"
+      ]
+    },
+    {
+      "canonicalKey": "Fragment",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#FragmentPayload",
+      "secondary": [
+        "@theia/ivory-identity"
+      ],
+      "missingFields": [
+        "selector profile/version",
+        "explicit context/not-applicable reason"
+      ]
+    },
+    {
+      "canonicalKey": "EvidenceLink",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#EvidenceLinkPayload",
+      "secondary": [],
+      "missingFields": [
+        "explicit transformation mode",
+        "typed qualification payload",
+        "per-target cited/context role"
+      ]
+    },
+    {
+      "canonicalKey": "Statement",
+      "planningSynonym": "Claim",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ClaimPayload",
+      "secondary": [],
+      "missingFields": [
+        "method/scope binding required by V4.1 assessment leaves"
+      ]
+    },
+    {
+      "canonicalKey": "Artifact",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ArtifactPayload",
+      "secondary": [
+        "@ivory-tower/adapters#ObjectStorePort"
+      ],
+      "missingFields": [
+        "disclosure/replay level metadata"
+      ]
+    },
+    {
+      "canonicalKey": "Activity",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ActivityRecord",
+      "secondary": [],
+      "missingFields": [
+        "typed research-decision payload"
+      ]
+    },
+    {
+      "canonicalKey": "Snapshot",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#SnapshotRecord",
+      "secondary": [],
+      "missingFields": []
+    },
+    {
+      "canonicalKey": "ResearchProtocol",
+      "owner": "@ivory-tower/contracts",
+      "carrier": "packages/ivory-tower-contracts/src/research-protocol-contract.ts#researchProtocolVersionSchema",
+      "secondary": [],
+      "missingFields": [
+        "bounded query/provider receipt refs",
+        "coverage/stopping receipt refs"
+      ]
+    },
+    {
+      "canonicalKey": "Assessment",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ActivityRecord",
+      "secondary": [],
+      "missingFields": [
+        "typed citation-integrity assessment",
+        "typed semantic-support assessment",
+        "qualification/current-applicability fields"
+      ]
+    },
+    {
+      "canonicalKey": "ResearchDecisionReceipt",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ActivityRecord",
+      "secondary": [],
+      "missingFields": [
+        "decision class and exact assessment/snapshot basis"
+      ]
+    },
+    {
+      "canonicalKey": "ExecutionReceipt",
+      "owner": "@ivory-tower/domain",
+      "carrier": "packages/ivory-tower-domain/src/execution.ts#ExecutionRecord",
+      "secondary": [
+        "@ivory-tower/adapters#ExecutionStorePort"
+      ],
+      "missingFields": [
+        "provider/tool/query pins for research attempts"
+      ]
+    },
+    {
+      "canonicalKey": "CAS",
+      "owner": "@ivory-tower/adapters",
+      "carrier": "packages/ivory-tower-adapters/src/execution-ports.ts#ObjectStorePort",
+      "secondary": [
+        "@ivory-tower/infrastructure"
+      ],
+      "missingFields": [
+        "CAS-first semantic commit/recovery proof is owned by V41-I07"
+      ]
+    }
+  ],
+  "forbiddenDuplicateAuthorities": [
+    "PaperStore",
+    "ClaimCardStore",
+    "ResearchCase",
+    "WorkflowStateStore",
+    "ClientAcceptance",
+    "HarnessSemanticAuthority"
+  ]
+}

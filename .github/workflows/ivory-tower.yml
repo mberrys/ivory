@@ -42,10 +42,10 @@ jobs:
       - name: Install Playwright browser (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: npx.cmd playwright install chromium
+        run: npm.cmd exec --workspace @ivory-tower/example-browser -- playwright install chromium
       - name: Install Playwright browser (Ubuntu)
         if: runner.os != 'Windows'
-        run: npx playwright install --with-deps chromium
+        run: npm exec --workspace @ivory-tower/example-browser -- playwright install --with-deps chromium
       - name: Run the required Ivory Tower gate (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
