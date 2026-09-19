@@ -27,7 +27,7 @@ function errorText(candidate, options = { verifyPackages: false }) {
     return validateBundle(candidate, options).join('\n');
 }
 
-test('the committed four-leaf authority contract is structurally valid', () => {
+test('the committed authority and package-ownership contracts are structurally valid', () => {
     assert.deepEqual(validateBundle(bundle(), { verifyPackages: false }), []);
 });
 
@@ -113,4 +113,42 @@ test('the registry rejects aggregate pass flags and pre-closed gates', () => {
     const errors = errorText(candidate);
     assert.match(errors, /aggregate pass flags are forbidden/);
     assert.match(errors, /Q4 must remain not-run/);
+});
+
+
+test('IV41-003 rejects a second research acceptance owner', () => {
+    const candidate = bundle();
+    const application = candidate.packageOwnership.packages.find(item => item.name === '@ivory-tower/application');
+    application.authority.researchAcceptance = true;
+    assert.match(errorText(candidate), /research acceptance must have exactly one owner/);
+});
+
+test('IV41-003 rejects a second canonical research-state writer', () => {
+    const candidate = bundle();
+    const infrastructure = candidate.packageOwnership.packages.find(item => item.name === '@ivory-tower/infrastructure');
+    infrastructure.authority.researchStateWrite = true;
+    assert.match(errorText(candidate), /canonical research-state writes must have exactly one owner/);
+});
+
+test('IV41-003 rejects duplicate or missing responsibility ownership', () => {
+    const candidate = bundle();
+    const api = candidate.packageOwnership.packages.find(item => item.name === '@ivory-tower/api');
+    api.responsibilityIds.push('evidence');
+    assert.match(errorText(candidate), /every V4\.1 package responsibility must have exactly one canonical owner|duplicate canonical responsibility owners/);
+});
+
+test('IV41-003 binds evidence to the exact selected-dev repository context', () => {
+    const candidate = bundle();
+    candidate.packageOwnership.evidenceContext.authorityBasis.sha = '0000000000000000000000000000000000000000';
+    assert.match(errorText(candidate), /evidence authority SHA must match the exact selected-dev SHA/);
+});
+
+test('IV41-003 refuses architectural gaps that are not tracked as issues', () => {
+    const candidate = bundle();
+    candidate.packageOwnership.gapPolicy.discoveredGaps.push({
+        id: 'shadow-store',
+        summary: 'A new writable projection would create duplicate persistence authority',
+        issue: 'session-note-7',
+    });
+    assert.match(errorText(candidate), /must point to a tracked IV41 issue/);
 });
