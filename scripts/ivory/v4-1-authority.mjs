@@ -24,6 +24,7 @@ const REQUIRED_CONCEPTS = [
 const REQUIRED_LESSONS = ['N1', 'N2', 'N3', 'N4', 'N5', 'N6', 'N7'];
 const REQUIRED_CARRIER_KINDS = ['type', 'receipt', 'predicate', 'manifest', 'schema', 'fixture', 'owned-gap'];
 const REQUIRED_GATES = ['DURABILITY', 'REPLAY', 'Q1', 'Q2', 'Q3', 'Q4'];
+const REQUIRED_ADR_DISPOSITIONS = ['inherited', 'amended', 'deferred', 'superseded'];
 const SHA = /^[0-9a-f]{40}$/;
 
 function setDifference(expected, actual) {
@@ -85,6 +86,53 @@ export function validateManifest(manifest) {
         if (observation?.treeListingTruncated !== false) errors.push(`branch observation ${observation?.ref ?? 'unknown'} exact-tree inventory must record a non-truncated tree listing`);
         if (!observation?.evidenceBoundary) errors.push(`branch observation ${observation?.ref ?? 'unknown'} must state its evidence boundary`);
         if (!observation?.classification) errors.push(`branch observation ${observation?.ref ?? 'unknown'} must state its classification`);
+    }
+
+    const lineage = manifest?.adrLineage;
+    if (lineage?.issue !== 'IV41-004') errors.push('ADR lineage issue must be IV41-004');
+    if (lineage?.policy?.historicalRecords !== 'immutable') errors.push('historical ADR records must remain immutable');
+    if (lineage?.policy?.supersession !== 'explicit-only') errors.push('ADR supersession must be explicit-only');
+    if (lineage?.policy?.untrackedArchitecturalGaps !== 'forbidden') errors.push('untracked architectural gaps must be forbidden in ADR lineage');
+    if (lineage?.policy?.evidenceContext !== 'exact-repository-environment') errors.push('ADR lineage evidence context must remain exact repository/environment');
+    if (JSON.stringify(lineage?.policy?.decisionDispositions ?? []) !== JSON.stringify(REQUIRED_ADR_DISPOSITIONS)) errors.push('ADR lineage must enumerate inherited, amended, deferred, and superseded dispositions');
+
+    const registry = Array.isArray(lineage?.registry) ? lineage.registry : [];
+    const registryIds = registry.map(record => record?.id).filter(Boolean);
+    for (const id of duplicateValues(registryIds)) errors.push(`duplicate ADR lineage registry id ${id}`);
+    const adrNumbers = [];
+    const adrPaths = [];
+    for (const record of registry) {
+        if (!record?.id || !record?.kind || !record?.title) errors.push('ADR lineage registry records must name id, kind, and title');
+        if (record?.historical === true && record?.retainedIntact !== true) errors.push(`${record?.id ?? 'historical record'} must be retained intact`);
+        if (record?.kind === 'adr') {
+            const match = /^ADR-(\\d{3})$/.exec(record.id ?? '');
+            if (!match) errors.push(`${record?.id ?? 'ADR'} must use zero-padded ADR-### numbering`);
+            else adrNumbers.push(Number(match[1]));
+            if (!record?.path) errors.push(`${record?.id ?? 'ADR'} must name its repository path`);
+            else adrPaths.push(record.path);
+        }
+    }
+    for (const path of duplicateValues(adrPaths)) errors.push(`duplicate ADR lineage path ${path}`);
+    for (let index = 1; index < adrNumbers.length; index += 1) {
+        if (adrNumbers[index] <= adrNumbers[index - 1]) errors.push('ADR numbering must be strictly increasing in registry order');
+    }
+
+    const decisions = Array.isArray(lineage?.decisions) ? lineage.decisions : [];
+    const decisionIds = decisions.map(decision => decision?.id).filter(Boolean);
+    for (const id of duplicateValues(decisionIds)) errors.push(`duplicate ADR lineage decision ${id}`);
+    const dispositions = decisions.map(decision => decision?.disposition).filter(Boolean);
+    for (const disposition of setDifference(REQUIRED_ADR_DISPOSITIONS, dispositions)) errors.push(`ADR lineage is missing ${disposition} decision coverage`);
+    for (const decision of decisions) {
+        if (!decision?.id || !decision?.source || !decision?.carriedBy || !decision?.statement || !decision?.evidenceBoundary) errors.push(`${decision?.id ?? 'ADR decision'} must name source, carrier, statement, and evidence boundary`);
+        if (!registryIds.includes(decision?.source)) errors.push(`${decision?.id ?? 'ADR decision'} source ${decision?.source ?? 'missing'} is not in the lineage registry`);
+        if (!registryIds.includes(decision?.carriedBy)) errors.push(`${decision?.id ?? 'ADR decision'} carrier ${decision?.carriedBy ?? 'missing'} is not in the lineage registry`);
+        if (!REQUIRED_ADR_DISPOSITIONS.includes(decision?.disposition)) errors.push(`${decision?.id ?? 'ADR decision'} has invalid disposition ${decision?.disposition ?? 'missing'}`);
+        if (!Array.isArray(decision?.evidenceHeads) || decision.evidenceHeads.length === 0) errors.push(`${decision?.id ?? 'ADR decision'} must retain exact evidence heads`);
+        for (const head of decision?.evidenceHeads ?? []) if (!REQUIRED_HEADS.includes(head)) errors.push(`${decision?.id ?? 'ADR decision'} references unknown evidence head ${head}`);
+        if (decision?.disposition === 'amended' && !registryIds.includes(decision?.amendedBy)) errors.push(`${decision?.id ?? 'ADR decision'} amended disposition must name an existing amendedBy ADR`);
+        if (decision?.disposition === 'superseded' && !registryIds.includes(decision?.supersededBy)) errors.push(`${decision?.id ?? 'ADR decision'} superseded disposition must name an existing supersededBy ADR`);
+        if (decision?.disposition === 'deferred' && !decision?.trackedBy) errors.push(`${decision?.id ?? 'ADR decision'} deferred disposition must name its tracked gate or issue`);
+        if (decision?.trackedBy?.startsWith('V41-') && !decision?.trackingUrl) errors.push(`${decision?.id ?? 'ADR decision'} tracked architectural gap must retain its issue URL`);
     }
 
     const heads = Array.isArray(manifest?.heads) ? manifest.heads : [];
@@ -260,6 +308,9 @@ export function validateManifest(manifest) {
 
 export function requiredSurfacePaths(manifest) {
     const paths = new Set(['configs/ivory-n-gates.json']);
+    for (const record of manifest.adrLineage?.registry ?? []) {
+        if (record.kind === 'adr' && record.path) paths.add(record.path);
+    }
     for (const owner of manifest.canonicalOwners ?? []) {
         if (owner.state === 'owned' && owner.path) paths.add(owner.path);
     }
@@ -419,6 +470,7 @@ function main() {
                 digest: manifestDigest(configBytes),
             },
             repository: manifest.repositoryContext,
+            adrLineage: manifest.adrLineage,
             heads: manifest.heads.map(head => ({
                 id: head.id,
                 ref: head.ref,
