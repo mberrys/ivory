@@ -5,104 +5,105 @@
   "initialState": "not-run",
   "machineReadback": {
     "algorithm": "sha256",
-    "encoding": "raw-bytes",
+    "encoding": "utf-8",
     "pathSeparator": "/",
+    "lineEndingPolicy": "normalize-lf",
     "files": [
       {
         "id": "durability-n2-v2-runner",
         "path": "scripts/verify-ivory-n2-v2.mjs",
-        "sha256": "491b9095327f44e6300595ce38bfdf37b60f7926e5c33f2caaca4488287e9ca2",
-        "bytes": 7230
+        "sha256": "181bed03a38e8c300a9d4dfc7932429fda84487166d055c2e74c7fb7d3bf5e0b",
+        "bytes": 7059
       },
       {
         "id": "durability-n2-v2-record",
         "path": "docs/experiments/n2-v2-evidence.json",
-        "sha256": "a77d3ecf472845b6f6284d0b49263ba587df397ff45a797db756b6cc51845f4a",
-        "bytes": 16266
+        "sha256": "89b9cc4d819e92e820744cfc23a49d68acb85921dd3b343450f8c6069c994aee",
+        "bytes": 15795
       },
       {
         "id": "q1-n1-anchor-runner",
         "path": "scripts/verify-ivory-n1.mjs",
-        "sha256": "35e710b21297f91d6b93934cdf0e0fc2a61199f43af72f3e9e697ffd986d2283",
-        "bytes": 11717
+        "sha256": "44e7e730be8e5895bee129f516ea06e7aae7f832dc581a6b891a3c53d301278d",
+        "bytes": 11415
       },
       {
         "id": "q1-n1-anchor-record",
         "path": "docs/experiments/n1-v2-evidence.json",
-        "sha256": "2ace985d42e3aa37455730ad2903c11db28623def80b31cc35bbb2f04d3a5388",
-        "bytes": 4657
+        "sha256": "f8400c70dbe23176a3e5dc0285b21869ee95868fe24fc32a76c75a5bad2fb9e4",
+        "bytes": 4521
       },
       {
         "id": "q1-n4-anchor-runner",
         "path": "scripts/verify-ivory-n4-v2.mjs",
-        "sha256": "b92224ef906222c6910c077bd133441e896b16b5d33d43f381069c116d3f7bc1",
-        "bytes": 5306
+        "sha256": "168d1a4097e9117a66298a26c42e3777388675813467d41a3f21741dd629d86d",
+        "bytes": 5168
       },
       {
         "id": "q1-n4-anchor-record",
         "path": "docs/experiments/n4-v2-evidence.json",
-        "sha256": "bc559df7684ae9b02784c6ea990e54817a2bebaf89df56bb180212daa59f8b00",
-        "bytes": 37086
+        "sha256": "f9da58d4903c14fd7591d64408c38dc3a46151135df338a7d25497486e75f855",
+        "bytes": 36082
       },
       {
         "id": "replay-n6-runner",
         "path": "spikes/n6-portable-reproduction/verify.mjs",
-        "sha256": "c9d134c1f1d5c2bb7106ba245427b1c6740e86645015d47ae8e8476027b8357f",
-        "bytes": 9816
+        "sha256": "c66442e314d9de6e4a31e84839dbaf1e6e1a5345db080f66bbcce1fb1e4519fb",
+        "bytes": 9673
       },
       {
         "id": "replay-n6-record",
         "path": "docs/experiments/n6-evidence.json",
-        "sha256": "4d3d5ceac533063e2af3ecada39b98ff6c363aa2c1133489ebdcf98a9ed6c2a4",
-        "bytes": 17790
+        "sha256": "ebad6c7a2501d78f0bd513275cd03e73c7b655b528062f65ce03b5e4376999f8",
+        "bytes": 17491
       },
       {
         "id": "q3-n5-equivalence-runner",
         "path": "scripts/n5/compare.mjs",
-        "sha256": "a7ccbf15a00e54071182aade0055bbf7b685830eb4ee213c1284aa42421cd739",
-        "bytes": 1527
+        "sha256": "afd93b613b5b06c719a9604f8d30c105840b7f88942a858537ec4d1cbfccd214",
+        "bytes": 1492
       },
       {
         "id": "q3-n5-evidence-writer",
         "path": "scripts/n5/evidence.mjs",
-        "sha256": "0ed597f8f60bcaa9746b62d4c1d3a83a2c4d5664ce4bbdc6b470203decce44f5",
-        "bytes": 14900
+        "sha256": "e45e269a5b28902e31e7364303f874a3d711abbd417c06e30548393da37b3560",
+        "bytes": 14602
       },
       {
         "id": "q3-n5-record",
         "path": "docs/experiments/n5-v2-evidence.json",
-        "sha256": "92dddbe6f4282bc164f03bab77fedf51b44d34628f54f28beceae41210f8d697",
-        "bytes": 94318
+        "sha256": "47bcbb1b556ff67828e8e2125b84a3f8b25bb60789b6b10abeb77a87cdfb3f50",
+        "bytes": 91778
       },
       {
         "id": "q4-n3-compute-runner",
         "path": "scripts/ivory/n3-compute.mjs",
-        "sha256": "9d8586d89114affcec2621b65628aa03e08b6cb877db82388013dbf7ba2ea646",
-        "bytes": 34873
+        "sha256": "07bb46cd8c27ba623ecd914d7b8c4e37ddf6212820e233207e3797c8dcf86975",
+        "bytes": 34078
       },
       {
         "id": "q4-n3-retain-runner",
         "path": "scripts/ivory/n3-retain.mjs",
-        "sha256": "d386f2c60322713471f9df15a476edf68589486fa52d3ff435d7188b65cf8f47",
-        "bytes": 6102
+        "sha256": "6cccf0f3e5252d26335fba89b06562dae2ba108aad9f32c83b8034153bddb167",
+        "bytes": 5958
       },
       {
         "id": "q4-n3-record",
         "path": "docs/experiments/n3-evidence.json",
-        "sha256": "4f4b67ab1e3041321f2124227f7ea3fecf280990276bd829b1fa3eb255ac0183",
-        "bytes": 35189
+        "sha256": "6e678cb25c2c8ba18ac6d2dcdde570e616be0c652d3c65e1f0aade600e70092e",
+        "bytes": 34052
       },
       {
         "id": "q4-n7-proposal-runner",
         "path": "scripts/ivory/n7-retain.mjs",
-        "sha256": "79a1cfa2f5d4063241a7d6346d497e5ea6ad7e6f9a8eb24c8d275981246ae860",
-        "bytes": 6227
+        "sha256": "9563a7b4b907f5cfec543dde794629df77d7b823e1cecbcc2ff1e8e11f3f3a06",
+        "bytes": 6099
       },
       {
         "id": "q4-n7-record",
         "path": "docs/experiments/n7-v1-evidence.json",
-        "sha256": "7a2fbaf2a0531dae34f02c90d9db9d2cdae3761440fbf80a2a8b05fa4d707132",
-        "bytes": 13450
+        "sha256": "64a30d3bc05ccb9dd7c4172bb03b04b3560f7062a8c171bb35907cbccd78b103",
+        "bytes": 13228
       }
     ]
   },

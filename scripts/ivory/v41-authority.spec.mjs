@@ -6,7 +6,7 @@ import { existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadBundle, validateBundle } from './v41-authority.mjs';
+import { loadBundle, readbackIdentity, validateBundle } from './v41-authority.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -24,11 +24,11 @@ function rawGitBlobSha(bytes) {
 }
 
 function retainedFile(relative) {
-    const bytes = readFileSync(join(ROOT, relative));
+    const observed = readbackIdentity(readFileSync(join(ROOT, relative)));
     return {
         path: relative,
-        sha256: createHash('sha256').update(bytes).digest('hex'),
-        bytes: bytes.length,
+        sha256: observed.sha256,
+        bytes: observed.bytes,
     };
 }
 
@@ -316,8 +316,9 @@ test('V41-I01.4 binds every gate to a real runner module, a declared npm alias, 
     const candidate = bundle();
     assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
     assert.equal(candidate.gates.machineReadback.algorithm, 'sha256');
-    assert.equal(candidate.gates.machineReadback.encoding, 'raw-bytes');
+    assert.equal(candidate.gates.machineReadback.encoding, 'utf-8');
     assert.equal(candidate.gates.machineReadback.pathSeparator, '/');
+    assert.equal(candidate.gates.machineReadback.lineEndingPolicy, 'normalize-lf');
 
     for (const gate of candidate.gates.gates) {
         assert.ok(Array.isArray(gate.machineRunners), `${gate.id} must bind machineRunners explicitly`);
@@ -434,7 +435,7 @@ test('V41-I01.4 fails closed when a runner or record digest no longer matches th
     driftedConvention.gates.machineReadback.pathSeparator = '\\';
     const conventionErrors = errorText(driftedConvention);
     assert.match(conventionErrors, /machine readback algorithm must be SHA-256/);
-    assert.match(conventionErrors, /machine readback encoding must be raw bytes/);
+    assert.match(conventionErrors, /machine readback encoding must be UTF-8 text/);
     assert.match(conventionErrors, /machine readback paths must use POSIX separators/);
 });
 
@@ -841,7 +842,11 @@ test('V41-I01.2 fails closed when the retained readback is missing or does not m
 
     const driftedConvention = bundle();
     driftedConvention.owners.carrierReadback.encoding = 'utf8';
-    assert.match(errorText(driftedConvention), /carrier readback encoding must be raw bytes/);
+    assert.match(errorText(driftedConvention), /carrier readback encoding must be UTF-8 text/);
+
+    const unnormalizedEndings = bundle();
+    unnormalizedEndings.owners.carrierReadback.lineEndingPolicy = 'preserve-bytes';
+    assert.match(errorText(unnormalizedEndings), /carrier readback line endings must be normalized to LF/);
 });
 
 test('V41-I01.2 rejects a planning synonym that re-adds a forbidden duplicate authority', () => {
@@ -871,4 +876,27 @@ test('V41-I01.2 rejects a planning synonym that re-adds a forbidden duplicate au
     const undeclared = bundle();
     undeclared.owners.forbiddenDuplicateAuthorities = [];
     assert.match(errorText(undeclared), /forbidden duplicate authorities must be declared/);
+});
+test('the retained readback identity is platform independent (LF and CRLF agree)', () => {
+    // The defect this pins: docs/experiments and scripts carry no `eol=lf` pin, so a Windows checkout
+    // (core.autocrlf=true) materialises CRLF while CI checks out the LF blob. Hashing the raw
+    // working-tree bytes therefore recorded a Windows-only identity, and the gate failed closed on
+    // ubuntu-22.04 with "fixture byte count / SHA-256 does not match the retained readback".
+    const lf = 'alpha\nbeta\ngamma\n';
+    const crlf = lf.replace(/\n/g, '\r\n');
+    assert.notEqual(Buffer.byteLength(crlf), Buffer.byteLength(lf));
+
+    const lfIdentity = readbackIdentity(Buffer.from(lf, 'utf8'));
+    const crlfIdentity = readbackIdentity(Buffer.from(crlf, 'utf8'));
+    assert.equal(crlfIdentity.sha256, lfIdentity.sha256);
+    assert.equal(crlfIdentity.bytes, lfIdentity.bytes);
+    assert.equal(lfIdentity.bytes, Buffer.byteLength(lf));
+    assert.equal(lfIdentity.binary, false);
+
+    // A binary fixture keeps its raw identity rather than being normalized.
+    const binary = Buffer.from([0x00, 0x0d, 0x0a, 0xff]);
+    const binaryIdentity = readbackIdentity(binary);
+    assert.equal(binaryIdentity.binary, true);
+    assert.equal(binaryIdentity.bytes, 4);
+    assert.equal(binaryIdentity.sha256, createHash('sha256').update(binary).digest('hex'));
 });

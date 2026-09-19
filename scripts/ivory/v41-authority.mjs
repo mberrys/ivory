@@ -100,6 +100,23 @@ function sorted(values) {
     return [...values].sort();
 }
 
+/**
+ * Retained readbacks use the `normalize-lf` convention: for a text file the CRLF bytes of a Windows
+ * checkout are folded to LF before hashing, so the recorded identity is the repository's stored blob
+ * identity on every platform. Without it a readback records a Windows-only fact (docs/experiments and
+ * scripts carry no `eol=lf` pin, so `core.autocrlf=true` materialises CRLF here while CI checks out LF)
+ * and the gate fails closed on ubuntu-22.04. Binary fixtures (a NUL byte present) keep their raw bytes.
+ */
+export function readbackIdentity(bytes) {
+    const binary = bytes.includes(0);
+    const content = binary ? bytes : Buffer.from(bytes.toString('utf8').replace(/\r\n/g, '\n'), 'utf8');
+    return {
+        sha256: createHash('sha256').update(content).digest('hex'),
+        bytes: content.length,
+        binary,
+    };
+}
+
 function sameSet(actual, expected) {
     return JSON.stringify(sorted(actual)) === JSON.stringify(sorted(expected));
 }
@@ -139,10 +156,9 @@ function validateRepoRelativePath(value, label, errors) {
 function verifyQualificationFile(root, relative, expectedSha, expectedBytes, label, options, errors) {
     if (options.verifyQualificationFiles === false) return;
     try {
-        const bytes = readFileSync(path.join(root, relative));
-        if (expectedBytes !== undefined) push(bytes.length === expectedBytes, errors, `${label} byte count does not match retained evidence`);
-        const observedSha = createHash('sha256').update(bytes).digest('hex');
-        push(observedSha === expectedSha, errors, `${label} SHA-256 does not match retained evidence`);
+        const observed = readbackIdentity(readFileSync(path.join(root, relative)));
+        if (expectedBytes !== undefined) push(observed.bytes === expectedBytes, errors, `${label} byte count does not match retained evidence`);
+        push(observed.sha256 === expectedSha, errors, `${label} SHA-256 does not match retained evidence`);
     } catch (error) {
         errors.push(`${label} cannot be read: ${error.message}`);
     }
@@ -301,9 +317,13 @@ function validateQualification(qualification, bundle, options, errors) {
     push(qualification.basis?.carriers === CONFIGS.carriers, errors, 'IV41-005: basis must bind to the carrier matrix');
     push(qualification.basis?.gates === CONFIGS.gates, errors, 'IV41-005: basis must bind to the gate registry');
     push(qualification.digestConvention?.algorithm === 'sha256', errors, 'IV41-005: digest algorithm must be SHA-256');
-    push(qualification.digestConvention?.encoding === 'raw-bytes', errors, 'IV41-005: digest encoding must be raw bytes');
+    push(qualification.digestConvention?.encoding === 'utf-8', errors, 'IV41-005: digest encoding must be UTF-8 text');
     push(qualification.digestConvention?.pathSeparator === '/', errors, 'IV41-005: digest paths must use POSIX separators');
-    push(qualification.digestConvention?.lineEndingPolicy === 'preserve-bytes', errors, 'IV41-005: digest line-ending policy must preserve bytes');
+    push(
+        qualification.digestConvention?.lineEndingPolicy === 'normalize-lf',
+        errors,
+        'IV41-005: digest line-ending policy must normalize CRLF to LF so a record is platform independent',
+    );
     push(qualification.authorityBoundary?.role === 'qualification-records-only', errors, 'IV41-005: qualification authority boundary is invalid');
     push(qualification.authorityBoundary?.mayWriteCanonicalResearchState === false, errors, 'IV41-005: qualification records cannot write canonical research state');
     push(qualification.authorityBoundary?.mayDecideResearchAcceptance === false, errors, 'IV41-005: qualification records cannot decide research acceptance');
@@ -468,15 +488,12 @@ function verifyCarrierReadbackRecord(record, label, root, options, errors) {
         errors.push(`${label} cannot be read: ${error.message}`);
         return;
     }
+    const observed = readbackIdentity(bytes);
     if (Number.isInteger(record.bytes) && record.bytes >= 0) {
-        push(bytes.length === record.bytes, errors, `${label} byte count does not match the retained readback`);
+        push(observed.bytes === record.bytes, errors, `${label} byte count does not match the retained readback`);
     }
     if (SHA256.test(record.sha256 ?? '')) {
-        push(
-            createHash('sha256').update(bytes).digest('hex') === record.sha256,
-            errors,
-            `${label} SHA-256 does not match the retained readback`,
-        );
+        push(observed.sha256 === record.sha256, errors, `${label} SHA-256 does not match the retained readback`);
     }
 }
 
@@ -485,8 +502,13 @@ function validateCarrierReadback(owners, root, options, errors) {
     push(isRecord(readback), errors, 'I01.2: owner map must retain its carrier readback record');
     if (!isRecord(readback)) return;
     push(readback.algorithm === 'sha256', errors, 'I01.2: carrier readback algorithm must be SHA-256');
-    push(readback.encoding === 'raw-bytes', errors, 'I01.2: carrier readback encoding must be raw bytes');
+    push(readback.encoding === 'utf-8', errors, 'I01.2: carrier readback encoding must be UTF-8 text');
     push(readback.pathSeparator === '/', errors, 'I01.2: carrier readback paths must use POSIX separators');
+    push(
+        readback.lineEndingPolicy === 'normalize-lf',
+        errors,
+        'I01.2: carrier readback line endings must be normalized to LF so the readback is platform independent',
+    );
 
     const head = isRecord(readback.auditedHead) ? readback.auditedHead : {};
     push(SHA40.test(head.sha ?? ''), errors, 'I01.2: carrier readback must record the exact head it audited');
@@ -818,12 +840,12 @@ function validateFixtureReadback(lesson, label, root, options, errors) {
         errors.push(`${label} fixture cannot be read: ${error.message}`);
         return;
     }
+    const observed = readbackIdentity(bytes);
     if (Number.isInteger(lesson.fixtureBytes)) {
-        push(bytes.length === lesson.fixtureBytes, errors, `${label} fixture byte count does not match the retained readback`);
+        push(observed.bytes === lesson.fixtureBytes, errors, `${label} fixture byte count does not match the retained readback`);
     }
     if (SHA256.test(lesson.fixtureDigest ?? '')) {
-        const observed = createHash('sha256').update(bytes).digest('hex');
-        push(observed === lesson.fixtureDigest, errors, `${label} fixture SHA-256 does not match the retained readback`);
+        push(observed.sha256 === lesson.fixtureDigest, errors, `${label} fixture SHA-256 does not match the retained readback`);
     }
 }
 
@@ -833,8 +855,13 @@ function validateCarriers(carriers, root, options, errors) {
     push(carriers.dependsOn === 'V41-I01.2', errors, 'I01.3: dependency must remain V41-I01.2');
     const readback = isRecord(carriers.fixtureReadback) ? carriers.fixtureReadback : {};
     push(readback.algorithm === 'sha256', errors, 'I01.3: fixture readback algorithm must be SHA-256');
-    push(readback.encoding === 'raw-bytes', errors, 'I01.3: fixture readback encoding must be raw bytes');
+    push(readback.encoding === 'utf-8', errors, 'I01.3: fixture readback encoding must be UTF-8 text');
     push(readback.pathSeparator === '/', errors, 'I01.3: fixture readback paths must use POSIX separators');
+    push(
+        readback.lineEndingPolicy === 'normalize-lf',
+        errors,
+        'I01.3: fixture readback line endings must be normalized to LF so the readback is platform independent',
+    );
     const lessons = carriers.lessons ?? [];
     const ids = lessons.map(lesson => lesson.id);
     push(sameSet(ids, EXPECTED_N), errors, 'I01.3: carrier matrix must cover N1-N7 exactly once');
@@ -904,8 +931,13 @@ function validateMachineReadback(gates, readback, root, options, errors) {
     push(isRecord(readback), errors, 'I01.4: registry must retain its machine readback record');
     if (!isRecord(readback)) return;
     push(readback.algorithm === 'sha256', errors, 'I01.4: machine readback algorithm must be SHA-256');
-    push(readback.encoding === 'raw-bytes', errors, 'I01.4: machine readback encoding must be raw bytes');
+    push(readback.encoding === 'utf-8', errors, 'I01.4: machine readback encoding must be UTF-8 text');
     push(readback.pathSeparator === '/', errors, 'I01.4: machine readback paths must use POSIX separators');
+    push(
+        readback.lineEndingPolicy === 'normalize-lf',
+        errors,
+        'I01.4: machine readback line endings must be normalized to LF so the readback is platform independent',
+    );
 
     push(Array.isArray(readback.files), errors, 'I01.4: machine readback must list the runner and evidence files it hashes');
     const files = Array.isArray(readback.files) ? readback.files : [];
@@ -934,15 +966,12 @@ function validateMachineReadback(gates, readback, root, options, errors) {
             errors.push(`${label} cannot be read: ${error.message}`);
             return;
         }
+        const observed = readbackIdentity(bytes);
         if (Number.isInteger(file.bytes) && file.bytes >= 0) {
-            push(bytes.length === file.bytes, errors, `${label} byte count does not match the retained readback`);
+            push(observed.bytes === file.bytes, errors, `${label} byte count does not match the retained readback`);
         }
         if (SHA256.test(file.sha256 ?? '')) {
-            push(
-                createHash('sha256').update(bytes).digest('hex') === file.sha256,
-                errors,
-                `${label} SHA-256 does not match the retained readback`,
-            );
+            push(observed.sha256 === file.sha256, errors, `${label} SHA-256 does not match the retained readback`);
         }
     });
 
@@ -1203,7 +1232,7 @@ export function loadBundle(root = ROOT) {
 }
 
 function sha256File(root, relative) {
-    return createHash('sha256').update(readFileSync(path.join(root, relative))).digest('hex');
+    return readbackIdentity(readFileSync(path.join(root, relative))).sha256;
 }
 
 function main() {

@@ -4,8 +4,9 @@
   "dependsOn": "V41-I01.2",
   "fixtureReadback": {
     "algorithm": "sha256",
-    "encoding": "raw-bytes",
-    "pathSeparator": "/"
+    "encoding": "utf-8",
+    "pathSeparator": "/",
+    "lineEndingPolicy": "normalize-lf"
   },
   "lessons": [
     {
@@ -39,8 +40,8 @@
       },
       "predicate": "exact refs resolve at their recorded revisions and semantic carry-forward is explicit",
       "fixture": "docs/experiments/n1-v2-evidence.json",
-      "fixtureDigest": "2ace985d42e3aa37455730ad2903c11db28623def80b31cc35bbb2f04d3a5388",
-      "fixtureBytes": 4657,
+      "fixtureDigest": "f8400c70dbe23176a3e5dc0285b21869ee95868fe24fc32a76c75a5bad2fb9e4",
+      "fixtureBytes": 4521,
       "gate": "Q1",
       "limit": "reference-kernel-only: the retained N1 run is an in-memory reference model on win32 x64 (Windows 11 10.0.26200, node v24.16.0) closed by 3 qualifying human reader-protocol seats; representation remapping, PDF/OCR anchors, and production schema persistence were not qualified"
     },
@@ -90,8 +91,8 @@
       },
       "predicate": "acknowledged semantic effects survive tested interruption and restore without duplicate effect",
       "fixture": "docs/experiments/n2-v2-evidence.json",
-      "fixtureDigest": "a77d3ecf472845b6f6284d0b49263ba587df397ff45a797db756b6cc51845f4a",
-      "fixtureBytes": 16266,
+      "fixtureDigest": "89b9cc4d819e92e820744cfc23a49d68acb85921dd3b343450f8c6069c994aee",
+      "fixtureBytes": 15795,
       "gate": "DURABILITY",
       "limit": "one Windows NTFS reference-machine observation: 1000 interruption cycles with 0 failures, 625 acknowledged and 375 unacknowledged commits, and a 10 GiB CAS admission; hardware power loss, removable media, cross-platform behaviour, and the production durable-store implementation were not tested"
     },
@@ -126,8 +127,8 @@
       },
       "predicate": "stale or revoked attempts cannot publish and execution remains replayable from typed inputs/receipts",
       "fixture": "docs/experiments/n3-evidence.json",
-      "fixtureDigest": "4f4b67ab1e3041321f2124227f7ea3fecf280990276bd829b1fa3eb255ac0183",
-      "fixtureBytes": 35189,
+      "fixtureDigest": "6e678cb25c2c8ba18ac6d2dcdde570e616be0c652d3c65e1f0aade600e70092e",
+      "fixtureBytes": 34052,
       "gate": "Q4",
       "limit": "pilot platform Windows 11 x64 with Docker Desktop (Linux containers) only, supportMatrix pilot-decided: the OCI adapter is a replaceable pilot runtime, macOS/Apple Silicon is not qualified, and this is evidence tooling rather than a production Compute adapter"
     },
@@ -166,8 +167,8 @@
       },
       "predicate": "an exact anchor reopens to the same retained bytes or remains explicitly ambiguous/unresolved",
       "fixture": "docs/experiments/n4-v2-evidence.json",
-      "fixtureDigest": "bc559df7684ae9b02784c6ea990e54817a2bebaf89df56bb180212daa59f8b00",
-      "fixtureBytes": 37086,
+      "fixtureDigest": "f9da58d4903c14fd7591d64408c38dc3a46151135df338a7d25497486e75f855",
+      "fixtureBytes": 36082,
       "gate": "Q1",
       "limit": "retained 22-fixture corpus and pinned converter scope only: 120 anchors resolved against Docling v1.21.0/v1.22.0 image digests on win32 x64, with a deliberately conservative independent oracle, OCR only when a converter returns text, and no user/role authorization boundary"
     },
@@ -194,8 +195,8 @@
       },
       "predicate": "Theia/CLI/API reads use the requested snapshot and return semantically identical resolved data",
       "fixture": "docs/experiments/n5-v2-evidence.json",
-      "fixtureDigest": "92dddbe6f4282bc164f03bab77fedf51b44d34628f54f28beceae41210f8d697",
-      "fixtureBytes": 94318,
+      "fixtureDigest": "47bcbb1b556ff67828e8e2125b84a3f8b25bb60789b6b10abeb77a87cdfb3f50",
+      "fixtureBytes": 91778,
       "gate": "Q3",
       "limit": "observed live on win32/x64 against the one canonical Core service on loopback (http://127.0.0.1:4100) with the isolated @ivory-tower/n5-browser workbench and Theia 1.75.0: the notebook surface was not observed, and no desktop, cross-platform, hosted-service, or independent second-machine reproduction is claimed"
     },
@@ -237,8 +238,8 @@
       },
       "predicate": "capsule closure verifies retained dependencies and an independent operator can replay the declared level",
       "fixture": "docs/experiments/n6-evidence.json",
-      "fixtureDigest": "4d3d5ceac533063e2af3ecada39b98ff6c363aa2c1133489ebdcf98a9ed6c2a4",
-      "fixtureBytes": 17790,
+      "fixtureDigest": "ebad6c7a2501d78f0bd513275cd03e73c7b655b528062f65ce03b5e4376999f8",
+      "fixtureBytes": 17491,
       "gate": "REPLAY",
       "limit": "technical-pass on Windows with a trusted synthetic study: the second-machine clean install records blocked in docs/experiments/n6-clean-install-runbook.md and the retained clean reproduction is an isolated same-machine restore; PDF bytes are presentation-only and no public format freeze is authorized"
     },
@@ -266,8 +267,8 @@
       },
       "predicate": "stale/revoked/cross-project proposals fail closed and researcher adoption remains explicit",
       "fixture": "docs/experiments/n7-v1-evidence.json",
-      "fixtureDigest": "7a2fbaf2a0531dae34f02c90d9db9d2cdae3761440fbf80a2a8b05fa4d707132",
-      "fixtureBytes": 13450,
+      "fixtureDigest": "64a30d3bc05ccb9dd7c4172bb03b04b3560f7062a8c171bb35907cbccd78b103",
+      "fixtureBytes": 13228,
       "gate": "Q4",
       "limit": "bounded local-provider run: one retained run against a loopback llama.cpp qwen3-4b-instruct-2507 model (docs/experiments/n7-live-provider/run.json), with in-memory acceptance and receipts only, no restart or crash-durability claim, no Theia integration or production authentication, and no hosted-provider qualification"
     }

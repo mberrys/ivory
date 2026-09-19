@@ -12,9 +12,9 @@
   "recordSchema": "ivory-v41-qualification-record/1",
   "digestConvention": {
     "algorithm": "sha256",
-    "encoding": "raw-bytes",
+    "encoding": "utf-8",
     "pathSeparator": "/",
-    "lineEndingPolicy": "preserve-bytes"
+    "lineEndingPolicy": "normalize-lf"
   },
   "authorityBoundary": {
     "role": "qualification-records-only",

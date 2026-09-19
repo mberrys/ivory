@@ -188,8 +188,9 @@
   ],
   "carrierReadback": {
     "algorithm": "sha256",
-    "encoding": "raw-bytes",
+    "encoding": "utf-8",
     "pathSeparator": "/",
+    "lineEndingPolicy": "normalize-lf",
     "auditedHead": {
       "ref": "refs/heads/dev",
       "sha": "cadc8ed512a1f6322c55d00b1c5fdff2fdbcdb5b",
@@ -197,8 +198,8 @@
     },
     "manifest": {
       "path": "configs/ivory-v41-authority-heads.json",
-      "sha256": "3e2e5b22aec995511d880fad5add622f1d8cfea56743d98abac4dba44dfe9e6d",
-      "bytes": 5549
+      "sha256": "277e549d4d94e52fe3d8f38b0aa654b53bfb8dc1a2377d5b34dfe186093f09b4",
+      "bytes": 5392
     },
     "carrierFiles": [
       {
