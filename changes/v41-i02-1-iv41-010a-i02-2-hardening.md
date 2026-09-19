@@ -18,6 +18,7 @@ This branch builds on the existing V41-P02 and IV41-010 implementation at PR #5,
 2. Run `npm run test:ivory-canonical-model`, `npm run verify:ivory-canonical-model` and `npm run verify:ivory-tower` with the pinned repository toolchain. Review both Windows and Ubuntu GitHub Actions results.
 3. Confirm the focused Fragment adversarial suite rejects header, units, denominator, legend, footnote, methods, limitation, cross-source and table cases without increasing project sequence; verify the exact one-sentence positive case.
 4. Confirm the inherited N1 error test checks behavior with the now-explicit source/artifact error; confirm the CRLF cutline fixture normalizes preexisting CRLF before constructing the case.
+5. Confirm the inherited Windows Theia Electron target has one `GettingStartedContribution.registerColors` implementation. Two byte-for-byte identical methods already existed on `dev`; only the duplicate was removed to restore TypeScript buildability.
 
 ## Evidence boundary
 
