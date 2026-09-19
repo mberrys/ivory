@@ -105,7 +105,7 @@ export function validateManifest(manifest) {
         if (!record?.id || !record?.kind || !record?.title) errors.push('ADR lineage registry records must name id, kind, and title');
         if (record?.historical === true && record?.retainedIntact !== true) errors.push(`${record?.id ?? 'historical record'} must be retained intact`);
         if (record?.kind === 'adr') {
-            const match = /^ADR-(\\d{3})$/.exec(record.id ?? '');
+            const match = /^ADR-(\d{3})$/.exec(record.id ?? '');
             if (!match) errors.push(`${record?.id ?? 'ADR'} must use zero-padded ADR-### numbering`);
             else adrNumbers.push(Number(match[1]));
             if (!record?.path) errors.push(`${record?.id ?? 'ADR'} must name its repository path`);
