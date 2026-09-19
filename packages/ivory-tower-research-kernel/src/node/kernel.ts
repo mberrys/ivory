@@ -605,7 +605,7 @@ export class ResearchKernel {
         const representationDigest = representation.digest === fragment.anchor.representationDigest;
         const selectorBytes = this.selectorMatches(fragment.selector, representation.text);
         const context = this.verifyFragmentContext(fragment.context);
-        const status =
+        const status: MechanicalCitationReceipt['status'] =
             !representationDigest || !selectorBytes || context === 'mismatch'
                 ? 'MISMATCH'
                 : context === 'unavailable'
