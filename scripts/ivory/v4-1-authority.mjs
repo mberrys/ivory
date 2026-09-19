@@ -398,7 +398,7 @@ function main() {
     const contractErrors = validateManifest(manifest);
     const headErrors = compareObservedHeads(manifest, parseObservedHeads(valuesForArgument('--observed-head')));
     const surfaceErrors = process.env.IVORY_V41_AUTHORITY_SKIP_SURFACE_CHECK === '1' ? [] : validateRepositorySurfaces(manifest);
-    const evidenceBindingErrors = contractErrors.length === 0 ? validateLessonEvidenceBindings(manifest) : [];
+    const evidenceBindingErrors = process.env.IVORY_V41_AUTHORITY_SKIP_EVIDENCE_CHECK === '1' || contractErrors.length > 0 ? [] : validateLessonEvidenceBindings(manifest);
     const gates = contractErrors.length === 0 && evidenceBindingErrors.length === 0 ? evaluateGateRegistry(manifest) : [];
     const required = valuesForArgument('--require-gate').flatMap(value => value.split(',')).map(value => value.trim()).filter(Boolean);
     const gateById = new Map(gates.map(gate => [gate.id, gate]));
