@@ -90,9 +90,15 @@ The head and tree values above were read from the repository objects on 18 Septe
 
 ## Acceptance evidence
 
-The last local contract test run on 18 September 2026 produced 17/17 passing tests against the prior exact PR #1 head. After the inherited PR #1 CI repair, this contract was refreshed to PR #1 head `d538fd44c25aa2403230b075c5e18613cea9b855` / tree `5d4aa6ec3e4c568e7babf26db8487f7abc6ec641`; the refreshed manifest SHA-256 is `0c4ad2173d7a4749ad56b6739bc58c5114a9bf1a49c398b741cd7c9e85293bbe`. The stacked PR does not currently receive the hosted workflow because its base is `pre-dev-foundation`, so this refresh is not represented as a new hosted test run.
+IV41-001 is bound to repository `mberrys/ivory`, PR #2, work branch `v41-p01-authority-reconciliation`, and the exact PR #1/base head `d538fd44c25aa2403230b075c5e18613cea9b855` / tree `5d4aa6ec3e4c568e7babf26db8487f7abc6ec641`. GitHub repository objects were inspected directly for all three retained commit/tree pairs. Each recursive tree response was non-truncated, and Ivory package locations were derived from `packages/<name>/package.json` at those exact trees rather than inferred from branch names.
 
-Negative cases exercised by the test suite include latest-head substitution, duplicate canonical ownership, forbidden authority creation, a missing N1 carrier, a broken retained carrier path, machine-only gate evidence, human-only gate evidence, rejected human review, requiring an unrun gate, a planning status promoted to pass, a harness canonical write, and a client that implicitly selects latest.
+The manifest records the leaf identity `IV41-001`, repository/PR/base context, explicit package locations, non-truncated-tree evidence, and a per-head evidence boundary. The verifier fails closed if repository base identity drifts from the implementation-base head, package locations stop matching the exact inventory, a tree inventory is marked truncated, or an owned architectural gap lacks a tracked issue URL. Its JSON report returns the manifest digest, repository context, exact commit/tree identities, package locations, evidence boundaries, and downstream gate states.
+
+The currently identified architectural gap—canonical semantic-support Assessment—is linked to the existing tracked issue `V41-I03.2` rather than retained as session notes.
+
+A fresh executable test run is **not claimed** by this update. PR #2 currently has no hosted workflow run because it is stacked on `pre-dev-foundation`; the available isolated execution service also rejected the attempted run for account/billing reasons. The focused tests and verifier therefore still need to be rerun in a normal repository checkout before review closure. Prior test claims are not used as evidence for this refreshed manifest.
+
+The adversarial suite now covers stale/latest-head substitution, repository-base drift, package-location mismatch, truncated-tree rejection, untracked architectural gaps, duplicate canonical ownership, forbidden authority creation, missing N1 carriers, broken retained carrier paths, one-sided gate evidence, rejected human review, an unrun required gate, planning status promoted to pass, harness canonical writes, and implicit latest selection.
 
 ## Limitations
 
