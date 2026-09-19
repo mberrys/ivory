@@ -1140,9 +1140,7 @@ export class ResearchKernel {
             this.decodeSourceText(source) === representation.text &&
             artifact.output === representation.text &&
             !/[\r\n\t|]/.test(representation.text) &&
-            !/\b(?:table|figure|footnote|methods?|limitations?|denominator|legend|units?|headers?|sample size)\b/i.test(
-                representation.text,
-            )
+            !/\b(?:table|figure|footnote|methods?|limitations?|denominator|legend|units?|headers?|sample size)\b/i.test(representation.text)
         );
     }
 
@@ -1185,10 +1183,7 @@ export class ResearchKernel {
             if (
                 digest !== reference.representationDigest ||
                 !this.selectorMatches(reference.selector, text) ||
-                !sameRef(
-                    reference.representationRef,
-                    reference.representation === 'source' ? fragment.sourceRef : fragment.artifactRef,
-                ) ||
+                !sameRef(reference.representationRef, reference.representation === 'source' ? fragment.sourceRef : fragment.artifactRef) ||
                 spanIdentity !== reference.orderedSpanIdentity ||
                 spanIdentity === fragment.anchor.orderedSpanIdentity ||
                 identities.has(spanIdentity)
