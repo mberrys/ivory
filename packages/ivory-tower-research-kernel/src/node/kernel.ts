@@ -867,14 +867,24 @@ export class ResearchKernel {
 
     private selectorMatches(selector: FragmentSelectorInput | FragmentSelector, representation: string): boolean {
         if (selector.kind === 'text') {
-            return (
+            const quoteMatches =
                 Number.isInteger(selector.start) &&
                 Number.isInteger(selector.end) &&
                 selector.start >= 0 &&
                 selector.end <= representation.length &&
                 selector.start < selector.end &&
-                representation.slice(selector.start, selector.end) === selector.quote
-            );
+                representation.slice(selector.start, selector.end) === selector.quote;
+            if (!quoteMatches) {
+                return false;
+            }
+            const prefixMatches =
+                selector.prefix === undefined ||
+                (selector.start >= selector.prefix.length &&
+                    representation.slice(selector.start - selector.prefix.length, selector.start) === selector.prefix);
+            const suffixMatches =
+                selector.suffix === undefined ||
+                representation.slice(selector.end, selector.end + selector.suffix.length) === selector.suffix;
+            return prefixMatches && suffixMatches;
         }
         return Boolean(selector.value) && representation.includes(selector.value);
     }
@@ -1139,14 +1149,17 @@ export class ResearchKernel {
             if (start < 0) {
                 break;
             }
-            candidates.push({
+            const candidate: FragmentSelectorInput = {
                 kind: 'text',
                 start,
                 end: start + selector.quote.length,
                 quote: selector.quote,
                 prefix: selector.prefix,
                 suffix: selector.suffix,
-            });
+            };
+            if (this.selectorMatches(candidate, representation)) {
+                candidates.push(candidate);
+            }
             cursor = start + Math.max(1, selector.quote.length);
         }
         return candidates;
