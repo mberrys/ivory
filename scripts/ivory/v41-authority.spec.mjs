@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createHash } from 'node:crypto';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -510,4 +510,178 @@ test('IV41-004 keeps decisions unique, referenced, and bound to dev head roles',
     const missingDisposition = bundle();
     missingDisposition.adrLineage.decisions = missingDisposition.adrLineage.decisions.filter(decision => decision.disposition !== 'superseded');
     assert.match(errorText(missingDisposition), /missing superseded decision coverage/);
+});
+function surfaceOf(candidate, key) {
+    return candidate.owners.surfaces.find(surface => surface.canonicalKey === key);
+}
+
+test('V41-I01.2 audits every owner-map carrier against the merged tree', () => {
+    const candidate = bundle();
+    assert.equal(candidate.owners.carrierReadback.auditedHead.mode, 'exact-working-tree');
+    assert.match(candidate.owners.carrierReadback.auditedHead.sha, /^[a-f0-9]{40}$/);
+    assert.equal(candidate.owners.surfaces.length, 12);
+    for (const surface of candidate.owners.surfaces) {
+        assert.ok(surface.owner.length > 0, `${surface.canonicalKey} must name one canonical owner`);
+        assert.ok(surface.carrier.includes('#'), `${surface.canonicalKey} must name <path>#<symbol>`);
+        assert.ok(existsSync(join(ROOT, surface.carrier.split('#')[0])), `${surface.canonicalKey} carrier file must exist`);
+    }
+    const audited = candidate.owners.carrierReadback.carrierFiles.map(file => file.path);
+    const carriers = [...new Set(candidate.owners.surfaces.map(surface => surface.carrier.split('#')[0]))];
+    assert.deepEqual([...audited].sort(), [...carriers].sort());
+    assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+});
+
+test('V41-I01.2 fails closed when a carrier file or symbol is absent from the tree', () => {
+    const missingFile = bundle();
+    surfaceOf(missingFile, 'Source').carrier = 'packages/ivory-tower-research-kernel/src/node/missing-types.ts#SourcePayload';
+    assert.match(errorText(missingFile), /Source carrier names a file that is missing/);
+
+    const missingSymbol = bundle();
+    surfaceOf(missingSymbol, 'Activity').carrier = 'packages/ivory-tower-research-kernel/src/node/types.ts#zz-not-declared-zz';
+    assert.match(errorText(missingSymbol), /Activity carrier names symbol zz-not-declared-zz, which .* does not declare/);
+
+    const importedOnly = bundle();
+    surfaceOf(importedOnly, 'Snapshot').carrier = 'packages/ivory-tower-research-kernel/src/node/clients.ts#SnapshotRecord';
+    assert.match(errorText(importedOnly), /Snapshot carrier names symbol SnapshotRecord, which .*clients\.ts does not declare/);
+
+    const malformed = bundle();
+    surfaceOf(malformed, 'CAS').carrier = 'packages/ivory-tower-contracts/src/durable-store-port.ts';
+    assert.match(errorText(malformed), /CAS carrier must be <repository-relative path>#<symbol>/);
+
+    const escaping = bundle();
+    surfaceOf(escaping, 'Fragment').carrier = '../outside/types.ts#FragmentPayload';
+    assert.match(errorText(escaping), /Fragment carrier path must be a repository-relative POSIX path/);
+});
+
+test('V41-I01.2 keeps the carrier inside the package that owns it', () => {
+    const foreignCarrier = bundle();
+    surfaceOf(foreignCarrier, 'CAS').carrier = 'packages/ivory-tower-infrastructure/src/filesystem-object-store.ts#FilesystemObjectStore';
+    assert.match(errorText(foreignCarrier), /CAS carrier .* is not inside the package owned by @ivory-tower\/contracts/);
+
+    const unknownOwner = bundle();
+    surfaceOf(unknownOwner, 'CAS').owner = '@ivory-tower/spike-store';
+    assert.match(errorText(unknownOwner), /CAS owner @ivory-tower\/spike-store is not a package in the exact-head inventory/);
+
+    const missingOwner = bundle();
+    surfaceOf(missingOwner, 'Assessment').owner = '   ';
+    assert.match(errorText(missingOwner), /Assessment has no canonical owner/);
+});
+
+test('V41-I01.2 fails closed when a surface is not explicit about owner, carrier, or gaps', () => {
+    const dropped = bundle();
+    dropped.owners.surfaces = dropped.owners.surfaces.filter(surface => surface.canonicalKey !== 'ResearchDecisionReceipt');
+    assert.match(errorText(dropped), /owner map must contain every required canonical surface exactly once/);
+
+    const duplicate = bundle();
+    duplicate.owners.surfaces.push(clone(surfaceOf(duplicate, 'Snapshot')));
+    const duplicateErrors = errorText(duplicate);
+    assert.match(duplicateErrors, /owner map must contain every required canonical surface exactly once/);
+    assert.match(duplicateErrors, /duplicate canonical surfaces: Snapshot/);
+
+    const noCarrier = bundle();
+    delete surfaceOf(noCarrier, 'Artifact').carrier;
+    assert.match(errorText(noCarrier), /Artifact has no structural carrier/);
+
+    const untypedGap = bundle();
+    surfaceOf(untypedGap, 'Activity').missingFields = [''];
+    assert.match(errorText(untypedGap), /Activity\.missingFields\[0\] must be a non-empty string/);
+
+    const implicitGaps = bundle();
+    delete surfaceOf(implicitGaps, 'Activity').missingFields;
+    assert.match(errorText(implicitGaps), /Activity must explicitly list missing fields, even when empty/);
+
+    const implicitSecondaries = bundle();
+    delete surfaceOf(implicitSecondaries, 'EvidenceLink').secondary;
+    assert.match(errorText(implicitSecondaries), /EvidenceLink must explicitly list secondary carriers, even when empty/);
+});
+
+test('V41-I01.2 requires every secondary carrier to resolve to a declared symbol', () => {
+    const bareOwner = bundle();
+    surfaceOf(bareOwner, 'Fragment').secondary = ['@theia/ivory-identity'];
+    assert.match(errorText(bareOwner), /Fragment secondary\[0\] must be <owner>#<symbol>/);
+
+    const unknownSymbol = bundle();
+    surfaceOf(unknownSymbol, 'Snapshot').secondary = ['@ivory-tower/research-kernel#ClientProjectionStore'];
+    assert.match(
+        errorText(unknownSymbol),
+        /Snapshot secondary\[0\] names symbol ClientProjectionStore, which @ivory-tower\/research-kernel does not declare/,
+    );
+
+    const unknownOwner = bundle();
+    surfaceOf(unknownOwner, 'CAS').secondary = ['@ivory-tower/spike-store#ObjectStorePort'];
+    assert.match(
+        errorText(unknownOwner),
+        /CAS secondary\[0\] names owner @ivory-tower\/spike-store, which is not a package in the exact-head inventory/,
+    );
+
+    const duplicated = bundle();
+    surfaceOf(duplicated, 'Artifact').secondary = ['@ivory-tower/adapters#ObjectStorePort', '@ivory-tower/adapters#ObjectStorePort'];
+    assert.match(errorText(duplicated), /Artifact repeats a secondary carrier/);
+});
+
+test('V41-I01.2 fails closed when the retained readback is missing or does not match the bytes', () => {
+    const dropped = bundle();
+    delete dropped.owners.carrierReadback;
+    assert.match(errorText(dropped), /owner map must retain its carrier readback record/);
+
+    const digestDrift = bundle();
+    digestDrift.owners.carrierReadback.carrierFiles[0].sha256 = '0'.repeat(64);
+    assert.match(errorText(digestDrift), /carrier readback carrierFiles\[0\] SHA-256 does not match the retained readback/);
+
+    const byteDrift = bundle();
+    byteDrift.owners.carrierReadback.carrierFiles[1].bytes += 1;
+    assert.match(errorText(byteDrift), /carrier readback carrierFiles\[1\] byte count does not match the retained readback/);
+
+    const manifestDrift = bundle();
+    manifestDrift.owners.carrierReadback.manifest.sha256 = '1'.repeat(64);
+    assert.match(errorText(manifestDrift), /carrier readback manifest SHA-256 does not match the retained readback/);
+
+    const unbound = bundle();
+    unbound.owners.carrierReadback.manifest.path = 'configs/ivory-v41-carrier-matrix.json';
+    assert.match(errorText(unbound), /carrier readback must hash the exact-head manifest it is bound to/);
+
+    const incomplete = bundle();
+    incomplete.owners.carrierReadback.carrierFiles.pop();
+    assert.match(errorText(incomplete), /carrier readback must audit exactly the carrier files the surfaces name/);
+
+    const staleHead = bundle();
+    staleHead.owners.carrierReadback.auditedHead.ref = 'latest dev';
+    assert.match(errorText(staleHead), /carrier readback head ref must be an exact non-latest ref/);
+
+    const vagueHead = bundle();
+    vagueHead.owners.carrierReadback.auditedHead.sha = 'cadc8ed5';
+    assert.match(errorText(vagueHead), /carrier readback must record the exact head it audited/);
+
+    const driftedConvention = bundle();
+    driftedConvention.owners.carrierReadback.encoding = 'utf8';
+    assert.match(errorText(driftedConvention), /carrier readback encoding must be raw bytes/);
+});
+
+test('V41-I01.2 rejects a planning synonym that re-adds a forbidden duplicate authority', () => {
+    const duplicateAuthority = bundle();
+    surfaceOf(duplicateAuthority, 'Statement').planningSynonym = 'PaperStore';
+    assert.match(errorText(duplicateAuthority), /Statement planning synonym PaperStore would re-add a forbidden duplicate authority/);
+
+    const spaced = bundle();
+    surfaceOf(spaced, 'Statement').planningSynonym = 'Claim Card Store';
+    assert.match(errorText(spaced), /planning synonym Claim Card Store would re-add a forbidden duplicate authority/);
+
+    const restated = bundle();
+    surfaceOf(restated, 'Statement').planningSynonym = 'Statement';
+    assert.match(errorText(restated), /planning synonym Statement must not restate the canonical key/);
+
+    const duplicated = bundle();
+    surfaceOf(duplicated, 'Statement').planningSynonym = 'Claim';
+    surfaceOf(duplicated, 'Snapshot').planningSynonym = 'claim';
+    assert.match(errorText(duplicated), /duplicate planning synonyms: claim/);
+
+    const canonicalDuplicate = bundle();
+    surfaceOf(canonicalDuplicate, 'Snapshot').canonicalKey = 'ResearchCase';
+    const canonicalErrors = errorText(canonicalDuplicate);
+    assert.match(canonicalErrors, /forbidden duplicate authority surfaced as canonical: ResearchCase/);
+    assert.match(canonicalErrors, /must contain every required canonical surface exactly once/);
+
+    const undeclared = bundle();
+    undeclared.owners.forbiddenDuplicateAuthorities = [];
+    assert.match(errorText(undeclared), /forbidden duplicate authorities must be declared/);
 });

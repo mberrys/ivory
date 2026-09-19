@@ -392,7 +392,133 @@ function validateHeads(heads, root, options, errors) {
     }
 }
 
-function validateOwners(owners, errors) {
+const SOURCE_FILE_EXTENSIONS = new Set(['.ts', '.tsx', '.mts', '.cts', '.mjs', '.cjs', '.js']);
+const SKIPPED_PACKAGE_DIRECTORIES = new Set(['node_modules', 'lib', 'dist', 'out', 'coverage', '.git']);
+const SPEC_FILE_NAME = /\.(?:spec|test)\.[cm]?[jt]sx?$/;
+
+function normalizeAuthorityLabel(value) {
+    return typeof value === 'string' ? value.replace(/[^a-z0-9]+/gi, '').toLowerCase() : '';
+}
+
+/** A carrier symbol must be declared in its carrier file: a declaration or a member signature, never an import or a passing mention. */
+function declaresCarrierSymbol(contents, symbol) {
+    const escaped = symbol.replace(/[.*+?^${}()|[\]\\]/g, '\\function validateOwners(owners, errors) {');
+    const declaration = new RegExp(
+        `\\b(?:export\\s+)?(?:abstract\\s+)?(?:interface|type|class|const|let|var|function|enum)\\s+${escaped}\\b`,
+    );
+    const member = new RegExp(`\\b${escaped}\\s*(?:\\(|:|=>)`);
+    return declaration.test(contents) || member.test(contents);
+}
+
+function packageDirectoriesByOwner(heads) {
+    const directories = new Map();
+    for (const item of heads?.packages ?? []) {
+        if (typeof item?.name === 'string' && typeof item?.path === 'string') directories.set(item.name, path.posix.dirname(item.path));
+    }
+    return directories;
+}
+
+function packageDeclaresSymbol(root, directory, symbol) {
+    const stack = [path.join(root, directory)];
+    let visited = 0;
+    while (stack.length > 0 && visited < 4000) {
+        const current = stack.pop();
+        let entries;
+        try {
+            entries = readdirSync(current, { withFileTypes: true });
+        } catch {
+            continue;
+        }
+        for (const entry of entries) {
+            const full = path.join(current, entry.name);
+            if (entry.isDirectory()) {
+                if (!SKIPPED_PACKAGE_DIRECTORIES.has(entry.name)) stack.push(full);
+                continue;
+            }
+            visited += 1;
+            if (!SOURCE_FILE_EXTENSIONS.has(path.extname(entry.name)) || SPEC_FILE_NAME.test(entry.name)) continue;
+            let contents;
+            try {
+                contents = readFileSync(full, 'utf8');
+            } catch {
+                continue;
+            }
+            if (declaresCarrierSymbol(contents, symbol)) return true;
+        }
+    }
+    return false;
+}
+
+function verifyCarrierReadbackRecord(record, label, root, options, errors) {
+    validateRepoRelativePath(record.path, `${label} path`, errors);
+    push(SHA256.test(record.sha256 ?? ''), errors, `${label} sha256 must be an exact SHA-256`);
+    push(Number.isInteger(record.bytes) && record.bytes >= 0, errors, `${label} bytes must be a non-negative integer`);
+    if (options.verifyFiles === false || !isRepoRelativePath(record.path)) return;
+    const full = path.join(root, record.path);
+    push(existsSync(full), errors, `${label} does not exist on disk: ${record.path}`);
+    if (!existsSync(full)) return;
+    let bytes;
+    try {
+        bytes = readFileSync(full);
+    } catch (error) {
+        errors.push(`${label} cannot be read: ${error.message}`);
+        return;
+    }
+    if (Number.isInteger(record.bytes) && record.bytes >= 0) {
+        push(bytes.length === record.bytes, errors, `${label} byte count does not match the retained readback`);
+    }
+    if (SHA256.test(record.sha256 ?? '')) {
+        push(
+            createHash('sha256').update(bytes).digest('hex') === record.sha256,
+            errors,
+            `${label} SHA-256 does not match the retained readback`,
+        );
+    }
+}
+
+function validateCarrierReadback(owners, root, options, errors) {
+    const readback = owners.carrierReadback;
+    push(isRecord(readback), errors, 'I01.2: owner map must retain its carrier readback record');
+    if (!isRecord(readback)) return;
+    push(readback.algorithm === 'sha256', errors, 'I01.2: carrier readback algorithm must be SHA-256');
+    push(readback.encoding === 'raw-bytes', errors, 'I01.2: carrier readback encoding must be raw bytes');
+    push(readback.pathSeparator === '/', errors, 'I01.2: carrier readback paths must use POSIX separators');
+
+    const head = isRecord(readback.auditedHead) ? readback.auditedHead : {};
+    push(SHA40.test(head.sha ?? ''), errors, 'I01.2: carrier readback must record the exact head it audited');
+    push(
+        typeof head.ref === 'string' && head.ref.length > 0 && !/latest|current/i.test(head.ref),
+        errors,
+        'I01.2: carrier readback head ref must be an exact non-latest ref',
+    );
+    push(head.mode === 'exact-working-tree', errors, 'I01.2: carrier readback must be an exact working-tree audit');
+
+    const manifest = isRecord(readback.manifest) ? readback.manifest : {};
+    push(manifest.path === owners.basisManifest, errors, 'I01.2: carrier readback must hash the exact-head manifest it is bound to');
+    verifyCarrierReadbackRecord(manifest, 'I01.2: carrier readback manifest', root, options, errors);
+
+    push(Array.isArray(readback.carrierFiles), errors, 'I01.2: carrier readback must list the carrier files it audited');
+    const files = Array.isArray(readback.carrierFiles) ? readback.carrierFiles : [];
+    push(nonEmptyArray(files), errors, 'I01.2: carrier readback must audit the carrier files it is bound to');
+    const auditedPaths = files.map(file => file?.path);
+    push(
+        duplicates(auditedPaths).length === 0,
+        errors,
+        `I01.2: carrier readback repeats a carrier file: ${duplicates(auditedPaths).join(', ')}`,
+    );
+    files.forEach((file, index) => {
+        push(isRecord(file), errors, `I01.2: carrier readback carrierFiles[${index}] must be an object`);
+        if (isRecord(file)) verifyCarrierReadbackRecord(file, `I01.2: carrier readback carrierFiles[${index}]`, root, options, errors);
+    });
+    const carrierFiles = (owners.surfaces ?? []).map(surface => splitCarrierUnit(surface?.carrier ?? '')?.file).filter(Boolean);
+    push(
+        sameSet(auditedPaths, [...new Set(carrierFiles)]),
+        errors,
+        'I01.2: carrier readback must audit exactly the carrier files the surfaces name',
+    );
+}
+
+function validateOwners(owners, heads, root, options, errors) {
     push(owners.schema === 'ivory-v41-owner-map/1', errors, 'I01.2: unexpected schema');
     push(owners.issue === 'V41-I01.2', errors, 'I01.2: issue id must be V41-I01.2');
     push(owners.dependsOn === 'V41-I01.1', errors, 'I01.2: dependency must remain V41-I01.1');
@@ -407,18 +533,118 @@ function validateOwners(owners, errors) {
     push(boundaries.recursiveImprovement?.mayMutateCore === false, errors, 'I01.2: recursive improvement cannot mutate protected Core authority');
 
     const surfaces = owners.surfaces ?? [];
-    const keys = surfaces.map(surface => surface.canonicalKey);
+    const keys = surfaces.map(surface => surface?.canonicalKey);
     push(sameSet(keys, REQUIRED_SURFACES), errors, 'I01.2: owner map must contain every required canonical surface exactly once');
     push(duplicates(keys).length === 0, errors, `I01.2: duplicate canonical surfaces: ${duplicates(keys).join(', ')}`);
-    for (const surface of surfaces) {
-        push(typeof surface.owner === 'string' && surface.owner.length > 0, errors, `I01.2: ${surface.canonicalKey ?? 'surface'} has no canonical owner`);
-        push(typeof surface.carrier === 'string' && surface.carrier.length > 0, errors, `I01.2: ${surface.canonicalKey ?? 'surface'} has no structural carrier`);
-        push(Array.isArray(surface.missingFields), errors, `I01.2: ${surface.canonicalKey ?? 'surface'} must explicitly list missing fields, even when empty`);
+    push(nonEmptyArray(owners.forbiddenDuplicateAuthorities), errors, 'I01.2: forbidden duplicate authorities must be declared');
+    const forbidden = new Set((owners.forbiddenDuplicateAuthorities ?? []).map(normalizeAuthorityLabel));
+    const packageDirectories = packageDirectoriesByOwner(heads);
+    const synonyms = [];
+
+    for (const [index, surface] of surfaces.entries()) {
+        const named = typeof surface?.canonicalKey === 'string' && surface.canonicalKey.length > 0;
+        const key = named ? surface.canonicalKey : `surface[${index}]`;
+        const label = `I01.2: ${key}`;
+        push(typeof surface?.owner === 'string' && surface.owner.trim().length > 0, errors, `${label} has no canonical owner`);
+        push(typeof surface?.carrier === 'string' && surface.carrier.trim().length > 0, errors, `${label} has no structural carrier`);
+        push(Array.isArray(surface?.missingFields), errors, `${label} must explicitly list missing fields, even when empty`);
+        const missingFields = Array.isArray(surface?.missingFields) ? surface.missingFields : [];
+        for (const [missingIndex, missingField] of missingFields.entries()) {
+            push(
+                typeof missingField === 'string' && missingField.trim().length > 0,
+                errors,
+                `${label}.missingFields[${missingIndex}] must be a non-empty string`,
+            );
+        }
+        if (named) {
+            push(
+                !forbidden.has(normalizeAuthorityLabel(key)),
+                errors,
+                `I01.2: forbidden duplicate authority surfaced as canonical: ${key}`,
+            );
+        }
+        if (surface?.planningSynonym !== undefined) {
+            const synonym = surface.planningSynonym;
+            push(typeof synonym === 'string' && synonym.trim().length > 0, errors, `${label} planningSynonym must be a non-empty string`);
+            if (typeof synonym === 'string' && synonym.trim().length > 0) {
+                const normalized = normalizeAuthorityLabel(synonym);
+                push(
+                    !forbidden.has(normalized),
+                    errors,
+                    `${label} planning synonym ${synonym} would re-add a forbidden duplicate authority`,
+                );
+                push(
+                    normalized !== normalizeAuthorityLabel(key),
+                    errors,
+                    `${label} planning synonym ${synonym} must not restate the canonical key`,
+                );
+                synonyms.push(normalized);
+            }
+        }
+
+        if (typeof surface?.carrier === 'string' && surface.carrier.trim().length > 0) {
+            const parts = splitCarrierUnit(surface.carrier);
+            push(parts !== undefined, errors, `${label} carrier must be <repository-relative path>#<symbol>`);
+            if (parts !== undefined) {
+                validateRepoRelativePath(parts.file, `${label} carrier path`, errors);
+                const owner = typeof surface.owner === 'string' ? surface.owner : '';
+                const directory = packageDirectories.get(owner);
+                if (directory === undefined) {
+                    errors.push(`${label} owner ${owner.length > 0 ? owner : '(missing)'} is not a package in the exact-head inventory`);
+                } else {
+                    push(
+                        parts.file === directory || parts.file.startsWith(`${directory}/`),
+                        errors,
+                        `${label} carrier ${parts.file} is not inside the package owned by ${owner}`,
+                    );
+                }
+                if (options.verifyFiles !== false && isRepoRelativePath(parts.file)) {
+                    const full = path.join(root, parts.file);
+                    push(existsSync(full), errors, `${label} carrier names a file that is missing: ${parts.file}`);
+                    if (existsSync(full)) {
+                        let contents;
+                        try {
+                            contents = readFileSync(full, 'utf8');
+                        } catch (error) {
+                            errors.push(`${label} carrier cannot be read: ${error.message}`);
+                        }
+                        if (contents !== undefined) {
+                            push(
+                                declaresCarrierSymbol(contents, parts.symbol),
+                                errors,
+                                `${label} carrier names symbol ${parts.symbol}, which ${parts.file} does not declare`,
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        push(Array.isArray(surface?.secondary), errors, `${label} must explicitly list secondary carriers, even when empty`);
+        const secondaries = Array.isArray(surface?.secondary) ? surface.secondary : [];
+        push(duplicates(secondaries).length === 0, errors, `${label} repeats a secondary carrier`);
+        for (const [secondaryIndex, secondary] of secondaries.entries()) {
+            const secondaryLabel = `${label} secondary[${secondaryIndex}]`;
+            const parts = typeof secondary === 'string' ? splitCarrierUnit(secondary) : undefined;
+            push(parts !== undefined, errors, `${secondaryLabel} must be <owner>#<symbol>`);
+            if (parts === undefined) continue;
+            const directory = packageDirectories.get(parts.file);
+            if (directory === undefined) {
+                errors.push(`${secondaryLabel} names owner ${parts.file}, which is not a package in the exact-head inventory`);
+                continue;
+            }
+            if (options.verifyFiles !== false) {
+                push(
+                    packageDeclaresSymbol(root, directory, parts.symbol),
+                    errors,
+                    `${secondaryLabel} names symbol ${parts.symbol}, which ${parts.file} does not declare`,
+                );
+            }
+        }
     }
-    const forbidden = new Set(owners.forbiddenDuplicateAuthorities ?? []);
-    for (const key of keys) {
-        push(!forbidden.has(key), errors, `I01.2: forbidden duplicate authority surfaced as canonical: ${key}`);
-    }
+    push(duplicates(synonyms).length === 0, errors, `I01.2: duplicate planning synonyms: ${duplicates(synonyms).join(', ')}`);
+
+    validateCarrierReadback(owners, root, options, errors);
 }
 
 function validatePackageOwnership(packageOwnership, heads, owners, errors) {
@@ -814,7 +1040,7 @@ export function validateBundle(bundle, options = {}) {
     const errors = [];
     const root = options.root ?? ROOT;
     validateHeads(bundle.heads, root, options, errors);
-    validateOwners(bundle.owners, errors);
+    validateOwners(bundle.owners, bundle.heads, root, options, errors);
     validatePackageOwnership(bundle.packageOwnership, bundle.heads, bundle.owners, errors);
     validateCarriers(bundle.carriers, root, options, errors);
     validateGates(bundle.gates, errors);

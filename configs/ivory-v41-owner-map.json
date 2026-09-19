@@ -79,7 +79,7 @@
       "owner": "@ivory-tower/research-kernel",
       "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#FragmentPayload",
       "secondary": [
-        "@theia/ivory-identity"
+        "@theia/ivory-identity#FragmentAnchor"
       ],
       "missingFields": []
     },
@@ -127,7 +127,9 @@
       "canonicalKey": "Snapshot",
       "owner": "@ivory-tower/research-kernel",
       "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#SnapshotRecord",
-      "secondary": [],
+      "secondary": [
+        "@ivory-tower/research-kernel#ResearchClient"
+      ],
       "missingFields": []
     },
     {
@@ -173,16 +175,54 @@
     },
     {
       "canonicalKey": "CAS",
-      "owner": "@ivory-tower/adapters",
-      "carrier": "packages/ivory-tower-adapters/src/execution-ports.ts#ObjectStorePort",
+      "owner": "@ivory-tower/contracts",
+      "carrier": "packages/ivory-tower-contracts/src/durable-store-port.ts#DurableStorePort",
       "secondary": [
-        "@ivory-tower/infrastructure"
+        "@ivory-tower/infrastructure#FilesystemObjectStore",
+        "@ivory-tower/adapters#ObjectStorePort"
       ],
       "missingFields": [
         "CAS-first semantic commit/recovery proof is owned by V41-I07"
       ]
     }
   ],
+  "carrierReadback": {
+    "algorithm": "sha256",
+    "encoding": "raw-bytes",
+    "pathSeparator": "/",
+    "auditedHead": {
+      "ref": "refs/heads/dev",
+      "sha": "cadc8ed512a1f6322c55d00b1c5fdff2fdbcdb5b",
+      "mode": "exact-working-tree"
+    },
+    "manifest": {
+      "path": "configs/ivory-v41-authority-heads.json",
+      "sha256": "3e2e5b22aec995511d880fad5add622f1d8cfea56743d98abac4dba44dfe9e6d",
+      "bytes": 5549
+    },
+    "carrierFiles": [
+      {
+        "path": "packages/ivory-tower-contracts/src/durable-store-port.ts",
+        "sha256": "5f07b7fce6ece6c2e1696b57784df165f600e599121decea46907a9c69fda580",
+        "bytes": 2466
+      },
+      {
+        "path": "packages/ivory-tower-contracts/src/research-protocol-contract.ts",
+        "sha256": "44190d90eb5c9d79248118e762a8ad39debb6620f91c59793b0a0ec351bae57d",
+        "bytes": 6766
+      },
+      {
+        "path": "packages/ivory-tower-domain/src/execution.ts",
+        "sha256": "7f27555fef7d207c08dd8629d970485dc28d949fef6b2bb494ef304030edf9de",
+        "bytes": 2196
+      },
+      {
+        "path": "packages/ivory-tower-research-kernel/src/node/types.ts",
+        "sha256": "f0f211eaa78376cfe04a95e0e1ba0afefc3681008fcb7103c69438c29c4efdbb",
+        "bytes": 12097
+      }
+    ]
+  },
   "forbiddenDuplicateAuthorities": [
     "PaperStore",
     "ClaimCardStore",
