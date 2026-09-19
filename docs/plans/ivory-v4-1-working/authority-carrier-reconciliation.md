@@ -11,7 +11,7 @@ The implementation is stacked on the exact PR #1 foundation head because that he
 | authority | commit | tree | classification | Ivory packages |
 |---|---|---|---|---:|
 | detached planning baseline | `efec71ed83a1d0d9d513a4ead86369201cb5b401` | `b52b1aa0957e45f199f3e75bf99fdaad7ef972a1` | reference-only | 1 |
-| PR #1 / `pre-dev-foundation` | `387411255a0de9ae10924609bac85472f58d992f` | `53f8b5621fc0eefc4ad1764e4b49a6ad4b6d7dd2` | implementation-base | 14 |
+| PR #1 / `pre-dev-foundation` | `d538fd44c25aa2403230b075c5e18613cea9b855` | `5d4aa6ec3e4c568e7babf26db8487f7abc6ec641` | implementation-base | 14 |
 | selected `dev` | `bc3cd03b5b2d870d219797925d92edc48c33c6ca` | `8edc9eab81e3733b60eb626c10ca91de63bd041c` | divergent-compared-head | 12 |
 
 The retained package inventory is exact to those tree objects. The detached baseline contains only `ivory-identity`. PR #1 adds the full Core/service package set plus `ivory-n5-client` and `ivory-n5-shell`; the selected `dev` head has the Core/service set but not those N5 packages or the N-gate manifest.
@@ -80,7 +80,7 @@ Recheck the three observed heads against the retained exact values:
 ```text
 npm run verify:ivory-v4-1-authority -- \
   --observed-head detached=efec71ed83a1d0d9d513a4ead86369201cb5b401 \
-  --observed-head pr1=387411255a0de9ae10924609bac85472f58d992f \
+  --observed-head pr1=d538fd44c25aa2403230b075c5e18613cea9b855 \
   --observed-head dev=bc3cd03b5b2d870d219797925d92edc48c33c6ca
 ```
 
@@ -90,7 +90,7 @@ The head and tree values above were read from the repository objects on 18 Septe
 
 ## Acceptance evidence
 
-The last local contract test run on 18 September 2026 produced 17/17 passing tests against the prior exact PR #1 head. After the inherited PR #1 CI repair, this contract was refreshed to PR #1 head `387411255a0de9ae10924609bac85472f58d992f` / tree `53f8b5621fc0eefc4ad1764e4b49a6ad4b6d7dd2`; the refreshed manifest SHA-256 is `d31af012ee1e07ef21e5c46d3adf999a6a023b37f3145c7b60ffa0254d9468dc`. The stacked PR does not currently receive the hosted workflow because its base is `pre-dev-foundation`, so this refresh is not represented as a new hosted test run.
+The last local contract test run on 18 September 2026 produced 17/17 passing tests against the prior exact PR #1 head. After the inherited PR #1 CI repair, this contract was refreshed to PR #1 head `d538fd44c25aa2403230b075c5e18613cea9b855` / tree `5d4aa6ec3e4c568e7babf26db8487f7abc6ec641`; the refreshed manifest SHA-256 is `0c4ad2173d7a4749ad56b6739bc58c5114a9bf1a49c398b741cd7c9e85293bbe`. The stacked PR does not currently receive the hosted workflow because its base is `pre-dev-foundation`, so this refresh is not represented as a new hosted test run.
 
 Negative cases exercised by the test suite include latest-head substitution, duplicate canonical ownership, forbidden authority creation, a missing N1 carrier, a broken retained carrier path, machine-only gate evidence, human-only gate evidence, rejected human review, requiring an unrun gate, a planning status promoted to pass, a harness canonical write, and a client that implicitly selects latest.
 
