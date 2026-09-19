@@ -128,7 +128,6 @@
     "verify:ivory-n3-onboarding": "node scripts/ivory/n3-onboarding.mjs",
     "verify:ivory-n-gates": "node scripts/ivory/n-gates.mjs",
     "test:ivory-n-gates": "node --test scripts/ivory/n-gates.spec.mjs",
-
     "lint": "lerna run lint",
     "lint:clean": "rimraf .eslintcache",
     "lint:fix": "lerna run lint -- --fix",
@@ -155,7 +154,7 @@
     "qualify:n4": "node scripts/qualify-n4.mjs",
     "verify:ivory-n4-v2": "node scripts/verify-ivory-n4-v2.mjs",
     "test:ivory-browser": "npm --workspace @ivory-tower/example-browser run test:playwright",
-    "verify:ivory-tower": "npm run -s check:ivory-toolchain && npm run -s test:ivory-toolchain && npm run -s check:ivory-install && npm run -s format:check:ivory-tower && npm run -s check:ivory-boundaries && npm run -s verify:ivory-cutline && npm run -s verify:ivory-phase-gates && npm run -s test:ivory-cutline && npm run -s test:ivory-session-04 && npm run -s typecheck:ivory-tower && npm run -s lint:ivory-tower && lerna run test --scope \"@ivory-tower/*\" --scope \"@theia/ivory-*\" --stream && npm run -s build:ivory-tower && npm run -s test:ivory-browser && npm run -s dependency:policy && npm run -s secret:scan && git diff --check && git diff --exit-code",
+    "verify:ivory-tower": "npm run -s check:ivory-toolchain && npm run -s test:ivory-toolchain && npm run -s check:ivory-install && npm run -s format:check:ivory-tower && npm run -s check:ivory-boundaries && npm run -s verify:ivory-cutline && npm run -s verify:ivory-phase-gates && npm run -s test:ivory-cutline && npm run -s test:ivory-session-04 && npm run -s test:ivory-v4-1-authority && npm run -s verify:ivory-v4-1-authority && npm run -s typecheck:ivory-tower && npm run -s lint:ivory-tower && lerna run test --scope \"@ivory-tower/*\" --scope \"@theia/ivory-*\" --stream && npm run -s build:ivory-tower && npm run -s test:ivory-browser && npm run -s dependency:policy && npm run -s secret:scan && git diff --check && git diff --exit-code",
     "test": "npm run -s test:theia && npm run -s electron test && npm run -s browser test",
     "test:browser": "cd examples/browser && npm run test",
     "test:electron": "cd examples/electron && npm run test",
@@ -175,7 +174,9 @@
     "performance:startup": "npm run -s performance:startup:browser && npm run -s performance:startup:electron",
     "performance:startup:browser": "concurrently --success first -k -r \"cd scripts/performance && node browser-performance.js --name 'Browser Frontend Startup' --folder browser --runs 10\" \"npm --prefix examples/browser run -s start -- --log-level=debug\"",
     "performance:startup:electron": "npm run -s rebuild:electron && cd scripts/performance && node electron-performance.js --name 'Electron Frontend Startup' --folder electron --runs 10",
-    "zip:native:dependencies": "node ./scripts/zip-native-dependencies.js"
+    "zip:native:dependencies": "node ./scripts/zip-native-dependencies.js",
+    "verify:ivory-v4-1-authority": "node scripts/ivory/v4-1-authority.mjs",
+    "test:ivory-v4-1-authority": "node --test scripts/ivory/v4-1-authority.spec.mjs"
   },
   "workspaces": [
     "dev-packages/*",
