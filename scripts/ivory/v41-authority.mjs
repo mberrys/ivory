@@ -10,6 +10,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const CONFIGS = {
     heads: 'configs/ivory-v41-authority-heads.json',
     owners: 'configs/ivory-v41-owner-map.json',
+    packageOwnership: 'configs/ivory-v41-package-ownership.json',
     carriers: 'configs/ivory-v41-carrier-matrix.json',
     gates: 'configs/ivory-v41-gates.json',
 };
@@ -45,6 +46,20 @@ const REQUIRED_SURFACES = [
     'CAS',
 ];
 const REQUIRED_GATES = ['DURABILITY', 'Q1', 'Q2', 'REPLAY', 'Q3', 'Q4'];
+const REQUIRED_PACKAGE_RESPONSIBILITIES = [
+    'identity',
+    'domain',
+    'application',
+    'adapters',
+    'storage',
+    'researchProtocol',
+    'evidence',
+    'compute',
+    'clients',
+    'healthDiagnostics',
+    'contentPolicy',
+    'agentProposalHarness',
+];
 
 function readJson(root, relative) {
     return JSON.parse(readFileSync(path.join(root, relative), 'utf8'));
@@ -177,6 +192,63 @@ function validateOwners(owners, errors) {
     }
 }
 
+function validatePackageOwnership(packageOwnership, heads, errors) {
+    push(packageOwnership.schema === 'ivory-v41-package-ownership/1', errors, 'IV41-003: unexpected schema');
+    push(packageOwnership.issue === 'IV41-003', errors, 'IV41-003: issue id must be IV41-003');
+    push(packageOwnership.dependsOn === 'IV41-001', errors, 'IV41-003: dependency must remain IV41-001');
+    push(packageOwnership.basisManifest === CONFIGS.heads, errors, 'IV41-003: package ownership must bind to the exact-head manifest');
+    push(packageOwnership.basisOwnerMap === CONFIGS.owners, errors, 'IV41-003: package ownership must bind to the structural owner map');
+
+    const context = packageOwnership.evidenceContext ?? {};
+    const selectedDev = (heads.heads ?? []).find(head => head.role === 'selectedDev');
+    push(context.repository === 'mberrys/ivory', errors, 'IV41-003: evidence context must identify mberrys/ivory');
+    push(context.pullRequest === 3, errors, 'IV41-003: evidence context must identify PR #3');
+    push(context.branch === 'feat/v41-p01-authority-carriers', errors, 'IV41-003: evidence context must identify the implementation branch');
+    push(context.authorityBasis?.role === 'selectedDev', errors, 'IV41-003: evidence authority basis must be selectedDev');
+    push(context.authorityBasis?.sha === selectedDev?.sha, errors, 'IV41-003: evidence authority SHA must match the exact selected-dev SHA');
+    push(context.authorityBasis?.packageInventory === CONFIGS.heads, errors, 'IV41-003: evidence context must point to the exact package inventory');
+    push(SHA40.test(context.implementationObservation?.headBeforeIssue ?? ''), errors, 'IV41-003: pre-issue PR head must be an exact 40-character SHA');
+    push(typeof context.implementationObservation?.packageManager === 'string' && context.implementationObservation.packageManager.length > 0, errors, 'IV41-003: package-manager context is required');
+    push(typeof context.implementationObservation?.nodeEngine === 'string' && context.implementationObservation.nodeEngine.length > 0, errors, 'IV41-003: Node engine context is required');
+
+    const packages = packageOwnership.packages ?? [];
+    const inventoryNames = (heads.packages ?? []).map(item => item.name);
+    const names = packages.map(item => item.name);
+    push(sameSet(names, inventoryNames), errors, 'IV41-003: package ownership must cover the exact selected-dev package inventory');
+    push(duplicates(names).length === 0, errors, `IV41-003: duplicate package ownership entries: ${duplicates(names).join(', ')}`);
+
+    const responsibilities = packages.flatMap(item => item.responsibilityIds ?? []);
+    push(sameSet(responsibilities, REQUIRED_PACKAGE_RESPONSIBILITIES), errors, 'IV41-003: every V4.1 package responsibility must have exactly one canonical owner');
+    push(duplicates(responsibilities).length === 0, errors, `IV41-003: duplicate canonical responsibility owners: ${duplicates(responsibilities).join(', ')}`);
+
+    for (const item of packages) {
+        push(nonEmptyArray(item.responsibilityIds), errors, `IV41-003: ${item.name ?? 'package'} must own at least one declared responsibility`);
+        push(nonEmptyArray(item.owns), errors, `IV41-003: ${item.name ?? 'package'} must declare its owned scope`);
+        push(nonEmptyArray(item.mustNotOwn), errors, `IV41-003: ${item.name ?? 'package'} must declare forbidden scope`);
+        push(typeof item.authority === 'object' && item.authority !== null, errors, `IV41-003: ${item.name ?? 'package'} must declare authority flags`);
+    }
+
+    const acceptanceOwners = packages.filter(item => item.authority?.researchAcceptance === true).map(item => item.name);
+    const writeOwners = packages.filter(item => item.authority?.researchStateWrite === true).map(item => item.name);
+    const storageOwners = packages.filter(item => item.authority?.durableStorageImplementation === true).map(item => item.name);
+    push(sameSet(acceptanceOwners, ['@ivory-tower/research-kernel']), errors, 'IV41-003: research acceptance must have exactly one owner: @ivory-tower/research-kernel');
+    push(sameSet(writeOwners, ['@ivory-tower/research-kernel']), errors, 'IV41-003: canonical research-state writes must have exactly one owner: @ivory-tower/research-kernel');
+    push(sameSet(storageOwners, ['@ivory-tower/infrastructure']), errors, 'IV41-003: durable storage implementation must have exactly one owner: @ivory-tower/infrastructure');
+    push(packageOwnership.canonicalAuthority?.researchAcceptance === '@ivory-tower/research-kernel', errors, 'IV41-003: canonical acceptance owner must be research-kernel');
+    push(packageOwnership.canonicalAuthority?.researchStateWrite === '@ivory-tower/research-kernel', errors, 'IV41-003: canonical research write owner must be research-kernel');
+    push(packageOwnership.canonicalAuthority?.durableStorageImplementation === '@ivory-tower/infrastructure', errors, 'IV41-003: durable storage implementation owner must be infrastructure');
+
+    const gapPolicy = packageOwnership.gapPolicy ?? {};
+    push(gapPolicy.trackingRequired === true, errors, 'IV41-003: architectural gaps must require issue tracking');
+    push(gapPolicy.sessionNotesAreAuthority === false, errors, 'IV41-003: session notes cannot be gap-tracking authority');
+    push(gapPolicy.requiredIssuePrefix === 'IV41-', errors, 'IV41-003: gaps must use the IV41 issue namespace');
+    push(Array.isArray(gapPolicy.discoveredGaps), errors, 'IV41-003: discovered gaps must be an explicit array');
+    for (const gap of gapPolicy.discoveredGaps ?? []) {
+        push(typeof gap.issue === 'string' && gap.issue.startsWith('IV41-'), errors, `IV41-003: architectural gap ${gap.id ?? 'unknown'} must point to a tracked IV41 issue`);
+        push(typeof gap.summary === 'string' && gap.summary.length > 0, errors, `IV41-003: architectural gap ${gap.id ?? 'unknown'} needs a summary`);
+    }
+}
+
 function validateCarriers(carriers, errors) {
     push(carriers.schema === 'ivory-v41-carrier-matrix/1', errors, 'I01.3: unexpected schema');
     push(carriers.issue === 'V41-I01.3', errors, 'I01.3: issue id must be V41-I01.3');
@@ -224,6 +296,7 @@ export function validateBundle(bundle, options = {}) {
     const root = options.root ?? ROOT;
     validateHeads(bundle.heads, root, options, errors);
     validateOwners(bundle.owners, errors);
+    validatePackageOwnership(bundle.packageOwnership, bundle.heads, errors);
     validateCarriers(bundle.carriers, errors);
     validateGates(bundle.gates, errors);
     return errors;
@@ -233,6 +306,7 @@ export function loadBundle(root = ROOT) {
     return {
         heads: readJson(root, CONFIGS.heads),
         owners: readJson(root, CONFIGS.owners),
+        packageOwnership: readJson(root, CONFIGS.packageOwnership),
         carriers: readJson(root, CONFIGS.carriers),
         gates: readJson(root, CONFIGS.gates),
     };
@@ -260,7 +334,7 @@ function main() {
     for (const [leaf, relative] of Object.entries(CONFIGS)) {
         process.stdout.write(`${leaf} ${sha256File(ROOT, relative)} ${relative}\n`);
     }
-    process.stdout.write('V41-P01 authority reconciliation: valid (4/4 leaf contracts)\n');
+    process.stdout.write('V4.1 authority reconciliation: valid (V41-P01 4/4 leaves + IV41-003 package ownership)\n');
 }
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
