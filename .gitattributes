@@ -4,3 +4,9 @@ fixtures/n4/pdf/*.pdf binary
 # every platform. Without eol=lf a Windows checkout (core.autocrlf=true by default) rewrites the
 # CSVs and n4-corpus-qualification.spec fails its own fixture digest.
 fixtures/n4/csv/* text eol=lf
+
+# Ivory formatting gate uses LF on all platforms; Git for Windows must not turn
+# the TS/TSX/JS source trees into CRLF before Prettier --check.
+packages/ivory-tower-*/src/** text eol=lf
+packages/ivory-identity/src/** text eol=lf
+examples/ivory-tower-browser/** text eol=lf

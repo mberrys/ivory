@@ -274,18 +274,6 @@
         "summary": "Reconcile Source status assertion history in the canonical object schema."
       },
       {
-        "surface": "Fragment",
-        "missingField": "selector profile/version",
-        "issue": "IV41-014",
-        "summary": "Pin selector and converter profiles for exact Fragment resolution."
-      },
-      {
-        "surface": "Fragment",
-        "missingField": "explicit context/not-applicable reason",
-        "issue": "IV41-020",
-        "summary": "Represent Fragment-owned exact context and explicit not-applicable context state."
-      },
-      {
         "surface": "EvidenceLink",
         "missingField": "explicit transformation mode",
         "issue": "IV41-021",
@@ -296,12 +284,6 @@
         "missingField": "typed qualification payload",
         "issue": "IV41-022",
         "summary": "Carry typed qualification state without creating a second acceptance owner."
-      },
-      {
-        "surface": "EvidenceLink",
-        "missingField": "per-target cited/context role",
-        "issue": "IV41-020",
-        "summary": "Make cited versus context Fragment roles explicit per EvidenceLink target."
       },
       {
         "surface": "Statement",
