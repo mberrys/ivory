@@ -122,7 +122,7 @@ describe('V41-P02 fragment context and exact evidence', () => {
                 actor: 'Maya',
                 fragmentKey: 'wrong-prefix',
             }),
-        ).to.throw('selected retained representation');
+        ).to.throw('retained artifact representation selected for the Fragment');
 
         expect(() =>
             kernel.createFragment({
