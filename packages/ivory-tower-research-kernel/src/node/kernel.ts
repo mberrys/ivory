@@ -1049,13 +1049,7 @@ export class ResearchKernel {
             if (input.basis !== 'no-material-structure' || !input.reason.trim()) {
                 throw new ResearchKernelError('not-applicable Fragment context requires no-material-structure basis and a reason');
             }
-            const representation = this.getFragmentRepresentation(
-                citedAnchor.representation,
-                sourceRef,
-                source,
-                artifactRef,
-                artifact,
-            );
+            const representation = this.getFragmentRepresentation(citedAnchor.representation, sourceRef, source, artifactRef, artifact);
             if (!this.hasNoMaterialStructure(citedSelector, representation, source, artifact)) {
                 throw new ResearchKernelError(
                     'not-applicable Fragment context is unproven: retain structural context or mark it unavailable',
@@ -1166,9 +1160,7 @@ export class ResearchKernel {
             }
             const source = this.requireRevision<SourcePayload>(fragment.sourceRef, 'source').payload;
             const artifact = this.requireRevision<ArtifactPayload>(fragment.artifactRef, 'artifact').payload;
-            return this.hasNoMaterialStructure(fragment.selector, representation, source, artifact)
-                ? 'not-applicable'
-                : 'mismatch';
+            return this.hasNoMaterialStructure(fragment.selector, representation, source, artifact) ? 'not-applicable' : 'mismatch';
         }
         if (context.references.length === 0 || context.references.length > MAX_FRAGMENT_CONTEXT_REFERENCES) {
             return 'mismatch';
