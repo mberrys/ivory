@@ -148,3 +148,57 @@ test('--observed-head rejects latest-head substitution at the CLI boundary', () 
     assert.equal(result.status, 1, result.stderr);
     assert.match(result.stderr, /HEAD MISMATCH: head dev is 98d1a268f03bc1a6709b0fbf6842c54c2ee13ccb/);
 });
+
+test('a fourth or latest authority head is rejected', () => {
+    const manifest = clone(MANIFEST);
+    manifest.heads.push({
+        id: 'latest',
+        ref: 'HEAD',
+        sha: 'a'.repeat(40),
+        treeSha: 'b'.repeat(40),
+        role: 'substitution',
+        classification: 'implementation-base',
+        packages: [],
+        surfaces: [],
+        packageInventoryMode: 'exact-tree',
+        schemaInspectionMode: 'exact-source-readback',
+    });
+    const errors = validateManifest(manifest).join('\n');
+    assert.match(errors, /unexpected authority head latest/);
+    assert.match(errors, /exactly three heads/);
+    assert.match(errors, /latest\/HEAD substitution/);
+});
+
+test('package inventory must classify every exact head once', () => {
+    const manifest = clone(MANIFEST);
+    manifest.requiredPackageFacts[0].presentAt = ['pr1', 'dev'];
+    manifest.requiredPackageFacts[0].absentAt = [];
+    assert.match(validateManifest(manifest).join('\n'), /must classify every exact head once/);
+});
+
+test('the harness can orchestrate and replay but cannot become semantic authority', () => {
+    const manifest = clone(MANIFEST);
+    manifest.harnessBoundary.executionAuthority.mayAcceptInterpretation = true;
+    manifest.harnessBoundary.executionAuthority.mayWriteCanonicalResearchState = true;
+    const errors = validateManifest(manifest).join('\n');
+    assert.match(errors, /Harness cannot accept interpretation/);
+    assert.match(errors, /Harness cannot write canonical research state/);
+});
+
+test('recursive improvement cannot rewrite canonical evidence or bypass semantic evaluation', () => {
+    const manifest = clone(MANIFEST);
+    manifest.harnessBoundary.recursiveImprovement.canonicalEvidenceMutation = 'allowed';
+    manifest.harnessBoundary.recursiveImprovement.semanticEvaluatorBypass = 'allowed';
+    const errors = validateManifest(manifest).join('\n');
+    assert.match(errors, /cannot mutate canonical evidence/);
+    assert.match(errors, /cannot bypass semantic evaluation/);
+});
+
+test('gate closure cannot be declared by status or one aggregate pass flag', () => {
+    const manifest = clone(MANIFEST);
+    manifest.gates[0].status = 'passed';
+    manifest.aggregatePass = true;
+    const errors = validateManifest(manifest).join('\n');
+    assert.match(errors, /must begin not-run/);
+    assert.match(errors, /aggregate pass flags are forbidden/);
+});
