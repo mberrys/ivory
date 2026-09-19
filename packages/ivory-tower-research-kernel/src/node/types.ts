@@ -281,11 +281,11 @@ export interface MechanicalCitationReceipt {
     readonly fragmentRevisionDigest: string;
     readonly representationDigest: string;
     readonly selectorKind: FragmentSelector['kind'];
-    readonly status: 'EXACT' | 'MISMATCH';
+    readonly status: 'EXACT' | 'BLOCKED' | 'MISMATCH';
     readonly checks: {
         readonly representationDigest: boolean;
         readonly selectorBytes: boolean;
-        readonly context: boolean;
+        readonly context: 'exact' | 'not-applicable' | 'unavailable' | 'mismatch';
     };
     readonly semanticSupport: 'not-assessed';
     readonly receiptDigest: string;
