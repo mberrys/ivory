@@ -1,0 +1,32 @@
+name: Temporary Ivory PR 7 formatter
+on:
+  push:
+    branches:
+      - feat/iv41-010a-i02-1-i02-2-verified
+    paths:
+      - .github/workflows/ivory-pr7-format-fix.yml
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run exact repository Prettier
+        run: |
+          npm install --prefix /tmp/ivory-pr7-format --no-save --ignore-scripts --no-audit --no-fund prettier@3.6.2
+          /tmp/ivory-pr7-format/node_modules/.bin/prettier --config configs/ivory-prettier.json --write packages/ivory-tower-research-kernel/src/node/kernel.ts
+      - name: Push formatting fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/ivory-tower-research-kernel/src/node/kernel.ts
+          if ! git diff --cached --quiet; then
+            git commit -m "style(ivory): apply exact repository Prettier to Fragment kernel"
+            git push origin HEAD:feat/iv41-010a-i02-1-i02-2-verified
+          fi
