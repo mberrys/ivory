@@ -176,6 +176,115 @@ test('every N1-N7 lesson needs exactly one carrier or owned gap', () => {
     assert.match(errorText(candidate), /N4 must have exactly one structural carrier or owned gap/);
 });
 
+test('IV41-002 keeps every N1-N7 lesson resolved to a retained fixture and a real carrier', () => {
+    const candidate = bundle();
+    assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+    const lessons = candidate.carriers.lessons;
+    assert.equal(lessons.length, 7);
+    for (const lesson of lessons) {
+        assert.match(lesson.fixtureDigest, /^[a-f0-9]{64}$/);
+        assert.ok(Number.isInteger(lesson.fixtureBytes) && lesson.fixtureBytes > 0);
+    }
+    assert.ok(lessons.find(lesson => lesson.id === 'N2').carrier);
+    assert.ok(lessons.find(lesson => lesson.id === 'N6').carrier);
+});
+
+test('IV41-002 fails closed when a lesson fixture is missing', () => {
+    const candidate = bundle();
+    candidate.carriers.lessons.find(lesson => lesson.id === 'N1').fixture = 'docs/experiments/n1-fixture-that-does-not-exist.json';
+    assert.match(errorText(candidate), /N1 fixture does not exist on disk/);
+});
+
+test('IV41-002 fails closed on a wrong fixture digest, byte count, or readback convention', () => {
+    const digestCandidate = bundle();
+    digestCandidate.carriers.lessons.find(lesson => lesson.id === 'N4').fixtureDigest = '0'.repeat(64);
+    assert.match(errorText(digestCandidate), /N4 fixture SHA-256 does not match the retained readback/);
+
+    const bytesCandidate = bundle();
+    const n4 = bytesCandidate.carriers.lessons.find(lesson => lesson.id === 'N4');
+    n4.fixtureBytes += 1;
+    assert.match(errorText(bytesCandidate), /N4 fixture byte count does not match the retained readback/);
+
+    const conventionCandidate = bundle();
+    conventionCandidate.carriers.fixtureReadback.algorithm = 'sha1';
+    assert.match(errorText(conventionCandidate), /fixture readback algorithm must be SHA-256/);
+});
+
+test('IV41-002 rejects a lesson with two structural carriers or none', () => {
+    const both = bundle();
+    const withBoth = both.carriers.lessons.find(lesson => lesson.id === 'N2');
+    withBoth.ownedGap = { issue: 'V41-I07' };
+    assert.match(errorText(both), /N2 must have exactly one structural carrier or owned gap/);
+
+    const neither = bundle();
+    const bare = neither.carriers.lessons.find(lesson => lesson.id === 'N2');
+    delete bare.carrier;
+    delete bare.residualGap;
+    assert.match(errorText(neither), /N2 must have exactly one structural carrier or owned gap/);
+});
+
+test('IV41-002 refuses a prose-only lesson', () => {
+    const candidate = bundle();
+    const n3 = candidate.carriers.lessons.find(lesson => lesson.id === 'N3');
+    delete n3.carrier;
+    delete n3.fixture;
+    delete n3.fixtureDigest;
+    delete n3.fixtureBytes;
+    const errors = errorText(candidate);
+    assert.match(errors, /N3 must have exactly one structural carrier or owned gap/);
+    assert.match(errors, /N3 is missing a fixture pointer/);
+    assert.match(errors, /N3 fixtureDigest must be an exact SHA-256/);
+    assert.match(errors, /N3 fixtureBytes must be a non-negative integer/);
+});
+
+test('IV41-002 resolves every carrier unit to a real file and symbol', () => {
+    const missingFile = bundle();
+    const fileUnit = missingFile.carriers.lessons.find(lesson => lesson.id === 'N7').carrier.units[0];
+    fileUnit.path = 'packages/ivory-tower-research-kernel/src/node/missing-carrier.ts#AcceptAgentProposalInput';
+    assert.match(errorText(missingFile), /N7 carrier\.units\[0\] names a carrier file that is missing/);
+
+    const missingSymbol = bundle();
+    const symbolUnit = missingSymbol.carriers.lessons.find(lesson => lesson.id === 'N7').carrier.units[0];
+    symbolUnit.path = `${symbolUnit.path.split('#')[0]}#zz-not-a-declared-symbol-zz`;
+    assert.match(errorText(missingSymbol), /N7 carrier\.units\[0\] names symbol zz-not-a-declared-symbol-zz/);
+
+    const malformed = bundle();
+    const malformedUnit = malformed.carriers.lessons.find(lesson => lesson.id === 'N7').carrier.units[0];
+    malformedUnit.path = malformedUnit.path.split('#')[0];
+    assert.match(errorText(malformed), /must be <repository-relative path>#<symbol>/);
+
+    const escaping = bundle();
+    const escapingUnit = escaping.carriers.lessons.find(lesson => lesson.id === 'N7').carrier.units[0];
+    escapingUnit.path = '../outside.ts#AcceptAgentProposalInput';
+    assert.match(errorText(escaping), /must be a repository-relative POSIX path/);
+
+    const unclassified = bundle();
+    unclassified.carriers.lessons.find(lesson => lesson.id === 'N6').carrier.ownerClass = 'community-fork';
+    assert.match(errorText(unclassified), /carrier ownerClass must be production-package or closed-experiment/);
+});
+
+test('IV41-002 keeps a residual gap tracked without substituting for the carrier', () => {
+    const untracked = bundle();
+    untracked.carriers.lessons.find(lesson => lesson.id === 'N6').residualGap.issue = 'session-note-12';
+    assert.match(errorText(untracked), /N6 residualGap\.issue must point to a tracked V41-I\* issue/);
+
+    const badStatus = bundle();
+    badStatus.carriers.lessons.find(lesson => lesson.id === 'N6').residualGap.status = 'in-progress';
+    assert.match(errorText(badStatus), /N6 residualGap\.status is invalid/);
+
+    const substituted = bundle();
+    delete substituted.carriers.lessons.find(lesson => lesson.id === 'N2').carrier;
+    assert.match(errorText(substituted), /N2 must have exactly one structural carrier or owned gap/);
+});
+
+test('IV41-002 requires the seven lesson ids exactly once', () => {
+    const duplicate = bundle();
+    duplicate.carriers.lessons.push(clone(duplicate.carriers.lessons.find(lesson => lesson.id === 'N5')));
+    const errors = errorText(duplicate);
+    assert.match(errors, /carrier matrix must cover N1-N7 exactly once/);
+    assert.match(errors, /duplicate lesson ids: N5/);
+});
+
 test('prose-only gate closure cannot replace machine and human evidence boundaries', () => {
     const candidate = bundle();
     const q1 = candidate.gates.gates.find(gate => gate.id === 'Q1');

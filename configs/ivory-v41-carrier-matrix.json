@@ -2,128 +2,274 @@
   "schema": "ivory-v41-carrier-matrix/1",
   "issue": "V41-I01.3",
   "dependsOn": "V41-I01.2",
+  "fixtureReadback": {
+    "algorithm": "sha256",
+    "encoding": "raw-bytes",
+    "pathSeparator": "/"
+  },
   "lessons": [
     {
       "id": "N1",
       "lesson": "exact research identity, immutable revisions, snapshot closure, and attribution separate from endorsement",
       "carrier": {
         "owner": "@ivory-tower/research-kernel",
-        "types": [
-          "ExactRef",
-          "RevisionRecord",
-          "SnapshotRecord",
-          "EvidenceLinkPayload",
-          "ActivityRecord"
+        "ownerClass": "production-package",
+        "units": [
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/types.ts#ExactRef"
+          },
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/types.ts#RevisionRecord"
+          },
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/types.ts#SnapshotRecord"
+          },
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/types.ts#EvidenceLinkPayload"
+          },
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/types.ts#ActivityRecord"
+          }
         ]
       },
       "predicate": "exact refs resolve at their recorded revisions and semantic carry-forward is explicit",
       "fixture": "docs/experiments/n1-v2-evidence.json",
+      "fixtureDigest": "2ace985d42e3aa37455730ad2903c11db28623def80b31cc35bbb2f04d3a5388",
+      "fixtureBytes": 4657,
       "gate": "Q1",
-      "limit": "bounded N1 experiment evidence; later acceptance leaves still require retained proof"
+      "limit": "reference-kernel-only: the retained N1 run is an in-memory reference model on win32 x64 (Windows 11 10.0.26200, node v24.16.0) closed by 3 qualifying human reader-protocol seats; representation remapping, PDF/OCR anchors, and production schema persistence were not qualified"
     },
     {
       "id": "N2",
       "lesson": "durability requires CAS/semantic ordering, idempotency, writer exclusion, and semantic restore readback",
-      "ownedGap": {
+      "carrier": {
+        "owner": "@ivory-tower/contracts",
+        "ownerClass": "production-package",
+        "units": [
+          {
+            "owner": "@ivory-tower/contracts",
+            "path": "packages/ivory-tower-contracts/src/durable-store-port.ts#DurableStorePort"
+          },
+          {
+            "owner": "@ivory-tower/contracts",
+            "path": "packages/ivory-tower-contracts/src/durable-store-port.ts#AdmissionReceipt"
+          },
+          {
+            "owner": "@ivory-tower/contracts",
+            "path": "packages/ivory-tower-contracts/src/durable-store-port.ts#CommitReceipt"
+          },
+          {
+            "owner": "@ivory-tower/contracts",
+            "path": "packages/ivory-tower-contracts/src/durable-store-port.ts#SemanticExport"
+          },
+          {
+            "owner": "@ivory-tower/infrastructure",
+            "path": "packages/ivory-tower-infrastructure/src/filesystem-object-store.ts#FilesystemObjectStore"
+          },
+          {
+            "owner": "@ivory-tower/infrastructure",
+            "path": "packages/ivory-tower-infrastructure/src/node/migrate.ts#runIvoryMigrations"
+          }
+        ]
+      },
+      "residualGap": {
         "issue": "V41-I07",
         "leaves": [
           "V41-I07.1",
           "V41-I07.2",
           "V41-I07.3",
           "V41-I07.4"
-        ]
+        ],
+        "statement": "Production persistence of the durable-store port stays unqualified: the retained N2 evidence is a Windows NTFS reference-machine PGlite observation, and CAS-first semantic commit/recovery plus checkpoint/restore readback own their own proof under V41-I07.",
+        "status": "open"
       },
       "predicate": "acknowledged semantic effects survive tested interruption and restore without duplicate effect",
       "fixture": "docs/experiments/n2-v2-evidence.json",
+      "fixtureDigest": "a77d3ecf472845b6f6284d0b49263ba587df397ff45a797db756b6cc51845f4a",
+      "fixtureBytes": 16266,
       "gate": "DURABILITY",
-      "limit": "reference-machine PGlite evidence does not qualify the selected production persistence path"
+      "limit": "one Windows NTFS reference-machine observation: 1000 interruption cycles with 0 failures, 625 acknowledged and 375 unacknowledged commits, and a 10 GiB CAS admission; hardware power loss, removable media, cross-platform behaviour, and the production durable-store implementation were not tested"
     },
     {
       "id": "N3",
       "lesson": "governed computation is attempt-fenced, cancellable, provider-bounded, and receipt-producing",
       "carrier": {
         "owner": "@ivory-tower/domain",
-        "types": [
-          "ExecutionRecord",
-          "ExecutionEvent"
-        ],
-        "ports": [
-          "ExecutionJob",
-          "EgressPolicyPort",
-          "ProviderPort"
+        "ownerClass": "production-package",
+        "units": [
+          {
+            "owner": "@ivory-tower/domain",
+            "path": "packages/ivory-tower-domain/src/execution.ts#ExecutionRecord"
+          },
+          {
+            "owner": "@ivory-tower/domain",
+            "path": "packages/ivory-tower-domain/src/execution.ts#ExecutionEvent"
+          },
+          {
+            "owner": "@ivory-tower/adapters",
+            "path": "packages/ivory-tower-adapters/src/execution-ports.ts#ExecutionJob"
+          },
+          {
+            "owner": "@ivory-tower/adapters",
+            "path": "packages/ivory-tower-adapters/src/execution-ports.ts#EgressPolicyPort"
+          },
+          {
+            "owner": "@ivory-tower/adapters",
+            "path": "packages/ivory-tower-adapters/src/execution-ports.ts#ProviderPort"
+          }
         ]
       },
       "predicate": "stale or revoked attempts cannot publish and execution remains replayable from typed inputs/receipts",
       "fixture": "docs/experiments/n3-evidence.json",
+      "fixtureDigest": "4f4b67ab1e3041321f2124227f7ea3fecf280990276bd829b1fa3eb255ac0183",
+      "fixtureBytes": 35189,
       "gate": "Q4",
-      "limit": "Windows 11 x64/Docker Desktop pilot evidence only"
+      "limit": "pilot platform Windows 11 x64 with Docker Desktop (Linux containers) only, supportMatrix pilot-decided: the OCI adapter is a replaceable pilot runtime, macOS/Apple Silicon is not qualified, and this is evidence tooling rather than a production Compute adapter"
     },
     {
       "id": "N4",
       "lesson": "exact fragment anchors remain tied to retained source/artifact revisions and converter identity",
       "carrier": {
         "owner": "@ivory-tower/research-kernel",
-        "types": [
-          "FragmentPayload",
-          "FragmentAnchorIdentity",
-          "FragmentContext",
-          "MechanicalCitationReceipt",
-          "FragmentRemapReceipt",
-          "ExactRef"
+        "ownerClass": "production-package",
+        "units": [
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/types.ts#FragmentPayload"
+          },
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/types.ts#FragmentAnchorIdentity"
+          },
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/types.ts#MechanicalCitationReceipt"
+          },
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/types.ts#FragmentRemapReceipt"
+          },
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/kernel.ts#remapFragment"
+          },
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/kernel.ts#verifyCitation"
+          }
         ]
       },
       "predicate": "an exact anchor reopens to the same retained bytes or remains explicitly ambiguous/unresolved",
       "fixture": "docs/experiments/n4-v2-evidence.json",
+      "fixtureDigest": "bc559df7684ae9b02784c6ea990e54817a2bebaf89df56bb180212daa59f8b00",
+      "fixtureBytes": 37086,
       "gate": "Q1",
-      "limit": "retained corpus and pinned converter scope only"
+      "limit": "retained 22-fixture corpus and pinned converter scope only: 120 anchors resolved against Docling v1.21.0/v1.22.0 image digests on win32 x64, with a deliberately conservative independent oracle, OCR only when a converter returns text, and no user/role authorization boundary"
     },
     {
       "id": "N5",
       "lesson": "clients must resolve the same snapshot and may not become a second semantic kernel",
       "carrier": {
         "owner": "@ivory-tower/research-kernel",
-        "types": [
-          "SnapshotRecord"
-        ],
-        "projection": "packages/ivory-tower-research-kernel/src/node/clients.ts"
+        "ownerClass": "production-package",
+        "units": [
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/types.ts#SnapshotRecord"
+          },
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/clients.ts#ResearchClient"
+          },
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/clients.ts#createResearchClients"
+          }
+        ]
       },
       "predicate": "Theia/CLI/API reads use the requested snapshot and return semantically identical resolved data",
       "fixture": "docs/experiments/n5-v2-evidence.json",
+      "fixtureDigest": "92dddbe6f4282bc164f03bab77fedf51b44d34628f54f28beceae41210f8d697",
+      "fixtureBytes": 94318,
       "gate": "Q3",
-      "limit": "evidence is absent on the selected dev head; no closure may be inferred from PR #1"
+      "limit": "observed live on win32/x64 against the one canonical Core service on loopback (http://127.0.0.1:4100) with the isolated @ivory-tower/n5-browser workbench and Theia 1.75.0: the notebook surface was not observed, and no desktop, cross-platform, hosted-service, or independent second-machine reproduction is claimed"
     },
     {
       "id": "N6",
       "lesson": "reproduction requires explicit closure, loss/disclosure reporting, and independent replay rather than export success",
-      "ownedGap": {
+      "carrier": {
+        "owner": "spikes/n6-portable-reproduction",
+        "ownerClass": "closed-experiment",
+        "units": [
+          {
+            "owner": "spikes/n6-portable-reproduction",
+            "path": "spikes/n6-portable-reproduction/portable.mjs#exportStudy"
+          },
+          {
+            "owner": "spikes/n6-portable-reproduction",
+            "path": "spikes/n6-portable-reproduction/portable.mjs#validateExport"
+          },
+          {
+            "owner": "spikes/n6-portable-reproduction",
+            "path": "spikes/n6-portable-reproduction/portable.mjs#restoreStudy"
+          },
+          {
+            "owner": "spikes/n6-portable-reproduction",
+            "path": "spikes/n6-portable-reproduction/reproduce.mjs#reproduce"
+          }
+        ]
+      },
+      "residualGap": {
         "issue": "V41-I09",
         "leaves": [
           "V41-I09.1",
           "V41-I09.2",
           "V41-I09.3",
           "V41-I09.4"
-        ]
+        ],
+        "statement": "The capsule/replay tooling is closed-experiment tooling on one machine: clean reproduction passed as an isolated same-machine restore, the second-machine install in docs/experiments/n6-clean-install-runbook.md is recorded blocked, and production capsule/replay qualification stays owned by V41-I09.",
+        "status": "open"
       },
       "predicate": "capsule closure verifies retained dependencies and an independent operator can replay the declared level",
       "fixture": "docs/experiments/n6-evidence.json",
+      "fixtureDigest": "4d3d5ceac533063e2af3ecada39b98ff6c363aa2c1133489ebdcf98a9ed6c2a4",
+      "fixtureBytes": 17790,
       "gate": "REPLAY",
-      "limit": "second-machine clean-install evidence remains open"
+      "limit": "technical-pass on Windows with a trusted synthetic study: the second-machine clean install records blocked in docs/experiments/n6-clean-install-runbook.md and the retained clean reproduction is an isolated same-machine restore; PDF bytes are presentation-only and no public format freeze is authorized"
     },
     {
       "id": "N7",
       "lesson": "agents and recursive improvement may propose and optimize orchestration but cannot acquire semantic acceptance authority",
       "carrier": {
         "owner": "@ivory-tower/research-kernel",
-        "types": [
-          "AcceptAgentProposalInput",
-          "AgentProposalReceipt"
-        ],
-        "harnessBoundary": "proposal-only"
+        "ownerClass": "production-package",
+        "harnessBoundary": "proposal-only",
+        "units": [
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/types.ts#AcceptAgentProposalInput"
+          },
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/types.ts#AgentProposalReceipt"
+          },
+          {
+            "owner": "@ivory-tower/research-kernel",
+            "path": "packages/ivory-tower-research-kernel/src/node/kernel.ts#acceptAgentProposal"
+          }
+        ]
       },
       "predicate": "stale/revoked/cross-project proposals fail closed and researcher adoption remains explicit",
       "fixture": "docs/experiments/n7-v1-evidence.json",
+      "fixtureDigest": "7a2fbaf2a0531dae34f02c90d9db9d2cdae3761440fbf80a2a8b05fa4d707132",
+      "fixtureBytes": 13450,
       "gate": "Q4",
-      "limit": "bounded local-provider evidence; live-provider qualification remains separately scoped"
+      "limit": "bounded local-provider run: one retained run against a loopback llama.cpp qwen3-4b-instruct-2507 model (docs/experiments/n7-live-provider/run.json), with in-memory acceptance and receipts only, no restart or crash-durability claim, no Theia integration or production authentication, and no hosted-provider qualification"
     }
   ]
 }

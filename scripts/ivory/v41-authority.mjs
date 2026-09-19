@@ -62,6 +62,9 @@ const REQUIRED_SURFACES = [
 const REQUIRED_GATES = ['DURABILITY', 'Q1', 'Q2', 'REPLAY', 'Q3', 'Q4'];
 const QUALIFICATION_STATUSES = ['not-run', 'qualified', 'no-go', 'inconclusive', 'blocked', 'deferred'];
 const GAP_STATUSES = ['open', 'deferred', 'resolved'];
+const CARRIER_OWNER_CLASSES = ['production-package', 'closed-experiment'];
+const CARRIER_GAP_ISSUE = /^V41-I\d+(\.\d+)?$/;
+const CARRIER_GAP_LEAF = /^V41-I\d+\.\d+$/;
 const REQUIRED_PACKAGE_RESPONSIBILITIES = [
     'identity',
     'domain',
@@ -485,24 +488,144 @@ function validatePackageOwnership(packageOwnership, heads, owners, errors) {
     push(duplicates(trackedGapKeys).length === 0, errors, `IV41-003: duplicate tracked gap records: ${duplicates(trackedGapKeys).join(', ')}`);
 }
 
-function validateCarriers(carriers, errors) {
+function splitCarrierUnit(value) {
+    const separator = value.indexOf('#');
+    if (separator <= 0 || separator === value.length - 1) return undefined;
+    return { file: value.slice(0, separator), symbol: value.slice(separator + 1) };
+}
+
+function validateCarrierUnit(unit, label, root, options, errors) {
+    push(isRecord(unit), errors, `${label} must be an object`);
+    if (!isRecord(unit)) return;
+    push(typeof unit.owner === 'string' && unit.owner.length > 0, errors, `${label} must name its owning package or closed experiment`);
+    validateRepoRelativePath(unit.path, `${label}.path`, errors);
+    if (!isRepoRelativePath(unit.path)) return;
+    const parts = splitCarrierUnit(unit.path);
+    push(parts !== undefined, errors, `${label}.path must be <repository-relative path>#<symbol>`);
+    if (parts === undefined || options.verifyFiles === false) return;
+    const full = path.join(root, parts.file);
+    push(existsSync(full), errors, `${label} names a carrier file that is missing: ${parts.file}`);
+    if (!existsSync(full)) return;
+    let contents;
+    try {
+        contents = readFileSync(full, 'utf8');
+    } catch (error) {
+        errors.push(`${label} cannot be read: ${error.message}`);
+        return;
+    }
+    push(contents.includes(parts.symbol), errors, `${label} names symbol ${parts.symbol}, which ${parts.file} does not declare`);
+}
+
+function validateCarrier(carrier, label, root, options, errors) {
+    push(isRecord(carrier), errors, `${label} carrier must be an object`);
+    if (!isRecord(carrier)) return;
+    push(typeof carrier.owner === 'string' && carrier.owner.length > 0, errors, `${label} carrier has no owner`);
+    push(
+        CARRIER_OWNER_CLASSES.includes(carrier.ownerClass),
+        errors,
+        `${label} carrier ownerClass must be production-package or closed-experiment`,
+    );
+    if (carrier.harnessBoundary !== undefined) {
+        push(
+            typeof carrier.harnessBoundary === 'string' && carrier.harnessBoundary.length > 0,
+            errors,
+            `${label} carrier harnessBoundary must be a non-empty string`,
+        );
+    }
+    push(nonEmptyArray(carrier.units), errors, `${label} carrier must name at least one carrier unit`);
+    const units = Array.isArray(carrier.units) ? carrier.units : [];
+    push(duplicates(units.map(unit => unit?.path)).length === 0, errors, `${label} carrier repeats a carrier unit path`);
+    units.forEach((unit, index) => validateCarrierUnit(unit, `${label} carrier.units[${index}]`, root, options, errors));
+}
+
+function validateOwnedGap(gap, label, errors) {
+    push(isRecord(gap), errors, `${label} owned gap must be an object`);
+    if (!isRecord(gap)) return;
+    push(
+        typeof gap.issue === 'string' && gap.issue.startsWith('V41-I'),
+        errors,
+        `${label} owned gap must point to an executable V41-I issue`,
+    );
+    if (gap.leaves !== undefined) {
+        push(nonEmptyArray(gap.leaves), errors, `${label} owned gap leaves must be a non-empty array when present`);
+        const leaves = Array.isArray(gap.leaves) ? gap.leaves : [];
+        for (const leaf of leaves) push(CARRIER_GAP_LEAF.test(leaf ?? ''), errors, `${label} owned gap leaves must be V41-I*.<n> ids`);
+        push(duplicates(leaves).length === 0, errors, `${label} owned gap repeats a leaf id`);
+    }
+}
+
+function validateResidualGap(gap, label, errors) {
+    push(isRecord(gap), errors, `${label} must be an object`);
+    if (!isRecord(gap)) return;
+    push(CARRIER_GAP_ISSUE.test(gap.issue ?? ''), errors, `${label}.issue must point to a tracked V41-I* issue`);
+    push(typeof gap.statement === 'string' && gap.statement.length > 0, errors, `${label}.statement is required`);
+    push(GAP_STATUSES.includes(gap.status), errors, `${label}.status is invalid`);
+    if (gap.leaves !== undefined) {
+        push(nonEmptyArray(gap.leaves), errors, `${label}.leaves must be a non-empty array when present`);
+        const leaves = Array.isArray(gap.leaves) ? gap.leaves : [];
+        for (const leaf of leaves) push(CARRIER_GAP_LEAF.test(leaf ?? ''), errors, `${label}.leaves must be V41-I*.<n> ids`);
+        push(duplicates(leaves).length === 0, errors, `${label}.leaves contains duplicate leaf ids`);
+    }
+}
+
+function validateFixtureReadback(lesson, label, root, options, errors) {
+    const hasFixture = typeof lesson.fixture === 'string' && lesson.fixture.length > 0;
+    if (hasFixture) validateRepoRelativePath(lesson.fixture, `${label} fixture`, errors);
+    push(SHA256.test(lesson.fixtureDigest ?? ''), errors, `${label} fixtureDigest must be an exact SHA-256`);
+    push(
+        Number.isInteger(lesson.fixtureBytes) && lesson.fixtureBytes >= 0,
+        errors,
+        `${label} fixtureBytes must be a non-negative integer`,
+    );
+    if (!hasFixture || options.verifyFiles === false || !isRepoRelativePath(lesson.fixture)) return;
+    const full = path.join(root, lesson.fixture);
+    push(existsSync(full), errors, `${label} fixture does not exist on disk: ${lesson.fixture}`);
+    if (!existsSync(full)) return;
+    let bytes;
+    try {
+        bytes = readFileSync(full);
+    } catch (error) {
+        errors.push(`${label} fixture cannot be read: ${error.message}`);
+        return;
+    }
+    if (Number.isInteger(lesson.fixtureBytes)) {
+        push(bytes.length === lesson.fixtureBytes, errors, `${label} fixture byte count does not match the retained readback`);
+    }
+    if (SHA256.test(lesson.fixtureDigest ?? '')) {
+        const observed = createHash('sha256').update(bytes).digest('hex');
+        push(observed === lesson.fixtureDigest, errors, `${label} fixture SHA-256 does not match the retained readback`);
+    }
+}
+
+function validateCarriers(carriers, root, options, errors) {
     push(carriers.schema === 'ivory-v41-carrier-matrix/1', errors, 'I01.3: unexpected schema');
     push(carriers.issue === 'V41-I01.3', errors, 'I01.3: issue id must be V41-I01.3');
     push(carriers.dependsOn === 'V41-I01.2', errors, 'I01.3: dependency must remain V41-I01.2');
+    const readback = isRecord(carriers.fixtureReadback) ? carriers.fixtureReadback : {};
+    push(readback.algorithm === 'sha256', errors, 'I01.3: fixture readback algorithm must be SHA-256');
+    push(readback.encoding === 'raw-bytes', errors, 'I01.3: fixture readback encoding must be raw bytes');
+    push(readback.pathSeparator === '/', errors, 'I01.3: fixture readback paths must use POSIX separators');
     const lessons = carriers.lessons ?? [];
     const ids = lessons.map(lesson => lesson.id);
     push(sameSet(ids, EXPECTED_N), errors, 'I01.3: carrier matrix must cover N1-N7 exactly once');
     push(duplicates(ids).length === 0, errors, `I01.3: duplicate lesson ids: ${duplicates(ids).join(', ')}`);
     for (const lesson of lessons) {
+        const label = `I01.3: ${lesson.id}`;
         const hasCarrier = lesson.carrier !== undefined;
         const hasGap = lesson.ownedGap !== undefined;
-        push(hasCarrier !== hasGap, errors, `I01.3: ${lesson.id} must have exactly one structural carrier or owned gap`);
-        push(typeof lesson.predicate === 'string' && lesson.predicate.length > 0, errors, `I01.3: ${lesson.id} is missing a predicate`);
-        push(typeof lesson.fixture === 'string' && lesson.fixture.length > 0, errors, `I01.3: ${lesson.id} is missing a fixture pointer`);
-        push(typeof lesson.gate === 'string' && lesson.gate.length > 0, errors, `I01.3: ${lesson.id} is missing a gate`);
-        push(typeof lesson.limit === 'string' && lesson.limit.length > 0, errors, `I01.3: ${lesson.id} is missing a platform/operator/evidence limit`);
-        if (hasCarrier) push(typeof lesson.carrier.owner === 'string' && lesson.carrier.owner.length > 0, errors, `I01.3: ${lesson.id} carrier has no owner`);
-        if (hasGap) push(typeof lesson.ownedGap.issue === 'string' && lesson.ownedGap.issue.startsWith('V41-I'), errors, `I01.3: ${lesson.id} owned gap must point to an executable V41-I issue`);
+        push(hasCarrier !== hasGap, errors, `${label} must have exactly one structural carrier or owned gap`);
+        push(typeof lesson.predicate === 'string' && lesson.predicate.length > 0, errors, `${label} is missing a predicate`);
+        push(typeof lesson.fixture === 'string' && lesson.fixture.length > 0, errors, `${label} is missing a fixture pointer`);
+        push(typeof lesson.gate === 'string' && lesson.gate.length > 0, errors, `${label} is missing a gate`);
+        push(
+            typeof lesson.limit === 'string' && lesson.limit.length > 0,
+            errors,
+            `${label} is missing a platform/operator/evidence limit`,
+        );
+        if (hasCarrier) validateCarrier(lesson.carrier, label, root, options, errors);
+        if (hasGap) validateOwnedGap(lesson.ownedGap, label, errors);
+        if (lesson.residualGap !== undefined) validateResidualGap(lesson.residualGap, `${label} residualGap`, errors);
+        validateFixtureReadback(lesson, label, root, options, errors);
     }
 }
 
@@ -693,7 +816,7 @@ export function validateBundle(bundle, options = {}) {
     validateHeads(bundle.heads, root, options, errors);
     validateOwners(bundle.owners, errors);
     validatePackageOwnership(bundle.packageOwnership, bundle.heads, bundle.owners, errors);
-    validateCarriers(bundle.carriers, errors);
+    validateCarriers(bundle.carriers, root, options, errors);
     validateGates(bundle.gates, errors);
     validateQualification(bundle.qualification, bundle, { ...options, root }, errors);
     validateAdrLineage(bundle.adrLineage, bundle, root, options, errors);
