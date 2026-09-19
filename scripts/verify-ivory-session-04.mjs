@@ -203,6 +203,16 @@ function migrate(database, upperBoundary, compile) {
 }
 
 function seedNMinusOneSource(database, source) {
+    const columns = [
+        'id',
+        'content_hash',
+        'object_key',
+        'content_type',
+        'license',
+        'authorization_evidence',
+        'admission_policy_version',
+        'admitted_at',
+    ];
     const values = [
         source.id,
         source.contentHash,
@@ -213,10 +223,25 @@ function seedNMinusOneSource(database, source) {
         'session-04',
         '2026-08-20T00:00:00Z',
     ].map(value => `'${value.replaceAll("'", "''")}'`);
-    queryDatabase(
-        database,
-        `INSERT INTO ivory_sources (id, content_hash, object_key, content_type, license, authorization_evidence, admission_policy_version, admitted_at) VALUES (${values.join(', ')});`,
-    );
+    const hasSourceRights =
+        queryDatabase(
+            database,
+            "SELECT column_name FROM information_schema.columns WHERE table_name = 'ivory_sources' AND column_name = 'content_class';",
+        ) === 'content_class';
+    if (hasSourceRights) {
+        columns.push(
+            'content_class',
+            'rights_basis_kind',
+            'acquisition_route',
+            'deployment_topology',
+            'ingest_permitted',
+            'transfer_permitted',
+            'ingest_reason',
+            'transfer_reason',
+        );
+        values.push("'unknownProvenance'", "'none'", "'upload'", "'vendorHosted'", 'FALSE', 'FALSE', "''", "''");
+    }
+    queryDatabase(database, `INSERT INTO ivory_sources (${columns.join(', ')}) VALUES (${values.join(', ')});`);
 }
 
 async function seedAndVerifyObjectStore(source) {
