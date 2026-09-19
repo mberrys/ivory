@@ -1,0 +1,362 @@
+{
+  "schema": "ivory-v41-canonical-model/1",
+  "issue": "IV41-010",
+  "leaves": [
+    "IV41-010A",
+    "IV41-010B",
+    "IV41-010C",
+    "IV41-010D",
+    "IV41-010E"
+  ],
+  "dependsOn": [
+    "IV41-003",
+    "IV41-004"
+  ],
+  "issueSource": "https://app.notion.com/p/3dd9cb079ddb816f8769c477f51636d8",
+  "ownerMap": "configs/ivory-v41-owner-map.json",
+  "packageOwnership": "configs/ivory-v41-package-ownership.json",
+  "exactAuthority": "configs/ivory-v41-authority-heads.json",
+  "evidenceContext": {
+    "repository": "mberrys/ivory",
+    "pullRequest": 5,
+    "branch": "feat/v41-p02-fragment-context",
+    "headBeforeIssue": "1aba5b8625af377396b4c6dd362dcf8b49782c34",
+    "selectedDev": "bc3cd03b5b2d870d219797925d92edc48c33c6ca",
+    "packageManager": "npm@11.13.0",
+    "nodeEngine": ">=24",
+    "operator": "connected GitHub integration",
+    "runtimeObservation": "not-run in local checkout",
+    "limits": [
+      "design/structural contract only",
+      "durable checkpoint/restore and Q1 not qualified",
+      "CI must execute on final PR head"
+    ]
+  },
+  "authority": {
+    "semanticWriter": "@ivory-tower/research-kernel",
+    "researchAcceptance": "@ivory-tower/research-kernel",
+    "durableImplementation": "@ivory-tower/infrastructure",
+    "proposalExecution": "@ivory-tower/agent-experiment",
+    "clientAcceptance": false,
+    "harnessSemanticAuthority": false
+  },
+  "concepts": [
+    {
+      "concept": "Source",
+      "ownerSurface": "Source",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#SourcePayload",
+      "canonicalWriter": "@ivory-tower/research-kernel",
+      "identity": "projectId/objectId/revisionId + sourceVersionId/contentDigest",
+      "revision": "n1-revision/1",
+      "persistence": "canonical-revision-and-content-bytes",
+      "semanticRefs": [],
+      "evidenceStatus": "implemented-reference-kernel",
+      "missing": [
+        "scholarly alias/version assertions",
+        "source-status assertion history"
+      ]
+    },
+    {
+      "concept": "Artifact",
+      "ownerSurface": "Artifact",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ArtifactPayload",
+      "canonicalWriter": "@ivory-tower/research-kernel",
+      "identity": "projectId/objectId/revisionId + artifactId/outputDigest",
+      "revision": "n1-revision/1",
+      "persistence": "canonical-revision-and-retained-output",
+      "semanticRefs": [
+        "sourceRefs"
+      ],
+      "evidenceStatus": "implemented-reference-kernel"
+    },
+    {
+      "concept": "Fragment",
+      "ownerSurface": "Fragment",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#FragmentPayload",
+      "canonicalWriter": "@ivory-tower/research-kernel",
+      "identity": "projectId/objectId/revisionId",
+      "revision": "n1-revision/1",
+      "persistence": "canonical-revision-and-representation-refs",
+      "semanticRefs": [
+        "sourceRef",
+        "artifactRef",
+        "anchor.representationRef",
+        "context.references[].representationRef"
+      ],
+      "evidenceStatus": "implemented-reference-kernel",
+      "compatibility": "legacy missing context is unavailable; never inferred not-applicable"
+    },
+    {
+      "concept": "Statement/Claim",
+      "ownerSurface": "Statement",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ClaimPayload",
+      "canonicalWriter": "@ivory-tower/research-kernel",
+      "identity": "projectId/objectId/revisionId",
+      "revision": "n1-revision/1",
+      "persistence": "canonical-revision",
+      "semanticRefs": [],
+      "evidenceStatus": "implemented-reference-kernel",
+      "canonicalKey": "Statement",
+      "runtimeKey": "claim",
+      "compatibility": "Statement is planning terminology; ClaimPayload / claim revision remains the existing canonical carrier"
+    },
+    {
+      "concept": "EvidenceLink",
+      "ownerSurface": "EvidenceLink",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#EvidenceLinkPayload",
+      "canonicalWriter": "@ivory-tower/research-kernel",
+      "identity": "projectId/objectId/revisionId",
+      "revision": "n1-revision/1",
+      "persistence": "canonical-revision",
+      "semanticRefs": [
+        "claimRef",
+        "targets[]",
+        "fragmentTargets[].ref"
+      ],
+      "evidenceStatus": "implemented-reference-kernel",
+      "compatibility": "legacy links retain original exact targets; carry-forward creates a new link referencing the selected claim revision"
+    },
+    {
+      "concept": "ResearchProtocol",
+      "ownerSurface": "ResearchProtocol",
+      "carrier": "packages/ivory-tower-contracts/src/research-protocol-contract.ts#researchProtocolVersionSchema",
+      "canonicalWriter": "@ivory-tower/research-kernel",
+      "identity": "protocolId/protocolVersionId/branchId",
+      "revision": "protocolVersionId + versionNumber + predecessor",
+      "persistence": "structural-contract-only",
+      "semanticRefs": [
+        "predecessor"
+      ],
+      "evidenceStatus": "schema-only-not-durable-core",
+      "missing": [
+        "bounded query/provider receipt refs",
+        "coverage/stopping receipt refs"
+      ],
+      "compatibility": "typed contracts do not constitute a second persistence authority"
+    },
+    {
+      "concept": "Activity",
+      "ownerSurface": "Activity",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ActivityRecord",
+      "canonicalWriter": "@ivory-tower/research-kernel",
+      "identity": "projectId/activityId/projectSequence",
+      "revision": "append-only activity, not mutable revision head",
+      "persistence": "canonical-append-only-activity",
+      "semanticRefs": [
+        "edges[].target"
+      ],
+      "evidenceStatus": "implemented-reference-kernel",
+      "compatibility": "provenance activity edges are not semantic dependency edges"
+    },
+    {
+      "concept": "Proposal",
+      "ownerSurface": "Activity",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#AcceptAgentProposalInput",
+      "canonicalWriter": "@ivory-tower/research-kernel",
+      "identity": "proposalDigest/idempotencyKey + expectedClaim exact ref",
+      "revision": "no canonical proposal revision by itself",
+      "persistence": "pending-noncanonical-until-Core-adoption",
+      "semanticRefs": [
+        "expectedClaim",
+        "fragmentRef"
+      ],
+      "evidenceStatus": "governed-contract-not-production-proposal-envelope",
+      "compatibility": "accepted proposal produces Claim/EvidenceLink revisions and AgentProposalReceipt; pending proposal cannot accept research meaning",
+      "trackingIssue": "IV41-041"
+    },
+    {
+      "concept": "Adjudication",
+      "ownerSurface": "ResearchDecisionReceipt",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ActivityRecord",
+      "canonicalWriter": "@ivory-tower/research-kernel",
+      "identity": "projectId/activityId + exact assessment/snapshot basis",
+      "revision": "immutable decision receipt via Activity, no separate writable store",
+      "persistence": "Core-decision-activity-contract-pending",
+      "semanticRefs": [
+        "edges[].target"
+      ],
+      "evidenceStatus": "owned-gap",
+      "trackingIssue": "IV41-023",
+      "compatibility": "no adjudication inferred from claim status, agent proposal, or mechanical citation receipt"
+    },
+    {
+      "concept": "Receipt",
+      "ownerSurface": "ResearchDecisionReceipt",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#AgentProposalReceipt",
+      "canonicalWriter": "@ivory-tower/research-kernel",
+      "identity": "requestDigest/claimRef/linkRef/activityId",
+      "revision": "immutable receipt; no latest-head substitution",
+      "persistence": "immutable-Core-receipt-contract",
+      "semanticRefs": [
+        "claimRef",
+        "linkRef"
+      ],
+      "evidenceStatus": "partial-carrier",
+      "trackingIssue": "IV41-023",
+      "compatibility": "research decision receipts and execution receipts are distinct variants with separate owners"
+    },
+    {
+      "concept": "Snapshot",
+      "ownerSurface": "Snapshot",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#SnapshotRecord",
+      "canonicalWriter": "@ivory-tower/research-kernel",
+      "identity": "projectId/snapshotId/digest",
+      "revision": "frozen snapshot, not an advancing head",
+      "persistence": "immutable-frozen-closure",
+      "semanticRefs": [
+        "manifest.selected[]",
+        "manifest.context[]",
+        "manifest.dependencies[]",
+        "manifest.members[].ref"
+      ],
+      "evidenceStatus": "implemented-reference-kernel",
+      "compatibility": "old snapshot reads resolve exact historical members, never latest heads"
+    },
+    {
+      "concept": "Assessment",
+      "ownerSurface": "Assessment",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ActivityRecord",
+      "canonicalWriter": "@ivory-tower/research-kernel",
+      "identity": "projectId/activityId + exact evidence basis",
+      "revision": "append-only assessed basis",
+      "persistence": "Core-decision-activity-contract-pending",
+      "semanticRefs": [
+        "edges[].target"
+      ],
+      "evidenceStatus": "owned-gap",
+      "trackingIssue": "IV41-021",
+      "compatibility": "mechanical equality is not semantic support"
+    },
+    {
+      "concept": "CAS",
+      "ownerSurface": "CAS",
+      "carrier": "packages/ivory-tower-adapters/src/execution-ports.ts#ObjectStorePort",
+      "canonicalWriter": "@ivory-tower/research-kernel",
+      "identity": "content digest / immutable object key",
+      "revision": "content-addressed immutable bytes, not a canonical research revision",
+      "persistence": "immutable-bytes-port",
+      "semanticRefs": [],
+      "evidenceStatus": "storage-port-durability-unqualified",
+      "trackingIssue": "IV41-016",
+      "compatibility": "durable adapter never acquires semantic research acceptance"
+    }
+  ],
+  "receiptVariants": [
+    {
+      "name": "research",
+      "surface": "ResearchDecisionReceipt",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#AgentProposalReceipt",
+      "semanticAcceptance": "Core-only"
+    },
+    {
+      "name": "execution",
+      "surface": "ExecutionReceipt",
+      "owner": "@ivory-tower/domain",
+      "carrier": "packages/ivory-tower-domain/src/execution.ts#ExecutionRecord",
+      "semanticAcceptance": "none"
+    }
+  ],
+  "referencePolicy": {
+    "shape": [
+      "projectId",
+      "objectId",
+      "revisionId"
+    ],
+    "latestForbidden": true,
+    "projectBound": true,
+    "crossTypeMustResolve": true,
+    "carryForward": "explicit-new-EvidenceLink",
+    "activityBackLinksAreSemanticDependencies": false,
+    "unresolved": "typed-blocked-no-write",
+    "concurrency": "expectedHead exact revision for all modifications"
+  },
+  "dependencyDigest": {
+    "revisionSchema": "n1-revision/1",
+    "function": "digestCanonical",
+    "revisionFields": [
+      "schemaVersion",
+      "objectId",
+      "predecessor",
+      "payload",
+      "exactRefs",
+      "activityId"
+    ],
+    "snapshotDigest": "digestCanonical(manifest)",
+    "snapshotMembers": [
+      "ref",
+      "role",
+      "revisionDigest"
+    ],
+    "noLatestResolution": true,
+    "limitation": "dedicated transitive dependency hash not yet an independently persisted record; Snapshot manifest captures exact revision digests"
+  },
+  "migration": {
+    "owner": "@ivory-tower/infrastructure",
+    "runner": "packages/ivory-tower-infrastructure/src/node/migrate.ts#runIvoryMigrations",
+    "mode": "forward-only",
+    "migrationStrategy": "additive-new-fields",
+    "before": [
+      "verify exact pinned source schema and artifact digests",
+      "checkpoint through owned durable path",
+      "confirm no active writer/restore into fresh path"
+    ],
+    "apply": [
+      "add nullable versioned columns or new append-only records",
+      "retain original bytes and revision IDs",
+      "record schema version and migration receipt"
+    ],
+    "after": [
+      "compare refs, heads, snapshot members, counts and content digests",
+      "retain mismatch/loss manifest",
+      "require explicit operator review"
+    ],
+    "forbidden": [
+      "in-place rollback",
+      "backfill guessed source identity or context",
+      "overwrite accepted revision payload",
+      "migrate a live active-store restore",
+      "materialize PaperStore or ClaimCardStore"
+    ]
+  },
+  "aliases": [
+    {
+      "term": "Statement",
+      "canonical": "ClaimPayload / claim",
+      "mode": "name-only"
+    },
+    {
+      "term": "Paper Store",
+      "canonical": "Source + Artifact",
+      "mode": "derived-view-only"
+    },
+    {
+      "term": "Claim Card",
+      "canonical": "Claim + EvidenceLink + Activity",
+      "mode": "derived-view-only"
+    },
+    {
+      "term": "ResearchCase",
+      "canonical": "snapshot-scoped projection",
+      "mode": "derived-view-only"
+    },
+    {
+      "term": "legacy Fragment context",
+      "canonical": "FragmentContext.unavailable",
+      "mode": "preserve-unresolved"
+    },
+    {
+      "term": "Adjudication",
+      "canonical": "Core Activity/ResearchDecisionReceipt",
+      "mode": "owned-gap"
+    }
+  ],
+  "gates": {
+    "DURABILITY": "not-run",
+    "Q1": "not-run",
+    "Q2": "not-run",
+    "REPLAY": "not-run",
+    "Q3": "not-run",
+    "Q4": "not-run"
+  }
+}
