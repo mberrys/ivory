@@ -6,19 +6,20 @@
   "basisOwnerMap": "configs/ivory-v41-owner-map.json",
   "evidenceContext": {
     "repository": "mberrys/ivory",
-    "pullRequest": 3,
-    "branch": "feat/v41-p01-authority-carriers",
     "architectureSource": "https://app.notion.com/p/3dd9cb079ddb80f49717e9d75ea2e223",
     "issueSource": "https://app.notion.com/p/3dd9cb079ddb81e4b51bfe0b775c11f8",
-    "authorityBasis": {
-      "role": "selectedDev",
-      "sha": "41fa0e19889fad7fdedef45a8c21944e7d923e68",
-      "packageInventory": "configs/ivory-v41-authority-heads.json"
-    },
-    "implementationObservation": {
+    "implementationContext": {
+      "pullRequest": 3,
+      "branch": "feat/v41-p01-authority-carriers",
       "headBeforeIssue": "dce910e4a988ddfa6c1618f6b7e4a82b0adc25a8",
       "packageManager": "npm@11.13.0",
       "nodeEngine": ">=24"
+    },
+    "reconciliationContext": {
+      "ref": "refs/heads/dev",
+      "sha": "41fa0e19889fad7fdedef45a8c21944e7d923e68",
+      "mergeCommit": "f8d0af66aa10d419cd18fb5f649f0eabfc63cd5d",
+      "packageInventory": "configs/ivory-v41-authority-heads.json"
     }
   },
   "canonicalAuthority": {

@@ -419,8 +419,8 @@
       {
         "id": "packageOwnership",
         "path": "configs/ivory-v41-package-ownership.json",
-        "sha256": "30a1a127c76eea1ce5a1ce69bd3748630eef0556c33a95b26c9b20888b7d6aff",
-        "bytes": 11075
+        "sha256": "aed8d3365b417a517feca55242da3ca98087d38874cc0b8ce6ced0aeec58e7d3",
+        "bytes": 11149
       },
       {
         "id": "exactAuthority",

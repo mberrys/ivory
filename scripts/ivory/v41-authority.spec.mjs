@@ -586,10 +586,89 @@ test('IV41-003 rejects duplicate or missing responsibility ownership', () => {
     assert.match(errorText(candidate), /every V4\.1 package responsibility must have exactly one canonical owner|duplicate canonical responsibility owners/);
 });
 
-test('IV41-003 binds evidence to the exact selected-dev repository context', () => {
+test('IV41-003 retains the exact implementation and reconciliation contexts', () => {
     const candidate = bundle();
-    candidate.packageOwnership.evidenceContext.authorityBasis.sha = '0000000000000000000000000000000000000000';
-    assert.match(errorText(candidate), /evidence authority SHA must match the exact selected-dev SHA/);
+    assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+    const context = candidate.packageOwnership.evidenceContext;
+    assert.equal(context.repository, 'mberrys/ivory');
+    assert.equal(context.implementationContext.pullRequest, 3);
+    assert.equal(context.implementationContext.branch, 'feat/v41-p01-authority-carriers');
+    assert.match(context.implementationContext.headBeforeIssue, /^[a-f0-9]{40}$/);
+    assert.equal(context.reconciliationContext.ref, 'refs/heads/dev');
+    assert.match(context.reconciliationContext.sha, /^[a-f0-9]{40}$/);
+    assert.match(context.reconciliationContext.mergeCommit, /^[a-f0-9]{40}$/);
+    assert.equal(context.reconciliationContext.packageInventory, 'configs/ivory-v41-authority-heads.json');
+    // The audit is re-grounded, not re-pinned: no field restates the moving selection.
+    assert.equal(context.authorityBasis, undefined);
+});
+
+test('IV41-003 rejects an evidence context that names no exact context', () => {
+    const candidate = bundle();
+    delete candidate.packageOwnership.evidenceContext.implementationContext;
+    delete candidate.packageOwnership.evidenceContext.reconciliationContext;
+    assert.match(
+        errorText(candidate),
+        /evidence context must name an exact implementation context or an exact reconciliation context/,
+    );
+
+    const implicitPr = bundle();
+    delete implicitPr.packageOwnership.evidenceContext.implementationContext.pullRequest;
+    assert.match(errorText(implicitPr), /implementation context must name an exact positive pull request number/);
+
+    const zeroPr = bundle();
+    zeroPr.packageOwnership.evidenceContext.implementationContext.pullRequest = 0;
+    assert.match(errorText(zeroPr), /implementation context must name an exact positive pull request number/);
+
+    const stringPr = bundle();
+    stringPr.packageOwnership.evidenceContext.implementationContext.pullRequest = '3';
+    assert.match(errorText(stringPr), /implementation context must name an exact positive pull request number/);
+});
+
+test('IV41-003 rejects a latest or implicit ref in either evidence context', () => {
+    const branch = bundle();
+    branch.packageOwnership.evidenceContext.implementationContext.branch = 'latest';
+    assert.match(errorText(branch), /implementation context branch must be an exact non-latest ref/);
+
+    const ref = bundle();
+    ref.packageOwnership.evidenceContext.reconciliationContext.ref = 'current dev';
+    assert.match(errorText(ref), /reconciliation context ref must be an exact non-latest ref/);
+
+    const emptyRef = bundle();
+    emptyRef.packageOwnership.evidenceContext.reconciliationContext.ref = '   ';
+    assert.match(errorText(emptyRef), /reconciliation context ref must be an exact non-latest ref/);
+});
+
+test('IV41-003 rejects a fabricated or off-line SHA in either evidence context', () => {
+    const fabricatedHead = bundle();
+    fabricatedHead.packageOwnership.evidenceContext.implementationContext.headBeforeIssue = '0'.repeat(40);
+    assert.match(errorText(fabricatedHead), /pre-issue head 0{40} must be a real commit reachable from refs\/heads\/dev/);
+
+    // A real commit is not enough: the PR #1 foundation head exists but is not in refs/heads/dev's history.
+    const offLineHead = bundle();
+    offLineHead.packageOwnership.evidenceContext.implementationContext.headBeforeIssue = 'ecc406d34a9bf49d8e2f165b994a919ca90ff718';
+    assert.match(errorText(offLineHead), /must be a real commit reachable from refs\/heads\/dev/);
+
+    const fabricatedMerge = bundle();
+    fabricatedMerge.packageOwnership.evidenceContext.reconciliationContext.mergeCommit = '1'.repeat(40);
+    assert.match(errorText(fabricatedMerge), /reconciliation context merge 1{40} must be a real commit reachable from refs\/heads\/dev/);
+
+    const shortHead = bundle();
+    shortHead.packageOwnership.evidenceContext.reconciliationContext.sha = '41fa0e198';
+    assert.match(errorText(shortHead), /reconciliation context head must be an exact 40-character SHA/);
+
+    const shortMerge = bundle();
+    shortMerge.packageOwnership.evidenceContext.reconciliationContext.mergeCommit = 'f8d0af66a';
+    assert.match(errorText(shortMerge), /reconciliation context merge must be an exact 40-character SHA/);
+});
+
+test('IV41-003 keeps the evidence context bound to the exact-head manifest', () => {
+    const unbound = bundle();
+    unbound.packageOwnership.evidenceContext.reconciliationContext.packageInventory = 'configs/ivory-v41-carrier-matrix.json';
+    assert.match(errorText(unbound), /reconciliation context must point at the exact package inventory/);
+
+    const manifestDrift = bundle();
+    manifestDrift.packageOwnership.basisManifest = 'configs/ivory-v41-carrier-matrix.json';
+    assert.match(errorText(manifestDrift), /package ownership must bind to the exact-head manifest/);
 });
 
 test('IV41-003 refuses architectural gaps that are not tracked as issues', () => {

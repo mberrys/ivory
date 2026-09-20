@@ -121,7 +121,16 @@ Package-level authority is retained in `configs/ivory-v41-package-ownership.json
 | content policy | `@ivory-tower/content-policy` | rights/content admission, not research support |
 | agent proposal harness | `@ivory-tower/agent-experiment` | bounded qualification harness, not a production authority |
 
-The validator fails closed if the exact package inventory is not covered, a responsibility gains multiple owners, another package acquires research acceptance or canonical-write authority, or the evidence context no longer matches the selected-dev SHA. The 15 missing fields already retained in the V41-I01.2 owner map are each mapped to an existing `IV41-*` roadmap issue; dropping one, duplicating one, or replacing its issue with session notes is also a validation failure.
+The validator fails closed if the exact package inventory is not covered, a responsibility gains multiple owners, or another package acquires research acceptance or canonical-write authority. The 15 missing fields already retained in the V41-I01.2 owner map are each mapped to an existing `IV41-*` roadmap issue; dropping one, duplicating one, or replacing its issue with session notes is also a validation failure.
+
+### Evidence context: retained history, re-grounded at the reconciled head
+
+The audit's own context is kept as two exact, separately recorded facts instead of one pointer at the moving selection. `evidenceContext.implementationContext` retains the audit as taken at PR #3's branch `feat/v41-p01-authority-carriers`, from the pre-issue head `dce910e4a988ddfa6c1618f6b7e4a82b0adc25a8`, on the pinned `npm@11.13.0` / `>=24` toolchain. `evidenceContext.reconciliationContext` records where the package set was re-read against the merged line: `refs/heads/dev` at `41fa0e19889fad7fdedef45a8c21944e7d923e68`, merged by `f8d0af66aa10d419cd18fb5f649f0eabfc63cd5d`, bound to the exact package inventory at `configs/ivory-v41-authority-heads.json`.
+
+The previous shape pinned `pullRequest: 3`, `branch: 'feat/v41-p01-authority-carriers'` and `authorityBasis.sha` *equal to the current selected-dev SHA* at the top level, so the record became false the moment the authority moved — exactly what the reconciliation exposed. Nothing is overwritten and nothing is re-pinned: the historical facts stay historical, and the record no longer restates the selection. **The head selection itself lives only in `configs/ivory-v41-authority-heads.json` (single source)**; this record names the heads it observed and binds to that manifest by path.
+
+The validator's guarantees are record-driven and no weaker than the hard-coded checks they replace. An evidence context must name an exact implementation context or an exact reconciliation context; a present implementation context must carry a positive integer pull request, an exact non-latest branch, a pre-issue head, and the pinned package-manager/engine context; a present reconciliation context must carry an exact non-latest ref, an exact head, an exact merge commit, and the exact-head inventory path. Every recorded commit SHA must be a real commit reachable from `refs/heads/dev` — `git merge-base --is-ancestor` decides, so a fabricated SHA and a real commit that is not on the dev line are both rejected. The owner, acceptance, write and storage assertions above are untouched, so a second acceptance or canonical-write owner still fails closed.
+
 
 ## ADRs and lineage (IV41-004)
 

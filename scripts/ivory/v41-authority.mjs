@@ -66,6 +66,8 @@ const GATE_OUTCOME_FIELDS = ['aggregatePass', 'overallPass', 'overallStatus', 'p
 const TRACKED_ISSUE_ANYWHERE = /(?:IV41-\d+[A-Z]?|V41-I\d+(?:\.\d+)?)/g;
 const QUALIFICATION_STATUSES = ['not-run', 'qualified', 'no-go', 'inconclusive', 'blocked', 'deferred'];
 const GAP_STATUSES = ['open', 'deferred', 'resolved'];
+/** The exact ref the exact-head manifest selects the authority through. */
+const DEV_REF = 'refs/heads/dev';
 const CARRIER_OWNER_CLASSES = ['production-package', 'closed-experiment'];
 const CARRIER_GAP_ISSUE = /^V41-I\d+(\.\d+)?$/;
 const CARRIER_GAP_LEAF = /^V41-I\d+\.\d+$/;
@@ -122,6 +124,20 @@ function resolveAuthorityRef(root, ref) {
         if (resolved.status === 0) return candidate;
     }
     return undefined;
+}
+
+/** A recorded commit is evidence only if it is a real commit on the dev line the authority is selected through. */
+function reachableFromDev(root, sha) {
+    const ref = resolveAuthorityRef(root, DEV_REF);
+    return ref !== undefined && gitIsAncestor(root, sha, ref);
+}
+
+function validateExactRef(value, label, errors) {
+    push(
+        typeof value === 'string' && value.trim().length > 0 && !/latest|current/i.test(value),
+        errors,
+        `${label} must be an exact non-latest ref`,
+    );
 }
 
 function sorted(values) {
@@ -753,7 +769,80 @@ function validateOwners(owners, heads, root, options, errors) {
     validateCarrierReadback(owners, root, options, errors);
 }
 
-function validatePackageOwnership(packageOwnership, heads, owners, errors) {
+/**
+ * The package-ownership audit names the exact contexts it was taken in — the implementation context it
+ * was authored at (PR #3's branch) and the reconciliation context the package set was re-read against on
+ * the merged line — instead of pinning the moving selection. Each recorded SHA must be a real commit on
+ * the dev line, each recorded ref must be exact and non-latest, and the record must still bind to the
+ * exact-head manifest by path. A record that names no exact context fails closed.
+ */
+function validatePackageOwnershipContext(context, root, errors) {
+    const hasImplementation = isRecord(context.implementationContext);
+    const hasReconciliation = isRecord(context.reconciliationContext);
+    push(
+        hasImplementation || hasReconciliation,
+        errors,
+        'IV41-003: evidence context must name an exact implementation context or an exact reconciliation context',
+    );
+
+    if (hasImplementation) {
+        const implementation = context.implementationContext;
+        push(
+            Number.isInteger(implementation.pullRequest) && implementation.pullRequest > 0,
+            errors,
+            'IV41-003: implementation context must name an exact positive pull request number',
+        );
+        validateExactRef(implementation.branch, 'IV41-003: implementation context branch', errors);
+        push(
+            SHA40.test(implementation.headBeforeIssue ?? ''),
+            errors,
+            'IV41-003: implementation context pre-issue head must be an exact 40-character SHA',
+        );
+        push(
+            typeof implementation.packageManager === 'string' && implementation.packageManager.length > 0,
+            errors,
+            'IV41-003: package-manager context is required',
+        );
+        push(
+            typeof implementation.nodeEngine === 'string' && implementation.nodeEngine.length > 0,
+            errors,
+            'IV41-003: Node engine context is required',
+        );
+        if (SHA40.test(implementation.headBeforeIssue ?? '')) {
+            push(
+                reachableFromDev(root, implementation.headBeforeIssue),
+                errors,
+                `IV41-003: implementation context pre-issue head ${implementation.headBeforeIssue} must be a real commit reachable from ${DEV_REF}`,
+            );
+        }
+    }
+
+    if (hasReconciliation) {
+        const reconciliation = context.reconciliationContext;
+        validateExactRef(reconciliation.ref, 'IV41-003: reconciliation context ref', errors);
+        push(SHA40.test(reconciliation.sha ?? ''), errors, 'IV41-003: reconciliation context head must be an exact 40-character SHA');
+        push(
+            SHA40.test(reconciliation.mergeCommit ?? ''),
+            errors,
+            'IV41-003: reconciliation context merge must be an exact 40-character SHA',
+        );
+        push(
+            reconciliation.packageInventory === CONFIGS.heads,
+            errors,
+            'IV41-003: reconciliation context must point at the exact package inventory',
+        );
+        for (const [field, value] of [['head', reconciliation.sha], ['merge', reconciliation.mergeCommit]]) {
+            if (!SHA40.test(value ?? '')) continue;
+            push(
+                reachableFromDev(root, value),
+                errors,
+                `IV41-003: reconciliation context ${field} ${value} must be a real commit reachable from ${DEV_REF}`,
+            );
+        }
+    }
+}
+
+function validatePackageOwnership(packageOwnership, heads, owners, root, errors) {
     push(packageOwnership.schema === 'ivory-v41-package-ownership/1', errors, 'IV41-003: unexpected schema');
     push(packageOwnership.issue === 'IV41-003', errors, 'IV41-003: issue id must be IV41-003');
     push(packageOwnership.dependsOn === 'IV41-001', errors, 'IV41-003: dependency must remain IV41-001');
@@ -761,16 +850,8 @@ function validatePackageOwnership(packageOwnership, heads, owners, errors) {
     push(packageOwnership.basisOwnerMap === CONFIGS.owners, errors, 'IV41-003: package ownership must bind to the structural owner map');
 
     const context = packageOwnership.evidenceContext ?? {};
-    const selectedDev = (heads.heads ?? []).find(head => head.role === 'selectedDev');
     push(context.repository === 'mberrys/ivory', errors, 'IV41-003: evidence context must identify mberrys/ivory');
-    push(context.pullRequest === 3, errors, 'IV41-003: evidence context must identify PR #3');
-    push(context.branch === 'feat/v41-p01-authority-carriers', errors, 'IV41-003: evidence context must identify the implementation branch');
-    push(context.authorityBasis?.role === 'selectedDev', errors, 'IV41-003: evidence authority basis must be selectedDev');
-    push(context.authorityBasis?.sha === selectedDev?.sha, errors, 'IV41-003: evidence authority SHA must match the exact selected-dev SHA');
-    push(context.authorityBasis?.packageInventory === CONFIGS.heads, errors, 'IV41-003: evidence context must point to the exact package inventory');
-    push(SHA40.test(context.implementationObservation?.headBeforeIssue ?? ''), errors, 'IV41-003: pre-issue PR head must be an exact 40-character SHA');
-    push(typeof context.implementationObservation?.packageManager === 'string' && context.implementationObservation.packageManager.length > 0, errors, 'IV41-003: package-manager context is required');
-    push(typeof context.implementationObservation?.nodeEngine === 'string' && context.implementationObservation.nodeEngine.length > 0, errors, 'IV41-003: Node engine context is required');
+    validatePackageOwnershipContext(context, root, errors);
 
     const packages = packageOwnership.packages ?? [];
     const inventoryNames = (heads.packages ?? []).map(item => item.name);
@@ -1297,7 +1378,7 @@ export function validateBundle(bundle, options = {}) {
     const root = options.root ?? ROOT;
     validateHeads(bundle.heads, root, options, errors);
     validateOwners(bundle.owners, bundle.heads, root, options, errors);
-    validatePackageOwnership(bundle.packageOwnership, bundle.heads, bundle.owners, errors);
+    validatePackageOwnership(bundle.packageOwnership, bundle.heads, bundle.owners, root, errors);
     validateCarriers(bundle.carriers, root, options, errors);
     validateGates(bundle.gates, root, options, errors);
     validateQualification(bundle.qualification, bundle, { ...options, root }, errors);
