@@ -68,6 +68,15 @@ const QUALIFICATION_STATUSES = ['not-run', 'qualified', 'no-go', 'inconclusive',
 const GAP_STATUSES = ['open', 'deferred', 'resolved'];
 /** The exact ref the exact-head manifest selects the authority through. */
 const DEV_REF = 'refs/heads/dev';
+/** The parent integration readback V41-P01's own acceptance requires, and the literal anchors it must carry. */
+const PARENT_READBACK = 'changes/v41-p01-parent-readback.md';
+const PARENT_LEAF_IDS = ['V41-I01.1', 'V41-I01.2', 'V41-I01.3', 'V41-I01.4'];
+/**
+ * The pinned selection is recorded as a literal anchor line, not as prose: a note that merely mentions a
+ * 40-character SHA somewhere is not evidence, and the recorded value is compared with the manifest's
+ * current `selectedDev` so a moved selection fails closed until the note is re-grounded.
+ */
+const PARENT_SELECTED_DEV_ANCHOR = /^selectedDev:[ \t]*([a-f0-9]{40})[ \t]*$/m;
 const CARRIER_OWNER_CLASSES = ['production-package', 'closed-experiment'];
 const CARRIER_GAP_ISSUE = /^V41-I\d+(\.\d+)?$/;
 const CARRIER_GAP_LEAF = /^V41-I\d+\.\d+$/;
@@ -1373,10 +1382,50 @@ function validateAdrLineage(lineage, bundle, root, options, errors) {
     }
 }
 
+/**
+ * The parent's positive acceptance requires an integration readback that names every leaf and the pinned
+ * selection. Keeping it machine-visible is what stops it rotting silently: each leaf id is matched as a
+ * literal anchor (a note that only paraphrases the ids is not evidence), and the note's recorded
+ * `selectedDev:` line must equal the head the manifest selects right now, so moving the selection without
+ * re-grounding the note fails closed. Adversarial fixtures inject the note text through
+ * `options.parentReadbackText` (`null` models an absent note) rather than asserting against the live file.
+ */
+function validateParentReadback(root, options, selectedSha, errors) {
+    let text = options.parentReadbackText;
+    if (text === undefined) {
+        try {
+            text = readFileSync(path.join(root, PARENT_READBACK), 'utf8');
+        } catch {
+            text = undefined;
+        }
+    }
+    if (typeof text !== 'string') {
+        errors.push(`V41-P01: the parent integration readback is missing: ${PARENT_READBACK} must exist and be readable`);
+        return;
+    }
+    for (const leaf of PARENT_LEAF_IDS) {
+        const anchor = new RegExp(`(?<![0-9A-Za-z.])${leaf.replace(/\./g, '\\.')}(?![0-9A-Za-z.])`);
+        push(anchor.test(text), errors, `V41-P01: the parent integration readback must name leaf ${leaf} as a literal id`);
+    }
+    const recorded = PARENT_SELECTED_DEV_ANCHOR.exec(text);
+    if (recorded === null) {
+        errors.push(
+            'V41-P01: the parent integration readback must record the pinned selection as a literal `selectedDev: <40-character SHA>` line, not as prose',
+        );
+        return;
+    }
+    push(
+        recorded[1] === selectedSha,
+        errors,
+        `V41-P01: the parent integration readback records selectedDev ${recorded[1]}, which does not match the pinned selectedDev ${selectedSha ?? '(missing)'}`,
+    );
+}
+
 export function validateBundle(bundle, options = {}) {
     const errors = [];
     const root = options.root ?? ROOT;
     validateHeads(bundle.heads, root, options, errors);
+    validateParentReadback(root, options, (bundle.heads?.heads ?? []).find(head => head.role === 'selectedDev')?.sha, errors);
     validateOwners(bundle.owners, bundle.heads, root, options, errors);
     validatePackageOwnership(bundle.packageOwnership, bundle.heads, bundle.owners, root, errors);
     validateCarriers(bundle.carriers, root, options, errors);

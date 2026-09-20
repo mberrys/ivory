@@ -1170,3 +1170,43 @@ test('IV41-004 binds the ADR lineage to the current selection and a recorded sup
         /retained prior selected-dev head must be a superseded selection recorded in the exact-head manifest/,
     );
 });
+
+test('V41-P01 requires a machine-visible parent integration readback bound to the pinned selection', () => {
+    const selectedSha = bundle().heads.heads.find(head => head.role === 'selectedDev').sha;
+    const note = [
+        '| leaf | artifact |',
+        '|---|---|',
+        '| V41-I01.1 | configs/ivory-v41-authority-heads.json |',
+        '| V41-I01.2 | configs/ivory-v41-owner-map.json |',
+        '| V41-I01.3 | configs/ivory-v41-carrier-matrix.json |',
+        '| V41-I01.4 | configs/ivory-v41-gates.json |',
+        '',
+        '```text',
+        `selectedDev: ${selectedSha}`,
+        '```',
+        '',
+    ].join('\n');
+    const injected = overrides => ({ verifyPackages: false, ...overrides });
+
+    // The committed note must satisfy the check as it stands, so a moved selection cannot leave it stale.
+    assert.deepEqual(validateBundle(bundle(), { verifyPackages: false }), []);
+    assert.deepEqual(validateBundle(bundle(), injected({ parentReadbackText: note })), []);
+
+    const absent = validateBundle(bundle(), injected({ parentReadbackText: null })).join('\n');
+    assert.match(absent, /the parent integration readback is missing: changes\/v41-p01-parent-readback\.md/);
+
+    const missingLeaf = validateBundle(bundle(), injected({ parentReadbackText: note.replace('V41-I01.3', 'V41-I01') })).join('\n');
+    assert.match(missingLeaf, /must name leaf V41-I01\.3 as a literal id/);
+
+    const stale = validateBundle(bundle(), injected({ parentReadbackText: note.replace(selectedSha, 'a'.repeat(40)) })).join('\n');
+    assert.match(stale, /records selectedDev a{40}, which does not match the pinned selectedDev/);
+
+    const proseOnly = validateBundle(
+        bundle(),
+        injected({ parentReadbackText: note.replace(`selectedDev: ${selectedSha}`, `observed at ${selectedSha}`) }),
+    ).join('\n');
+    assert.match(proseOnly, /must record the pinned selection as a literal `selectedDev: <40-character SHA>` line/);
+
+    const shifted = validateBundle(bundle(), injected({ parentReadbackText: note.replace('V41-I01.1', 'V41-I01.14') })).join('\n');
+    assert.match(shifted, /must name leaf V41-I01\.1 as a literal id/);
+});

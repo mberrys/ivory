@@ -204,3 +204,24 @@ instead of being overwritten, and the decision is `bounded-experiment-pass` only
 evidence is retained. Every pinned readback that cites the record or the changed modules was re-derived, and
 `test:ivory-n7` is now a stage of `verify:ivory-tower`. No gate moved: N7 remains closed on the same retained
 live-provider run, and nothing in the V4.1 bundle is `qualified`.
+
+## V41-P01 parent integration readback
+
+The parent's own positive acceptance requires an integration readback, and it is retained at
+`changes/v41-p01-parent-readback.md`. It names the four leaves — `V41-I01.1`
+(`configs/ivory-v41-authority-heads.json`), `V41-I01.2` (`configs/ivory-v41-owner-map.json`), `V41-I01.3`
+(`configs/ivory-v41-carrier-matrix.json`), `V41-I01.4` (`configs/ivory-v41-gates.json`) — each with its
+`sha256`/byte-count readback and the command actually run for it, plus the exact dependency basis: the pinned
+authority head `41fa0e19889fad7fdedef45a8c21944e7d923e68` (tree `14e6e62079396a33409752b17a6a380db31571c1`),
+its green quality-gate run `35481120037` with four green jobs, the reconciliation merge
+`f8d0af66aa10d419cd18fb5f649f0eabfc63cd5d`, the retained non-selectable superseded selection
+`bc3cd03b5b2d870d219797925d92edc48c33c6ca`, the A–F lineage mapping, the N1–N7 obligation table, and each
+adversarial acceptance case with its real rejection.
+
+The parent's integration predicate is the whole-bundle verifier: `node scripts/ivory/v41-authority.mjs` prints
+`V4.1 authority reconciliation: valid (V41-P01 4/4 leaves + IV41-003 package ownership + IV41-004 ADR lineage
++ IV41-005 qualification manifest)` only when every leaf, its dependency chain, and the parent readback itself
+are consistent at the pinned head. That readback is machine-checked in the same verifier — it fails closed when
+the note is missing, when a leaf id is absent, or when the note's recorded `selectedDev` anchor no longer
+matches the heads manifest — so it cannot rot silently. No gate moves: this is contract/design evidence, every
+gate stays `not-run`, and the parent claims no execution, production, hosted, or release completion.
