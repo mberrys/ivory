@@ -107,6 +107,39 @@ function errorText(candidate, options = { verifyPackages: false }) {
     return validateBundle(candidate, options).join('\n');
 }
 
+/**
+ * The canonical all-not-run record shape. Tests that need a not-run manifest build it from this
+ * helper instead of asserting against the live manifest, whose records legitimately move to a
+ * terminal status once a retained run exists.
+ */
+function notRunRecord(gateId) {
+    return {
+        schema: 'ivory-v41-qualification-record/1',
+        gate: gateId,
+        fixtures: [],
+        evidence: [],
+        observations: {
+            machine: { status: 'not-run' },
+            human: { status: 'not-run' },
+        },
+        decision: { status: 'not-run', rationale: 'No retained qualification run exists for this gate.' },
+        limitations: [{
+            id: 'not-run',
+            kind: 'status',
+            effect: 'blocks-closure',
+            statement: 'No retained qualification run exists for this gate.',
+        }],
+        architecturalGaps: [],
+    };
+}
+
+function notRunBundle() {
+    const candidate = bundle();
+    for (const gate of candidate.qualification.gates) gate.record = notRunRecord(gate.id);
+    candidate.qualification.runContext = null;
+    return candidate;
+}
+
 test('the committed authority and package-ownership contracts are structurally valid', () => {
     assert.deepEqual(validateBundle(bundle(), { verifyPackages: false }), []);
 });
@@ -492,10 +525,28 @@ test('V41-I01.4 keeps an unbound gate explicit instead of silently runner-less',
     assert.match(errorText(implicit), /Q1 must explicitly bind its machine runners, even when none exist/);
 });
 
-test('the qualification manifest is valid while every gate remains not-run', () => {
-    const candidate = bundle();
+test('a manifest whose every gate is not-run is valid with a null run context', () => {
+    const candidate = notRunBundle();
     assert.equal(candidate.qualification.runContext, null);
     assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+});
+
+test('a terminal record cannot be reached without retained fixtures and evidence', () => {
+    const candidate = qualifiedCandidate();
+    const record = candidate.qualification.gates.find(gate => gate.id === 'Q1').record;
+    record.fixtures = [];
+    record.evidence = [];
+    assert.match(errorText(candidate), /terminal records require retained fixtures/);
+    assert.match(errorText(candidate), /terminal records require retained evidence/);
+});
+
+test('a not-run record cannot claim fixtures or evidence', () => {
+    const candidate = notRunBundle();
+    const record = candidate.qualification.gates.find(gate => gate.id === 'Q2').record;
+    record.fixtures = [{ id: 'claimed-fixture', ...retainedFile('package.json') }];
+    record.evidence = [{ id: 'claimed-evidence', tracked: true, ...retainedFile('configs/ivory-v41-gates.json') }];
+    assert.match(errorText(candidate), /not-run records cannot claim fixtures/);
+    assert.match(errorText(candidate), /not-run records cannot claim evidence/);
 });
 
 test('terminal qualification records require exact run context', () => {
