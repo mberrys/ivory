@@ -19,15 +19,27 @@
     },
     {
       "role": "selectedDev",
-      "sha": "bc3cd03b5b2d870d219797925d92edc48c33c6ca",
+      "sha": "41fa0e19889fad7fdedef45a8c21944e7d923e68",
+      "treeSha": "14e6e62079396a33409752b17a6a380db31571c1",
       "identity": "refs/heads/dev",
       "ref": "refs/heads/dev",
       "selectable": true
     }
   ],
+  "supersededSelections": [
+    {
+      "role": "selectedDev",
+      "sha": "bc3cd03b5b2d870d219797925d92edc48c33c6ca",
+      "treeSha": "8edc9eab81e3733b60eb626c10ca91de63bd041c",
+      "supersededBy": "41fa0e19889fad7fdedef45a8c21944e7d923e68",
+      "reason": "The pre-merge V4.1 authority line head carries no N1-N7 closeout evidence, so its N5 row read as absent and its evidence limits were stale. It is retained here as history only and can never be selected as authority again.",
+      "mergeCommit": "f8d0af66aa10d419cd18fb5f649f0eabfc63cd5d",
+      "selectable": false
+    }
+  ],
   "packageInventorySource": {
     "role": "selectedDev",
-    "sha": "bc3cd03b5b2d870d219797925d92edc48c33c6ca",
+    "sha": "41fa0e19889fad7fdedef45a8c21944e7d923e68",
     "mode": "exact-tree"
   },
   "packages": [
@@ -98,49 +110,49 @@
       "path": "docs/experiments/n1-v2-evidence.json",
       "classification": "accepted",
       "selectedDevAvailability": "present",
-      "limit": "bounded architecture experiment; not production qualification"
+      "limit": "in-memory reference kernel with a closed three-researcher interpretation gate; not production schema persistence, representation remapping, or PDF/OCR anchors"
     },
     {
       "id": "N2",
       "path": "docs/experiments/n2-v2-evidence.json",
       "classification": "accepted",
       "selectedDevAvailability": "present",
-      "limit": "PGlite/reference-machine interruption evidence; not the selected production persistence proof"
+      "limit": "PGlite NodeFS on NTFS after unclean process kill, one Windows reference machine; not cross-platform, hardware-power-loss, or the selected production persistence proof"
     },
     {
       "id": "N3",
       "path": "docs/experiments/n3-evidence.json",
       "classification": "accepted",
       "selectedDevAvailability": "present",
-      "limit": "Windows 11 x64/Docker Desktop pilot scope"
+      "limit": "Windows 11 x64 pilot with Docker Desktop; macOS and Apple Silicon remain unqualified"
     },
     {
       "id": "N4",
       "path": "docs/experiments/n4-v2-evidence.json",
       "classification": "accepted",
       "selectedDevAvailability": "present",
-      "limit": "retained converter/corpus scope only"
+      "limit": "retained 22-fixture corpus with two genuinely pinned converters and zero false-exact anchors; no wider corpus or converter scope"
     },
     {
       "id": "N5",
       "path": "docs/experiments/n5-v2-evidence.json",
-      "classification": "open",
-      "selectedDevAvailability": "missing",
-      "limit": "foundation-PR evidence is not present on selected dev and cannot be inferred"
+      "classification": "accepted",
+      "selectedDevAvailability": "present",
+      "limit": "four-client equivalence, twelve ordered competing edits, restart around an accepted-but-undelivered receipt, and exact citation navigation, observed on win32/x64 against one canonical Core fixture service and the isolated @ivory-tower/n5-browser workbench; no notebook surface, no desktop, cross-platform, hosted-service, or independent second-machine reproduction"
     },
     {
       "id": "N6",
       "path": "docs/experiments/n6-evidence.json",
-      "classification": "open",
+      "classification": "accepted",
       "selectedDevAvailability": "present",
-      "limit": "technical replay evidence exists; independent second-machine installation remains unproven"
+      "limit": "closed as a technical pass on one Windows machine; the human product-value qualification remains pending and the second-machine clean install is recorded blocked, so independent reproduction is not proven"
     },
     {
       "id": "N7",
       "path": "docs/experiments/n7-v1-evidence.json",
       "classification": "accepted",
       "selectedDevAvailability": "present",
-      "limit": "bounded local provider qualification only"
+      "limit": "one bounded run against a real local llama.cpp provider; no hosted provider, multi-run, restart-durability, or Theia-integration qualification"
     }
   ],
   "sourceRegister": {

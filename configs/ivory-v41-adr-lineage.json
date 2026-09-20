@@ -11,6 +11,7 @@
       "selectedDev"
     ],
     "priorSelectedDevHead": "bc3cd03b5b2d870d219797925d92edc48c33c6ca",
+    "selectedDevHead": "41fa0e19889fad7fdedef45a8c21944e7d923e68",
     "reconciliationMerge": "f8d0af66aa10d419cd18fb5f649f0eabfc63cd5d",
     "reconciliationMergeSubject": "merge: reconcile the N1-N7 closeout line with the V4.1 authority line on dev"
   },

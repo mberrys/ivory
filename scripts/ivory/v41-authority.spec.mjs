@@ -900,3 +900,143 @@ test('the retained readback identity is platform independent (LF and CRLF agree)
     assert.equal(binaryIdentity.bytes, 4);
     assert.equal(binaryIdentity.sha256, createHash('sha256').update(binary).digest('hex'));
 });
+
+function selectedHead(candidate) {
+    return candidate.heads.heads.find(head => head.role === 'selectedDev');
+}
+
+test('V41-I01.1 pins the selected dev head with its exact tree and ref', () => {
+    const candidate = bundle();
+    assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+    const selected = selectedHead(candidate);
+    assert.match(selected.sha, /^[a-f0-9]{40}$/);
+    assert.match(selected.treeSha, /^[a-f0-9]{40}$/);
+    assert.equal(selected.ref, 'refs/heads/dev');
+    assert.equal(candidate.heads.packageInventorySource.sha, selected.sha);
+    assert.equal(candidate.heads.heads.filter(head => head.selectable === true).length, 1);
+});
+
+test('V41-I01.1 retains the superseded selection as non-selectable history', () => {
+    const candidate = bundle();
+    assert.ok(Array.isArray(candidate.heads.supersededSelections));
+    assert.ok(candidate.heads.supersededSelections.length >= 1);
+    for (const entry of candidate.heads.supersededSelections) {
+        assert.equal(entry.selectable, false);
+        assert.match(entry.sha, /^[a-f0-9]{40}$/);
+        assert.match(entry.treeSha, /^[a-f0-9]{40}$/);
+        assert.match(entry.mergeCommit, /^[a-f0-9]{40}$/);
+        assert.equal(entry.supersededBy, selectedHead(candidate).sha);
+        assert.ok(entry.reason.trim().length > 0);
+    }
+});
+
+test('V41-I01.1 rejects a pinned head that is not a real commit on the dev line', () => {
+    const fabricated = bundle();
+    selectedHead(fabricated).sha = '0'.repeat(40);
+    assert.match(errorText(fabricated), /selectedDev 0{40} must be a real commit reachable from refs\/heads\/dev/);
+
+    // A real commit is not enough: the PR #1 foundation head exists but is not in refs/heads/dev's history.
+    const offLine = bundle();
+    selectedHead(offLine).sha = 'ecc406d34a9bf49d8e2f165b994a919ca90ff718';
+    offLine.heads.packageInventorySource.sha = 'ecc406d34a9bf49d8e2f165b994a919ca90ff718';
+    assert.match(errorText(offLine), /must be a real commit reachable from refs\/heads\/dev/);
+});
+
+test('V41-I01.1 rejects a malformed tree, a latest ref, and a missing ref', () => {
+    const malformedTree = bundle();
+    selectedHead(malformedTree).treeSha = '14e6e620';
+    assert.match(errorText(malformedTree), /selectedDev must record its exact 40-character tree SHA/);
+
+    const latestRef = bundle();
+    selectedHead(latestRef).ref = 'latest dev';
+    assert.match(errorText(latestRef), /selectedDev must name an exact non-latest ref/);
+
+    const missingRef = bundle();
+    delete selectedHead(missingRef).ref;
+    assert.match(errorText(missingRef), /selectedDev must name an exact non-latest ref/);
+});
+
+test('V41-I01.1 rejects a superseded selection that claims authority', () => {
+    const selectable = bundle();
+    selectable.heads.supersededSelections[0].selectable = true;
+    const errors = errorText(selectable);
+    assert.match(errors, /a superseded selection can never be selectable authority/);
+    assert.match(errors, /must declare selectable: false and can never become authority/);
+
+    const duplicated = bundle();
+    duplicated.heads.supersededSelections[0].sha = selectedHead(duplicated).sha;
+    assert.match(errorText(duplicated), /must not duplicate a current authority head/);
+
+    const repeated = bundle();
+    repeated.heads.supersededSelections.push(clone(repeated.heads.supersededSelections[0]));
+    assert.match(errorText(repeated), /duplicate superseded selections: [a-f0-9]{40}/);
+
+    const twoSelectable = bundle();
+    twoSelectable.heads.heads.find(head => head.role === 'foundationPr').selectable = true;
+    assert.match(errorText(twoSelectable), /exactly one head may be selectable/);
+});
+
+test('V41-I01.1 rejects a superseded selection without its reason or merge commit', () => {
+    const noReason = bundle();
+    delete noReason.heads.supersededSelections[0].reason;
+    assert.match(errorText(noReason), /supersededSelections\[0\]\.reason is required/);
+
+    const emptyReason = bundle();
+    emptyReason.heads.supersededSelections[0].reason = '   ';
+    assert.match(errorText(emptyReason), /supersededSelections\[0\]\.reason is required/);
+
+    const noMerge = bundle();
+    delete noMerge.heads.supersededSelections[0].mergeCommit;
+    assert.match(errorText(noMerge), /supersededSelections\[0\]\.mergeCommit must be an exact 40-character SHA/);
+
+    const malformedMerge = bundle();
+    malformedMerge.heads.supersededSelections[0].mergeCommit = 'f8d0af66a';
+    assert.match(errorText(malformedMerge), /supersededSelections\[0\]\.mergeCommit must be an exact 40-character SHA/);
+
+    const malformedTree = bundle();
+    malformedTree.heads.supersededSelections[0].treeSha = '8edc9eab';
+    assert.match(errorText(malformedTree), /supersededSelections\[0\]\.treeSha must be an exact 40-character SHA/);
+});
+
+test('V41-I01.1 rejects a superseded selection outside the pinned head history', () => {
+    const fabricated = bundle();
+    fabricated.heads.supersededSelections[0].sha = '1'.repeat(40);
+    assert.match(errorText(fabricated), /must be a real commit in the pinned head's history/);
+
+    const offLine = bundle();
+    offLine.heads.supersededSelections[0].mergeCommit = 'ecc406d34a9bf49d8e2f165b994a919ca90ff718';
+    assert.match(
+        errorText(offLine),
+        /mergeCommit ecc406d34a9bf49d8e2f165b994a919ca90ff718 must be a real commit in the pinned head's history/,
+    );
+});
+
+test('V41-I01.1 rejects a superseded record naming another authority or an implicit array', () => {
+    const wrongAuthority = bundle();
+    wrongAuthority.heads.supersededSelections[0].supersededBy = 'ecc406d34a9bf49d8e2f165b994a919ca90ff718';
+    assert.match(errorText(wrongAuthority), /supersededSelections\[0\]\.supersededBy must name the current selected authority/);
+
+    const implicit = bundle();
+    delete implicit.heads.supersededSelections;
+    assert.match(errorText(implicit), /supersededSelections must be an explicit array, even when empty/);
+});
+
+test('IV41-004 binds the ADR lineage to the current selection and a recorded supersession', () => {
+    const stale = bundle();
+    stale.adrLineage.evidenceContext.selectedDevHead = 'bc3cd03b5b2d870d219797925d92edc48c33c6ca';
+    assert.match(errorText(stale), /evidence context must name the current selected-dev head/);
+
+    const unrecorded = bundle();
+    unrecorded.adrLineage.evidenceContext.priorSelectedDevHead = 'efec71ed83a1d0d9d513a4ead86369201cb5b401';
+    assert.match(
+        errorText(unrecorded),
+        /retained prior selected-dev head must be a superseded selection recorded in the exact-head manifest/,
+    );
+
+    const dropped = bundle();
+    dropped.heads.supersededSelections = [];
+    assert.match(
+        errorText(dropped),
+        /retained prior selected-dev head must be a superseded selection recorded in the exact-head manifest/,
+    );
+});

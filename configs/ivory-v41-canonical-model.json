@@ -23,7 +23,7 @@
     "pullRequest": 5,
     "branch": "feat/v41-p02-fragment-context",
     "headBeforeIssue": "1aba5b8625af377396b4c6dd362dcf8b49782c34",
-    "selectedDev": "bc3cd03b5b2d870d219797925d92edc48c33c6ca",
+    "selectedDev": "41fa0e19889fad7fdedef45a8c21944e7d923e68",
     "packageManager": "npm@11.13.0",
     "nodeEngine": ">=24",
     "operator": "connected GitHub integration",
@@ -413,20 +413,20 @@
       {
         "id": "ownerMap",
         "path": "configs/ivory-v41-owner-map.json",
-        "sha256": "861ac8af90da03cd3009a0da1227c17dcd0bc927b8d6608c6315ef1f5906861d",
+        "sha256": "eb0e8aeb1a0540d23c8150a767de7d3be43c380aced11ef2c1c32eb7be8655d9",
         "bytes": 7307
       },
       {
         "id": "packageOwnership",
         "path": "configs/ivory-v41-package-ownership.json",
-        "sha256": "671e846ff741eb61b2a66f14cffc3587c94ceedc4851a0ed5d8cf3c84f0b68c5",
+        "sha256": "30a1a127c76eea1ce5a1ce69bd3748630eef0556c33a95b26c9b20888b7d6aff",
         "bytes": 11075
       },
       {
         "id": "exactAuthority",
         "path": "configs/ivory-v41-authority-heads.json",
-        "sha256": "277e549d4d94e52fe3d8f38b0aa654b53bfb8dc1a2377d5b34dfe186093f09b4",
-        "bytes": 5392
+        "sha256": "ccad89546e1d224540456dd010f9eb42e796666fe3c6a3f5316acd5c8040e44d",
+        "bytes": 6859
       },
       {
         "id": "carrierMatrix",
@@ -437,8 +437,8 @@
       {
         "id": "adrLineage",
         "path": "configs/ivory-v41-adr-lineage.json",
-        "sha256": "6c91f1337dbb2d0b0bf96e9b08f08f8cbee449116c70752bb8566d5322ca9852",
-        "bytes": 5925
+        "sha256": "9fed8e3bfbf0513b18baf67c2e9a97c6b7ea621b002c7f14071acd295dd9d4f7",
+        "bytes": 5992
       },
       {
         "id": "researchKernelTypes",

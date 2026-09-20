@@ -198,8 +198,8 @@
     },
     "manifest": {
       "path": "configs/ivory-v41-authority-heads.json",
-      "sha256": "277e549d4d94e52fe3d8f38b0aa654b53bfb8dc1a2377d5b34dfe186093f09b4",
-      "bytes": 5392
+      "sha256": "ccad89546e1d224540456dd010f9eb42e796666fe3c6a3f5316acd5c8040e44d",
+      "bytes": 6859
     },
     "carrierFiles": [
       {

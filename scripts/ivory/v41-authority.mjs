@@ -96,6 +96,34 @@ function workingTreeGitBlobSha(root, relative) {
     return result.stdout.trim();
 }
 
+/**
+ * Reachability is proved against the real object graph and never inferred from a string:
+ * `git merge-base --is-ancestor` exits non-zero for a fabricated SHA, for a commit outside the line's
+ * history, and for an object the local clone does not carry, so all three fail closed. A pinned head
+ * that only "looks like" a 40-character SHA is not authority.
+ */
+function gitIsAncestor(root, sha, ref) {
+    const result = spawnSync('git', ['merge-base', '--is-ancestor', sha, ref], { cwd: root, encoding: 'utf8' });
+    return result.status === 0;
+}
+
+/**
+ * A manifest names an exact ref; the clone under audit may carry that line under its local branch name
+ * (`refs/heads/dev` on a push checkout) or only under the remote-tracking name that a pull-request
+ * checkout fetches (`refs/remotes/origin/dev`). Both name the same dev line, so both are accepted as the
+ * ref to prove reachability against — and a ref that resolves nowhere fails closed rather than passing.
+ */
+function resolveAuthorityRef(root, ref) {
+    const prefix = 'refs/heads/';
+    const branch = ref.startsWith(prefix) ? ref.slice(prefix.length) : undefined;
+    const candidates = branch === undefined ? [ref] : [ref, `refs/remotes/origin/${branch}`];
+    for (const candidate of candidates) {
+        const resolved = spawnSync('git', ['rev-parse', '--verify', '--quiet', candidate], { cwd: root, encoding: 'utf8' });
+        if (resolved.status === 0) return candidate;
+    }
+    return undefined;
+}
+
 function sorted(values) {
     return [...values].sort();
 }
@@ -355,22 +383,74 @@ function validateQualification(qualification, bundle, options, errors) {
 function validateHeads(heads, root, options, errors) {
     push(heads.schema === 'ivory-v41-authority-heads/1', errors, 'I01.1: unexpected schema');
     push(heads.issue === 'V41-I01.1', errors, 'I01.1: issue id must be V41-I01.1');
-    const roles = (heads.heads ?? []).map(head => head.role);
+    const headRows = Array.isArray(heads.heads) ? heads.heads : [];
+    const roles = headRows.map(head => head.role);
     push(sameSet(roles, EXPECTED_HEAD_ROLES), errors, 'I01.1: manifest must contain exactly detachedBaseline, foundationPr, and selectedDev');
     push(duplicates(roles).length === 0, errors, `I01.1: duplicate head roles: ${duplicates(roles).join(', ')}`);
-    const shas = (heads.heads ?? []).map(head => head.sha);
-    for (const head of heads.heads ?? []) {
+    const shas = headRows.map(head => head.sha);
+    for (const head of headRows) {
         push(SHA40.test(head.sha ?? ''), errors, `I01.1: ${head.role ?? 'unknown'} must use an exact 40-character SHA`);
         push(!/latest|current/i.test(head.identity ?? ''), errors, `I01.1: ${head.role ?? 'unknown'} identity must not use latest/current substitution`);
+        if (head.treeSha !== undefined) push(SHA40.test(head.treeSha), errors, `I01.1: ${head.role ?? 'unknown'} treeSha must be an exact 40-character SHA`);
+        if (head.ref !== undefined) {
+            push(
+                typeof head.ref === 'string' && head.ref.length > 0 && !/latest|current/i.test(head.ref),
+                errors,
+                `I01.1: ${head.role ?? 'unknown'} ref must be an exact non-latest ref`,
+            );
+        }
     }
     push(new Set(shas).size === shas.length, errors, 'I01.1: authority heads must be distinct');
-    const selected = (heads.heads ?? []).find(head => head.role === heads.selectedAuthorityRole);
+    const selected = headRows.find(head => head.role === heads.selectedAuthorityRole);
     push(heads.selectedAuthorityRole === 'selectedDev', errors, 'I01.1: selected authority must be selectedDev');
     push(selected?.selectable === true, errors, 'I01.1: selectedDev must be the only selectable head');
-    push((heads.heads ?? []).filter(head => head.selectable === true).length === 1, errors, 'I01.1: exactly one head may be selectable');
+    push(headRows.filter(head => head.selectable === true).length === 1, errors, 'I01.1: exactly one head may be selectable');
+    push(SHA40.test(selected?.treeSha ?? ''), errors, 'I01.1: selectedDev must record its exact 40-character tree SHA');
+    const selectedRef = typeof selected?.ref === 'string' && selected.ref.length > 0 ? selected.ref : '';
+    push(selectedRef.length > 0 && !/latest|current/i.test(selectedRef), errors, 'I01.1: selectedDev must name an exact non-latest ref');
+    if (SHA40.test(selected?.sha ?? '') && selectedRef.length > 0 && !/latest|current/i.test(selectedRef)) {
+        const resolvedRef = resolveAuthorityRef(root, selectedRef);
+        const reachable = resolvedRef !== undefined && gitIsAncestor(root, selected.sha, resolvedRef);
+        push(reachable, errors, `I01.1: selectedDev ${selected.sha} must be a real commit reachable from ${selectedRef}`);
+    }
     push(heads.packageInventorySource?.role === 'selectedDev', errors, 'I01.1: package inventory must be sourced from selectedDev');
     push(heads.packageInventorySource?.sha === selected?.sha, errors, 'I01.1: package inventory SHA must equal selectedDev SHA');
     push(heads.packageInventorySource?.mode === 'exact-tree', errors, 'I01.1: package inventory must be exact-tree, never inferred');
+
+    push(
+        Array.isArray(heads.supersededSelections),
+        errors,
+        'I01.1: supersededSelections must be an explicit array, even when empty',
+    );
+    const superseded = Array.isArray(heads.supersededSelections) ? heads.supersededSelections : [];
+    const supersededShas = superseded.map(entry => entry?.sha).filter(candidate => typeof candidate === 'string');
+    push(duplicates(supersededShas).length === 0, errors, `I01.1: duplicate superseded selections: ${duplicates(supersededShas).join(', ')}`);
+    push(
+        superseded.filter(entry => entry?.selectable === true).length === 0,
+        errors,
+        'I01.1: a superseded selection can never be selectable authority',
+    );
+    for (const [index, entry] of superseded.entries()) {
+        const label = `I01.1: supersededSelections[${index}]`;
+        push(isRecord(entry), errors, `${label} must be an object`);
+        if (!isRecord(entry)) continue;
+        push(typeof entry.role === 'string' && entry.role.length > 0, errors, `${label}.role is required`);
+        push(SHA40.test(entry.sha ?? ''), errors, `${label}.sha must be an exact 40-character SHA`);
+        if (entry.treeSha !== undefined) push(SHA40.test(entry.treeSha), errors, `${label}.treeSha must be an exact 40-character SHA`);
+        push(entry.selectable === false, errors, `${label} must declare selectable: false and can never become authority`);
+        push(!shas.includes(entry.sha), errors, `${label} must not duplicate a current authority head`);
+        push(entry.supersededBy === selected?.sha, errors, `${label}.supersededBy must name the current selected authority`);
+        push(SHA40.test(entry.mergeCommit ?? ''), errors, `${label}.mergeCommit must be an exact 40-character SHA`);
+        push(typeof entry.reason === 'string' && entry.reason.trim().length > 0, errors, `${label}.reason is required`);
+        if (SHA40.test(entry.sha ?? '') && SHA40.test(selected?.sha ?? '')) {
+            const reachable = gitIsAncestor(root, entry.sha, selected.sha);
+            push(reachable, errors, `${label}.sha ${entry.sha} must be a real commit in the pinned head's history`);
+        }
+        if (SHA40.test(entry.mergeCommit ?? '') && SHA40.test(selected?.sha ?? '')) {
+            const reachable = gitIsAncestor(root, entry.mergeCommit, selected.sha);
+            push(reachable, errors, `${label}.mergeCommit ${entry.mergeCommit} must be a real commit in the pinned head's history`);
+        }
+    }
 
     const packages = heads.packages ?? [];
     push(packages.length > 0, errors, 'I01.1: package inventory is empty');
@@ -1095,7 +1175,13 @@ function validateAdrLineage(lineage, bundle, root, options, errors) {
     const context = isRecord(lineage.evidenceContext) ? lineage.evidenceContext : {};
     push(context.repository === 'mberrys/ivory', errors, `${label}: evidence context must identify mberrys/ivory`);
     push(sameSet(context.headRoles ?? [], EXPECTED_HEAD_ROLES), errors, `${label}: evidence context must name the exact head roles detachedBaseline, foundationPr, and selectedDev`);
-    push(context.priorSelectedDevHead === selectedDev?.sha, errors, `${label}: retained selected-dev head must match the exact-head manifest`);
+    push(context.selectedDevHead === selectedDev?.sha, errors, `${label}: evidence context must name the current selected-dev head`);
+    const supersededHeadShas = (bundle.heads?.supersededSelections ?? []).map(entry => entry?.sha);
+    push(
+        supersededHeadShas.includes(context.priorSelectedDevHead),
+        errors,
+        `${label}: retained prior selected-dev head must be a superseded selection recorded in the exact-head manifest`,
+    );
     push(SHA40.test(context.reconciliationMerge ?? ''), errors, `${label}: reconciliation merge must be an exact 40-character SHA`);
     push(typeof context.reconciliationMergeSubject === 'string' && context.reconciliationMergeSubject.length > 0, errors, `${label}: reconciliation merge must record its exact subject`);
 
