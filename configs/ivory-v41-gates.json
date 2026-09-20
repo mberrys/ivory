@@ -96,14 +96,14 @@
       {
         "id": "q4-n7-proposal-runner",
         "path": "scripts/ivory/n7-retain.mjs",
-        "sha256": "9563a7b4b907f5cfec543dde794629df77d7b823e1cecbcc2ff1e8e11f3f3a06",
-        "bytes": 6099
+        "sha256": "704c04bf59df3e921a6ee43d5a40ba89328023ac4035c32e881e28b22b07b928",
+        "bytes": 6199
       },
       {
         "id": "q4-n7-record",
         "path": "docs/experiments/n7-v1-evidence.json",
-        "sha256": "64a30d3bc05ccb9dd7c4172bb03b04b3560f7062a8c171bb35907cbccd78b103",
-        "bytes": 13228
+        "sha256": "a9c58a11f5e8658a94a5d3649f9fdad22378877d6166a6329dd1f1c2b7967461",
+        "bytes": 13351
       }
     ]
   },

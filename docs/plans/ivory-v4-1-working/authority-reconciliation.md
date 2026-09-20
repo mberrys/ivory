@@ -190,3 +190,17 @@ convention recorded the Windows working-tree bytes of files that carry no `eol=l
 recorded identity was the CRLF materialisation while the stored blob is LF: the ubuntu-22.04 gate
 failed closed on every pinned record with "fixture byte count / SHA-256 does not match the retained
 readback". The values recorded here are the stored-blob identity and hold on every platform.
+
+### N7 retention reconciliation
+
+The closeout merge resolved the N7 evidence record to the canonicalized closeout record, which does not carry
+the `deterministic.transcripts` field the V4.1-side retention spec reads; the field was restored from the
+V4.1-line record, whose four transcript names are exactly the set `docs/experiments/n7-transcripts/` holds.
+Regenerating the record is not the repair here: `scripts/ivory/n7-retain.mjs` observes only the deterministic
+suite, so a re-run wrote `liveProvider: not-run*` with `deterministic-pass-live-provider-open` and opened the
+N7 gate, whose `closedWhen` requires `bounded-experiment-pass`. The two retention toolings now share one policy
+(`scripts/ivory/n7-retain-policy.mjs`): a retained `status: "run"` observation is carried forward verbatim
+instead of being overwritten, and the decision is `bounded-experiment-pass` only when the suite passed and live
+evidence is retained. Every pinned readback that cites the record or the changed modules was re-derived, and
+`test:ivory-n7` is now a stage of `verify:ivory-tower`. No gate moved: N7 remains closed on the same retained
+live-provider run, and nothing in the V4.1 bundle is `qualified`.

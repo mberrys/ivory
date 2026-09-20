@@ -1,16 +1,20 @@
 import { spawnSync, execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import { CATALOG_VERSION } from './n7-catalog.mjs';
 import { loadRecordedFixture, runAllScenarios } from './n7-pipeline.mjs';
+import { retainedDecision, retainedLiveProvider } from './n7-retain-policy.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const output = join(root, 'docs/experiments/n7-transcripts');
 const evidencePath = join(root, 'docs/experiments/n7-v1-evidence.json');
 mkdirSync(output, { recursive: true });
+
+/** The record this run replaces: a reviewed live-provider observation in it must survive the re-run. */
+const previousEvidence = existsSync(evidencePath) ? JSON.parse(readFileSync(evidencePath, 'utf8')) : undefined;
 
 const hash = value => createHash('sha256').update(value).digest('hex');
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
@@ -97,9 +101,7 @@ const evidence = {
         scenarios: [...tests.log.matchAll(/^# Subtest: (.+)$/gm)].map(match => match[1]),
         transcripts: Object.keys(transcripts),
     },
-    liveProvider: liveConfigured
-        ? { status: 'not-run-in-retain', reason: 'Live qualification is opt-in via N7_ENDPOINT / N7_MODEL / N7_API_KEY and a reviewed digest prompt.' }
-        : { status: 'not-run', reason: 'Live qualification is opt-in and requires researcher review of exact transmission and proposal digests.' },
+    liveProvider: retainedLiveProvider(previousEvidence, { liveConfigured }),
     limitations: [
         'In-memory catalog, receipts, and proposal log only; no restart or crash durability claim (N2).',
         'Synthetic fixtures and loopback HTTP observations do not qualify a hosted model provider.',
@@ -120,7 +122,10 @@ const evidence = {
             .every(name => transcripts[name]?.scenario === name),
         noModelQualitativePath: true,
     },
-    decision: tests.passed ? 'deterministic-pass-live-provider-open' : 'failed-or-incomplete',
+    decision: retainedDecision({
+        testsPassed: tests.passed,
+        liveRetained: evidence.liveProvider?.status === 'run',
+    }),
 };
 
 writeFileSync(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);

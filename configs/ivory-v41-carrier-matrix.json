@@ -267,8 +267,8 @@
       },
       "predicate": "stale/revoked/cross-project proposals fail closed and researcher adoption remains explicit",
       "fixture": "docs/experiments/n7-v1-evidence.json",
-      "fixtureDigest": "64a30d3bc05ccb9dd7c4172bb03b04b3560f7062a8c171bb35907cbccd78b103",
-      "fixtureBytes": 13228,
+      "fixtureDigest": "a9c58a11f5e8658a94a5d3649f9fdad22378877d6166a6329dd1f1c2b7967461",
+      "fixtureBytes": 13351,
       "gate": "Q4",
       "limit": "bounded local-provider run: one retained run against a loopback llama.cpp qwen3-4b-instruct-2507 model (docs/experiments/n7-live-provider/run.json), with in-memory acceptance and receipts only, no restart or crash-durability claim, no Theia integration or production authentication, and no hosted-provider qualification"
     }

@@ -47,7 +47,20 @@ test('retained evidence, when present, records the four snapshots and an open li
         'stale-proposal',
         'duplicate-accept',
     ]);
-    assert.equal(evidence.liveProvider.status.startsWith('not-run'), true);
+    // The live-provider state is an explicit observation, never inferred: either a reviewed run is
+    // retained — and then it must be a passed loopback run whose preview excluded the private canary —
+    // or the state says plainly that no live qualification has happened. The earlier form of this
+    // assertion pinned `startsWith('not-run')`, which the retained live run legitimately advanced past.
+    assert.ok(
+        evidence.liveProvider.status === 'run' || evidence.liveProvider.status.startsWith('not-run'),
+        `retained live-provider state must be an explicit run or not-run observation, got ${evidence.liveProvider.status}`,
+    );
+    if (evidence.liveProvider.status === 'run') {
+        assert.equal(evidence.liveProvider.outcome, 'passed');
+        assert.equal(evidence.liveProvider.endpoint, 'loopback-http');
+        assert.equal(evidence.liveProvider.observationSummary['preview-excludes-private-canary'], true);
+        assert.equal(evidence.liveProvider.observationSummary['exactly-one-wire-request'], true);
+    }
     assert.equal(JSON.stringify(evidence).includes(PRIVATE_CANARY), false);
     const transcriptsDir = join(dirname(evidencePath), 'n7-transcripts');
     for (const name of evidence.deterministic.transcripts) {
