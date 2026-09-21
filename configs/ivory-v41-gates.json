@@ -1,0 +1,315 @@
+{
+  "schema": "ivory-v41-gates/1",
+  "issue": "V41-I01.4",
+  "dependsOn": "V41-I01.3",
+  "initialState": "not-run",
+  "machineReadback": {
+    "algorithm": "sha256",
+    "encoding": "utf-8",
+    "pathSeparator": "/",
+    "lineEndingPolicy": "normalize-lf",
+    "files": [
+      {
+        "id": "durability-n2-v2-runner",
+        "path": "scripts/verify-ivory-n2-v2.mjs",
+        "sha256": "181bed03a38e8c300a9d4dfc7932429fda84487166d055c2e74c7fb7d3bf5e0b",
+        "bytes": 7059
+      },
+      {
+        "id": "durability-n2-v2-record",
+        "path": "docs/experiments/n2-v2-evidence.json",
+        "sha256": "89b9cc4d819e92e820744cfc23a49d68acb85921dd3b343450f8c6069c994aee",
+        "bytes": 15795
+      },
+      {
+        "id": "q1-n1-anchor-runner",
+        "path": "scripts/verify-ivory-n1.mjs",
+        "sha256": "44e7e730be8e5895bee129f516ea06e7aae7f832dc581a6b891a3c53d301278d",
+        "bytes": 11415
+      },
+      {
+        "id": "q1-n1-anchor-record",
+        "path": "docs/experiments/n1-v2-evidence.json",
+        "sha256": "f8400c70dbe23176a3e5dc0285b21869ee95868fe24fc32a76c75a5bad2fb9e4",
+        "bytes": 4521
+      },
+      {
+        "id": "q1-n4-anchor-runner",
+        "path": "scripts/verify-ivory-n4-v2.mjs",
+        "sha256": "168d1a4097e9117a66298a26c42e3777388675813467d41a3f21741dd629d86d",
+        "bytes": 5168
+      },
+      {
+        "id": "q1-n4-anchor-record",
+        "path": "docs/experiments/n4-v2-evidence.json",
+        "sha256": "f9da58d4903c14fd7591d64408c38dc3a46151135df338a7d25497486e75f855",
+        "bytes": 36082
+      },
+      {
+        "id": "replay-n6-runner",
+        "path": "spikes/n6-portable-reproduction/verify.mjs",
+        "sha256": "c66442e314d9de6e4a31e84839dbaf1e6e1a5345db080f66bbcce1fb1e4519fb",
+        "bytes": 9673
+      },
+      {
+        "id": "replay-n6-record",
+        "path": "docs/experiments/n6-evidence.json",
+        "sha256": "ebad6c7a2501d78f0bd513275cd03e73c7b655b528062f65ce03b5e4376999f8",
+        "bytes": 17491
+      },
+      {
+        "id": "q3-n5-equivalence-runner",
+        "path": "scripts/n5/compare.mjs",
+        "sha256": "afd93b613b5b06c719a9604f8d30c105840b7f88942a858537ec4d1cbfccd214",
+        "bytes": 1492
+      },
+      {
+        "id": "q3-n5-evidence-writer",
+        "path": "scripts/n5/evidence.mjs",
+        "sha256": "e45e269a5b28902e31e7364303f874a3d711abbd417c06e30548393da37b3560",
+        "bytes": 14602
+      },
+      {
+        "id": "q3-n5-record",
+        "path": "docs/experiments/n5-v2-evidence.json",
+        "sha256": "47bcbb1b556ff67828e8e2125b84a3f8b25bb60789b6b10abeb77a87cdfb3f50",
+        "bytes": 91778
+      },
+      {
+        "id": "q4-n3-compute-runner",
+        "path": "scripts/ivory/n3-compute.mjs",
+        "sha256": "07bb46cd8c27ba623ecd914d7b8c4e37ddf6212820e233207e3797c8dcf86975",
+        "bytes": 34078
+      },
+      {
+        "id": "q4-n3-retain-runner",
+        "path": "scripts/ivory/n3-retain.mjs",
+        "sha256": "6cccf0f3e5252d26335fba89b06562dae2ba108aad9f32c83b8034153bddb167",
+        "bytes": 5958
+      },
+      {
+        "id": "q4-n3-record",
+        "path": "docs/experiments/n3-evidence.json",
+        "sha256": "6e678cb25c2c8ba18ac6d2dcdde570e616be0c652d3c65e1f0aade600e70092e",
+        "bytes": 34052
+      },
+      {
+        "id": "q4-n7-proposal-runner",
+        "path": "scripts/ivory/n7-retain.mjs",
+        "sha256": "704c04bf59df3e921a6ee43d5a40ba89328023ac4035c32e881e28b22b07b928",
+        "bytes": 6199
+      },
+      {
+        "id": "q4-n7-record",
+        "path": "docs/experiments/n7-v1-evidence.json",
+        "sha256": "a9c58a11f5e8658a94a5d3649f9fdad22378877d6166a6329dd1f1c2b7967461",
+        "bytes": 13351
+      }
+    ]
+  },
+  "gates": [
+    {
+      "id": "DURABILITY",
+      "state": "not-run",
+      "machineRunners": [
+        {
+          "module": "scripts/verify-ivory-n2-v2.mjs",
+          "command": "verify:ivory-n2-v2",
+          "evidence": "docs/experiments/n2-v2-evidence.json"
+        }
+      ],
+      "machineEvidence": [
+        "CAS-before-SQL crash fixture",
+        "writer lease/fence conflict fixture",
+        "acknowledgement-loss idempotency fixture",
+        "checkpoint/restore semantic readback"
+      ],
+      "humanEvidence": [
+        "reviewer decision over exact head, fixture digests, environment, observations, and limitations"
+      ],
+      "negativeCases": [
+        "two writers",
+        "stale owner",
+        "CAS-before-SQL crash",
+        "accepted receipt after acknowledgement loss"
+      ],
+      "stopConditions": [
+        "missing committed blob",
+        "lost receipt",
+        "writer authority cannot be established"
+      ],
+      "humanOutcomeInferredFromMachine": false
+    },
+    {
+      "id": "Q1",
+      "state": "not-run",
+      "machineRunners": [
+        {
+          "module": "scripts/verify-ivory-n1.mjs",
+          "command": "verify:ivory-n1",
+          "evidence": "docs/experiments/n1-v2-evidence.json"
+        },
+        {
+          "module": "scripts/verify-ivory-n4-v2.mjs",
+          "command": "verify:ivory-n4-v2",
+          "evidence": "docs/experiments/n4-v2-evidence.json"
+        }
+      ],
+      "machineEvidence": [
+        "exact quote/context fixture",
+        "selector/converter identity",
+        "mechanical citation receipt"
+      ],
+      "humanEvidence": [
+        "semantic-support assessment",
+        "qualification/current-applicability decision"
+      ],
+      "negativeCases": [
+        "misleading exact quote",
+        "omitted table header",
+        "wrong selector profile",
+        "unreviewed qualification"
+      ],
+      "stopConditions": [
+        "context basis unavailable",
+        "ambiguous remap guessed",
+        "machine exactness treated as semantic support"
+      ],
+      "humanOutcomeInferredFromMachine": false
+    },
+    {
+      "id": "Q2",
+      "state": "not-run",
+      "machineRunners": [],
+      "unboundReason": "No runner on this tree emits the bounded coverage/stopping observable Q2 scores: there is no module that retains a bounded alternate-query record, a contrary/null result artifact, or a coverage computation, and the ResearchProtocol surface still carries 'coverage/stopping receipt refs' as an open missing field in configs/ivory-v41-owner-map.json. The supplying work is tracked by IV41-036 (retain bounded completeness, abstention, coverage, and stopping receipts), with the bounded query/provider receipt refs owned by IV41-031. Until such a runner exists the gate stays explicitly unbound rather than pointed at a proxy runner.",
+      "machineEvidence": [
+        "bounded alternate-query record",
+        "contrary/null result artifact",
+        "coverage computation"
+      ],
+      "humanEvidence": [
+        "reviewed stopping rationale",
+        "counterevidence disposition"
+      ],
+      "negativeCases": [
+        "support-only search",
+        "duplicate query counted as coverage",
+        "unsupported exhaustive claim"
+      ],
+      "stopConditions": [
+        "coverage boundary cannot be stated",
+        "contrary evidence is hidden",
+        "old snapshot silently rebased"
+      ],
+      "humanOutcomeInferredFromMachine": false
+    },
+    {
+      "id": "REPLAY",
+      "state": "not-run",
+      "machineRunners": [
+        {
+          "module": "spikes/n6-portable-reproduction/verify.mjs",
+          "command": "verify:ivory-n6",
+          "evidence": "docs/experiments/n6-evidence.json"
+        }
+      ],
+      "machineEvidence": [
+        "capsule closure/CAS presence check",
+        "loss/disclosure manifest",
+        "source-status-at-authorization check"
+      ],
+      "humanEvidence": [
+        "named independent-operator replay record"
+      ],
+      "negativeCases": [
+        "missing blob",
+        "licensed omission hidden",
+        "source status changes during assembly"
+      ],
+      "stopConditions": [
+        "dependency closure incomplete",
+        "replay level overstated",
+        "operator/environment unnamed"
+      ],
+      "humanOutcomeInferredFromMachine": false
+    },
+    {
+      "id": "Q3",
+      "state": "not-run",
+      "machineRunners": [
+        {
+          "module": "scripts/n5/compare.mjs",
+          "command": "test:n5",
+          "evidence": "docs/experiments/n5-v2-evidence.json"
+        },
+        {
+          "module": "scripts/n5/evidence.mjs",
+          "command": "evidence:n5",
+          "evidence": "docs/experiments/n5-v2-evidence.json"
+        }
+      ],
+      "machineEvidence": [
+        "strict/archive renderer comparison",
+        "CLI/Theia requested-snapshot parity",
+        "reconnect/latest-head negative test"
+      ],
+      "humanEvidence": [
+        "independent reproduction/review decision at declared disclosure level"
+      ],
+      "negativeCases": [
+        "client reconnects to latest",
+        "archive draft rendered as accepted",
+        "client-side adjudication"
+      ],
+      "stopConditions": [
+        "client requires divergent domain logic",
+        "requested snapshot cannot be resolved",
+        "independent replay absent"
+      ],
+      "humanOutcomeInferredFromMachine": false
+    },
+    {
+      "id": "Q4",
+      "state": "not-run",
+      "machineRunners": [
+        {
+          "module": "scripts/ivory/n3-compute.mjs",
+          "command": "verify:ivory-n3",
+          "evidence": "docs/experiments/n3-evidence.json"
+        },
+        {
+          "module": "scripts/ivory/n3-retain.mjs",
+          "command": "retain:ivory-n3",
+          "evidence": "docs/experiments/n3-evidence.json"
+        },
+        {
+          "module": "scripts/ivory/n7-retain.mjs",
+          "command": "verify:ivory-n7",
+          "evidence": "docs/experiments/n7-v1-evidence.json"
+        }
+      ],
+      "machineEvidence": [
+        "proposal-envelope replay fixture",
+        "revocation/admission fence",
+        "provider egress and prompt-injection boundary",
+        "stale-attempt/cross-project fence"
+      ],
+      "humanEvidence": [
+        "researcher adoption or rejection receipt",
+        "method-stratified evaluation decision"
+      ],
+      "negativeCases": [
+        "late worker",
+        "prompt injection",
+        "direct canonical write",
+        "uncertain external-effect retry"
+      ],
+      "stopConditions": [
+        "worker has canonical write authority",
+        "researcher authority bypassed",
+        "protected evaluation/rollback state becomes recursively mutable"
+      ],
+      "humanOutcomeInferredFromMachine": false
+    }
+  ]
+}

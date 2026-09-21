@@ -152,6 +152,12 @@
       "trusted CLI accept path requires both content previews",
       "trusted CLI decline path requires both content previews",
       "trusted CLI revoke path requires both content previews"
+    ],
+    "transcripts": [
+      "hostile-corpus",
+      "revoked-tool",
+      "stale-proposal",
+      "duplicate-accept"
     ]
   },
   "n1Regression": {

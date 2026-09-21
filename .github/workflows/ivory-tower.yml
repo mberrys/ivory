@@ -20,6 +20,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # The exact-head authority verifier proves the pinned selected-dev head is an ancestor of
+          # refs/heads/dev with `git merge-base --is-ancestor`. A depth-1 checkout carries neither the
+          # pinned commit nor the branch history, so the gate would fail closed on a shallow tree.
+          fetch-depth: 0
+      - name: Materialize the dev authority ref
+        # A pull-request checkout leaves only the PR merge ref, so fetch the dev line under its
+        # remote-tracking name; the verifier proves reachability against whichever dev ref resolves.
+        run: git fetch --no-tags --force origin '+refs/heads/dev:refs/remotes/origin/dev'
       - name: Set up pinned Node toolchain
         uses: actions/setup-node@v4
         with:
@@ -42,10 +51,10 @@ jobs:
       - name: Install Playwright browser (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: npx.cmd playwright install chromium
+        run: npm.cmd exec --workspace @ivory-tower/example-browser -- playwright install chromium
       - name: Install Playwright browser (Ubuntu)
         if: runner.os != 'Windows'
-        run: npx playwright install --with-deps chromium
+        run: npm exec --workspace @ivory-tower/example-browser -- playwright install --with-deps chromium
       - name: Run the required Ivory Tower gate (Windows)
         if: runner.os == 'Windows'
         shell: pwsh

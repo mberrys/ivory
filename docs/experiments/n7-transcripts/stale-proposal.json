@@ -1,0 +1,112 @@
+{
+  "catalogVersion": "n7/1",
+  "surface": "mcp",
+  "provider": "recorded-fixture",
+  "model": "recorded-fixture/1",
+  "stages": [
+    {
+      "stage": "pre-execute",
+      "operation": "ivory.resolveFragment",
+      "effectClass": "Query",
+      "surface": "mcp",
+      "capabilityId": "efcf0ec7-bd8c-4b6f-b858-59bc0faa0652",
+      "snapshotRef": {
+        "projectId": "prj_n7_synthetic",
+        "objectId": "snp_ab5c207f22eb9df165cf68059c652559",
+        "revisionId": "rev_1a768dae66409373bf40696d5578c8c2"
+      },
+      "egress": {
+        "mode": "retrieved-excerpts-only",
+        "extraHosts": [],
+        "credentials": false
+      }
+    },
+    {
+      "stage": "execute",
+      "operation": "ivory.resolveFragment",
+      "catalogVersion": "n7/1"
+    },
+    {
+      "stage": "post-execute",
+      "operation": "ivory.resolveFragment",
+      "frozen": false
+    },
+    {
+      "stage": "result",
+      "operation": "ivory.resolveFragment",
+      "digest": "1e52e16dd37b6fae4ccfdf5840d050c177a5e86dfb01158e4d11ce6d31703e64"
+    },
+    {
+      "stage": "pre-execute",
+      "operation": "ivory.proposeClaim",
+      "effectClass": "Proposal",
+      "surface": "mcp",
+      "capabilityId": "efcf0ec7-bd8c-4b6f-b858-59bc0faa0652",
+      "snapshotRef": {
+        "projectId": "prj_n7_synthetic",
+        "objectId": "snp_ab5c207f22eb9df165cf68059c652559",
+        "revisionId": "rev_1a768dae66409373bf40696d5578c8c2"
+      },
+      "egress": {
+        "mode": "retrieved-excerpts-only",
+        "extraHosts": [],
+        "credentials": false
+      }
+    },
+    {
+      "stage": "execute",
+      "operation": "ivory.proposeClaim",
+      "catalogVersion": "n7/1"
+    },
+    {
+      "stage": "post-execute",
+      "operation": "ivory.proposeClaim",
+      "frozen": true,
+      "proposalId": "904595347edf57cf1940ae8cfad6e5d5690600db67fc213b8ecb39894f44128e"
+    },
+    {
+      "stage": "result",
+      "operation": "ivory.proposeClaim",
+      "digest": "904595347edf57cf1940ae8cfad6e5d5690600db67fc213b8ecb39894f44128e"
+    }
+  ],
+  "transmissions": [],
+  "facts": [
+    {
+      "kind": "capability/issue",
+      "capabilityId": "efcf0ec7-bd8c-4b6f-b858-59bc0faa0652",
+      "snapshotRef": {
+        "projectId": "prj_n7_synthetic",
+        "objectId": "snp_ab5c207f22eb9df165cf68059c652559",
+        "revisionId": "rev_1a768dae66409373bf40696d5578c8c2"
+      },
+      "sequence": 1,
+      "at": 6
+    },
+    {
+      "kind": "query/resolveFragment",
+      "capabilityId": "efcf0ec7-bd8c-4b6f-b858-59bc0faa0652",
+      "ref": {
+        "projectId": "prj_n7_synthetic",
+        "objectId": "frg_43d43b26e2a2341847284c77a4a9dab1",
+        "revisionId": "rev_b95a6eabecbf6c7e2786533a8558ba2a"
+      },
+      "excerptDigest": "1e52e16dd37b6fae4ccfdf5840d050c177a5e86dfb01158e4d11ce6d31703e64",
+      "sequence": 2,
+      "at": 6
+    },
+    {
+      "kind": "proposal/freeze",
+      "proposalId": "904595347edf57cf1940ae8cfad6e5d5690600db67fc213b8ecb39894f44128e",
+      "operation": "ivory.proposeClaim",
+      "sequence": 3,
+      "at": 6
+    }
+  ],
+  "hostileSourcePresent": false,
+  "privateCanaryTransmitted": false,
+  "scenario": "stale-proposal",
+  "proposalId": "904595347edf57cf1940ae8cfad6e5d5690600db67fc213b8ecb39894f44128e",
+  "denied": "stale_proposal",
+  "acceptedStateUnchanged": true
+}

@@ -1,0 +1,642 @@
+{
+  "schema": "ivory-v41-qualification/1",
+  "issue": "IV41-005",
+  "dependsOn": "V41-I01.4",
+  "basis": {
+    "heads": "configs/ivory-v41-authority-heads.json",
+    "owners": "configs/ivory-v41-owner-map.json",
+    "packageOwnership": "configs/ivory-v41-package-ownership.json",
+    "carriers": "configs/ivory-v41-carrier-matrix.json",
+    "gates": "configs/ivory-v41-gates.json"
+  },
+  "recordSchema": "ivory-v41-qualification-record/1",
+  "digestConvention": {
+    "algorithm": "sha256",
+    "encoding": "utf-8",
+    "pathSeparator": "/",
+    "lineEndingPolicy": "normalize-lf"
+  },
+  "authorityBoundary": {
+    "role": "qualification-records-only",
+    "mayWriteCanonicalResearchState": false,
+    "mayDecideResearchAcceptance": false
+  },
+  "runContext": {
+    "repository": {
+      "remote": "https://github.com/mberrys/ivory.git",
+      "ref": "refs/heads/dev",
+      "branch": "dev",
+      "headSha": "41fa0e19889fad7fdedef45a8c21944e7d923e68",
+      "treeSha": "14e6e62079396a33409752b17a6a380db31571c1",
+      "dirty": false,
+      "authorityBasis": {
+        "manifest": "configs/ivory-v41-authority-heads.json",
+        "role": "selectedDev",
+        "sha": "41fa0e19889fad7fdedef45a8c21944e7d923e68",
+        "relation": "equal"
+      }
+    },
+    "environment": {
+      "os": {
+        "platform": "win32",
+        "release": "10.0.26200",
+        "arch": "x64"
+      },
+      "runtime": {
+        "node": "v24.16.0",
+        "npm": "11.13.0"
+      },
+      "configuration": {
+        "profile": "local-dev-worktree: pinned Node 24.16.0 / npm 11.13.0, Docker Desktop 29.8.0 with linux containers",
+        "secretValuesOmitted": true,
+        "lockfileSha256": "f877e83688e8103ea7e9508d91a5b5fce98a04a0106560eb8ac871505b8f0dd1"
+      },
+      "recordedAt": "2026-09-20T02:34:36.967Z"
+    },
+    "verifier": {
+      "module": ".github/workflows/ivory-tower.yml",
+      "moduleSha256": "caab378909a22c973fe0cdfd8d6432f0beeeb8b03443b30be29735411403b5ce",
+      "command": "npm run verify:ivory-tower - GitHub Actions workflow 'Ivory Tower quality gate', run 35481120037, event push, refs/heads/dev, head 41fa0e19889fad7fdedef45a8c21944e7d923e68 (the required gate on ubuntu-22.04 and windows-2022 plus the IV-19 dependency-governance and Session 04 runtime/migration jobs)",
+      "startedAt": "2026-09-20T01:20:02Z",
+      "finishedAt": "2026-09-20T01:34:06Z",
+      "exitCode": 0,
+      "workflowRunId": 35481120037,
+      "workflowName": "Ivory Tower quality gate",
+      "event": "push",
+      "url": "https://github.com/mberrys/ivory/actions/runs/35481120037",
+      "jobs": [
+        {
+          "name": "Verify (windows-2022)",
+          "startedAt": "2026-09-20T01:20:04Z",
+          "finishedAt": "2026-09-20T01:29:23Z",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify (ubuntu-22.04)",
+          "startedAt": "2026-09-20T01:20:05Z",
+          "finishedAt": "2026-09-20T01:24:57Z",
+          "conclusion": "success"
+        },
+        {
+          "name": "Dependency governance evidence (IV-19)",
+          "startedAt": "2026-09-20T01:20:05Z",
+          "finishedAt": "2026-09-20T01:21:29Z",
+          "conclusion": "success"
+        },
+        {
+          "name": "Runtime and migration recovery (Session 04)",
+          "startedAt": "2026-09-20T01:29:25Z",
+          "finishedAt": "2026-09-20T01:34:05Z",
+          "conclusion": "success"
+        }
+      ],
+      "moduleSha256AtPinnedHead": "2abb809fb38773f05aa22eaa4b5ef7c790ce2668295be7b658be3597f108701d",
+      "moduleRevisionNote": "The recorded tree digest is the workflow file as it stands on the tree this record is committed to; the executed run used the file as it stood at the pinned authority head (blob SHA-256 2abb809fb38773f05aa22eaa4b5ef7c790ce2668295be7b658be3597f108701d), which differs only by the fetch-depth and dev-ref steps a later commit added. The workflow name, the job set, and the required gate command are unchanged."
+    },
+    "observationProtocol": {
+      "localRunnerHeadSha": "f99bd64d8d9b90370f2615e7728259f33d929376",
+      "localRunnerHeadRelation": "the pinned authority head 41fa0e19889fad7fdedef45a8c21944e7d923e68 is an ancestor of the local runner head (git merge-base --is-ancestor 41fa0e19889fad7fdedef45a8c21944e7d923e68 refs/heads/dev exited 0)",
+      "worktreeState": "Every local run started from a clean worktree except verify:ivory-n6, which started with docs/experiments/n1-v2-evidence.json modified by the immediately preceding N1 run; each record states the observed state it saw.",
+      "retainedRecordsRestored": "Every runner that rewrote its own retained record was reverted to the committed bytes (git checkout -- <path>) so the V41-I01.4 machine readback stays exact; the regenerated digests are recorded per gate.",
+      "humanReceiptsPresent": false,
+      "gateClosuresClaimed": 0,
+      "aggregateOutcome": "none - this manifest carries no aggregate pass, overall status, or closure field"
+    }
+  },
+  "gates": [
+    {
+      "id": "DURABILITY",
+      "record": {
+        "schema": "ivory-v41-qualification-record/1",
+        "gate": "DURABILITY",
+        "fixtures": [],
+        "evidence": [],
+        "observations": {
+          "machine": {
+            "status": "not-run",
+            "reason": "verify:ivory-n2-v2 was not executed. The pinned invocation is npm run verify:ivory-n2-v2 -- --cycles 1000 (retained as exactQualificationCommand in docs/experiments/n2-v2-evidence.json) and the interruption storm is fixed at 1000 cycles; the retained raw artifact on this reference machine measured interruptStorm.elapsedMs 2022520 ms (33.7 minutes) for those cycles alone, before the export/import, scale, and durability-envelope sections. That exceeds the bounded window allowed for this session, and running it concurrently with the N4 Docker qualification would perturb a timing-sensitive fault-injection storm."
+          },
+          "human": {
+            "status": "not-run",
+            "reason": "No reviewer decision or human receipt exists for this gate."
+          }
+        },
+        "decision": {
+          "status": "not-run",
+          "rationale": "The bound durability runner was not executed here, so no machine observation exists for this gate. No durability claim is made and the gate cannot close."
+        },
+        "limitations": [
+          {
+            "id": "durability-run-not-executed",
+            "kind": "status",
+            "effect": "blocks-closure",
+            "statement": "The pinned durability runner (scripts/verify-ivory-n2-v2.mjs via verify:ivory-n2-v2, 1000 fixed interruption-storm cycles) was not executed in this session: the retained raw artifact for this machine records 2022520 ms of storm time alone, beyond the bounded window. No durability observation is retained."
+          },
+          {
+            "id": "durability-human-receipt-missing",
+            "kind": "authority",
+            "effect": "blocks-closure",
+            "statement": "No human receipt exists. The registry requires: a reviewer decision over the exact head, fixture digests, environment, observations, and limitations for DURABILITY. IV41-005 remains In Review, no human outcome is inferred from the machine observation, and the gate registry forbids inferring one."
+          }
+        ],
+        "architecturalGaps": []
+      }
+    },
+    {
+      "id": "Q1",
+      "record": {
+        "schema": "ivory-v41-qualification-record/1",
+        "gate": "Q1",
+        "fixtures": [
+          {
+            "id": "q1-n1-anchor-runner",
+            "path": "scripts/verify-ivory-n1.mjs",
+            "sha256": "44e7e730be8e5895bee129f516ea06e7aae7f832dc581a6b891a3c53d301278d",
+            "bytes": 11415
+          },
+          {
+            "id": "q1-n4-anchor-runner",
+            "path": "scripts/verify-ivory-n4-v2.mjs",
+            "sha256": "168d1a4097e9117a66298a26c42e3777388675813467d41a3f21741dd629d86d",
+            "bytes": 5168
+          }
+        ],
+        "evidence": [
+          {
+            "id": "q1-n1-anchor-record",
+            "path": "docs/experiments/n1-v2-evidence.json",
+            "sha256": "f8400c70dbe23176a3e5dc0285b21869ee95868fe24fc32a76c75a5bad2fb9e4",
+            "bytes": 4521,
+            "tracked": true
+          },
+          {
+            "id": "q1-n4-anchor-record",
+            "path": "docs/experiments/n4-v2-evidence.json",
+            "sha256": "f9da58d4903c14fd7591d64408c38dc3a46151135df338a7d25497486e75f855",
+            "bytes": 36082,
+            "tracked": true
+          }
+        ],
+        "observations": {
+          "machine": {
+            "status": "passed",
+            "summary": "Both bound Q1 machine runners executed at the local runner head and exited 0: the N1 exact-anchor runner reported ok=true, and the N4 exact-anchor runner reported a passed qualification with 22 of 22 fixtures converted, 120 real anchors from the pinned converter A, and zero false-exact anchors. The human half of the gate is untouched.",
+            "runs": [
+              {
+                "runner": "scripts/verify-ivory-n1.mjs",
+                "command": "npm run -s verify:ivory-n1",
+                "headSha": "f99bd64d8d9b90370f2615e7728259f33d929376",
+                "worktreeDirtyAtStart": false,
+                "worktreeDirtyAfterRun": true,
+                "dirtyPaths": [
+                  "docs/experiments/n1-v2-evidence.json"
+                ],
+                "startedAt": "2026-09-20T02:19:30Z",
+                "finishedAt": "2026-09-20T02:19:32Z",
+                "exitCode": 0,
+                "result": "{\"ok\": true, \"evidence\": \"docs\\\\experiments\\\\n1-v2-evidence.json\", \"repositoryCommit\": \"f99bd64d8d9b90370f2615e7728259f33d929376\"}"
+              },
+              {
+                "runner": "scripts/verify-ivory-n4-v2.mjs",
+                "command": "npm run -s verify:ivory-n4-v2",
+                "headSha": "f99bd64d8d9b90370f2615e7728259f33d929376",
+                "worktreeDirtyAtStart": false,
+                "worktreeDirtyAfterRun": true,
+                "dirtyPaths": [
+                  "docs/experiments/n4-v2-evidence.json"
+                ],
+                "startedAt": "2026-09-20T02:25:16Z",
+                "finishedAt": "2026-09-20T02:30:33Z",
+                "exitCode": 0,
+                "result": "N4 V2 qualification passed: 120 real anchors, false-exact=0. Both digest-pinned Docling images were already present locally and re-verified as up to date (v1.21.0@sha256:32b3de41f325f93c1dd35907cd9147fa35df9f7c5abc86eb2788b6bda7ce6d10, v1.22.0@sha256:8880b8f5a511b1d93edb22a2e2e7380461657a0401febb4e43f7e41ef9d9661c); qualification time 251542 ms after a lerna compile of 7 projects. The run regenerated docs/experiments/n4-v2-evidence.json with a one-byte drift (36083 bytes, SHA-256 beba9a3d737174ed7ac9e8cfdd6f8a7b8e0d7c12088f89636bcb40934e2578e7, against the committed 36082 bytes and SHA-256 f9da58d4903c14fd7591d64408c38dc3a46151135df338a7d25497486e75f855); the regeneration was not retained."
+              }
+            ]
+          },
+          "human": {
+            "status": "not-run",
+            "reason": "No human receipt exists. The registry requires: a semantic-support assessment and a qualification/current-applicability decision. IV41-005 remains In Review, no human outcome is inferred from the machine observation, and the gate registry forbids inferring one."
+          }
+        },
+        "decision": {
+          "status": "inconclusive",
+          "rationale": "The machine predicate ran and passed at the recorded head: both bound Q1 runners exited 0 and their retained records are cited by digest. What is outstanding is everything the gate scores beyond that predicate - the required human evidence (semantic-support assessment, qualification/current-applicability decision) does not exist, the registry forbids inferring a human outcome from machine evidence, and the runs were taken at the current dev tip rather than at the pinned authority head. No Q1 closure is claimed."
+        },
+        "limitations": [
+          {
+            "id": "q1-human-receipt-missing",
+            "kind": "authority",
+            "effect": "blocks-closure",
+            "statement": "No human receipt exists. The registry requires: a semantic-support assessment and a qualification/current-applicability decision over the exact head, fixture digests, environment, observations, and limitations. IV41-005 remains In Review, no human outcome is inferred from the machine observation, and the gate registry forbids inferring one."
+          },
+          {
+            "id": "q1-local-head-differs-from-authority-head",
+            "kind": "environment",
+            "effect": "limits-scope",
+            "statement": "The local runner executions were taken at the current dev tip f99bd64d8d9b90370f2615e7728259f33d929376 from a clean worktree, not at the pinned authority head 41fa0e19889fad7fdedef45a8c21944e7d923e68. Every Q1 runner module and retained record is byte-identical at both heads (git diff 41fa0e19889fad7fdedef45a8c21944e7d923e68..f99bd64d8d9b90370f2615e7728259f33d929376 -- scripts spikes touches only scripts/ivory/v41-authority.mjs and its spec), so the predicate executed is the pinned one, but the observation head is recorded exactly and is not the authority head."
+          },
+          {
+            "id": "q1-retained-records-restored",
+            "kind": "evidence",
+            "effect": "limits-scope",
+            "statement": "Each runner rewrote its own retained record at the local head (repository commit, run timestamps, artifact paths, and for N4 one byte of record size). The committed records were restored byte-for-byte afterwards so the V41-I01.4 machine readback stays exact: the cited evidence is the committed record on the selected dev head, not the local regeneration, and the regenerated bytes are recorded in the machine observation."
+          }
+        ],
+        "architecturalGaps": []
+      }
+    },
+    {
+      "id": "Q2",
+      "record": {
+        "schema": "ivory-v41-qualification-record/1",
+        "gate": "Q2",
+        "fixtures": [],
+        "evidence": [],
+        "observations": {
+          "machine": {
+            "status": "not-run",
+            "reason": "configs/ivory-v41-gates.json binds no machine runner for Q2 (machineRunners: [] with an explicit unboundReason): no module on this tree emits the bounded coverage/stopping observable the gate scores - there is no bounded alternate-query record, contrary/null result artifact, or coverage computation - and ResearchProtocol still carries coverage/stopping receipt refs as an open missing field. There was nothing executable for this gate."
+          },
+          "human": {
+            "status": "not-run",
+            "reason": "No reviewer decision or human receipt exists for this gate."
+          }
+        },
+        "decision": {
+          "status": "not-run",
+          "rationale": "The registry leaves Q2 unbound, so there is no runner to execute and no observation to retain. The gate stays not-run rather than being pointed at a proxy runner, and no Q2 claim is made."
+        },
+        "limitations": [
+          {
+            "id": "q2-unbound-in-the-registry",
+            "kind": "status",
+            "effect": "blocks-closure",
+            "statement": "Q2 has no machine observable on this tree, so no machine observation exists. The supplying work is tracked by IV41-036 (retain bounded completeness, abstention, coverage, and stopping receipts) with the bounded query/provider receipt refs owned by IV41-031; the gate stays explicitly unbound in configs/ivory-v41-gates.json."
+          },
+          {
+            "id": "q2-human-receipt-missing",
+            "kind": "authority",
+            "effect": "blocks-closure",
+            "statement": "No human receipt exists. The registry requires: a reviewed stopping rationale and a counterevidence disposition. IV41-005 remains In Review, no human outcome is inferred from the machine observation, and the gate registry forbids inferring one."
+          }
+        ],
+        "architecturalGaps": [
+          {
+            "issue": "IV41-036",
+            "summary": "ResearchProtocol coverage/stopping receipt refs are not implemented on this tree, so no bounded completeness, abstention, coverage, or stopping observable can be emitted and Q2 has no machine runner to bind.",
+            "status": "open",
+            "surface": "ResearchProtocol",
+            "missingField": "coverage/stopping receipt refs"
+          },
+          {
+            "issue": "IV41-031",
+            "summary": "Bounded query/provider receipt refs for the research protocol remain unimplemented, so the bounded alternate-query record Q2 scores cannot be produced without inventing a proxy observable.",
+            "status": "open",
+            "surface": "ResearchProtocol",
+            "missingField": "bounded query/provider receipt refs"
+          }
+        ]
+      }
+    },
+    {
+      "id": "REPLAY",
+      "record": {
+        "schema": "ivory-v41-qualification-record/1",
+        "gate": "REPLAY",
+        "fixtures": [
+          {
+            "id": "replay-n6-runner",
+            "path": "spikes/n6-portable-reproduction/verify.mjs",
+            "sha256": "c66442e314d9de6e4a31e84839dbaf1e6e1a5345db080f66bbcce1fb1e4519fb",
+            "bytes": 9673
+          }
+        ],
+        "evidence": [
+          {
+            "id": "replay-n6-record",
+            "path": "docs/experiments/n6-evidence.json",
+            "sha256": "ebad6c7a2501d78f0bd513275cd03e73c7b655b528062f65ce03b5e4376999f8",
+            "bytes": 17491,
+            "tracked": true
+          }
+        ],
+        "observations": {
+          "machine": {
+            "status": "passed",
+            "summary": "The bound REPLAY runner executed at the local runner head and exited 0 with status technical-pass: create, reproduce, export, restore, and reproduce-again all reported passed, and the missing-blob, missing-dependency, and missing-input probes reported expected-failure. The record it wrote keeps humanQualification pending and the second-machine clean install blocked, which is the record cited here.",
+            "runs": [
+              {
+                "runner": "spikes/n6-portable-reproduction/verify.mjs",
+                "command": "npm run -s verify:ivory-n6",
+                "headSha": "f99bd64d8d9b90370f2615e7728259f33d929376",
+                "worktreeDirtyAtStart": true,
+                "worktreeDirtyAtStartDetail": "docs/experiments/n1-v2-evidence.json was modified by the immediately preceding N1 runner execution; no REPLAY input was dirty.",
+                "worktreeDirtyAfterRun": true,
+                "dirtyPaths": [
+                  "docs/experiments/n1-v2-evidence.json",
+                  "docs/experiments/n6-evidence.json"
+                ],
+                "startedAt": "2026-09-20T02:19:32Z",
+                "finishedAt": "2026-09-20T02:23:06Z",
+                "exitCode": 0,
+                "result": "{\"status\": \"technical-pass\", \"evidence\": \"artifacts/n6/qualification-yunWa1/evidence.json\"} - the runner rewrote docs/experiments/n6-evidence.json at the local head (new createdAt, new artifact path, same status and platform); the committed record was restored and is the one cited."
+              }
+            ]
+          },
+          "human": {
+            "status": "not-run",
+            "reason": "No human receipt exists. The registry requires: a named independent-operator replay record; the retained record itself keeps humanQualification pending and the second-machine clean install blocked. IV41-005 remains In Review, no human outcome is inferred from the machine observation, and the gate registry forbids inferring one."
+          }
+        },
+        "decision": {
+          "status": "inconclusive",
+          "rationale": "The machine predicate ran and passed: the capsule create/reproduce/export/restore cycle and the negative probes completed with exit 0 at the recorded head. What is outstanding is the human receipt - a named independent-operator replay record - and the record itself keeps the human qualification pending and the second-machine clean install blocked, so independent reproduction is not proven and no REPLAY closure is claimed."
+        },
+        "limitations": [
+          {
+            "id": "replay-human-receipt-missing",
+            "kind": "authority",
+            "effect": "blocks-closure",
+            "statement": "No human receipt exists. The registry requires: a named independent-operator replay record; the retained record keeps humanQualification \"pending\" and the second-machine clean install \"blocked\". IV41-005 remains In Review, no human outcome is inferred from the machine observation, and the gate registry forbids inferring one."
+          },
+          {
+            "id": "replay-run-started-on-a-dirty-worktree",
+            "kind": "environment",
+            "effect": "limits-scope",
+            "statement": "The observed run started with one unrelated path dirty: docs/experiments/n1-v2-evidence.json, rewritten by the immediately preceding N1 run. No REPLAY input was dirty, no gate is qualified, and a qualified decision would additionally require a clean worktree, which is not claimed here."
+          },
+          {
+            "id": "replay-local-head-differs-from-authority-head",
+            "kind": "environment",
+            "effect": "limits-scope",
+            "statement": "The local runner executions were taken at the current dev tip f99bd64d8d9b90370f2615e7728259f33d929376 from a clean worktree, not at the pinned authority head 41fa0e19889fad7fdedef45a8c21944e7d923e68. Every REPLAY runner module and retained record is byte-identical at both heads (git diff 41fa0e19889fad7fdedef45a8c21944e7d923e68..f99bd64d8d9b90370f2615e7728259f33d929376 -- scripts spikes touches only scripts/ivory/v41-authority.mjs and its spec), so the predicate executed is the pinned one, but the observation head is recorded exactly and is not the authority head."
+          },
+          {
+            "id": "replay-retained-records-restored",
+            "kind": "evidence",
+            "effect": "limits-scope",
+            "statement": "Each runner rewrote its own retained record at the local head (repository commit, run timestamps, artifact paths, and for N4 one byte of record size). The committed records were restored byte-for-byte afterwards so the V41-I01.4 machine readback stays exact: the cited evidence is the committed record on the selected dev head, not the local regeneration, and the regenerated bytes are recorded in the machine observation."
+          }
+        ],
+        "architecturalGaps": []
+      }
+    },
+    {
+      "id": "Q3",
+      "record": {
+        "schema": "ivory-v41-qualification-record/1",
+        "gate": "Q3",
+        "fixtures": [
+          {
+            "id": "q3-n5-equivalence-runner",
+            "path": "scripts/n5/compare.mjs",
+            "sha256": "afd93b613b5b06c719a9604f8d30c105840b7f88942a858537ec4d1cbfccd214",
+            "bytes": 1492
+          },
+          {
+            "id": "q3-n5-evidence-writer",
+            "path": "scripts/n5/evidence.mjs",
+            "sha256": "e45e269a5b28902e31e7364303f874a3d711abbd417c06e30548393da37b3560",
+            "bytes": 14602
+          }
+        ],
+        "evidence": [
+          {
+            "id": "q3-n5-record",
+            "path": "docs/experiments/n5-v2-evidence.json",
+            "sha256": "47bcbb1b556ff67828e8e2125b84a3f8b25bb60789b6b10abeb77a87cdfb3f50",
+            "bytes": 91778,
+            "tracked": true
+          }
+        ],
+        "observations": {
+          "machine": {
+            "status": "partial",
+            "summary": "The equivalence half of Q3 executed and passed (npm run -s test:n5 exited 0: 11 of 11 tests, including the real-HTTP CLI and Python parity observations, plus \"N5 client boundaries: OK\"). The evidence writer did not execute: npm run -s evidence:n5 exited 1 with ENOENT scandir artifacts/n5, because it folds raw live observations produced by the live/restart/language observation harnesses, which are absent from this worktree.",
+            "runs": [
+              {
+                "runner": "scripts/n5/compare.mjs via scripts/n5/compare.test.mjs",
+                "command": "npm run -s test:n5",
+                "headSha": "f99bd64d8d9b90370f2615e7728259f33d929376",
+                "worktreeDirtyAtStart": false,
+                "worktreeDirtyAfterRun": false,
+                "startedAt": "2026-09-20T02:27:01Z",
+                "finishedAt": "2026-09-20T02:27:02Z",
+                "exitCode": 0,
+                "result": "11 tests, 11 pass, 0 fail (495.55 ms); \"N5 client boundaries: OK\"."
+              },
+              {
+                "runner": "scripts/n5/evidence.mjs",
+                "command": "npm run -s evidence:n5",
+                "headSha": "f99bd64d8d9b90370f2615e7728259f33d929376",
+                "worktreeDirtyAtStart": false,
+                "worktreeDirtyAfterRun": false,
+                "startedAt": "2026-09-20T02:27:14Z",
+                "finishedAt": "2026-09-20T02:27:20Z",
+                "exitCode": 1,
+                "result": "Error: ENOENT: no such file or directory, scandir '<worktree>/artifacts/n5' at artifactDigests (scripts/n5/evidence.mjs:55). The writer needs the raw live observation set under artifacts/n5/ that the live-observation, restart-observation, and language-observation harnesses produce."
+              }
+            ]
+          },
+          "human": {
+            "status": "not-run",
+            "reason": "No human receipt exists. The registry requires: an independent reproduction/review decision at the declared disclosure level. IV41-005 remains In Review, no human outcome is inferred from the machine observation, and the gate registry forbids inferring one."
+          }
+        },
+        "decision": {
+          "status": "inconclusive",
+          "rationale": "The equivalence comparator executed and passed, but the record writer that folds the four-client raw observations into the retained record did not run here, so the gate is neither qualified nor closed. What is outstanding: a live N5 observation set under artifacts/n5/ produced against a running canonical Core fixture service with the four clients, and the human receipt (independent reproduction/review decision at the declared disclosure level). The retained record is cited as the committed record on the selected dev head, not as an output of this session."
+        },
+        "limitations": [
+          {
+            "id": "q3-evidence-writer-not-executed",
+            "kind": "status",
+            "effect": "blocks-closure",
+            "statement": "scripts/n5/evidence.mjs exited 1 with ENOENT scandir artifacts/n5: it folds raw live observations produced by the live/restart/language observation harnesses, and those harnesses need a live canonical Core service, the built @ivory-tower/n5-browser workbench with Playwright browsers, and the python/R/quarto probes. The raw set is absent from this worktree and regenerating it exceeds the bounded window, so no Q3 machine observation is retained."
+          },
+          {
+            "id": "q3-human-receipt-missing",
+            "kind": "authority",
+            "effect": "blocks-closure",
+            "statement": "No human receipt exists. The registry requires: an independent reproduction/review decision at the declared disclosure level. IV41-005 remains In Review, no human outcome is inferred from the machine observation, and the gate registry forbids inferring one."
+          },
+          {
+            "id": "q3-local-head-differs-from-authority-head",
+            "kind": "environment",
+            "effect": "limits-scope",
+            "statement": "The local runner executions were taken at the current dev tip f99bd64d8d9b90370f2615e7728259f33d929376 from a clean worktree, not at the pinned authority head 41fa0e19889fad7fdedef45a8c21944e7d923e68. Every Q3 runner module and retained record is byte-identical at both heads (git diff 41fa0e19889fad7fdedef45a8c21944e7d923e68..f99bd64d8d9b90370f2615e7728259f33d929376 -- scripts spikes touches only scripts/ivory/v41-authority.mjs and its spec), so the predicate executed is the pinned one, but the observation head is recorded exactly and is not the authority head."
+          }
+        ],
+        "architecturalGaps": []
+      }
+    },
+    {
+      "id": "Q4",
+      "record": {
+        "schema": "ivory-v41-qualification-record/1",
+        "gate": "Q4",
+        "fixtures": [
+          {
+            "id": "q4-n3-compute-runner",
+            "path": "scripts/ivory/n3-compute.mjs",
+            "sha256": "07bb46cd8c27ba623ecd914d7b8c4e37ddf6212820e233207e3797c8dcf86975",
+            "bytes": 34078
+          },
+          {
+            "id": "q4-n3-retain-runner",
+            "path": "scripts/ivory/n3-retain.mjs",
+            "sha256": "6cccf0f3e5252d26335fba89b06562dae2ba108aad9f32c83b8034153bddb167",
+            "bytes": 5958
+          },
+          {
+            "id": "q4-n7-proposal-runner",
+            "path": "scripts/ivory/n7-retain.mjs",
+            "sha256": "704c04bf59df3e921a6ee43d5a40ba89328023ac4035c32e881e28b22b07b928",
+            "bytes": 6199
+          }
+        ],
+        "evidence": [
+          {
+            "id": "q4-n3-record",
+            "path": "docs/experiments/n3-evidence.json",
+            "sha256": "6e678cb25c2c8ba18ac6d2dcdde570e616be0c652d3c65e1f0aade600e70092e",
+            "bytes": 34052,
+            "tracked": true
+          },
+          {
+            "id": "q4-n7-record",
+            "path": "docs/experiments/n7-v1-evidence.json",
+            "sha256": "a9c58a11f5e8658a94a5d3649f9fdad22378877d6166a6329dd1f1c2b7967461",
+            "bytes": 13351,
+            "tracked": true
+          }
+        ],
+        "observations": {
+          "machine": {
+            "status": "partial",
+            "summary": "Two of the three bound Q4 runners executed and passed at the local runner head: the governed-compute runner ran for both languages against the digest-pinned images the retained record names (python@sha256:78387bc3..., r-base@sha256:e7032f2f...) with every required acceptance check true and an identical language-neutral result (mean 20, rowCount 3, sum 60), and the N3 retention step reported runtime-qualified with exit 0. The bound proposal-retention runner exited 1: its own deterministic test run reports 23 of 24 passing because the retained-evidence spec expects deterministic.transcripts on docs/experiments/n7-v1-evidence.json and the committed record does not carry that field.",
+            "runs": [
+              {
+                "runner": "scripts/ivory/n3-compute.mjs",
+                "command": "npm run -s verify:ivory-n3",
+                "headSha": "f99bd64d8d9b90370f2615e7728259f33d929376",
+                "worktreeDirtyAtStart": false,
+                "worktreeDirtyAfterRun": false,
+                "startedAt": "2026-09-20T02:23:29Z",
+                "finishedAt": "2026-09-20T02:23:32Z",
+                "exitCode": 1,
+                "result": "N3 verification failed required acceptance checks: imageDigestValid - the bound command fails closed when no immutable OCI image is supplied (--python-image must name an immutable OCI image with an @sha256 digest). This is the registry command as declared; the retained record documents the full invocation with the pinned digests."
+              },
+              {
+                "runner": "scripts/ivory/n3-compute.mjs",
+                "command": "IVORY_N3_PYTHON_IMAGE=python@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea node scripts/ivory/n3-compute.mjs --interrupt-publication --measure --artifact-root artifacts/n3/python",
+                "headSha": "f99bd64d8d9b90370f2615e7728259f33d929376",
+                "worktreeDirtyAtStart": false,
+                "worktreeDirtyAfterRun": false,
+                "startedAt": "2026-09-20T02:25:35Z",
+                "finishedAt": "2026-09-20T02:26:18Z",
+                "exitCode": 0,
+                "result": "runtime.status observed; all 16 acceptance criteria true (protocol lifecycle reopened, publication recovery after restart, cancellation/publication fence, canaries denied, escape probes recorded, input unchanged, child processes terminated, controls enforced, minimal mount surface, no privileged escalation, late results fenced, one terminal publication outcome, publication recovered after interrupt, result output validated); result {\"mean\":20,\"rowCount\":3,\"sum\":60}."
+              },
+              {
+                "runner": "scripts/ivory/n3-compute.mjs",
+                "command": "IVORY_N3_R_IMAGE=r-base@sha256:e7032f2f6fd273ee944a717b436bc66d1a89b1b90a9bbcaafcf1318d68a7d8b2 node scripts/ivory/n3-compute.mjs --language r --interrupt-publication --measure --artifact-root artifacts/n3/r",
+                "headSha": "f99bd64d8d9b90370f2615e7728259f33d929376",
+                "worktreeDirtyAtStart": false,
+                "worktreeDirtyAfterRun": false,
+                "startedAt": "2026-09-20T02:26:18Z",
+                "finishedAt": "2026-09-20T02:26:40Z",
+                "exitCode": 0,
+                "result": "runtime.status observed with the same acceptance set true where the language defines it; result identical to python ({\"mean\":20,\"rowCount\":3,\"sum\":60}), so languageNeutral held."
+              },
+              {
+                "runner": "scripts/ivory/n3-retain.mjs",
+                "command": "node scripts/ivory/n3-retain.mjs --python artifacts/n3/python/evidence.json --r artifacts/n3/r/evidence.json",
+                "headSha": "f99bd64d8d9b90370f2615e7728259f33d929376",
+                "worktreeDirtyAtStart": false,
+                "worktreeDirtyAfterRun": true,
+                "dirtyPaths": [
+                  "docs/experiments/n3-evidence.json"
+                ],
+                "startedAt": "2026-09-20T02:26:47Z",
+                "finishedAt": "2026-09-20T02:26:47Z",
+                "exitCode": 0,
+                "result": "runtime-qualified: docs/experiments/n3-evidence.json. The runner requires --python and --r and fails closed with a usage error when they are absent; the regenerated record differs from the committed one only in retainedAt, gitCommit, docker client/server versions (29.8.0 against 29.7.2), and timings, and was restored."
+              },
+              {
+                "runner": "scripts/ivory/n7-retain.mjs",
+                "command": "npm run -s verify:ivory-n7",
+                "headSha": "f99bd64d8d9b90370f2615e7728259f33d929376",
+                "worktreeDirtyAtStart": false,
+                "worktreeDirtyAfterRun": true,
+                "dirtyPaths": [
+                  "docs/experiments/n7-v1-evidence.json",
+                  "docs/experiments/n7-transcripts/duplicate-accept.json",
+                  "docs/experiments/n7-transcripts/hostile-corpus.json",
+                  "docs/experiments/n7-transcripts/revoked-tool.json",
+                  "docs/experiments/n7-transcripts/stale-proposal.json",
+                  "docs/experiments/n7-transcripts/transmissions.json"
+                ],
+                "startedAt": "2026-09-20T02:24:40Z",
+                "finishedAt": "2026-09-20T02:24:41Z",
+                "exitCode": 1,
+                "result": "N7: failed-or-incomplete. The runner's own deterministic test run reports 23 of 24 passing; the single failure is scripts/ivory/n7-evidence.spec.mjs \"retained evidence, when present, records the four snapshots and an open live provider\" (actual undefined against the expected four transcript names), because the committed docs/experiments/n7-v1-evidence.json carries no deterministic.transcripts field. npm run -s test:ivory-n7 reproduces the same failure on the committed tree (exit 1, 23 of 24, clean worktree), so it predates this session. The runner rewrote the N7 record and transcripts; all were restored."
+              },
+              {
+                "runner": "node --test scripts/ivory/n7-*.spec.mjs (via npm run -s test:ivory-n7)",
+                "command": "npm run -s test:ivory-n7",
+                "headSha": "f99bd64d8d9b90370f2615e7728259f33d929376",
+                "worktreeDirtyAtStart": false,
+                "worktreeDirtyAfterRun": false,
+                "startedAt": "2026-09-20T02:25:28Z",
+                "finishedAt": "2026-09-20T02:25:29Z",
+                "exitCode": 1,
+                "result": "tests 24, pass 23, fail 1: the retained-evidence assertion above, reproduced against the committed record on a clean worktree. This is a pre-existing red test on the selected dev head, not a Q4 semantic failure."
+              }
+            ]
+          },
+          "human": {
+            "status": "not-run",
+            "reason": "No human receipt exists. The registry requires: a researcher adoption or rejection receipt and a method-stratified evaluation decision. IV41-005 remains In Review, no human outcome is inferred from the machine observation, and the gate registry forbids inferring one."
+          }
+        },
+        "decision": {
+          "status": "inconclusive",
+          "rationale": "The governed-compute half of Q4 ran and passed against the digest-pinned images, and its retention step reported runtime-qualified, but the bound proposal-retention runner exited 1 because the committed N7 record lacks the deterministic.transcripts field its spec reads. That is a retained-record staleness on the selected dev head, not a Q4 semantic failure, and repairing it would mean rewriting another issue's retained record, which IV41-005 does not own. The gate is therefore neither qualified nor closed: the human receipts are absent and one bound runner is red."
+        },
+        "limitations": [
+          {
+            "id": "q4-n7-runner-red-on-committed-record",
+            "kind": "status",
+            "effect": "blocks-closure",
+            "statement": "scripts/ivory/n7-retain.mjs (verify:ivory-n7) exits 1 on the selected dev head: its deterministic test run reports 23 of 24 because scripts/ivory/n7-evidence.spec.mjs expects deterministic.transcripts on the committed docs/experiments/n7-v1-evidence.json, which does not carry that field. The same failure reproduces with npm run -s test:ivory-n7 on the committed record from a clean worktree. Regenerating that record would rewrite another issue's retained evidence and move the V41-I01.4 machine readback, so it is left red and recorded here instead of being rounded up."
+          },
+          {
+            "id": "q4-bound-command-needs-pinned-image-arguments",
+            "kind": "environment",
+            "effect": "limits-scope",
+            "statement": "The registry's bound command verify:ivory-n3 fails closed (exit 1, \"N3 verification failed required acceptance checks: imageDigestValid\") unless the immutable image is supplied, and retain:ivory-n3 requires --python and --r. The passing runs therefore used the exact invocation the retained record documents, with the digest-pinned python and r-base images; the bare command is recorded as observed."
+          },
+          {
+            "id": "q4-human-receipt-missing",
+            "kind": "authority",
+            "effect": "blocks-closure",
+            "statement": "No human receipt exists. The registry requires: a researcher adoption or rejection receipt and a method-stratified evaluation decision. IV41-005 remains In Review, no human outcome is inferred from the machine observation, and the gate registry forbids inferring one."
+          },
+          {
+            "id": "q4-local-head-differs-from-authority-head",
+            "kind": "environment",
+            "effect": "limits-scope",
+            "statement": "The local runner executions were taken at the current dev tip f99bd64d8d9b90370f2615e7728259f33d929376 from a clean worktree, not at the pinned authority head 41fa0e19889fad7fdedef45a8c21944e7d923e68. Every Q4 runner module and retained record is byte-identical at both heads (git diff 41fa0e19889fad7fdedef45a8c21944e7d923e68..f99bd64d8d9b90370f2615e7728259f33d929376 -- scripts spikes touches only scripts/ivory/v41-authority.mjs and its spec), so the predicate executed is the pinned one, but the observation head is recorded exactly and is not the authority head."
+          },
+          {
+            "id": "q4-retained-records-restored",
+            "kind": "evidence",
+            "effect": "limits-scope",
+            "statement": "Each runner rewrote its own retained record at the local head (repository commit, run timestamps, artifact paths, and for N4 one byte of record size). The committed records were restored byte-for-byte afterwards so the V41-I01.4 machine readback stays exact: the cited evidence is the committed record on the selected dev head, not the local regeneration, and the regenerated bytes are recorded in the machine observation."
+          }
+        ],
+        "architecturalGaps": []
+      }
+    }
+  ]
+}

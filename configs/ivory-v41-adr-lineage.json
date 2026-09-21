@@ -1,0 +1,169 @@
+{
+  "schema": "ivory-v41-adr-lineage/1",
+  "issue": "IV41-004",
+  "dependsOn": "IV41-001",
+  "basisManifest": "configs/ivory-v41-authority-heads.json",
+  "evidenceContext": {
+    "repository": "mberrys/ivory",
+    "headRoles": [
+      "detachedBaseline",
+      "foundationPr",
+      "selectedDev"
+    ],
+    "priorSelectedDevHead": "bc3cd03b5b2d870d219797925d92edc48c33c6ca",
+    "selectedDevHead": "41fa0e19889fad7fdedef45a8c21944e7d923e68",
+    "reconciliationMerge": "f8d0af66aa10d419cd18fb5f649f0eabfc63cd5d",
+    "reconciliationMergeSubject": "merge: reconcile the N1-N7 closeout line with the V4.1 authority line on dev"
+  },
+  "policy": {
+    "historicalRecords": "immutable",
+    "decisionDispositions": [
+      "inherited",
+      "amended",
+      "deferred",
+      "superseded"
+    ],
+    "supersession": "explicit-only",
+    "untrackedArchitecturalGaps": "forbidden",
+    "evidenceContext": "exact-repository-environment"
+  },
+  "registry": [
+    {
+      "id": "V3-ORX",
+      "kind": "architecture-source",
+      "title": "Ivory v3 ORX",
+      "sourceUrl": "https://app.notion.com/p/3db9cb079ddb819a8f8cd71468db5aca",
+      "historical": true,
+      "retainedIntact": true
+    },
+    {
+      "id": "ADR-001",
+      "kind": "adr",
+      "title": "Application platform and surface strategy",
+      "path": "docs/adr-001-application-platform.md",
+      "historical": true,
+      "retainedIntact": true
+    },
+    {
+      "id": "ADR-002",
+      "kind": "adr",
+      "title": "V1 runtime topology and repository architecture",
+      "path": "docs/adr-002-runtime-topology.md",
+      "historical": true,
+      "retainedIntact": true
+    },
+    {
+      "id": "ADR-003",
+      "kind": "adr",
+      "title": "Consolidate the spike work onto dev",
+      "path": "docs/adr-003-spike-informed-architecture.md",
+      "historical": true,
+      "retainedIntact": true
+    },
+    {
+      "id": "ADR-004",
+      "kind": "adr",
+      "title": "Accept the N1 exact-reference, closure and EvidenceLink contract",
+      "path": "docs/adr-004-n1-exact-reference-contract.md",
+      "historical": true,
+      "retainedIntact": true
+    },
+    {
+      "id": "ADR-005",
+      "kind": "adr",
+      "title": "Select PGlite 0.3.16 as the single local V1 engine",
+      "path": "docs/adr-005-storage-engine.md",
+      "historical": true,
+      "retainedIntact": true
+    },
+    {
+      "id": "ADR-006",
+      "kind": "adr",
+      "title": "Keep the N5 plugin-host surface out of the V1 application",
+      "path": "docs/adr-006-n5-harness-dependencies.md",
+      "historical": true,
+      "retainedIntact": true
+    },
+    {
+      "id": "ADR-007",
+      "kind": "adr",
+      "title": "V4.1 authority carriers and harness boundary",
+      "path": "docs/adr-007-v41-authority-harness-boundary.md",
+      "historical": false,
+      "retainedIntact": true
+    },
+    {
+      "id": "ADR-008",
+      "kind": "adr",
+      "title": "V4.1 ADR lineage and supersession",
+      "path": "docs/adr-008-v41-adr-lineage-supersession.md",
+      "historical": false,
+      "retainedIntact": true
+    }
+  ],
+  "decisions": [
+    {
+      "id": "one-core-authority",
+      "source": "V3-ORX",
+      "disposition": "inherited",
+      "carriedBy": "ADR-007",
+      "statement": "One canonical Core remains the sole semantic authority for research meaning; clients, harnesses, and worker proposals never become parallel research authorities.",
+      "evidenceHeads": [
+        "foundationPr",
+        "selectedDev"
+      ],
+      "evidenceBoundary": "Architecture inheritance only; the repository boundary is the exact head set in configs/ivory-v41-authority-heads.json and no V4.1 gate is closed by this lineage entry."
+    },
+    {
+      "id": "claim-card-authority",
+      "source": "V3-ORX",
+      "disposition": "amended",
+      "carriedBy": "ADR-007",
+      "amendedBy": "ADR-008",
+      "statement": "Claim Card remains a regenerated projection over canonical Statement/EvidenceLink/Fragment/Artifact/Activity state rather than a canonical aggregate or store.",
+      "evidenceHeads": [
+        "foundationPr",
+        "selectedDev"
+      ],
+      "evidenceBoundary": "Amends terminology and authority placement only; the historical V3 source and the ADR-001 to ADR-006 text are not rewritten."
+    },
+    {
+      "id": "research-capsule-qualification",
+      "source": "V3-ORX",
+      "disposition": "deferred",
+      "carriedBy": "ADR-008",
+      "trackedBy": "Q3",
+      "statement": "Portable Research Capsule profile and independent reproduction remain deferred until the Q3 gate retains its own machine and human evidence.",
+      "evidenceHeads": [
+        "selectedDev"
+      ],
+      "evidenceBoundary": "No replay or independent-reproduction qualification is claimed by IV41-004."
+    },
+    {
+      "id": "v3-current-architecture-target",
+      "source": "V3-ORX",
+      "disposition": "superseded",
+      "carriedBy": "ADR-007",
+      "supersededBy": "ADR-007",
+      "statement": "V3 ORX as the current architecture qualification target is superseded by the V4.1 authority/harness contract while its one-Core invariants remain inherited separately.",
+      "evidenceHeads": [
+        "foundationPr",
+        "selectedDev"
+      ],
+      "evidenceBoundary": "Supersession changes the current architecture target only; the historical V3 record and its retained one-Core decisions remain intact."
+    },
+    {
+      "id": "semantic-assessment-carrier",
+      "source": "ADR-007",
+      "disposition": "deferred",
+      "carriedBy": "ADR-008",
+      "trackedBy": "IV41-021",
+      "trackingUrl": "https://app.notion.com/p/3dd9cb079ddb816f9991dc95fc53d02d",
+      "statement": "The missing canonical semantic-support Assessment carrier remains an owned downstream gap tracked by IV41-021 rather than being filled by ADR prose.",
+      "evidenceHeads": [
+        "selectedDev"
+      ],
+      "evidenceBoundary": "IV41-004 records lineage only; it does not broaden the Assessment schema or close IV41-021."
+    }
+  ]
+}

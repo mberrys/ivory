@@ -4,7 +4,7 @@ import test from 'node:test';
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { evaluateGates, formatGateTable, unknownGateIds } from './n-gates.mjs';
 
@@ -283,4 +283,43 @@ test('the verifier without flags still prints the table and succeeds', () => {
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, /\| N7 \|/);
     assert.match(result.stdout, /\d+\/7 N-gates closed\./);
+});
+test('a manifest whose fixtures are addressed by an absolute path outside the repository is read', () => {
+    // The temp-manifest seam relocates its fixtures with `relative(REPO_ROOT, tmpdir)`. On a Windows
+    // runner the repository is on D: while os.tmpdir() is on C:, so `relative` returns an absolute path
+    // and `join(root, absolute)` produced `<repo>\C:\...` — the fixture was unreadable, every gate using
+    // it read as open, and the required gate failed with "REQUIRED: gate NX is not closed". Addressing the
+    // fixture absolutely pins the resolution rule on every platform.
+    const { dir } = tempManifest([{ id: 'NX', title: 'Absolute fixture path', evidence: 'evidence.json' }]);
+    const absoluteDir = resolve(dir);
+    const manifest = join(dir, 'absolute-ivory-n-gates.json');
+    writeFileSync(
+        manifest,
+        JSON.stringify(
+            {
+                schema: 'ivory-n-gates/1',
+                gates: [
+                    {
+                        id: 'NX',
+                        title: 'Absolute fixture path',
+                        evidence: join(absoluteDir, 'nx-evidence.json'),
+                        document: join(absoluteDir, 'nx-doc.md'),
+                        documentStatusPrefix: '**Status:**',
+                        documentClosedPattern: '^closed\\b',
+                        observations: { status: 'status' },
+                        closedWhen: [{ path: 'status', equals: 'closed' }],
+                    },
+                ],
+            },
+            null,
+            2,
+        ),
+    );
+    writeFileSync(join(dir, 'nx-evidence.json'), JSON.stringify({ status: 'closed' }));
+    writeFileSync(join(dir, 'nx-doc.md'), '**Status:** closed by the retained record\n');
+
+    const result = runVerifier(['--require-closed', 'NX'], { IVORY_N_GATES_CONFIG: manifest });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /\| NX \| closed \|/);
+    assert.match(result.stdout, /1\/1 N-gates closed\./);
 });

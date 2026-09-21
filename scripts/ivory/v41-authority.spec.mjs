@@ -1,0 +1,1212 @@
+// SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { loadBundle, readbackIdentity, validateBundle } from './v41-authority.mjs';
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+function clone(value) {
+    return structuredClone(value);
+}
+
+function bundle() {
+    return clone(loadBundle(ROOT));
+}
+
+function rawGitBlobSha(bytes) {
+    const buffer = Buffer.isBuffer(bytes) ? bytes : Buffer.from(bytes);
+    return createHash('sha1').update(Buffer.from(`blob ${buffer.length}\0`, 'utf8')).update(buffer).digest('hex');
+}
+
+function retainedFile(relative) {
+    const observed = readbackIdentity(readFileSync(join(ROOT, relative)));
+    return {
+        path: relative,
+        sha256: observed.sha256,
+        bytes: observed.bytes,
+    };
+}
+
+function qualifiedCandidate() {
+    const candidate = bundle();
+    const selectedSha = candidate.heads.heads.find(head => head.role === 'selectedDev').sha;
+    const verifier = retainedFile('scripts/ivory/v41-authority.mjs');
+    const fixture = retainedFile('package.json');
+    const evidence = retainedFile('configs/ivory-v41-gates.json');
+    candidate.qualification.runContext = {
+        repository: {
+            remote: 'mberrys/ivory',
+            ref: 'refs/heads/dev',
+            branch: 'dev',
+            headSha: selectedSha,
+            treeSha: '1111111111111111111111111111111111111111',
+            dirty: false,
+            authorityBasis: {
+                manifest: 'configs/ivory-v41-authority-heads.json',
+                role: 'selectedDev',
+                sha: selectedSha,
+                relation: 'equal',
+            },
+        },
+        environment: {
+            os: { platform: 'win32', release: '10.0', arch: 'x64' },
+            runtime: { node: 'v24.0.0', npm: '11.0.0' },
+            configuration: {
+                profile: 'local',
+                secretValuesOmitted: true,
+                lockfileSha256: '2222222222222222222222222222222222222222222222222222222222222222',
+            },
+            recordedAt: '2026-09-18T00:00:00.000Z',
+        },
+        verifier: {
+            module: verifier.path,
+            moduleSha256: verifier.sha256,
+            command: 'npm run verify:ivory-v41-authority',
+            startedAt: '2026-09-18T00:00:00.000Z',
+            finishedAt: '2026-09-18T00:01:00.000Z',
+            exitCode: 0,
+        },
+    };
+    candidate.qualification.gates.find(gate => gate.id === 'Q1').record = {
+        schema: 'ivory-v41-qualification-record/1',
+        gate: 'Q1',
+        fixtures: [{ id: 'package-fixture', ...fixture }],
+        evidence: [{ id: 'gate-registry', tracked: true, ...evidence }],
+        observations: {
+            machine: { status: 'passed' },
+            human: { status: 'accepted' },
+        },
+        decision: {
+            status: 'qualified',
+            authority: 'human',
+            qualificationLevel: 'bounded',
+            scope: {
+                fixtures: ['package-fixture'],
+                platforms: ['win32/x64'],
+                components: ['authority'],
+            },
+            rationale: 'Retained evidence supports the bounded Q1 claim.',
+        },
+        limitations: [{
+            id: 'scope',
+            kind: 'scope',
+            effect: 'narrows-claim',
+            statement: 'The retained fixture does not establish cross-platform behavior.',
+        }],
+        architecturalGaps: [],
+    };
+    return candidate;
+}
+
+function errorText(candidate, options = { verifyPackages: false }) {
+    return validateBundle(candidate, options).join('\n');
+}
+
+/**
+ * The canonical all-not-run record shape. Tests that need a not-run manifest build it from this
+ * helper instead of asserting against the live manifest, whose records legitimately move to a
+ * terminal status once a retained run exists.
+ */
+function notRunRecord(gateId) {
+    return {
+        schema: 'ivory-v41-qualification-record/1',
+        gate: gateId,
+        fixtures: [],
+        evidence: [],
+        observations: {
+            machine: { status: 'not-run' },
+            human: { status: 'not-run' },
+        },
+        decision: { status: 'not-run', rationale: 'No retained qualification run exists for this gate.' },
+        limitations: [{
+            id: 'not-run',
+            kind: 'status',
+            effect: 'blocks-closure',
+            statement: 'No retained qualification run exists for this gate.',
+        }],
+        architecturalGaps: [],
+    };
+}
+
+function notRunBundle() {
+    const candidate = bundle();
+    for (const gate of candidate.qualification.gates) gate.record = notRunRecord(gate.id);
+    candidate.qualification.runContext = null;
+    return candidate;
+}
+
+test('the committed authority and package-ownership contracts are structurally valid', () => {
+    assert.deepEqual(validateBundle(bundle(), { verifyPackages: false }), []);
+});
+
+test('a stale or alternate authority head cannot replace selected dev', () => {
+    const candidate = bundle();
+    candidate.heads.selectedAuthorityRole = 'foundationPr';
+    assert.match(errorText(candidate), /selected authority must be selectedDev/);
+});
+
+test('latest-head substitution is rejected', () => {
+    const candidate = bundle();
+    candidate.heads.heads.find(head => head.role === 'selectedDev').identity = 'latest dev';
+    assert.match(errorText(candidate), /must not use latest\/current substitution/);
+});
+
+test('an inferred package inventory is rejected', () => {
+    const candidate = bundle();
+    candidate.heads.packageInventorySource.mode = 'inferred';
+    assert.match(errorText(candidate), /package inventory must be exact-tree/);
+});
+
+test('the selected-dev Ivory package inventory must be exhaustive', () => {
+    const candidate = bundle();
+    candidate.heads.packages = candidate.heads.packages.slice(0, -1);
+    assert.match(errorText(candidate), /package inventory must exactly match the selected-dev Ivory package tree/);
+});
+
+test('package manifest drift blocks the exact-head contract', () => {
+    const candidate = bundle();
+    const root = mkdtempSync(join(tmpdir(), 'v41-authority-'));
+    const relative = 'packages/example/package.json';
+    const full = join(root, relative);
+    mkdirSync(dirname(full), { recursive: true });
+    const original = Buffer.from('{"name":"@ivory-tower/example"}\n');
+    writeFileSync(full, original);
+    candidate.heads.packages = [{ name: '@ivory-tower/example', path: relative, packageJsonGitBlob: rawGitBlobSha(original) }];
+    writeFileSync(full, '{"name":"@ivory-tower/example","changed":true}\n');
+    const errors = validateBundle(candidate, {
+        root,
+        verifyPackages: true,
+        resolvePackageBlobSha: (_root, path) => rawGitBlobSha(Buffer.from(requireRead(join(root, path)))),
+    });
+    assert.match(errors.join('\n'), /package manifest drift/);
+});
+
+function requireRead(path) {
+    return globalThis.process.getBuiltinModule('fs').readFileSync(path);
+}
+
+test('the harness cannot become a semantic acceptance authority', () => {
+    const candidate = bundle();
+    candidate.owners.authorityBoundaries.harness.semanticAuthority = true;
+    assert.match(errorText(candidate), /harness cannot become a semantic authority/);
+});
+
+test('recursive improvement cannot mutate protected Core authority', () => {
+    const candidate = bundle();
+    candidate.owners.authorityBoundaries.recursiveImprovement.mayMutateCore = true;
+    assert.match(errorText(candidate), /recursive improvement cannot mutate protected Core authority/);
+});
+
+test('every N1-N7 lesson needs exactly one carrier or owned gap', () => {
+    const candidate = bundle();
+    const n4 = candidate.carriers.lessons.find(lesson => lesson.id === 'N4');
+    delete n4.carrier;
+    assert.match(errorText(candidate), /N4 must have exactly one structural carrier or owned gap/);
+});
+
+test('IV41-002 keeps every N1-N7 lesson resolved to a retained fixture and a real carrier', () => {
+    const candidate = bundle();
+    assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+    const lessons = candidate.carriers.lessons;
+    assert.equal(lessons.length, 7);
+    for (const lesson of lessons) {
+        assert.match(lesson.fixtureDigest, /^[a-f0-9]{64}$/);
+        assert.ok(Number.isInteger(lesson.fixtureBytes) && lesson.fixtureBytes > 0);
+    }
+    assert.ok(lessons.find(lesson => lesson.id === 'N2').carrier);
+    assert.ok(lessons.find(lesson => lesson.id === 'N6').carrier);
+});
+
+test('IV41-002 fails closed when a lesson fixture is missing', () => {
+    const candidate = bundle();
+    candidate.carriers.lessons.find(lesson => lesson.id === 'N1').fixture = 'docs/experiments/n1-fixture-that-does-not-exist.json';
+    assert.match(errorText(candidate), /N1 fixture does not exist on disk/);
+});
+
+test('IV41-002 fails closed on a wrong fixture digest, byte count, or readback convention', () => {
+    const digestCandidate = bundle();
+    digestCandidate.carriers.lessons.find(lesson => lesson.id === 'N4').fixtureDigest = '0'.repeat(64);
+    assert.match(errorText(digestCandidate), /N4 fixture SHA-256 does not match the retained readback/);
+
+    const bytesCandidate = bundle();
+    const n4 = bytesCandidate.carriers.lessons.find(lesson => lesson.id === 'N4');
+    n4.fixtureBytes += 1;
+    assert.match(errorText(bytesCandidate), /N4 fixture byte count does not match the retained readback/);
+
+    const conventionCandidate = bundle();
+    conventionCandidate.carriers.fixtureReadback.algorithm = 'sha1';
+    assert.match(errorText(conventionCandidate), /fixture readback algorithm must be SHA-256/);
+});
+
+test('IV41-002 rejects a lesson with two structural carriers or none', () => {
+    const both = bundle();
+    const withBoth = both.carriers.lessons.find(lesson => lesson.id === 'N2');
+    withBoth.ownedGap = { issue: 'V41-I07' };
+    assert.match(errorText(both), /N2 must have exactly one structural carrier or owned gap/);
+
+    const neither = bundle();
+    const bare = neither.carriers.lessons.find(lesson => lesson.id === 'N2');
+    delete bare.carrier;
+    delete bare.residualGap;
+    assert.match(errorText(neither), /N2 must have exactly one structural carrier or owned gap/);
+});
+
+test('IV41-002 refuses a prose-only lesson', () => {
+    const candidate = bundle();
+    const n3 = candidate.carriers.lessons.find(lesson => lesson.id === 'N3');
+    delete n3.carrier;
+    delete n3.fixture;
+    delete n3.fixtureDigest;
+    delete n3.fixtureBytes;
+    const errors = errorText(candidate);
+    assert.match(errors, /N3 must have exactly one structural carrier or owned gap/);
+    assert.match(errors, /N3 is missing a fixture pointer/);
+    assert.match(errors, /N3 fixtureDigest must be an exact SHA-256/);
+    assert.match(errors, /N3 fixtureBytes must be a non-negative integer/);
+});
+
+test('IV41-002 resolves every carrier unit to a real file and symbol', () => {
+    const missingFile = bundle();
+    const fileUnit = missingFile.carriers.lessons.find(lesson => lesson.id === 'N7').carrier.units[0];
+    fileUnit.path = 'packages/ivory-tower-research-kernel/src/node/missing-carrier.ts#AcceptAgentProposalInput';
+    assert.match(errorText(missingFile), /N7 carrier\.units\[0\] names a carrier file that is missing/);
+
+    const missingSymbol = bundle();
+    const symbolUnit = missingSymbol.carriers.lessons.find(lesson => lesson.id === 'N7').carrier.units[0];
+    symbolUnit.path = `${symbolUnit.path.split('#')[0]}#zz-not-a-declared-symbol-zz`;
+    assert.match(errorText(missingSymbol), /N7 carrier\.units\[0\] names symbol zz-not-a-declared-symbol-zz/);
+
+    const malformed = bundle();
+    const malformedUnit = malformed.carriers.lessons.find(lesson => lesson.id === 'N7').carrier.units[0];
+    malformedUnit.path = malformedUnit.path.split('#')[0];
+    assert.match(errorText(malformed), /must be <repository-relative path>#<symbol>/);
+
+    const escaping = bundle();
+    const escapingUnit = escaping.carriers.lessons.find(lesson => lesson.id === 'N7').carrier.units[0];
+    escapingUnit.path = '../outside.ts#AcceptAgentProposalInput';
+    assert.match(errorText(escaping), /must be a repository-relative POSIX path/);
+
+    const unclassified = bundle();
+    unclassified.carriers.lessons.find(lesson => lesson.id === 'N6').carrier.ownerClass = 'community-fork';
+    assert.match(errorText(unclassified), /carrier ownerClass must be production-package or closed-experiment/);
+});
+
+test('IV41-002 keeps a residual gap tracked without substituting for the carrier', () => {
+    const untracked = bundle();
+    untracked.carriers.lessons.find(lesson => lesson.id === 'N6').residualGap.issue = 'session-note-12';
+    assert.match(errorText(untracked), /N6 residualGap\.issue must point to a tracked V41-I\* issue/);
+
+    const badStatus = bundle();
+    badStatus.carriers.lessons.find(lesson => lesson.id === 'N6').residualGap.status = 'in-progress';
+    assert.match(errorText(badStatus), /N6 residualGap\.status is invalid/);
+
+    const substituted = bundle();
+    delete substituted.carriers.lessons.find(lesson => lesson.id === 'N2').carrier;
+    assert.match(errorText(substituted), /N2 must have exactly one structural carrier or owned gap/);
+});
+
+test('IV41-002 requires the seven lesson ids exactly once', () => {
+    const duplicate = bundle();
+    duplicate.carriers.lessons.push(clone(duplicate.carriers.lessons.find(lesson => lesson.id === 'N5')));
+    const errors = errorText(duplicate);
+    assert.match(errors, /carrier matrix must cover N1-N7 exactly once/);
+    assert.match(errors, /duplicate lesson ids: N5/);
+});
+
+test('prose-only gate closure cannot replace machine and human evidence boundaries', () => {
+    const candidate = bundle();
+    const q1 = candidate.gates.gates.find(gate => gate.id === 'Q1');
+    q1.machineEvidence = [];
+    q1.humanOutcomeInferredFromMachine = true;
+    const errors = errorText(candidate);
+    assert.match(errors, /Q1 is missing machine evidence requirements/);
+    assert.match(errors, /Q1 must forbid inferring human outcome from machine evidence/);
+});
+
+test('the registry rejects aggregate pass flags and pre-closed gates', () => {
+    const candidate = bundle();
+    candidate.gates.aggregatePass = true;
+    candidate.gates.gates.find(gate => gate.id === 'Q4').state = 'passed';
+    const errors = errorText(candidate);
+    assert.match(errors, /aggregate pass flags are forbidden/);
+    assert.match(errors, /Q4 must remain not-run/);
+});
+
+function gateOf(candidate, id) {
+    return candidate.gates.gates.find(gate => gate.id === id);
+}
+
+function boundPaths(candidate) {
+    return candidate.gates.gates.flatMap(gate => gate.machineRunners.flatMap(runner => [runner.module, runner.evidence]));
+}
+
+test('V41-I01.4 binds every gate to a real runner module, a declared npm alias, and a retained record', () => {
+    const candidate = bundle();
+    assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+    assert.equal(candidate.gates.machineReadback.algorithm, 'sha256');
+    assert.equal(candidate.gates.machineReadback.encoding, 'utf-8');
+    assert.equal(candidate.gates.machineReadback.pathSeparator, '/');
+    assert.equal(candidate.gates.machineReadback.lineEndingPolicy, 'normalize-lf');
+
+    for (const gate of candidate.gates.gates) {
+        assert.ok(Array.isArray(gate.machineRunners), `${gate.id} must bind machineRunners explicitly`);
+        assert.ok(
+            gate.machineRunners.length > 0 || typeof gate.unboundReason === 'string',
+            `${gate.id} must bind a runner or declare why it is unbound`,
+        );
+        for (const runner of gate.machineRunners) {
+            assert.ok(existsSync(join(ROOT, runner.module)), `${gate.id} runner ${runner.module} must exist`);
+            assert.ok(existsSync(join(ROOT, runner.evidence)), `${gate.id} record ${runner.evidence} must exist`);
+        }
+    }
+
+    assert.deepEqual(
+        candidate.gates.gates.map(gate => [gate.id, gate.machineRunners.map(runner => runner.command)]),
+        [
+            ['DURABILITY', ['verify:ivory-n2-v2']],
+            ['Q1', ['verify:ivory-n1', 'verify:ivory-n4-v2']],
+            ['Q2', []],
+            ['REPLAY', ['verify:ivory-n6']],
+            ['Q3', ['test:n5', 'evidence:n5']],
+            ['Q4', ['verify:ivory-n3', 'retain:ivory-n3', 'verify:ivory-n7']],
+        ],
+    );
+
+    const q2 = gateOf(candidate, 'Q2');
+    assert.deepEqual(q2.machineRunners, []);
+    assert.match(q2.unboundReason, /IV41-036/);
+    assert.equal(q2.state, 'not-run');
+
+    const audited = candidate.gates.machineReadback.files.map(file => file.path);
+    assert.deepEqual([...audited].sort(), [...new Set(boundPaths(candidate))].sort());
+});
+
+test('V41-I01.4 fails closed on a fictitious runner module or record', () => {
+    const moduleCandidate = bundle();
+    gateOf(moduleCandidate, 'Q4').machineRunners[0].module = 'scripts/ivory/zz-no-such-runner.mjs';
+    assert.match(
+        errorText(moduleCandidate),
+        /Q4 machineRunners\[0\]\.module must name a file that exists on disk: scripts\/ivory\/zz-no-such-runner\.mjs/,
+    );
+
+    const directoryCandidate = bundle();
+    gateOf(directoryCandidate, 'Q3').machineRunners[0].module = 'packages/ivory-n5-client';
+    assert.match(errorText(directoryCandidate), /Q3 machineRunners\[0\]\.module must name a file that exists on disk/);
+
+    const evidenceCandidate = bundle();
+    gateOf(evidenceCandidate, 'Q1').machineRunners[1].evidence = 'docs/experiments/zz-no-such-record.json';
+    assert.match(errorText(evidenceCandidate), /Q1 machineRunners\[1\]\.evidence must name a file that exists on disk/);
+
+    const missingEvidence = bundle();
+    delete gateOf(missingEvidence, 'REPLAY').machineRunners[0].evidence;
+    assert.match(errorText(missingEvidence), /REPLAY machineRunners\[0\]\.evidence must be a repository-relative POSIX path/);
+
+    const escaping = bundle();
+    gateOf(escaping, 'DURABILITY').machineRunners[0].module = '../outside.mjs';
+    assert.match(errorText(escaping), /DURABILITY machineRunners\[0\]\.module must be a repository-relative POSIX path/);
+});
+
+test('V41-I01.4 fails closed on a command the root package.json does not declare', () => {
+    const unknownCommand = bundle();
+    gateOf(unknownCommand, 'Q4').machineRunners[1].command = 'verify:zz-not-a-script';
+    assert.match(
+        errorText(unknownCommand),
+        /Q4 machineRunners\[1\]\.command verify:zz-not-a-script is not declared in the root package\.json scripts/,
+    );
+
+    const noCommand = bundle();
+    delete gateOf(noCommand, 'Q1').machineRunners[0].command;
+    assert.match(errorText(noCommand), /Q1 machineRunners\[0\]\.command must declare the root package\.json script that runs it/);
+
+    const emptyCommand = bundle();
+    gateOf(emptyCommand, 'Q3').machineRunners[0].command = '';
+    assert.match(errorText(emptyCommand), /Q3 machineRunners\[0\]\.command must declare the root package\.json script that runs it/);
+});
+
+test('V41-I01.4 fails closed when a runner or record digest no longer matches the bytes on disk', () => {
+    const runnerDigest = bundle();
+    runnerDigest.gates.machineReadback.files[0].sha256 = '0'.repeat(64);
+    assert.match(errorText(runnerDigest), /machine readback files\[0\] SHA-256 does not match the retained readback/);
+
+    const runnerBytes = bundle();
+    runnerBytes.gates.machineReadback.files[2].bytes += 1;
+    assert.match(errorText(runnerBytes), /machine readback files\[2\] byte count does not match the retained readback/);
+
+    const recordDigest = bundle();
+    recordDigest.gates.machineReadback.files.find(file => file.id === 'q4-n7-record').sha256 = '1'.repeat(64);
+    assert.match(errorText(recordDigest), /machine readback files\[\d+\] SHA-256 does not match the retained readback/);
+
+    const unhashed = bundle();
+    delete unhashed.gates.machineReadback.files.find(file => file.id === 'q3-n5-record').sha256;
+    assert.match(errorText(unhashed), /machine readback files\[10\]\.sha256 must be an exact SHA-256/);
+
+    const dropped = bundle();
+    dropped.gates.machineReadback.files.pop();
+    assert.match(errorText(dropped), /machine readback must hash exactly the runner and evidence files the registry binds/);
+
+    const extra = bundle();
+    extra.gates.machineReadback.files.push({
+        id: 'zz-extra',
+        path: 'configs/ivory-v41-gates.json',
+        sha256: '2'.repeat(64),
+        bytes: 1,
+    });
+    assert.match(errorText(extra), /machine readback must hash exactly the runner and evidence files the registry binds/);
+
+    const absent = bundle();
+    delete absent.gates.machineReadback;
+    assert.match(errorText(absent), /registry must retain its machine readback record/);
+
+    const driftedConvention = bundle();
+    driftedConvention.gates.machineReadback.algorithm = 'sha1';
+    driftedConvention.gates.machineReadback.encoding = 'utf8';
+    driftedConvention.gates.machineReadback.pathSeparator = '\\';
+    const conventionErrors = errorText(driftedConvention);
+    assert.match(conventionErrors, /machine readback algorithm must be SHA-256/);
+    assert.match(conventionErrors, /machine readback encoding must be UTF-8 text/);
+    assert.match(conventionErrors, /machine readback paths must use POSIX separators/);
+});
+
+test('V41-I01.4 rejects a passing state, an inferred human outcome, or any closure field', () => {
+    const passed = bundle();
+    gateOf(passed, 'Q1').state = 'passed';
+    assert.match(errorText(passed), /Q1 must remain not-run/);
+
+    const qualified = bundle();
+    gateOf(qualified, 'DURABILITY').state = 'qualified';
+    assert.match(errorText(qualified), /DURABILITY must remain not-run/);
+
+    const inferred = bundle();
+    gateOf(inferred, 'Q4').humanOutcomeInferredFromMachine = true;
+    assert.match(errorText(inferred), /Q4 must forbid inferring human outcome from machine evidence/);
+
+    const registryOutcome = bundle();
+    registryOutcome.gates.overallStatus = 'passed';
+    assert.match(errorText(registryOutcome), /the registry cannot carry the outcome field overallStatus/);
+
+    const gateOutcome = bundle();
+    gateOutcome.gates.closureClaim = false;
+    gateOf(gateOutcome, 'REPLAY').closureClaim = false;
+    const outcomeErrors = errorText(gateOutcome);
+    assert.match(outcomeErrors, /the registry cannot carry the outcome field closureClaim/);
+    assert.match(outcomeErrors, /REPLAY cannot define an aggregate pass flag or outcome field closureClaim/);
+});
+
+test('V41-I01.4 keeps an unbound gate explicit instead of silently runner-less', () => {
+    const missingReason = bundle();
+    delete gateOf(missingReason, 'Q2').unboundReason;
+    assert.match(errorText(missingReason), /Q2 must bind a machine runner or declare an unboundReason/);
+
+    const emptyReason = bundle();
+    gateOf(emptyReason, 'Q2').unboundReason = '   ';
+    assert.match(errorText(emptyReason), /Q2 must bind a machine runner or declare an unboundReason/);
+
+    const untrackedReason = bundle();
+    gateOf(untrackedReason, 'Q2').unboundReason = 'Coverage receipts are not implemented yet.';
+    assert.match(errorText(untrackedReason), /Q2 unboundReason must name the tracked issue that would supply the missing observable/);
+
+    const silentGate = bundle();
+    gateOf(silentGate, 'Q3').machineRunners = [];
+    assert.match(errorText(silentGate), /Q3 must bind a machine runner or declare an unboundReason/);
+
+    const both = bundle();
+    gateOf(both, 'Q2').machineRunners = [
+        { module: 'scripts/n5/compare.mjs', command: 'test:n5', evidence: 'docs/experiments/n5-v2-evidence.json' },
+    ];
+    assert.match(errorText(both), /Q2 binds machine runners and cannot also declare an unboundReason/);
+
+    const implicit = bundle();
+    delete gateOf(implicit, 'Q1').machineRunners;
+    assert.match(errorText(implicit), /Q1 must explicitly bind its machine runners, even when none exist/);
+});
+
+test('a manifest whose every gate is not-run is valid with a null run context', () => {
+    const candidate = notRunBundle();
+    assert.equal(candidate.qualification.runContext, null);
+    assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+});
+
+test('a terminal record cannot be reached without retained fixtures and evidence', () => {
+    const candidate = qualifiedCandidate();
+    const record = candidate.qualification.gates.find(gate => gate.id === 'Q1').record;
+    record.fixtures = [];
+    record.evidence = [];
+    assert.match(errorText(candidate), /terminal records require retained fixtures/);
+    assert.match(errorText(candidate), /terminal records require retained evidence/);
+});
+
+test('a not-run record cannot claim fixtures or evidence', () => {
+    const candidate = notRunBundle();
+    const record = candidate.qualification.gates.find(gate => gate.id === 'Q2').record;
+    record.fixtures = [{ id: 'claimed-fixture', ...retainedFile('package.json') }];
+    record.evidence = [{ id: 'claimed-evidence', tracked: true, ...retainedFile('configs/ivory-v41-gates.json') }];
+    assert.match(errorText(candidate), /not-run records cannot claim fixtures/);
+    assert.match(errorText(candidate), /not-run records cannot claim evidence/);
+});
+
+test('terminal qualification records require exact run context', () => {
+    const candidate = qualifiedCandidate();
+    candidate.qualification.runContext = null;
+    assert.match(errorText(candidate), /terminal records require runContext/);
+});
+
+test('qualification records must use the selected authority head', () => {
+    const candidate = qualifiedCandidate();
+    candidate.qualification.runContext.repository.headSha = '0000000000000000000000000000000000000000';
+    assert.match(errorText(candidate), /headSha must match selected authority/);
+});
+
+test('qualified records require a clean worktree', () => {
+    const candidate = qualifiedCandidate();
+    candidate.qualification.runContext.repository.dirty = true;
+    assert.match(errorText(candidate), /qualified records require a clean worktree/);
+});
+
+test('qualified decisions cannot be machine-only', () => {
+    const candidate = qualifiedCandidate();
+    candidate.qualification.gates.find(gate => gate.id === 'Q1').record.decision.authority = 'machine';
+    assert.match(errorText(candidate), /human or joint authority/);
+});
+
+test('changed fixture or evidence digests block qualification', () => {
+    const fixtureCandidate = qualifiedCandidate();
+    fixtureCandidate.qualification.gates.find(gate => gate.id === 'Q1').record.fixtures[0].sha256 = '0'.repeat(64);
+    assert.match(errorText(fixtureCandidate), /fixtures\[0\].*SHA-256 does not match/);
+
+    const evidenceCandidate = qualifiedCandidate();
+    evidenceCandidate.qualification.gates.find(gate => gate.id === 'Q1').record.evidence[0].sha256 = '0'.repeat(64);
+    assert.match(errorText(evidenceCandidate), /evidence\[0\].*SHA-256 does not match/);
+});
+
+test('every qualification record must retain a limitation', () => {
+    const candidate = qualifiedCandidate();
+    candidate.qualification.gates.find(gate => gate.id === 'Q1').record.limitations = [];
+    assert.match(errorText(candidate), /at least one limitation is required/);
+});
+
+test('architectural gaps must point to tracked IV41 issues', () => {
+    const candidate = qualifiedCandidate();
+    candidate.qualification.gates.find(gate => gate.id === 'Q1').record.architecturalGaps = [{
+        issue: 'session-note-7',
+        summary: 'A gap was found during qualification.',
+        status: 'open',
+    }];
+    assert.match(errorText(candidate), /must point to a tracked IV41 issue/);
+});
+
+test('qualification records reject duplicate gates and aggregate outcomes', () => {
+    const duplicateCandidate = bundle();
+    duplicateCandidate.qualification.gates.push(clone(duplicateCandidate.qualification.gates[0]));
+    assert.match(errorText(duplicateCandidate), /duplicate qualification gates/);
+
+    const aggregateCandidate = bundle();
+    aggregateCandidate.qualification.aggregatePass = true;
+    assert.match(errorText(aggregateCandidate), /aggregate outcome field aggregatePass is forbidden/);
+});
+
+test('qualification evidence paths cannot escape the repository', () => {
+    const candidate = qualifiedCandidate();
+    candidate.qualification.gates.find(gate => gate.id === 'Q1').record.fixtures[0].path = '../package.json';
+    assert.match(errorText(candidate), /must be a repository-relative POSIX path/);
+});
+
+
+test('IV41-003 rejects a second research acceptance owner', () => {
+    const candidate = bundle();
+    const application = candidate.packageOwnership.packages.find(item => item.name === '@ivory-tower/application');
+    application.authority.researchAcceptance = true;
+    assert.match(errorText(candidate), /research acceptance must have exactly one owner/);
+});
+
+test('IV41-003 rejects a second canonical research-state writer', () => {
+    const candidate = bundle();
+    const infrastructure = candidate.packageOwnership.packages.find(item => item.name === '@ivory-tower/infrastructure');
+    infrastructure.authority.researchStateWrite = true;
+    assert.match(errorText(candidate), /canonical research-state writes must have exactly one owner/);
+});
+
+test('IV41-003 rejects duplicate or missing responsibility ownership', () => {
+    const candidate = bundle();
+    const api = candidate.packageOwnership.packages.find(item => item.name === '@ivory-tower/api');
+    api.responsibilityIds.push('evidence');
+    assert.match(errorText(candidate), /every V4\.1 package responsibility must have exactly one canonical owner|duplicate canonical responsibility owners/);
+});
+
+test('IV41-003 retains the exact implementation and reconciliation contexts', () => {
+    const candidate = bundle();
+    assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+    const context = candidate.packageOwnership.evidenceContext;
+    assert.equal(context.repository, 'mberrys/ivory');
+    assert.equal(context.implementationContext.pullRequest, 3);
+    assert.equal(context.implementationContext.branch, 'feat/v41-p01-authority-carriers');
+    assert.match(context.implementationContext.headBeforeIssue, /^[a-f0-9]{40}$/);
+    assert.equal(context.reconciliationContext.ref, 'refs/heads/dev');
+    assert.match(context.reconciliationContext.sha, /^[a-f0-9]{40}$/);
+    assert.match(context.reconciliationContext.mergeCommit, /^[a-f0-9]{40}$/);
+    assert.equal(context.reconciliationContext.packageInventory, 'configs/ivory-v41-authority-heads.json');
+    // The audit is re-grounded, not re-pinned: no field restates the moving selection.
+    assert.equal(context.authorityBasis, undefined);
+});
+
+test('IV41-003 rejects an evidence context that names no exact context', () => {
+    const candidate = bundle();
+    delete candidate.packageOwnership.evidenceContext.implementationContext;
+    delete candidate.packageOwnership.evidenceContext.reconciliationContext;
+    assert.match(
+        errorText(candidate),
+        /evidence context must name an exact implementation context or an exact reconciliation context/,
+    );
+
+    const implicitPr = bundle();
+    delete implicitPr.packageOwnership.evidenceContext.implementationContext.pullRequest;
+    assert.match(errorText(implicitPr), /implementation context must name an exact positive pull request number/);
+
+    const zeroPr = bundle();
+    zeroPr.packageOwnership.evidenceContext.implementationContext.pullRequest = 0;
+    assert.match(errorText(zeroPr), /implementation context must name an exact positive pull request number/);
+
+    const stringPr = bundle();
+    stringPr.packageOwnership.evidenceContext.implementationContext.pullRequest = '3';
+    assert.match(errorText(stringPr), /implementation context must name an exact positive pull request number/);
+});
+
+test('IV41-003 rejects a latest or implicit ref in either evidence context', () => {
+    const branch = bundle();
+    branch.packageOwnership.evidenceContext.implementationContext.branch = 'latest';
+    assert.match(errorText(branch), /implementation context branch must be an exact non-latest ref/);
+
+    const ref = bundle();
+    ref.packageOwnership.evidenceContext.reconciliationContext.ref = 'current dev';
+    assert.match(errorText(ref), /reconciliation context ref must be an exact non-latest ref/);
+
+    const emptyRef = bundle();
+    emptyRef.packageOwnership.evidenceContext.reconciliationContext.ref = '   ';
+    assert.match(errorText(emptyRef), /reconciliation context ref must be an exact non-latest ref/);
+});
+
+test('IV41-003 rejects a fabricated or off-line SHA in either evidence context', () => {
+    const fabricatedHead = bundle();
+    fabricatedHead.packageOwnership.evidenceContext.implementationContext.headBeforeIssue = '0'.repeat(40);
+    assert.match(errorText(fabricatedHead), /pre-issue head 0{40} must be a real commit reachable from refs\/heads\/dev/);
+
+    // A real commit is not enough: the PR #1 foundation head exists but is not in refs/heads/dev's history.
+    const offLineHead = bundle();
+    offLineHead.packageOwnership.evidenceContext.implementationContext.headBeforeIssue = 'ecc406d34a9bf49d8e2f165b994a919ca90ff718';
+    assert.match(errorText(offLineHead), /must be a real commit reachable from refs\/heads\/dev/);
+
+    const fabricatedMerge = bundle();
+    fabricatedMerge.packageOwnership.evidenceContext.reconciliationContext.mergeCommit = '1'.repeat(40);
+    assert.match(errorText(fabricatedMerge), /reconciliation context merge 1{40} must be a real commit reachable from refs\/heads\/dev/);
+
+    const shortHead = bundle();
+    shortHead.packageOwnership.evidenceContext.reconciliationContext.sha = '41fa0e198';
+    assert.match(errorText(shortHead), /reconciliation context head must be an exact 40-character SHA/);
+
+    const shortMerge = bundle();
+    shortMerge.packageOwnership.evidenceContext.reconciliationContext.mergeCommit = 'f8d0af66a';
+    assert.match(errorText(shortMerge), /reconciliation context merge must be an exact 40-character SHA/);
+});
+
+test('IV41-003 keeps the evidence context bound to the exact-head manifest', () => {
+    const unbound = bundle();
+    unbound.packageOwnership.evidenceContext.reconciliationContext.packageInventory = 'configs/ivory-v41-carrier-matrix.json';
+    assert.match(errorText(unbound), /reconciliation context must point at the exact package inventory/);
+
+    const manifestDrift = bundle();
+    manifestDrift.packageOwnership.basisManifest = 'configs/ivory-v41-carrier-matrix.json';
+    assert.match(errorText(manifestDrift), /package ownership must bind to the exact-head manifest/);
+});
+
+test('IV41-003 refuses architectural gaps that are not tracked as issues', () => {
+    const candidate = bundle();
+    candidate.packageOwnership.gapPolicy.discoveredGaps[0].issue = 'session-note-7';
+    assert.match(errorText(candidate), /must point to a tracked IV41 issue/);
+});
+
+test('IV41-004 registers every ADR on this line and covers each lineage disposition', () => {
+    const candidate = bundle();
+    assert.equal(candidate.adrLineage.issue, 'IV41-004');
+    assert.deepEqual(
+        candidate.adrLineage.registry.map(record => record.id),
+        ['V3-ORX', 'ADR-001', 'ADR-002', 'ADR-003', 'ADR-004', 'ADR-005', 'ADR-006', 'ADR-007', 'ADR-008'],
+    );
+    assert.equal(candidate.adrLineage.registry.find(record => record.id === 'ADR-004').retainedIntact, true);
+    assert.deepEqual(
+        [...new Set(candidate.adrLineage.decisions.map(decision => decision.disposition))].sort(),
+        ['amended', 'deferred', 'inherited', 'superseded'],
+    );
+    const roles = candidate.heads.heads.map(head => head.role);
+    for (const decision of candidate.adrLineage.decisions) {
+        assert.ok(decision.evidenceHeads.every(head => roles.includes(head)));
+    }
+    assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+});
+
+test('IV41-004 rejects duplicate ADR ids, repeated paths, and non-increasing numbering', () => {
+    const candidate = bundle();
+    candidate.adrLineage.registry.push(clone(candidate.adrLineage.registry.find(record => record.id === 'ADR-007')));
+    const errors = errorText(candidate);
+    assert.match(errors, /duplicate ADR lineage registry id ADR-007/);
+    assert.match(errors, /duplicate ADR lineage path docs\/adr-007-v41-authority-harness-boundary\.md/);
+    assert.match(errors, /ADR numbering must be strictly increasing in registry order/);
+});
+
+test('IV41-004 requires every ADR file on this line to be registered', () => {
+    const candidate = bundle();
+    candidate.adrLineage.registry = candidate.adrLineage.registry.filter(record => record.id !== 'ADR-004');
+    assert.match(errorText(candidate), /docs\/adr-004-n1-exact-reference-contract\.md must be registered in the ADR lineage registry/);
+});
+
+test('IV41-004 fails closed on dangling, self-referential, and cyclic supersession', () => {
+    const dangling = bundle();
+    dangling.adrLineage.decisions.find(decision => decision.disposition === 'superseded').supersededBy = 'ADR-999';
+    assert.match(errorText(dangling), /superseded disposition must name an existing supersededBy ADR/);
+
+    const selfReference = bundle();
+    selfReference.adrLineage.registry.find(record => record.id === 'ADR-007').supersededBy = 'ADR-007';
+    assert.match(errorText(selfReference), /ADR-007 cannot supersede itself/);
+
+    const cycle = bundle();
+    cycle.adrLineage.registry.find(record => record.id === 'ADR-007').supersededBy = 'ADR-008';
+    cycle.adrLineage.registry.find(record => record.id === 'ADR-008').supersededBy = 'ADR-007';
+    assert.match(errorText(cycle), /supersession chain must not form a cycle/);
+});
+
+test('IV41-004 keeps historical ADR records retained intact', () => {
+    const candidate = bundle();
+    candidate.adrLineage.registry.find(record => record.id === 'ADR-004').retainedIntact = false;
+    assert.match(errorText(candidate), /ADR-004 must be retained intact/);
+
+    const policyDrift = bundle();
+    policyDrift.adrLineage.policy.untrackedArchitecturalGaps = 'allowed';
+    assert.match(errorText(policyDrift), /untracked architectural gaps must be forbidden/);
+});
+
+test('IV41-004 keeps deferred architectural gaps tracked rather than in session notes', () => {
+    const stripped = bundle();
+    const assessment = stripped.adrLineage.decisions.find(decision => decision.id === 'semantic-assessment-carrier');
+    delete assessment.trackingUrl;
+    assert.match(errorText(stripped), /tracked architectural gap must retain its issue URL/);
+
+    const untracked = bundle();
+    untracked.adrLineage.decisions.find(decision => decision.id === 'research-capsule-qualification').trackedBy = 'session-notes';
+    assert.match(errorText(untracked), /trackedBy must be a registered gate or a tracked issue/);
+
+    const bare = bundle();
+    delete bare.adrLineage.decisions.find(decision => decision.id === 'research-capsule-qualification').trackedBy;
+    assert.match(errorText(bare), /deferred disposition must name its tracked gate or issue/);
+});
+
+test('IV41-004 refuses lineage entries that claim research acceptance or canonical writes', () => {
+    const decision = bundle();
+    decision.adrLineage.decisions.find(entry => entry.id === 'one-core-authority').authority = { researchAcceptance: true };
+    assert.match(errorText(decision), /cannot declare authority\.researchAcceptance/);
+
+    const record = bundle();
+    record.adrLineage.registry.find(entry => entry.id === 'ADR-007').researchStateWrite = true;
+    assert.match(errorText(record), /cannot declare researchStateWrite/);
+});
+
+test('IV41-004 keeps decisions unique, referenced, and bound to dev head roles', () => {
+    const duplicate = bundle();
+    duplicate.adrLineage.decisions.push(clone(duplicate.adrLineage.decisions[0]));
+    assert.match(errorText(duplicate), /duplicate ADR lineage decision one-core-authority/);
+
+    const staleHead = bundle();
+    staleHead.adrLineage.decisions[0].evidenceHeads = ['pr1'];
+    assert.match(errorText(staleHead), /references unknown evidence head pr1/);
+
+    const unknownCarrier = bundle();
+    unknownCarrier.adrLineage.decisions[0].carriedBy = 'ADR-999';
+    assert.match(errorText(unknownCarrier), /carrier ADR-999 is not in the lineage registry/);
+
+    const missingDisposition = bundle();
+    missingDisposition.adrLineage.decisions = missingDisposition.adrLineage.decisions.filter(decision => decision.disposition !== 'superseded');
+    assert.match(errorText(missingDisposition), /missing superseded decision coverage/);
+});
+function surfaceOf(candidate, key) {
+    return candidate.owners.surfaces.find(surface => surface.canonicalKey === key);
+}
+
+test('V41-I01.2 audits every owner-map carrier against the merged tree', () => {
+    const candidate = bundle();
+    assert.equal(candidate.owners.carrierReadback.auditedHead.mode, 'exact-working-tree');
+    assert.match(candidate.owners.carrierReadback.auditedHead.sha, /^[a-f0-9]{40}$/);
+    assert.equal(candidate.owners.surfaces.length, 12);
+    for (const surface of candidate.owners.surfaces) {
+        assert.ok(surface.owner.length > 0, `${surface.canonicalKey} must name one canonical owner`);
+        assert.ok(surface.carrier.includes('#'), `${surface.canonicalKey} must name <path>#<symbol>`);
+        assert.ok(existsSync(join(ROOT, surface.carrier.split('#')[0])), `${surface.canonicalKey} carrier file must exist`);
+    }
+    const audited = candidate.owners.carrierReadback.carrierFiles.map(file => file.path);
+    const carriers = [...new Set(candidate.owners.surfaces.map(surface => surface.carrier.split('#')[0]))];
+    assert.deepEqual([...audited].sort(), [...carriers].sort());
+    assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+});
+
+test('V41-I01.2 fails closed when a carrier file or symbol is absent from the tree', () => {
+    const missingFile = bundle();
+    surfaceOf(missingFile, 'Source').carrier = 'packages/ivory-tower-research-kernel/src/node/missing-types.ts#SourcePayload';
+    assert.match(errorText(missingFile), /Source carrier names a file that is missing/);
+
+    const missingSymbol = bundle();
+    surfaceOf(missingSymbol, 'Activity').carrier = 'packages/ivory-tower-research-kernel/src/node/types.ts#zz-not-declared-zz';
+    assert.match(errorText(missingSymbol), /Activity carrier names symbol zz-not-declared-zz, which .* does not declare/);
+
+    const importedOnly = bundle();
+    surfaceOf(importedOnly, 'Snapshot').carrier = 'packages/ivory-tower-research-kernel/src/node/clients.ts#SnapshotRecord';
+    assert.match(errorText(importedOnly), /Snapshot carrier names symbol SnapshotRecord, which .*clients\.ts does not declare/);
+
+    const malformed = bundle();
+    surfaceOf(malformed, 'CAS').carrier = 'packages/ivory-tower-contracts/src/durable-store-port.ts';
+    assert.match(errorText(malformed), /CAS carrier must be <repository-relative path>#<symbol>/);
+
+    const escaping = bundle();
+    surfaceOf(escaping, 'Fragment').carrier = '../outside/types.ts#FragmentPayload';
+    assert.match(errorText(escaping), /Fragment carrier path must be a repository-relative POSIX path/);
+});
+
+test('V41-I01.2 keeps the carrier inside the package that owns it', () => {
+    const foreignCarrier = bundle();
+    surfaceOf(foreignCarrier, 'CAS').carrier = 'packages/ivory-tower-infrastructure/src/filesystem-object-store.ts#FilesystemObjectStore';
+    assert.match(errorText(foreignCarrier), /CAS carrier .* is not inside the package owned by @ivory-tower\/contracts/);
+
+    const unknownOwner = bundle();
+    surfaceOf(unknownOwner, 'CAS').owner = '@ivory-tower/spike-store';
+    assert.match(errorText(unknownOwner), /CAS owner @ivory-tower\/spike-store is not a package in the exact-head inventory/);
+
+    const missingOwner = bundle();
+    surfaceOf(missingOwner, 'Assessment').owner = '   ';
+    assert.match(errorText(missingOwner), /Assessment has no canonical owner/);
+});
+
+test('V41-I01.2 fails closed when a surface is not explicit about owner, carrier, or gaps', () => {
+    const dropped = bundle();
+    dropped.owners.surfaces = dropped.owners.surfaces.filter(surface => surface.canonicalKey !== 'ResearchDecisionReceipt');
+    assert.match(errorText(dropped), /owner map must contain every required canonical surface exactly once/);
+
+    const duplicate = bundle();
+    duplicate.owners.surfaces.push(clone(surfaceOf(duplicate, 'Snapshot')));
+    const duplicateErrors = errorText(duplicate);
+    assert.match(duplicateErrors, /owner map must contain every required canonical surface exactly once/);
+    assert.match(duplicateErrors, /duplicate canonical surfaces: Snapshot/);
+
+    const noCarrier = bundle();
+    delete surfaceOf(noCarrier, 'Artifact').carrier;
+    assert.match(errorText(noCarrier), /Artifact has no structural carrier/);
+
+    const untypedGap = bundle();
+    surfaceOf(untypedGap, 'Activity').missingFields = [''];
+    assert.match(errorText(untypedGap), /Activity\.missingFields\[0\] must be a non-empty string/);
+
+    const implicitGaps = bundle();
+    delete surfaceOf(implicitGaps, 'Activity').missingFields;
+    assert.match(errorText(implicitGaps), /Activity must explicitly list missing fields, even when empty/);
+
+    const implicitSecondaries = bundle();
+    delete surfaceOf(implicitSecondaries, 'EvidenceLink').secondary;
+    assert.match(errorText(implicitSecondaries), /EvidenceLink must explicitly list secondary carriers, even when empty/);
+});
+
+test('V41-I01.2 requires every secondary carrier to resolve to a declared symbol', () => {
+    const bareOwner = bundle();
+    surfaceOf(bareOwner, 'Fragment').secondary = ['@theia/ivory-identity'];
+    assert.match(errorText(bareOwner), /Fragment secondary\[0\] must be <owner>#<symbol>/);
+
+    const unknownSymbol = bundle();
+    surfaceOf(unknownSymbol, 'Snapshot').secondary = ['@ivory-tower/research-kernel#ClientProjectionStore'];
+    assert.match(
+        errorText(unknownSymbol),
+        /Snapshot secondary\[0\] names symbol ClientProjectionStore, which @ivory-tower\/research-kernel does not declare/,
+    );
+
+    const unknownOwner = bundle();
+    surfaceOf(unknownOwner, 'CAS').secondary = ['@ivory-tower/spike-store#ObjectStorePort'];
+    assert.match(
+        errorText(unknownOwner),
+        /CAS secondary\[0\] names owner @ivory-tower\/spike-store, which is not a package in the exact-head inventory/,
+    );
+
+    const duplicated = bundle();
+    surfaceOf(duplicated, 'Artifact').secondary = ['@ivory-tower/adapters#ObjectStorePort', '@ivory-tower/adapters#ObjectStorePort'];
+    assert.match(errorText(duplicated), /Artifact repeats a secondary carrier/);
+});
+
+test('V41-I01.2 fails closed when the retained readback is missing or does not match the bytes', () => {
+    const dropped = bundle();
+    delete dropped.owners.carrierReadback;
+    assert.match(errorText(dropped), /owner map must retain its carrier readback record/);
+
+    const digestDrift = bundle();
+    digestDrift.owners.carrierReadback.carrierFiles[0].sha256 = '0'.repeat(64);
+    assert.match(errorText(digestDrift), /carrier readback carrierFiles\[0\] SHA-256 does not match the retained readback/);
+
+    const byteDrift = bundle();
+    byteDrift.owners.carrierReadback.carrierFiles[1].bytes += 1;
+    assert.match(errorText(byteDrift), /carrier readback carrierFiles\[1\] byte count does not match the retained readback/);
+
+    const manifestDrift = bundle();
+    manifestDrift.owners.carrierReadback.manifest.sha256 = '1'.repeat(64);
+    assert.match(errorText(manifestDrift), /carrier readback manifest SHA-256 does not match the retained readback/);
+
+    const unbound = bundle();
+    unbound.owners.carrierReadback.manifest.path = 'configs/ivory-v41-carrier-matrix.json';
+    assert.match(errorText(unbound), /carrier readback must hash the exact-head manifest it is bound to/);
+
+    const incomplete = bundle();
+    incomplete.owners.carrierReadback.carrierFiles.pop();
+    assert.match(errorText(incomplete), /carrier readback must audit exactly the carrier files the surfaces name/);
+
+    const staleHead = bundle();
+    staleHead.owners.carrierReadback.auditedHead.ref = 'latest dev';
+    assert.match(errorText(staleHead), /carrier readback head ref must be an exact non-latest ref/);
+
+    const vagueHead = bundle();
+    vagueHead.owners.carrierReadback.auditedHead.sha = 'cadc8ed5';
+    assert.match(errorText(vagueHead), /carrier readback must record the exact head it audited/);
+
+    const driftedConvention = bundle();
+    driftedConvention.owners.carrierReadback.encoding = 'utf8';
+    assert.match(errorText(driftedConvention), /carrier readback encoding must be UTF-8 text/);
+
+    const unnormalizedEndings = bundle();
+    unnormalizedEndings.owners.carrierReadback.lineEndingPolicy = 'preserve-bytes';
+    assert.match(errorText(unnormalizedEndings), /carrier readback line endings must be normalized to LF/);
+});
+
+test('V41-I01.2 rejects a planning synonym that re-adds a forbidden duplicate authority', () => {
+    const duplicateAuthority = bundle();
+    surfaceOf(duplicateAuthority, 'Statement').planningSynonym = 'PaperStore';
+    assert.match(errorText(duplicateAuthority), /Statement planning synonym PaperStore would re-add a forbidden duplicate authority/);
+
+    const spaced = bundle();
+    surfaceOf(spaced, 'Statement').planningSynonym = 'Claim Card Store';
+    assert.match(errorText(spaced), /planning synonym Claim Card Store would re-add a forbidden duplicate authority/);
+
+    const restated = bundle();
+    surfaceOf(restated, 'Statement').planningSynonym = 'Statement';
+    assert.match(errorText(restated), /planning synonym Statement must not restate the canonical key/);
+
+    const duplicated = bundle();
+    surfaceOf(duplicated, 'Statement').planningSynonym = 'Claim';
+    surfaceOf(duplicated, 'Snapshot').planningSynonym = 'claim';
+    assert.match(errorText(duplicated), /duplicate planning synonyms: claim/);
+
+    const canonicalDuplicate = bundle();
+    surfaceOf(canonicalDuplicate, 'Snapshot').canonicalKey = 'ResearchCase';
+    const canonicalErrors = errorText(canonicalDuplicate);
+    assert.match(canonicalErrors, /forbidden duplicate authority surfaced as canonical: ResearchCase/);
+    assert.match(canonicalErrors, /must contain every required canonical surface exactly once/);
+
+    const undeclared = bundle();
+    undeclared.owners.forbiddenDuplicateAuthorities = [];
+    assert.match(errorText(undeclared), /forbidden duplicate authorities must be declared/);
+});
+test('the retained readback identity is platform independent (LF and CRLF agree)', () => {
+    // The defect this pins: docs/experiments and scripts carry no `eol=lf` pin, so a Windows checkout
+    // (core.autocrlf=true) materialises CRLF while CI checks out the LF blob. Hashing the raw
+    // working-tree bytes therefore recorded a Windows-only identity, and the gate failed closed on
+    // ubuntu-22.04 with "fixture byte count / SHA-256 does not match the retained readback".
+    const lf = 'alpha\nbeta\ngamma\n';
+    const crlf = lf.replace(/\n/g, '\r\n');
+    assert.notEqual(Buffer.byteLength(crlf), Buffer.byteLength(lf));
+
+    const lfIdentity = readbackIdentity(Buffer.from(lf, 'utf8'));
+    const crlfIdentity = readbackIdentity(Buffer.from(crlf, 'utf8'));
+    assert.equal(crlfIdentity.sha256, lfIdentity.sha256);
+    assert.equal(crlfIdentity.bytes, lfIdentity.bytes);
+    assert.equal(lfIdentity.bytes, Buffer.byteLength(lf));
+    assert.equal(lfIdentity.binary, false);
+
+    // A binary fixture keeps its raw identity rather than being normalized.
+    const binary = Buffer.from([0x00, 0x0d, 0x0a, 0xff]);
+    const binaryIdentity = readbackIdentity(binary);
+    assert.equal(binaryIdentity.binary, true);
+    assert.equal(binaryIdentity.bytes, 4);
+    assert.equal(binaryIdentity.sha256, createHash('sha256').update(binary).digest('hex'));
+});
+
+function selectedHead(candidate) {
+    return candidate.heads.heads.find(head => head.role === 'selectedDev');
+}
+
+test('V41-I01.1 pins the selected dev head with its exact tree and ref', () => {
+    const candidate = bundle();
+    assert.deepEqual(validateBundle(candidate, { verifyPackages: false }), []);
+    const selected = selectedHead(candidate);
+    assert.match(selected.sha, /^[a-f0-9]{40}$/);
+    assert.match(selected.treeSha, /^[a-f0-9]{40}$/);
+    assert.equal(selected.ref, 'refs/heads/dev');
+    assert.equal(candidate.heads.packageInventorySource.sha, selected.sha);
+    assert.equal(candidate.heads.heads.filter(head => head.selectable === true).length, 1);
+});
+
+test('V41-I01.1 retains the superseded selection as non-selectable history', () => {
+    const candidate = bundle();
+    assert.ok(Array.isArray(candidate.heads.supersededSelections));
+    assert.ok(candidate.heads.supersededSelections.length >= 1);
+    for (const entry of candidate.heads.supersededSelections) {
+        assert.equal(entry.selectable, false);
+        assert.match(entry.sha, /^[a-f0-9]{40}$/);
+        assert.match(entry.treeSha, /^[a-f0-9]{40}$/);
+        assert.match(entry.mergeCommit, /^[a-f0-9]{40}$/);
+        assert.equal(entry.supersededBy, selectedHead(candidate).sha);
+        assert.ok(entry.reason.trim().length > 0);
+    }
+});
+
+test('V41-I01.1 rejects a pinned head that is not a real commit on the dev line', () => {
+    const fabricated = bundle();
+    selectedHead(fabricated).sha = '0'.repeat(40);
+    assert.match(errorText(fabricated), /selectedDev 0{40} must be a real commit reachable from refs\/heads\/dev/);
+
+    // A real commit is not enough: the PR #1 foundation head exists but is not in refs/heads/dev's history.
+    const offLine = bundle();
+    selectedHead(offLine).sha = 'ecc406d34a9bf49d8e2f165b994a919ca90ff718';
+    offLine.heads.packageInventorySource.sha = 'ecc406d34a9bf49d8e2f165b994a919ca90ff718';
+    assert.match(errorText(offLine), /must be a real commit reachable from refs\/heads\/dev/);
+});
+
+test('V41-I01.1 rejects a malformed tree, a latest ref, and a missing ref', () => {
+    const malformedTree = bundle();
+    selectedHead(malformedTree).treeSha = '14e6e620';
+    assert.match(errorText(malformedTree), /selectedDev must record its exact 40-character tree SHA/);
+
+    const latestRef = bundle();
+    selectedHead(latestRef).ref = 'latest dev';
+    assert.match(errorText(latestRef), /selectedDev must name an exact non-latest ref/);
+
+    const missingRef = bundle();
+    delete selectedHead(missingRef).ref;
+    assert.match(errorText(missingRef), /selectedDev must name an exact non-latest ref/);
+});
+
+test('V41-I01.1 rejects a superseded selection that claims authority', () => {
+    const selectable = bundle();
+    selectable.heads.supersededSelections[0].selectable = true;
+    const errors = errorText(selectable);
+    assert.match(errors, /a superseded selection can never be selectable authority/);
+    assert.match(errors, /must declare selectable: false and can never become authority/);
+
+    const duplicated = bundle();
+    duplicated.heads.supersededSelections[0].sha = selectedHead(duplicated).sha;
+    assert.match(errorText(duplicated), /must not duplicate a current authority head/);
+
+    const repeated = bundle();
+    repeated.heads.supersededSelections.push(clone(repeated.heads.supersededSelections[0]));
+    assert.match(errorText(repeated), /duplicate superseded selections: [a-f0-9]{40}/);
+
+    const twoSelectable = bundle();
+    twoSelectable.heads.heads.find(head => head.role === 'foundationPr').selectable = true;
+    assert.match(errorText(twoSelectable), /exactly one head may be selectable/);
+});
+
+test('V41-I01.1 rejects a superseded selection without its reason or merge commit', () => {
+    const noReason = bundle();
+    delete noReason.heads.supersededSelections[0].reason;
+    assert.match(errorText(noReason), /supersededSelections\[0\]\.reason is required/);
+
+    const emptyReason = bundle();
+    emptyReason.heads.supersededSelections[0].reason = '   ';
+    assert.match(errorText(emptyReason), /supersededSelections\[0\]\.reason is required/);
+
+    const noMerge = bundle();
+    delete noMerge.heads.supersededSelections[0].mergeCommit;
+    assert.match(errorText(noMerge), /supersededSelections\[0\]\.mergeCommit must be an exact 40-character SHA/);
+
+    const malformedMerge = bundle();
+    malformedMerge.heads.supersededSelections[0].mergeCommit = 'f8d0af66a';
+    assert.match(errorText(malformedMerge), /supersededSelections\[0\]\.mergeCommit must be an exact 40-character SHA/);
+
+    const malformedTree = bundle();
+    malformedTree.heads.supersededSelections[0].treeSha = '8edc9eab';
+    assert.match(errorText(malformedTree), /supersededSelections\[0\]\.treeSha must be an exact 40-character SHA/);
+});
+
+test('V41-I01.1 rejects a superseded selection outside the pinned head history', () => {
+    const fabricated = bundle();
+    fabricated.heads.supersededSelections[0].sha = '1'.repeat(40);
+    assert.match(errorText(fabricated), /must be a real commit in the pinned head's history/);
+
+    const offLine = bundle();
+    offLine.heads.supersededSelections[0].mergeCommit = 'ecc406d34a9bf49d8e2f165b994a919ca90ff718';
+    assert.match(
+        errorText(offLine),
+        /mergeCommit ecc406d34a9bf49d8e2f165b994a919ca90ff718 must be a real commit in the pinned head's history/,
+    );
+});
+
+test('V41-I01.1 rejects a superseded record naming another authority or an implicit array', () => {
+    const wrongAuthority = bundle();
+    wrongAuthority.heads.supersededSelections[0].supersededBy = 'ecc406d34a9bf49d8e2f165b994a919ca90ff718';
+    assert.match(errorText(wrongAuthority), /supersededSelections\[0\]\.supersededBy must name the current selected authority/);
+
+    const implicit = bundle();
+    delete implicit.heads.supersededSelections;
+    assert.match(errorText(implicit), /supersededSelections must be an explicit array, even when empty/);
+});
+
+test('IV41-004 binds the ADR lineage to the current selection and a recorded supersession', () => {
+    const stale = bundle();
+    stale.adrLineage.evidenceContext.selectedDevHead = 'bc3cd03b5b2d870d219797925d92edc48c33c6ca';
+    assert.match(errorText(stale), /evidence context must name the current selected-dev head/);
+
+    const unrecorded = bundle();
+    unrecorded.adrLineage.evidenceContext.priorSelectedDevHead = 'efec71ed83a1d0d9d513a4ead86369201cb5b401';
+    assert.match(
+        errorText(unrecorded),
+        /retained prior selected-dev head must be a superseded selection recorded in the exact-head manifest/,
+    );
+
+    const dropped = bundle();
+    dropped.heads.supersededSelections = [];
+    assert.match(
+        errorText(dropped),
+        /retained prior selected-dev head must be a superseded selection recorded in the exact-head manifest/,
+    );
+});
+
+test('V41-P01 requires a machine-visible parent integration readback bound to the pinned selection', () => {
+    const selectedSha = bundle().heads.heads.find(head => head.role === 'selectedDev').sha;
+    const note = [
+        '| leaf | artifact |',
+        '|---|---|',
+        '| V41-I01.1 | configs/ivory-v41-authority-heads.json |',
+        '| V41-I01.2 | configs/ivory-v41-owner-map.json |',
+        '| V41-I01.3 | configs/ivory-v41-carrier-matrix.json |',
+        '| V41-I01.4 | configs/ivory-v41-gates.json |',
+        '',
+        '```text',
+        `selectedDev: ${selectedSha}`,
+        '```',
+        '',
+    ].join('\n');
+    const injected = overrides => ({ verifyPackages: false, ...overrides });
+
+    // The committed note must satisfy the check as it stands, so a moved selection cannot leave it stale.
+    assert.deepEqual(validateBundle(bundle(), { verifyPackages: false }), []);
+    assert.deepEqual(validateBundle(bundle(), injected({ parentReadbackText: note })), []);
+
+    const absent = validateBundle(bundle(), injected({ parentReadbackText: null })).join('\n');
+    assert.match(absent, /the parent integration readback is missing: changes\/v41-p01-parent-readback\.md/);
+
+    const missingLeaf = validateBundle(bundle(), injected({ parentReadbackText: note.replace('V41-I01.3', 'V41-I01') })).join('\n');
+    assert.match(missingLeaf, /must name leaf V41-I01\.3 as a literal id/);
+
+    const stale = validateBundle(bundle(), injected({ parentReadbackText: note.replace(selectedSha, 'a'.repeat(40)) })).join('\n');
+    assert.match(stale, /records selectedDev a{40}, which does not match the pinned selectedDev/);
+
+    const proseOnly = validateBundle(
+        bundle(),
+        injected({ parentReadbackText: note.replace(`selectedDev: ${selectedSha}`, `observed at ${selectedSha}`) }),
+    ).join('\n');
+    assert.match(proseOnly, /must record the pinned selection as a literal `selectedDev: <40-character SHA>` line/);
+
+    const shifted = validateBundle(bundle(), injected({ parentReadbackText: note.replace('V41-I01.1', 'V41-I01.14') })).join('\n');
+    assert.match(shifted, /must name leaf V41-I01\.1 as a literal id/);
+});

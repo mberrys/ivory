@@ -1,0 +1,235 @@
+{
+  "schema": "ivory-v41-owner-map/1",
+  "issue": "V41-I01.2",
+  "dependsOn": "V41-I01.1",
+  "basisManifest": "configs/ivory-v41-authority-heads.json",
+  "authorityBoundaries": {
+    "core": {
+      "semanticAuthority": true,
+      "responsibilities": [
+        "canonical research revisions",
+        "exact references",
+        "snapshots",
+        "research decisions through typed Activity/receipt carriers"
+      ]
+    },
+    "harness": {
+      "semanticAuthority": false,
+      "responsibilities": [
+        "runs",
+        "tool and provider routing",
+        "permissions",
+        "immutable execution traces",
+        "evaluation and replay orchestration"
+      ],
+      "forbidden": [
+        "accept research meaning",
+        "write canonical research state from workers",
+        "infer human approval from machine success"
+      ]
+    },
+    "clients": {
+      "semanticAuthority": false,
+      "responsibilities": [
+        "render snapshot-scoped reads",
+        "submit commands and researcher decisions"
+      ],
+      "forbidden": [
+        "adjudicate locally",
+        "substitute latest head",
+        "persist a second research store"
+      ]
+    },
+    "recursiveImprovement": {
+      "semanticAuthority": false,
+      "researchStateSeparatedFromImprovementState": true,
+      "mayEvolve": [
+        "skills",
+        "prompts",
+        "tool strategy",
+        "exploration/orchestration policy",
+        "reflection policy"
+      ],
+      "mayMutateCore": false,
+      "protected": [
+        "Core evidence semantics",
+        "provenance",
+        "evaluation standards",
+        "researcher authority",
+        "acceptance rules",
+        "rollback and regression fixtures"
+      ]
+    }
+  },
+  "surfaces": [
+    {
+      "canonicalKey": "Source",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#SourcePayload",
+      "secondary": [
+        "@ivory-tower/adapters#SourceRecordPort"
+      ],
+      "missingFields": [
+        "scholarly alias/version assertions",
+        "source-status assertion history"
+      ]
+    },
+    {
+      "canonicalKey": "Fragment",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#FragmentPayload",
+      "secondary": [
+        "@theia/ivory-identity#FragmentAnchor"
+      ],
+      "missingFields": []
+    },
+    {
+      "canonicalKey": "EvidenceLink",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#EvidenceLinkPayload",
+      "secondary": [],
+      "missingFields": [
+        "explicit transformation mode",
+        "typed qualification payload"
+      ]
+    },
+    {
+      "canonicalKey": "Statement",
+      "planningSynonym": "Claim",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ClaimPayload",
+      "secondary": [],
+      "missingFields": [
+        "method/scope binding required by V4.1 assessment leaves"
+      ]
+    },
+    {
+      "canonicalKey": "Artifact",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ArtifactPayload",
+      "secondary": [
+        "@ivory-tower/adapters#ObjectStorePort"
+      ],
+      "missingFields": [
+        "disclosure/replay level metadata"
+      ]
+    },
+    {
+      "canonicalKey": "Activity",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ActivityRecord",
+      "secondary": [],
+      "missingFields": [
+        "typed research-decision payload"
+      ]
+    },
+    {
+      "canonicalKey": "Snapshot",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#SnapshotRecord",
+      "secondary": [
+        "@ivory-tower/research-kernel#ResearchClient"
+      ],
+      "missingFields": []
+    },
+    {
+      "canonicalKey": "ResearchProtocol",
+      "owner": "@ivory-tower/contracts",
+      "carrier": "packages/ivory-tower-contracts/src/research-protocol-contract.ts#researchProtocolVersionSchema",
+      "secondary": [],
+      "missingFields": [
+        "bounded query/provider receipt refs",
+        "coverage/stopping receipt refs"
+      ]
+    },
+    {
+      "canonicalKey": "Assessment",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ActivityRecord",
+      "secondary": [],
+      "missingFields": [
+        "typed citation-integrity assessment",
+        "typed semantic-support assessment",
+        "qualification/current-applicability fields"
+      ]
+    },
+    {
+      "canonicalKey": "ResearchDecisionReceipt",
+      "owner": "@ivory-tower/research-kernel",
+      "carrier": "packages/ivory-tower-research-kernel/src/node/types.ts#ActivityRecord",
+      "secondary": [],
+      "missingFields": [
+        "decision class and exact assessment/snapshot basis"
+      ]
+    },
+    {
+      "canonicalKey": "ExecutionReceipt",
+      "owner": "@ivory-tower/domain",
+      "carrier": "packages/ivory-tower-domain/src/execution.ts#ExecutionRecord",
+      "secondary": [
+        "@ivory-tower/adapters#ExecutionStorePort"
+      ],
+      "missingFields": [
+        "provider/tool/query pins for research attempts"
+      ]
+    },
+    {
+      "canonicalKey": "CAS",
+      "owner": "@ivory-tower/contracts",
+      "carrier": "packages/ivory-tower-contracts/src/durable-store-port.ts#DurableStorePort",
+      "secondary": [
+        "@ivory-tower/infrastructure#FilesystemObjectStore",
+        "@ivory-tower/adapters#ObjectStorePort"
+      ],
+      "missingFields": [
+        "CAS-first semantic commit/recovery proof is owned by V41-I07"
+      ]
+    }
+  ],
+  "carrierReadback": {
+    "algorithm": "sha256",
+    "encoding": "utf-8",
+    "pathSeparator": "/",
+    "lineEndingPolicy": "normalize-lf",
+    "auditedHead": {
+      "ref": "refs/heads/dev",
+      "sha": "cadc8ed512a1f6322c55d00b1c5fdff2fdbcdb5b",
+      "mode": "exact-working-tree"
+    },
+    "manifest": {
+      "path": "configs/ivory-v41-authority-heads.json",
+      "sha256": "ccad89546e1d224540456dd010f9eb42e796666fe3c6a3f5316acd5c8040e44d",
+      "bytes": 6859
+    },
+    "carrierFiles": [
+      {
+        "path": "packages/ivory-tower-contracts/src/durable-store-port.ts",
+        "sha256": "5f07b7fce6ece6c2e1696b57784df165f600e599121decea46907a9c69fda580",
+        "bytes": 2466
+      },
+      {
+        "path": "packages/ivory-tower-contracts/src/research-protocol-contract.ts",
+        "sha256": "44190d90eb5c9d79248118e762a8ad39debb6620f91c59793b0a0ec351bae57d",
+        "bytes": 6766
+      },
+      {
+        "path": "packages/ivory-tower-domain/src/execution.ts",
+        "sha256": "7f27555fef7d207c08dd8629d970485dc28d949fef6b2bb494ef304030edf9de",
+        "bytes": 2196
+      },
+      {
+        "path": "packages/ivory-tower-research-kernel/src/node/types.ts",
+        "sha256": "f0f211eaa78376cfe04a95e0e1ba0afefc3681008fcb7103c69438c29c4efdbb",
+        "bytes": 12097
+      }
+    ]
+  },
+  "forbiddenDuplicateAuthorities": [
+    "PaperStore",
+    "ClaimCardStore",
+    "ResearchCase",
+    "WorkflowStateStore",
+    "ClientAcceptance",
+    "HarnessSemanticAuthority"
+  ]
+}

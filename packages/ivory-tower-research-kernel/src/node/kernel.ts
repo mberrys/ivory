@@ -34,11 +34,22 @@ import {
     CreateCodebookInput,
     CreateEvidenceLinkInput,
     CreateFragmentInput,
+    EvidenceFragmentTarget,
     EvidenceLinkPayload,
     ExactRef,
+    FragmentAnchorIdentity,
+    FragmentContext,
+    FragmentContextInput,
+    FragmentContextReference,
     FragmentPayload,
+    FragmentProfile,
+    FragmentRemapReceipt,
+    FragmentRepresentationKind,
     FragmentSelector,
+    FragmentSelectorInput,
     FreezeSnapshotInput,
+    MechanicalCitationReceipt,
+    RemapFragmentInput,
     ReviseClaimInput,
     ReviseCodebookInput,
     RevisionRecord,
@@ -52,12 +63,29 @@ import {
 
 const REVISION_SCHEMA = 'n1-revision/1';
 const DEFAULT_PROJECT_ID = deterministicId('prj', { study: 'advising-agency', version: 1 });
+const DEFAULT_SELECTOR_PROFILE_REVISION = 'selector-v1';
+const MAX_FRAGMENT_CONTEXT_REFERENCES = 32;
+const MAX_FRAGMENT_SELECTOR_TEXT = 65_536;
 
 interface StoredObject {
     readonly objectId: string;
     readonly objectType: RevisionRecord['objectType'];
     head: string;
     readonly revisions: Map<string, RevisionRecord>;
+}
+
+interface RetainedRepresentation {
+    readonly kind: FragmentRepresentationKind;
+    readonly ref: ExactRef;
+    readonly digest: string;
+    readonly text: string;
+    readonly defaultProfile: FragmentProfile;
+}
+
+interface ContextRemapResult {
+    readonly status: 'EXACT' | 'AMBIGUOUS' | 'UNRESOLVED';
+    readonly context?: FragmentContext;
+    readonly reason?: string;
 }
 
 export class ResearchKernelError extends Error {
@@ -145,6 +173,7 @@ export class ResearchKernel {
             {
                 claimRef,
                 targets: [input.fragmentRef],
+                fragmentTargets: [{ ref: input.fragmentRef, role: 'cited' }],
                 role: input.role,
                 rationale: input.rationale,
                 linkAuthor: author,
@@ -215,21 +244,29 @@ export class ResearchKernel {
     createFragment(input: CreateFragmentInput): ExactRef {
         const source = this.requireRevision<SourcePayload>(input.sourceRef, 'source').payload;
         const artifact = this.requireRevision<ArtifactPayload>(input.artifactRef, 'artifact').payload;
-        this.assertSelectorMatches(input.selector, [this.decodeSourceText(source), artifact.output]);
-        let selector: FragmentSelector;
-        if (input.selector.kind === 'text') {
-            const passage = derivePassageId({
-                sourceVersionId: source.sourceVersionId,
-                extractionArtifactId: input.artifactRef.objectId,
-                spans: [{ start: input.selector.start, end: input.selector.end }],
-            });
-            selector = {
-                ...input.selector,
-                passageId: passage.id,
-            } satisfies TextSelector;
-        } else {
-            selector = { ...input.selector } satisfies TableSelector;
+        if (!artifact.sourceRefs.some(ref => sameRef(ref, input.sourceRef))) {
+            throw new ResearchKernelError('Fragment artifact must retain the exact selected source revision');
         }
+        const representation = this.selectFragmentRepresentation(
+            input.selector,
+            input.representation,
+            input.sourceRef,
+            source,
+            input.artifactRef,
+            artifact,
+        );
+        const profile = this.normalizeFragmentProfile(input.profile, representation);
+        const selector = this.normalizeFragmentSelector(input.selector, representation, source.sourceVersionId, input.artifactRef);
+        const anchor = this.createFragmentAnchor(representation, selector, profile);
+        const context = this.normalizeFragmentContext(
+            input.context,
+            selector,
+            anchor,
+            input.sourceRef,
+            source,
+            input.artifactRef,
+            artifact,
+        );
         const objectId = deterministicId('frg', {
             projectId: this.projectId,
             key: input.fragmentKey,
@@ -237,8 +274,92 @@ export class ResearchKernel {
             artifactRef: input.artifactRef,
             selector,
         });
-        const payload: FragmentPayload = { sourceRef: input.sourceRef, artifactRef: input.artifactRef, selector };
+        const payload: FragmentPayload = {
+            sourceRef: input.sourceRef,
+            artifactRef: input.artifactRef,
+            selector,
+            anchor,
+            context,
+        };
         return this.append('fragment', objectId, payload, [input.sourceRef, input.artifactRef], input.actor, 'createFragment');
+    }
+
+    remapFragment(input: RemapFragmentInput): FragmentRemapReceipt {
+        const previousRecord = this.requireRevision<FragmentPayload>(input.fragmentRef, 'fragment');
+        if (this.getHead(previousRecord.objectId) !== input.expectedHead) {
+            throw new ExpectedHeadConflictError(previousRecord.objectId, input.expectedHead, this.getHead(previousRecord.objectId));
+        }
+        const previous = previousRecord.payload;
+        const source = this.requireRevision<SourcePayload>(previous.sourceRef, 'source').payload;
+        const artifact = this.requireRevision<ArtifactPayload>(input.artifactRef, 'artifact').payload;
+        if (!artifact.sourceRefs.some(ref => sameRef(ref, previous.sourceRef))) {
+            throw new ResearchKernelError('remap artifact must retain the exact Fragment source revision in its source refs');
+        }
+
+        const representation = this.getFragmentRepresentation(
+            input.representation ?? previous.anchor.representation,
+            previous.sourceRef,
+            source,
+            input.artifactRef,
+            artifact,
+        );
+        const candidates = this.findSelectorCandidates(
+            previous.selector,
+            representation.text,
+            previous.anchor.representationDigest === representation.digest,
+        );
+        if (candidates.length === 0) {
+            return {
+                status: 'UNRESOLVED',
+                from: input.fragmentRef,
+                candidateSelectors: [],
+                reason: 'no exact selector candidate exists in the requested retained representation',
+            };
+        }
+        if (candidates.length > 1) {
+            return {
+                status: 'AMBIGUOUS',
+                from: input.fragmentRef,
+                candidateSelectors: candidates,
+                reason: 'multiple exact selector candidates exist; remap requires an explicit human choice',
+            };
+        }
+
+        const remappedContext = this.remapFragmentContext(previous.context, previous.sourceRef, source, input.artifactRef, artifact);
+        if (remappedContext.status !== 'EXACT' || remappedContext.context === undefined) {
+            return {
+                status: remappedContext.status,
+                from: input.fragmentRef,
+                candidateSelectors: candidates,
+                reason: remappedContext.reason,
+            };
+        }
+
+        const selector = this.normalizeFragmentSelector(candidates[0], representation, source.sourceVersionId, input.artifactRef);
+        const profile = this.normalizeFragmentProfile(input.profile, representation);
+        const anchor = this.createFragmentAnchor(representation, selector, profile);
+        const payload: FragmentPayload = {
+            sourceRef: previous.sourceRef,
+            artifactRef: input.artifactRef,
+            selector,
+            anchor,
+            context: remappedContext.context,
+        };
+        const to = this.append(
+            'fragment',
+            previousRecord.objectId,
+            payload,
+            [previous.sourceRef, input.artifactRef],
+            input.actor,
+            'remapFragment',
+            input.expectedHead,
+        );
+        return {
+            status: 'EXACT',
+            from: input.fragmentRef,
+            to,
+            candidateSelectors: candidates,
+        };
     }
 
     createCodebook(input: CreateCodebookInput): ExactRef {
@@ -307,9 +428,11 @@ export class ResearchKernel {
         for (const target of input.targets) {
             this.loadRevision(target);
         }
+        const fragmentTargets = this.normalizeEvidenceFragmentTargets(input.targets, input.fragmentTargets);
         const payload: EvidenceLinkPayload = {
             claimRef: input.claimRef,
             targets: input.targets,
+            fragmentTargets,
             role: input.role,
             rationale: input.rationale,
             linkAuthor: input.linkAuthor,
@@ -387,6 +510,7 @@ export class ResearchKernel {
                 key: `carry-forward:${linkRef.revisionId}:${to.revisionId}`,
                 claimRef: to,
                 targets: link.targets,
+                fragmentTargets: link.fragmentTargets,
                 role: link.role,
                 rationale: link.rationale,
                 linkAuthor: link.linkAuthor,
@@ -479,7 +603,56 @@ export class ResearchKernel {
             quote,
             sourceVersionId: sourceRevision.sourceVersionId,
             selector,
+            anchor: fragment.anchor,
+            context: fragment.context,
             sourceName: sourceRevision.name,
+        });
+    }
+
+    verifyCitation(fragmentRef: ExactRef): MechanicalCitationReceipt {
+        const revision = this.requireRevision<FragmentPayload>(fragmentRef, 'fragment');
+        const fragment = revision.payload;
+        const representation = this.loadAnchorRepresentation(fragment.anchor);
+        const representationDigest = representation.digest === fragment.anchor.representationDigest;
+        const selectorBytes =
+            fragment.anchor.brand === 'ivory.fragment-anchor/1' &&
+            fragment.anchor.selectorKind === fragment.selector.kind &&
+            (fragment.anchor.representation === 'source'
+                ? sameRef(fragment.anchor.representationRef, fragment.sourceRef)
+                : sameRef(fragment.anchor.representationRef, fragment.artifactRef)) &&
+            [fragment.anchor.converter, fragment.anchor.converterRevision, fragment.anchor.selectorProfileRevision].every(
+                value => typeof value === 'string' && value.trim().length > 0,
+            ) &&
+            fragment.anchor.orderedSpanIdentity ===
+                deterministicId('spn', {
+                    representationDigest: fragment.anchor.representationDigest,
+                    selector: fragment.selector,
+                }) &&
+            this.selectorMatches(fragment.selector, representation.text);
+        const context = this.verifyFragmentContext(fragment.context, fragment, representation);
+        const status: MechanicalCitationReceipt['status'] =
+            !representationDigest || !selectorBytes || context === 'mismatch'
+                ? 'MISMATCH'
+                : context === 'unavailable'
+                  ? 'BLOCKED'
+                  : 'EXACT';
+        const receiptWithoutDigest = {
+            kind: 'mechanical-citation' as const,
+            fragmentRef,
+            fragmentRevisionDigest: revision.digest,
+            representationDigest: fragment.anchor.representationDigest,
+            selectorKind: fragment.selector.kind,
+            status,
+            checks: {
+                representationDigest,
+                selectorBytes,
+                context,
+            },
+            semanticSupport: 'not-assessed' as const,
+        };
+        return cloneValue({
+            ...receiptWithoutDigest,
+            receiptDigest: digestCanonical(receiptWithoutDigest),
         });
     }
 
@@ -498,7 +671,9 @@ export class ResearchKernel {
             if (!payload.claimRef || !sameRef(payload.claimRef, claimRef)) {
                 return [];
             }
-            const citationRef = payload.targets?.find(target => this.objects.get(target.objectId)?.objectType === 'fragment');
+            const citationRef =
+                payload.fragmentTargets?.find(target => target.role === 'cited')?.ref ??
+                payload.targets?.find(target => this.objects.get(target.objectId)?.objectType === 'fragment');
             const annotationRef = payload.targets?.find(target => this.objects.get(target.objectId)?.objectType === 'annotation');
             const codebookEdition = annotationRef ? this.codebookEditionForAnnotation(annotationRef) : undefined;
             return [
@@ -702,26 +877,428 @@ export class ResearchKernel {
         return new TextDecoder().decode(decodeBytes(payload.contentBase64));
     }
 
-    private assertSelectorMatches(selector: Omit<TextSelector, 'passageId'> | TableSelector, representations: readonly string[]): void {
+    private selectorMatches(selector: FragmentSelectorInput | FragmentSelector, representation: string): boolean {
         if (selector.kind === 'text') {
-            if (!Number.isInteger(selector.start) || !Number.isInteger(selector.end)) {
-                throw new ResearchKernelError(`fragment offsets must be integers, got [${selector.start}, ${selector.end})`);
+            const quoteMatches =
+                Number.isInteger(selector.start) &&
+                Number.isInteger(selector.end) &&
+                selector.start >= 0 &&
+                selector.end <= representation.length &&
+                selector.start < selector.end &&
+                representation.slice(selector.start, selector.end) === selector.quote;
+            if (!quoteMatches) {
+                return false;
             }
-            const matched = representations.some(
-                text =>
-                    selector.start >= 0 &&
-                    selector.end <= text.length &&
-                    selector.start < selector.end &&
-                    text.slice(selector.start, selector.end) === selector.quote,
+            const prefixMatches =
+                selector.prefix === undefined ||
+                (selector.start >= selector.prefix.length &&
+                    representation.slice(selector.start - selector.prefix.length, selector.start) === selector.prefix);
+            const suffixMatches =
+                selector.suffix === undefined ||
+                representation.slice(selector.end, selector.end + selector.suffix.length) === selector.suffix;
+            return prefixMatches && suffixMatches;
+        }
+        return Boolean(selector.value) && representation.includes(selector.value);
+    }
+
+    private assertSelectorBounded(selector: FragmentSelectorInput | FragmentSelector): void {
+        const text = selector.kind === 'text' ? selector.quote : selector.value;
+        if (!text || text.length > MAX_FRAGMENT_SELECTOR_TEXT) {
+            throw new ResearchKernelError(`fragment selector text must be between 1 and ${MAX_FRAGMENT_SELECTOR_TEXT} characters`);
+        }
+        if (selector.kind === 'text' && (!Number.isInteger(selector.start) || !Number.isInteger(selector.end))) {
+            throw new ResearchKernelError(`fragment offsets must be integers, got [${selector.start}, ${selector.end})`);
+        }
+    }
+
+    private getFragmentRepresentation(
+        kind: FragmentRepresentationKind,
+        sourceRef: ExactRef,
+        source: SourcePayload,
+        artifactRef: ExactRef,
+        artifact: ArtifactPayload,
+    ): RetainedRepresentation {
+        if (kind === 'source') {
+            return {
+                kind,
+                ref: sourceRef,
+                digest: source.contentDigest,
+                text: this.decodeSourceText(source),
+                defaultProfile: {
+                    converter: 'source-bytes',
+                    converterRevision: source.sourceVersionId,
+                    selectorProfileRevision: DEFAULT_SELECTOR_PROFILE_REVISION,
+                },
+            };
+        }
+        return {
+            kind,
+            ref: artifactRef,
+            digest: artifact.outputDigest,
+            text: artifact.output,
+            defaultProfile: {
+                converter: 'artifact-output',
+                converterRevision: artifact.fingerprintId,
+                selectorProfileRevision: DEFAULT_SELECTOR_PROFILE_REVISION,
+            },
+        };
+    }
+
+    private selectFragmentRepresentation(
+        selector: FragmentSelectorInput,
+        requested: FragmentRepresentationKind | undefined,
+        sourceRef: ExactRef,
+        source: SourcePayload,
+        artifactRef: ExactRef,
+        artifact: ArtifactPayload,
+    ): RetainedRepresentation {
+        this.assertSelectorBounded(selector);
+        const sourceRepresentation = this.getFragmentRepresentation('source', sourceRef, source, artifactRef, artifact);
+        const artifactRepresentation = this.getFragmentRepresentation('artifact', sourceRef, source, artifactRef, artifact);
+        const representation =
+            requested === 'source'
+                ? sourceRepresentation
+                : requested === 'artifact'
+                  ? artifactRepresentation
+                  : this.selectorMatches(selector, sourceRepresentation.text)
+                    ? sourceRepresentation
+                    : artifactRepresentation;
+        if (!this.selectorMatches(selector, representation.text)) {
+            throw new ResearchKernelError(
+                `fragment selector must match the exact retained ${representation.kind} representation selected for the Fragment`,
             );
-            if (!matched) {
-                throw new ResearchKernelError('fragment quotation and offsets must match a retained representation');
+        }
+        return representation;
+    }
+
+    private normalizeFragmentProfile(profile: FragmentProfile | undefined, representation: RetainedRepresentation): FragmentProfile {
+        const normalized = profile ?? representation.defaultProfile;
+        if ([normalized.converter, normalized.converterRevision, normalized.selectorProfileRevision].some(value => !value.trim())) {
+            throw new ResearchKernelError('fragment converter and selector profile revisions must be non-empty');
+        }
+        return cloneValue(normalized);
+    }
+
+    private normalizeFragmentSelector(
+        selector: FragmentSelectorInput,
+        representation: RetainedRepresentation,
+        sourceVersionId: string,
+        artifactRef: ExactRef,
+    ): FragmentSelector {
+        this.assertSelectorBounded(selector);
+        if (!this.selectorMatches(selector, representation.text)) {
+            throw new ResearchKernelError('fragment quotation and offsets must match the selected retained representation');
+        }
+        if (selector.kind === 'text') {
+            const passage = derivePassageId({
+                sourceVersionId,
+                extractionArtifactId: artifactRef.objectId,
+                spans: [{ start: selector.start, end: selector.end }],
+            });
+            return {
+                ...selector,
+                passageId: passage.id,
+            } satisfies TextSelector;
+        }
+        return { ...selector } satisfies TableSelector;
+    }
+
+    private createFragmentAnchor(
+        representation: RetainedRepresentation,
+        selector: FragmentSelector,
+        profile: FragmentProfile,
+    ): FragmentAnchorIdentity {
+        return {
+            brand: 'ivory.fragment-anchor/1',
+            representation: representation.kind,
+            representationRef: representation.ref,
+            representationDigest: representation.digest,
+            selectorKind: selector.kind,
+            converter: profile.converter,
+            converterRevision: profile.converterRevision,
+            selectorProfileRevision: profile.selectorProfileRevision,
+            orderedSpanIdentity: deterministicId('spn', {
+                representationDigest: representation.digest,
+                selector,
+            }),
+        };
+    }
+
+    private normalizeFragmentContext(
+        input: FragmentContextInput | undefined,
+        citedSelector: FragmentSelector,
+        citedAnchor: FragmentAnchorIdentity,
+        sourceRef: ExactRef,
+        source: SourcePayload,
+        artifactRef: ExactRef,
+        artifact: ArtifactPayload,
+    ): FragmentContext {
+        if (input === undefined) {
+            return {
+                state: 'unavailable',
+                reason: 'legacy caller did not supply structural context',
+            };
+        }
+        if (input.state === 'unavailable') {
+            if (!input.reason.trim()) {
+                throw new ResearchKernelError('unavailable Fragment context requires an explicit reason');
             }
-            return;
+            return cloneValue(input);
         }
-        if (!selector.value || !representations.some(text => text.includes(selector.value))) {
-            throw new ResearchKernelError('fragment table value must match a retained representation');
+        if (input.state === 'not-applicable') {
+            if (input.basis !== 'no-material-structure' || !input.reason.trim()) {
+                throw new ResearchKernelError('not-applicable Fragment context requires no-material-structure basis and a reason');
+            }
+            const representation = this.getFragmentRepresentation(citedAnchor.representation, sourceRef, source, artifactRef, artifact);
+            if (!this.hasNoMaterialStructure(citedSelector, representation, source, artifact)) {
+                throw new ResearchKernelError(
+                    'not-applicable Fragment context is unproven: retain structural context or mark it unavailable',
+                );
+            }
+            return cloneValue(input);
         }
+        if (input.references.length === 0 || input.references.length > MAX_FRAGMENT_CONTEXT_REFERENCES) {
+            throw new ResearchKernelError(`applicable Fragment context requires 1..${MAX_FRAGMENT_CONTEXT_REFERENCES} bounded references`);
+        }
+        const identities = new Set<string>();
+        const references: FragmentContextReference[] = input.references.map(reference => {
+            const representation = this.getFragmentRepresentation(
+                reference.representation ?? citedAnchor.representation,
+                sourceRef,
+                source,
+                artifactRef,
+                artifact,
+            );
+            const selector = this.normalizeFragmentSelector(reference.selector, representation, source.sourceVersionId, artifactRef);
+            const orderedSpanIdentity = deterministicId('spn', {
+                representationDigest: representation.digest,
+                selector,
+            });
+            if (orderedSpanIdentity === citedAnchor.orderedSpanIdentity) {
+                throw new ResearchKernelError('cited and context boundaries must be separate exact references');
+            }
+            if (identities.has(orderedSpanIdentity)) {
+                throw new ResearchKernelError('duplicate Fragment context references are not permitted');
+            }
+            identities.add(orderedSpanIdentity);
+            return {
+                kind: reference.kind,
+                representation: representation.kind,
+                representationRef: representation.ref,
+                representationDigest: representation.digest,
+                selector,
+                orderedSpanIdentity,
+            };
+        });
+        return { state: 'applicable', references };
+    }
+
+    private loadAnchorRepresentation(anchor: FragmentAnchorIdentity): RetainedRepresentation {
+        if (anchor.representation === 'source') {
+            const source = this.requireRevision<SourcePayload>(anchor.representationRef, 'source').payload;
+            return {
+                kind: 'source',
+                ref: anchor.representationRef,
+                digest: source.contentDigest,
+                text: this.decodeSourceText(source),
+                defaultProfile: {
+                    converter: 'source-bytes',
+                    converterRevision: source.sourceVersionId,
+                    selectorProfileRevision: DEFAULT_SELECTOR_PROFILE_REVISION,
+                },
+            };
+        }
+        const artifact = this.requireRevision<ArtifactPayload>(anchor.representationRef, 'artifact').payload;
+        return {
+            kind: 'artifact',
+            ref: anchor.representationRef,
+            digest: artifact.outputDigest,
+            text: artifact.output,
+            defaultProfile: {
+                converter: 'artifact-output',
+                converterRevision: artifact.fingerprintId,
+                selectorProfileRevision: DEFAULT_SELECTOR_PROFILE_REVISION,
+            },
+        };
+    }
+
+    /**
+     * Conservative, mechanically checkable absence witness. A full-span single-line quote
+     * from identical retained source and artifact bytes has no omitted outside structure.
+     * Converted, tabular, multipart, or uncertain material must supply context or remain unavailable.
+     */
+    private hasNoMaterialStructure(
+        selector: FragmentSelector,
+        representation: RetainedRepresentation,
+        source: SourcePayload,
+        artifact: ArtifactPayload,
+    ): boolean {
+        return (
+            selector.kind === 'text' &&
+            selector.start === 0 &&
+            selector.end === representation.text.length &&
+            this.decodeSourceText(source) === representation.text &&
+            artifact.output === representation.text &&
+            !/[\r\n\t|]/.test(representation.text) &&
+            !/\b(?:table|figure|footnote|methods?|limitations?|denominator|legend|units?|headers?|sample size)\b/i.test(representation.text)
+        );
+    }
+
+    private verifyFragmentContext(
+        context: FragmentContext,
+        fragment: FragmentPayload,
+        representation: RetainedRepresentation,
+    ): MechanicalCitationReceipt['checks']['context'] {
+        if (context.state === 'unavailable') {
+            return 'unavailable';
+        }
+        if (context.state === 'not-applicable') {
+            if (context.basis !== 'no-material-structure' || !context.reason.trim()) {
+                return 'mismatch';
+            }
+            const source = this.requireRevision<SourcePayload>(fragment.sourceRef, 'source').payload;
+            const artifact = this.requireRevision<ArtifactPayload>(fragment.artifactRef, 'artifact').payload;
+            return this.hasNoMaterialStructure(fragment.selector, representation, source, artifact) ? 'not-applicable' : 'mismatch';
+        }
+        if (context.references.length === 0 || context.references.length > MAX_FRAGMENT_CONTEXT_REFERENCES) {
+            return 'mismatch';
+        }
+        const identities = new Set<string>();
+        for (const reference of context.references) {
+            let digest: string;
+            let text: string;
+            if (reference.representation === 'source') {
+                const source = this.requireRevision<SourcePayload>(reference.representationRef, 'source').payload;
+                digest = source.contentDigest;
+                text = this.decodeSourceText(source);
+            } else {
+                const artifact = this.requireRevision<ArtifactPayload>(reference.representationRef, 'artifact').payload;
+                digest = artifact.outputDigest;
+                text = artifact.output;
+            }
+            const spanIdentity = deterministicId('spn', {
+                representationDigest: reference.representationDigest,
+                selector: reference.selector,
+            });
+            if (
+                digest !== reference.representationDigest ||
+                !this.selectorMatches(reference.selector, text) ||
+                !sameRef(reference.representationRef, reference.representation === 'source' ? fragment.sourceRef : fragment.artifactRef) ||
+                spanIdentity !== reference.orderedSpanIdentity ||
+                spanIdentity === fragment.anchor.orderedSpanIdentity ||
+                identities.has(spanIdentity)
+            ) {
+                return 'mismatch';
+            }
+            identities.add(spanIdentity);
+        }
+        return 'exact';
+    }
+
+    private findSelectorCandidates(
+        selector: FragmentSelector,
+        representation: string,
+        stableTableRepresentation: boolean,
+    ): FragmentSelectorInput[] {
+        if (selector.kind === 'table') {
+            return stableTableRepresentation && this.selectorMatches(selector, representation) ? [{ ...selector }] : [];
+        }
+        const candidates: FragmentSelectorInput[] = [];
+        let cursor = 0;
+        while (cursor <= representation.length - selector.quote.length) {
+            const start = representation.indexOf(selector.quote, cursor);
+            if (start < 0) {
+                break;
+            }
+            const candidate: FragmentSelectorInput = {
+                kind: 'text',
+                start,
+                end: start + selector.quote.length,
+                quote: selector.quote,
+                prefix: selector.prefix,
+                suffix: selector.suffix,
+            };
+            if (this.selectorMatches(candidate, representation)) {
+                candidates.push(candidate);
+            }
+            cursor = start + Math.max(1, selector.quote.length);
+        }
+        return candidates;
+    }
+
+    private remapFragmentContext(
+        context: FragmentContext,
+        sourceRef: ExactRef,
+        source: SourcePayload,
+        artifactRef: ExactRef,
+        artifact: ArtifactPayload,
+    ): ContextRemapResult {
+        if (context.state !== 'applicable') {
+            return { status: 'EXACT', context: cloneValue(context) };
+        }
+        const references: FragmentContextReference[] = [];
+        for (const previous of context.references) {
+            const representation = this.getFragmentRepresentation(previous.representation, sourceRef, source, artifactRef, artifact);
+            const candidates = this.findSelectorCandidates(
+                previous.selector,
+                representation.text,
+                previous.representationDigest === representation.digest,
+            );
+            if (candidates.length === 0) {
+                return {
+                    status: 'UNRESOLVED',
+                    reason: `context ${previous.kind} no longer has an exact selector candidate`,
+                };
+            }
+            if (candidates.length > 1) {
+                return {
+                    status: 'AMBIGUOUS',
+                    reason: `context ${previous.kind} has multiple exact selector candidates`,
+                };
+            }
+            const selector = this.normalizeFragmentSelector(candidates[0], representation, source.sourceVersionId, artifactRef);
+            references.push({
+                kind: previous.kind,
+                representation: representation.kind,
+                representationRef: representation.ref,
+                representationDigest: representation.digest,
+                selector,
+                orderedSpanIdentity: deterministicId('spn', {
+                    representationDigest: representation.digest,
+                    selector,
+                }),
+            });
+        }
+        return { status: 'EXACT', context: { state: 'applicable', references } };
+    }
+
+    private normalizeEvidenceFragmentTargets(
+        targets: readonly ExactRef[],
+        declared: readonly EvidenceFragmentTarget[] | undefined,
+    ): readonly EvidenceFragmentTarget[] {
+        const fragments = targets.filter(target => this.objects.get(target.objectId)?.objectType === 'fragment');
+        if (declared === undefined) {
+            return fragments.map(ref => ({ ref: cloneValue(ref), role: 'cited' as const }));
+        }
+        const targetKeys = new Set(fragments.map(refKey));
+        const seen = new Set<string>();
+        for (const target of declared) {
+            const key = refKey(target.ref);
+            if (!targetKeys.has(key)) {
+                throw new ResearchKernelError('EvidenceLink fragmentTargets may reference only Fragment targets on the link');
+            }
+            if (seen.has(key)) {
+                throw new ResearchKernelError('EvidenceLink fragmentTargets cannot duplicate a Fragment target');
+            }
+            if (target.role !== 'cited' && target.role !== 'context') {
+                throw new ResearchKernelError('EvidenceLink Fragment target role must be cited or context');
+            }
+            seen.add(key);
+        }
+        if (seen.size !== targetKeys.size) {
+            throw new ResearchKernelError('EvidenceLink must assign an explicit cited/context role to every Fragment target');
+        }
+        return cloneValue([...declared]);
     }
 
     private validateRef(ref: ExactRef): void {

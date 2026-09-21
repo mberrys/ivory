@@ -21,6 +21,9 @@ import {
     CarryForwardPreview,
     CitationResolution,
     ClaimExplanation,
+    FragmentRemapReceipt,
+    MechanicalCitationReceipt,
+    RemapFragmentInput,
     ReviseClaimInput,
     ReviseCodebookInput,
     SnapshotRecord,
@@ -41,6 +44,12 @@ export class ResearchClient {
     }
     createFragment(input: CreateFragmentInput): ExactRef {
         return this.kernel.createFragment(input);
+    }
+    remapFragment(input: RemapFragmentInput): FragmentRemapReceipt {
+        return this.kernel.remapFragment(input);
+    }
+    verifyCitation(fragmentRef: ExactRef): MechanicalCitationReceipt {
+        return this.kernel.verifyCitation(fragmentRef);
     }
     createCodebook(input: CreateCodebookInput): ExactRef {
         return this.kernel.createCodebook(input);

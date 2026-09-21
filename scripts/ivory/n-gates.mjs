@@ -45,9 +45,13 @@ export function unknownGateIds(gates, ids) {
 
 export function evaluateGates(config, options = {}) {
     const root = options.root ?? ROOT;
-    const readJson = options.readJson ?? (relative => JSON.parse(readFileSync(path.join(root, relative), 'utf8')));
-    const readText = options.readText ?? (relative => readFileSync(path.join(root, relative), 'utf8'));
-    const exists = options.exists ?? (relative => existsSync(path.join(root, relative)));
+    // `resolve` rather than `join`: a manifest may address its fixtures absolutely (the temp-manifest test
+    // seam does exactly that when the temporary directory sits on another drive than the repository, which
+    // is the case on a Windows CI runner). `join(root, 'C:\\...')` yields `<root>\C:\...` and reads nothing,
+    // while `resolve` keeps repository-relative paths unchanged and honours absolute ones.
+    const readJson = options.readJson ?? (relative => JSON.parse(readFileSync(path.resolve(root, relative), 'utf8')));
+    const readText = options.readText ?? (relative => readFileSync(path.resolve(root, relative), 'utf8'));
+    const exists = options.exists ?? (relative => existsSync(path.resolve(root, relative)));
 
     return (config.gates ?? []).map(gate => {
         const record = {

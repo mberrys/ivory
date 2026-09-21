@@ -17,6 +17,14 @@ export interface ExactRef {
     readonly revisionId: string;
 }
 
+export type FragmentRepresentationKind = 'source' | 'artifact';
+
+export interface FragmentProfile {
+    readonly converter: string;
+    readonly converterRevision: string;
+    readonly selectorProfileRevision: string;
+}
+
 export interface RevisionRecord<T = unknown> {
     readonly revisionId: string;
     readonly objectId: string;
@@ -92,11 +100,77 @@ export interface TableSelector {
 }
 
 export type FragmentSelector = TextSelector | TableSelector;
+export type FragmentSelectorInput = Omit<TextSelector, 'passageId'> | TableSelector;
+
+export type FragmentContextKind =
+    | 'heading'
+    | 'table-header'
+    | 'units'
+    | 'denominator'
+    | 'legend'
+    | 'footnote'
+    | 'methods'
+    | 'limitation'
+    | 'other';
+
+export interface FragmentAnchorIdentity extends FragmentProfile {
+    readonly brand: 'ivory.fragment-anchor/1';
+    readonly representation: FragmentRepresentationKind;
+    readonly representationRef: ExactRef;
+    readonly representationDigest: string;
+    readonly selectorKind: FragmentSelector['kind'];
+    readonly orderedSpanIdentity: string;
+}
+
+export interface FragmentContextReference {
+    readonly kind: FragmentContextKind;
+    readonly representation: FragmentRepresentationKind;
+    readonly representationRef: ExactRef;
+    readonly representationDigest: string;
+    readonly selector: FragmentSelector;
+    readonly orderedSpanIdentity: string;
+}
+
+export type FragmentContext =
+    | {
+          readonly state: 'applicable';
+          readonly references: readonly FragmentContextReference[];
+      }
+    | {
+          readonly state: 'not-applicable';
+          readonly basis: 'no-material-structure';
+          readonly reason: string;
+      }
+    | {
+          readonly state: 'unavailable';
+          readonly reason: string;
+      };
+
+export type FragmentContextInput =
+    | {
+          readonly state: 'applicable';
+          readonly references: readonly {
+              readonly kind: FragmentContextKind;
+              readonly representation?: FragmentRepresentationKind;
+              readonly selector: FragmentSelectorInput;
+          }[];
+      }
+    | {
+          readonly state: 'not-applicable';
+          readonly basis: 'no-material-structure';
+          readonly reason: string;
+      }
+    | {
+          readonly state: 'unavailable';
+          readonly reason: string;
+      };
 
 export interface FragmentPayload {
     readonly sourceRef: ExactRef;
     readonly artifactRef: ExactRef;
     readonly selector: FragmentSelector;
+    readonly anchor: FragmentAnchorIdentity;
+    readonly context: FragmentContext;
 }
 
 export interface CodeDefinition {
@@ -128,10 +202,17 @@ export interface ClaimPayload {
 }
 
 export type EvidenceRole = 'supports' | 'challenges' | 'qualifies' | 'contextualizes';
+export type EvidenceFragmentRole = 'cited' | 'context';
+
+export interface EvidenceFragmentTarget {
+    readonly ref: ExactRef;
+    readonly role: EvidenceFragmentRole;
+}
 
 export interface EvidenceLinkPayload {
     readonly claimRef: ExactRef;
     readonly targets: readonly ExactRef[];
+    readonly fragmentTargets: readonly EvidenceFragmentTarget[];
     readonly role: EvidenceRole;
     readonly rationale: string;
     readonly linkAuthor: string;
@@ -182,9 +263,51 @@ export interface AdmitSourceInput {
 export interface CreateFragmentInput {
     readonly sourceRef: ExactRef;
     readonly artifactRef: ExactRef;
-    readonly selector: Omit<TextSelector, 'passageId'> | TableSelector;
+    readonly selector: FragmentSelectorInput;
+    readonly representation?: FragmentRepresentationKind;
+    readonly profile?: FragmentProfile;
+    readonly context?: FragmentContextInput;
     readonly actor: string;
     readonly fragmentKey?: string;
+}
+
+export interface VerifyCitationInput {
+    readonly fragmentRef: ExactRef;
+}
+
+export interface MechanicalCitationReceipt {
+    readonly kind: 'mechanical-citation';
+    readonly fragmentRef: ExactRef;
+    readonly fragmentRevisionDigest: string;
+    readonly representationDigest: string;
+    readonly selectorKind: FragmentSelector['kind'];
+    readonly status: 'EXACT' | 'BLOCKED' | 'MISMATCH';
+    readonly checks: {
+        readonly representationDigest: boolean;
+        readonly selectorBytes: boolean;
+        readonly context: 'exact' | 'not-applicable' | 'unavailable' | 'mismatch';
+    };
+    readonly semanticSupport: 'not-assessed';
+    readonly receiptDigest: string;
+}
+
+export type FragmentRemapStatus = 'EXACT' | 'AMBIGUOUS' | 'UNRESOLVED';
+
+export interface RemapFragmentInput {
+    readonly fragmentRef: ExactRef;
+    readonly expectedHead: string;
+    readonly artifactRef: ExactRef;
+    readonly profile: FragmentProfile;
+    readonly representation?: FragmentRepresentationKind;
+    readonly actor: string;
+}
+
+export interface FragmentRemapReceipt {
+    readonly status: FragmentRemapStatus;
+    readonly from: ExactRef;
+    readonly to?: ExactRef;
+    readonly candidateSelectors: readonly FragmentSelectorInput[];
+    readonly reason?: string;
 }
 
 export interface CreateCodebookInput {
@@ -232,6 +355,7 @@ export interface CreateEvidenceLinkInput {
     readonly key?: string;
     readonly claimRef: ExactRef;
     readonly targets: readonly ExactRef[];
+    readonly fragmentTargets?: readonly EvidenceFragmentTarget[];
     readonly role: EvidenceRole;
     readonly rationale: string;
     readonly linkAuthor: string;
@@ -267,6 +391,8 @@ export interface CitationResolution {
     readonly quote: string;
     readonly sourceVersionId: string;
     readonly selector: FragmentSelector;
+    readonly anchor: FragmentAnchorIdentity;
+    readonly context: FragmentContext;
     readonly sourceName: string;
 }
 
