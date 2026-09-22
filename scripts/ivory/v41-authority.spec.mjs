@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -9,6 +10,19 @@ import { fileURLToPath } from 'node:url';
 import { loadBundle, readbackIdentity, validateBundle } from './v41-authority.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+function unreferencedOrphanCommit() {
+    const tree = spawnSync('git', ['rev-parse', 'HEAD^{tree}'], { cwd: ROOT, encoding: 'utf8' });
+    assert.equal(tree.status, 0, tree.stderr);
+    const commit = spawnSync('git', [
+        '-c', 'user.name=Ivory Reachability Fixture',
+        '-c', 'user.email=ivory-fixture@example.invalid',
+        'commit-tree', tree.stdout.trim(),
+        '-m', 'unreferenced orphan for an off-dev reachability fixture',
+    ], { cwd: ROOT, encoding: 'utf8' });
+    assert.equal(commit.status, 0, commit.stderr);
+    return commit.stdout.trim();
+}
 
 function clone(value) {
     return structuredClone(value);
@@ -694,9 +708,9 @@ test('IV41-003 rejects a fabricated or off-line SHA in either evidence context',
     fabricatedHead.packageOwnership.evidenceContext.implementationContext.headBeforeIssue = '0'.repeat(40);
     assert.match(errorText(fabricatedHead), /pre-issue head 0{40} must be a real commit reachable from refs\/heads\/dev/);
 
-    // A real commit is not enough: the PR #1 foundation head exists but is not in refs/heads/dev's history.
+    // A real commit is not enough: an unreferenced orphan exists but is not in refs/heads/dev's history.
     const offLineHead = bundle();
-    offLineHead.packageOwnership.evidenceContext.implementationContext.headBeforeIssue = 'ecc406d34a9bf49d8e2f165b994a919ca90ff718';
+    offLineHead.packageOwnership.evidenceContext.implementationContext.headBeforeIssue = unreferencedOrphanCommit();
     assert.match(errorText(offLineHead), /must be a real commit reachable from refs\/heads\/dev/);
 
     const fabricatedMerge = bundle();
@@ -1065,10 +1079,11 @@ test('V41-I01.1 rejects a pinned head that is not a real commit on the dev line'
     selectedHead(fabricated).sha = '0'.repeat(40);
     assert.match(errorText(fabricated), /selectedDev 0{40} must be a real commit reachable from refs\/heads\/dev/);
 
-    // A real commit is not enough: the PR #1 foundation head exists but is not in refs/heads/dev's history.
+    // A real commit is not enough: an unreferenced orphan exists but is not in refs/heads/dev's history.
     const offLine = bundle();
-    selectedHead(offLine).sha = 'ecc406d34a9bf49d8e2f165b994a919ca90ff718';
-    offLine.heads.packageInventorySource.sha = 'ecc406d34a9bf49d8e2f165b994a919ca90ff718';
+    const offLineSha = unreferencedOrphanCommit();
+    selectedHead(offLine).sha = offLineSha;
+    offLine.heads.packageInventorySource.sha = offLineSha;
     assert.match(errorText(offLine), /must be a real commit reachable from refs\/heads\/dev/);
 });
 
