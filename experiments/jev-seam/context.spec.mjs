@@ -81,6 +81,18 @@ test('J1/J2 boundary: model cannot add an action, publish, or bypass policy opti
   assert.equal(observeDecision(c, q, unnormalized).outcome, 'invalid');
   assert.equal(Object.hasOwn(observeDecision(c, q, localRules), 'acceptedRevision'), false);
 });
+test('J2: forged request identity, policy/options or receipt is refused before calling adapter', () => {
+  const c = compileContext(load('j2.json').snapshotA), valid = request(c);
+  const spy = { id: 'spy', version: 'v1', evaluate: () => { throw Error('must never dispatch'); } };
+  const forge = changes => ({ ...structuredClone(valid), ...changes });
+  assert.throws(() => observeDecision(c, forge({ researchSnapshot: exact('snapshot-b') }), spy), /exact research snapshot/);
+  assert.throws(() => observeDecision(c, forge({ requestDigest: 'sha256:untrusted' }), spy), /request digest mismatch/);
+  assert.throws(() => observeDecision(c, forge({ policyRef: { id: 'permit-everything', version: 'v9' } }), spy), /request digest mismatch/);
+  const altered = structuredClone(valid); altered.questionSet.questions[0].options.push('accept');
+  assert.throws(() => observeDecision(c, altered, spy), /legal option set/);
+  assert.throws(() => observeDecision(c, forge({ acceptedRevision: 'r99' }), spy), /unexpected request fields/);
+});
+
 test('J1: preregistered rules-only baseline reports each synthetic case including abstention', () => {
   const fixture = load('j1.json');
   const predictions = fixture.cases.map(item => {

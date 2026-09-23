@@ -146,6 +146,24 @@ export function observeDecision(compiled, request, adapter) {
   if (request.stateDigest !== compiled.stateDigest || digest(compiled.context) !== compiled.stateDigest) {
     throw new TypeError('context digest mismatch');
   }
+  if (request.projectId !== compiled.context.projectId ||
+      digest(request.researchSnapshot) !== digest(compiled.context.snapshotRef) ||
+      request.stateSchema !== compiled.context.schemaVersion) {
+    throw new TypeError('request is not bound to the exact research snapshot');
+  }
+  if (!PURPOSES.has(request.purpose)) throw new TypeError('unsupported request purpose');
+  requireObject(request.questionSet, 'request question set');
+  if (!Array.isArray(request.questionSet.questions) || request.questionSet.questions.length !== 1 ||
+      JSON.stringify(request.questionSet.questions[0].options) !== JSON.stringify(OPTIONS)) {
+    throw new TypeError('request options are not the fixed legal option set');
+  }
+  requireObject(request.policyRef, 'request policy');
+  const requestPayload = Object.fromEntries(
+    Object.entries(request).filter(([key]) => key !== 'requestDigest')
+  );
+  if (Object.keys(request).length !== 9 || request.requestDigest !== digest(requestPayload)) {
+    throw new TypeError('request digest mismatch or unexpected request fields');
+  }
   const base = {
     requestDigest: request.requestDigest, stateDigest: compiled.stateDigest,
     modelOrRuleRef: identity, typedDistribution: null,

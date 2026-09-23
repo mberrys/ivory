@@ -28,3 +28,39 @@ jobs:
         run: node scripts/ivory/v5-verify-source.mjs .audit/archive
       - name: Exercise isolated experimental decision boundary
         run: node --test experiments/jev-seam/*.spec.mjs
+
+  clean-theia-baseline:
+    name: Clean upstream Theia baseline install and build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout the exact clean reset baseline (not archived development)
+        uses: actions/checkout@v4
+        with:
+          ref: b0f9e63a6d331135265869a341dce7c7f1eef158
+          path: .audit/theia-baseline
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Record environment and install native dependencies
+        run: |
+          node --version
+          npm --version
+          uname -a
+          git -C .audit/theia-baseline rev-parse HEAD
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libxkbfile-dev libsecret-1-dev
+      - name: Install and build clean baseline
+        working-directory: .audit/theia-baseline
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm ci
+          npm run build
+          sha256sum package-lock.json
+          git rev-parse HEAD
