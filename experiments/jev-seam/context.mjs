@@ -161,7 +161,7 @@ export function observeDecision(compiled, request, adapter) {
   const requestPayload = Object.fromEntries(
     Object.entries(request).filter(([key]) => key !== 'requestDigest')
   );
-  if (Object.keys(request).length !== 9 || request.requestDigest !== digest(requestPayload)) {
+  if (Object.keys(request).length !== 8 || request.requestDigest !== digest(requestPayload)) {
     throw new TypeError('request digest mismatch or unexpected request fields');
   }
   const base = {
