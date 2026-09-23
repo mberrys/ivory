@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "preRegistered": true,
+  "description": "Six synthetic labels for a rules-only control; no trained model or human study.",
+  "cases": [
+    {
+      "id": "c1",
+      "hint": "in-scope",
+      "label": "review"
+    },
+    {
+      "id": "c2",
+      "hint": "out-of-scope",
+      "label": "exclude"
+    },
+    {
+      "id": "c3",
+      "hint": "unknown",
+      "label": "abstain"
+    },
+    {
+      "id": "c4",
+      "hint": "in-scope",
+      "label": "review"
+    },
+    {
+      "id": "c5",
+      "hint": "unknown",
+      "label": "review"
+    },
+    {
+      "id": "c6",
+      "hint": "out-of-scope",
+      "label": "exclude"
+    }
+  ]
+}

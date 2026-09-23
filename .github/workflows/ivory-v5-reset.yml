@@ -1,0 +1,30 @@
+name: Ivory V5 reset evidence (experimental)
+on:
+  push:
+    branches:
+      - integration/ivory-v5-reset-archive
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  archive-and-boundaries:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout integration branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout exact archived development head
+        uses: actions/checkout@v4
+        with:
+          repository: mberrys/ivory-archive
+          ref: bfcb283c4fe32b64b67a325f8f55aca08314296f
+          path: .audit/archive
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify pinned archive source identities
+        run: node scripts/ivory/v5-verify-source.mjs .audit/archive
+      - name: Exercise isolated experimental decision boundary
+        run: node --test experiments/jev-seam/*.spec.mjs

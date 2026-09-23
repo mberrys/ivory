@@ -1,0 +1,578 @@
+{
+  "schemaVersion": 1,
+  "snapshotA": {
+    "projectId": "ivory-j1j2",
+    "snapshotRef": {
+      "projectId": "ivory-j1j2",
+      "objectId": "snapshot-a",
+      "revisionId": "r1"
+    },
+    "records": [
+      {
+        "kind": "Source",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "transcript-a",
+          "revisionId": "r1"
+        },
+        "representationDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "status": "available",
+        "rights": "local-only"
+      },
+      {
+        "kind": "Source",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "transcript-b",
+          "revisionId": "r1"
+        },
+        "representationDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "status": "available",
+        "rights": "local-only"
+      },
+      {
+        "kind": "Source",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "imported-table",
+          "revisionId": "r1"
+        },
+        "representationDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "status": "available",
+        "rights": "local-only"
+      },
+      {
+        "kind": "Codebook",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "codebook",
+          "revisionId": "r1"
+        },
+        "edition": "v1"
+      },
+      {
+        "kind": "Codebook",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "codebook",
+          "revisionId": "r2"
+        },
+        "edition": "v2"
+      },
+      {
+        "kind": "Fragment",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "fragment-a",
+          "revisionId": "r1"
+        },
+        "representationDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "selectorDigest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      {
+        "kind": "Fragment",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "fragment-b",
+          "revisionId": "r1"
+        },
+        "representationDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "selectorDigest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      {
+        "kind": "Annotation",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-a",
+          "revisionId": "r1"
+        },
+        "status": "reviewed"
+      },
+      {
+        "kind": "Annotation",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-b",
+          "revisionId": "r1"
+        },
+        "status": "reviewed"
+      },
+      {
+        "kind": "Statement",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "claim-support",
+          "revisionId": "r1"
+        },
+        "status": "contested"
+      },
+      {
+        "kind": "Statement",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "claim-challenge",
+          "revisionId": "r1"
+        },
+        "status": "contested"
+      },
+      {
+        "kind": "Artifact",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "derived-artifact",
+          "revisionId": "r1"
+        },
+        "representationDigest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "status": "staged"
+      },
+      {
+        "kind": "Candidate",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "paper-1",
+          "revisionId": "r1"
+        },
+        "metadataCategory": "in-scope",
+        "rights": "local-only"
+      }
+    ],
+    "edges": [
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "fragment-a",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "transcript-a",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "fragment-b",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "transcript-b",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-a",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "fragment-a",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-b",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "fragment-a",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-a",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "codebook",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-b",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "codebook",
+          "revisionId": "r2"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "claim-support",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-a",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "claim-challenge",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-b",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "derived-artifact",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "imported-table",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "activity",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "claim-support",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "transcript-b",
+          "revisionId": "r1"
+        }
+      }
+    ],
+    "complete": true,
+    "omissions": []
+  },
+  "snapshotB": {
+    "projectId": "ivory-j1j2",
+    "snapshotRef": {
+      "projectId": "ivory-j1j2",
+      "objectId": "snapshot-b",
+      "revisionId": "r1"
+    },
+    "records": [
+      {
+        "kind": "Source",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "transcript-a",
+          "revisionId": "r1"
+        },
+        "representationDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "status": "available",
+        "rights": "local-only"
+      },
+      {
+        "kind": "Source",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "transcript-b",
+          "revisionId": "r1"
+        },
+        "representationDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "status": "available",
+        "rights": "local-only"
+      },
+      {
+        "kind": "Source",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "imported-table",
+          "revisionId": "r1"
+        },
+        "representationDigest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "status": "available",
+        "rights": "local-only"
+      },
+      {
+        "kind": "Codebook",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "codebook",
+          "revisionId": "r1"
+        },
+        "edition": "v1"
+      },
+      {
+        "kind": "Codebook",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "codebook",
+          "revisionId": "r2"
+        },
+        "edition": "v2"
+      },
+      {
+        "kind": "Fragment",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "fragment-a",
+          "revisionId": "r1"
+        },
+        "representationDigest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "selectorDigest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      {
+        "kind": "Fragment",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "fragment-b",
+          "revisionId": "r1"
+        },
+        "representationDigest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "selectorDigest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+      },
+      {
+        "kind": "Annotation",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-a",
+          "revisionId": "r1"
+        },
+        "status": "reviewed"
+      },
+      {
+        "kind": "Annotation",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-b",
+          "revisionId": "r1"
+        },
+        "status": "reviewed"
+      },
+      {
+        "kind": "Statement",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "claim-support",
+          "revisionId": "r1"
+        },
+        "status": "contested"
+      },
+      {
+        "kind": "Statement",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "claim-challenge",
+          "revisionId": "r1"
+        },
+        "status": "contested"
+      },
+      {
+        "kind": "Artifact",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "derived-artifact",
+          "revisionId": "r1"
+        },
+        "representationDigest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "status": "staged"
+      },
+      {
+        "kind": "Candidate",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "paper-1",
+          "revisionId": "r1"
+        },
+        "metadataCategory": "unknown",
+        "rights": "local-only"
+      },
+      {
+        "kind": "Source",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "transcript-a",
+          "revisionId": "r2"
+        },
+        "representationDigest": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+        "status": "corrected",
+        "rights": "local-only"
+      },
+      {
+        "kind": "Statement",
+        "ref": {
+          "projectId": "ivory-j1j2",
+          "objectId": "claim-support",
+          "revisionId": "r2"
+        },
+        "status": "review-needed"
+      }
+    ],
+    "edges": [
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "fragment-a",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "transcript-a",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "fragment-b",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "transcript-b",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-a",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "fragment-a",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-b",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "fragment-a",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-a",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "codebook",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-b",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "codebook",
+          "revisionId": "r2"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "claim-support",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-a",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "claim-challenge",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "annotation-b",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "derived-artifact",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "imported-table",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "activity",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "claim-support",
+          "revisionId": "r1"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "transcript-b",
+          "revisionId": "r1"
+        }
+      },
+      {
+        "kind": "semantic",
+        "from": {
+          "projectId": "ivory-j1j2",
+          "objectId": "claim-support",
+          "revisionId": "r2"
+        },
+        "to": {
+          "projectId": "ivory-j1j2",
+          "objectId": "transcript-a",
+          "revisionId": "r2"
+        }
+      }
+    ],
+    "complete": true,
+    "omissions": []
+  }
+}
