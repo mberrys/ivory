@@ -1,0 +1,29 @@
+# Jev-like R4 empirical qualification ledger — frozen scope and gaps
+
+**Date:** 2026-09-23 PDT. **Status at creation:** empirical two-model jobs submitted, outcome not yet inspected. Parent [Notion Jev epic](https://app.notion.com/p/3e49cb079ddb801db7ddda66ae715eaa). This is the requested R4 *qualification package*, not a presumption of adoption. No PR; no production change.
+
+## R4 definition and acceptance gates
+
+The epic R4 requires (1) semantic-support by class, (2) unsupported acceptance and abstention, (3) probability calibration when appropriate, (4) ambiguity/disagreement, (5) CPU latency/cost/token accounting, (6) local/private feasibility, (7) provider limits, and **human-reviewed reference cases**. Experimental execution may complete while research qualification remains **blocked by unavailable reviewer and V5 Core/N7 evidence**; distinguish them.
+
+The original historical-N1 source/quote-selector bytes match while receipt context is `unavailable`, so N1 must abstain before any model dispatch. Existing [real archived bridge](../../experiments/jev-seam/n1-archive.bridge.mjs) proves *that negative*, not authorized model inference nor durable V5 integration. Existing [isolated seam tests](../../experiments/jev-seam/semantic.spec.mjs) exercise stale refs, quote mismatch, external-wire fail-closed, prompt injection, malformed responses, rights denial and no-model fallback. Both are run on every experiment branch push in [V5 reset evidence workflow](../../.github/workflows/ivory-v5-reset.yml), independently of model ranking.
+
+## Frozen R4 empirical protocol (before observations)
+
+**Implementation:** [r4-criterion-decomposition.py](../../experiments/jev-seam/r4-criterion-decomposition.py) + [two-model workflow](../../.github/workflows/ivory-r4-empirical-qualification.yml), execution commit `60e9378887e4c398a1a8bedda2e3dd3883b765ff`. Models `cross-encoder/nli-MiniLM2-L6-H768` at **previously pinned** `b95119ce93d3e065de6214e38cd4a97b0f2f2c6d` and `cross-encoder/nli-deberta-v3-small` with the precise Hub commit **resolved and retained at run**. Both are local PyTorch CPU on GitHub Actions. A new model cannot retroactively become an independent evaluation of the old `prior_seen` subset.
+
+**Real historical review:** ASReview `Nagtegaal_2019`, CC0 index; initial source 2,019 rows, 2,018 valid deduplicated, 391 title/abstract positive and 1,627 negative, prior source digest `abfbdb973aa125f26ce872a5193c931d0690f7fe2e1fb75551de9c0acecd200f`. Download and verify source again on clean CI. No user's private material.
+
+**Two fixed same-review cohorts:** `prior_seen` = exact 24 screen-positive/72 screen-negative SHA-sampled cohort **already observed in previous compound MiniLM study**; `new_unseen` = SHA-sampled *non-overlapping* 24 positive/72 negative records by new fixed salt `ivory-r4-new-nagtegaal-nonoverlap-v1-20260923`. No training/fitting; no researcher-by-researcher annotation assumption. Both intentionally 25% positive rather than original 19.38%, and are **not independent review domains**. Preserve cohort membership hashes and duplicate policy.
+
+**Fixed five hypotheses:** nudge mechanism, healthcare-professional actor, implemented intervention outcome, clinical setting, and the *exact previous compound question* on the same premise/title+abstract, all models, same max 384 tokens and batch 12. Models return uncalibrated contradiction/entailment/neutral, not Ivory's five human research labels. Prior rule flags are unchanged. Proposed ranking arms (not tuned after outcomes): rules only; compound entailment; decomposition mean entailment; decomposition **min** entailment; lexical-primary + compound; lexical-primary + decomposition mean; lexical-primary + decomposition min. Last four preserve lexicographic `rules_score` as primary where specified. Candidate diagnostic `rules>=3 OR (all four criterion entailment>=0.5)`; **never reject records automatically**. Compute source-specific precision/recall at top 24,48,72 and AP; report historical screen-positive as primary, full-text final inclusion as secondary only. Record individual criterion distributions/score collapse.
+
+**Semantic-support by class:** 18 new *authored public synthetic* premise/hypothesis pairs, six of each entailment/contradiction/neutral. Record per-class matches and raw three-way distributions, top-class 5-bin expected calibration error against **authored synthetic labels only**. This **does not qualify scholarly semantic-support accuracy, genuine academic disagreement or real-world probability calibration**. There are no independent dual reviewers in this package, and user may supply or recruit them only outside this tool run.
+
+**Latency & cost:** exact model identity/SHA, total CPU model load, full 960 forward input-pair count per model, inference seconds, 18-case synthetic latency, GitHub runner environment. Models are locally downloaded from Hugging Face model repos; HF Jobs earlier returned HTTP 402 Payment Required. GitHub Actions worker timing cannot assert pricing or workstation throughput or 3090 GPU optimization; no monetary model inference API charges shown.
+
+## Reporting / failure doctrine
+
+Do NOT score an unverified provider or synthetic hard-gate as a genuine human success. Keep all wrong cases, no silent relabeling, avoid a post-hoc winner claim. A proposed paper is researcher review priority, not an accepted EvidenceLink. Absence of V5 Core/N7 durable Assessment/permission/restart experiments remains explicitly BLOCKED after any CI success. If this same-review public dataset does not yield a generalizable model improvement over no-model rules, R4 should retain the negative outcome without another model-size escalation.
+
+**Actual observed results and final R4 gate ledger will be appended, never overwrite this preregistration.**
