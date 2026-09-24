@@ -1,0 +1,36 @@
+# Jev-like R5 bounded disposition — evaluated recipes not admitted to Ivory V5
+
+**Status:** Provisional **negative decision for the tested automatic screening recipes**, not final acceptance or rejection of the entire vendor-neutral evaluator architecture, and not a signed V5.0 architecture ADR. Date 2026-09-23 PDT. Research branch `experiment/jev-r2-r3-semantic-seam`, no PR and no runtime admission.
+
+## Question and authority
+
+Does a Jev-like **replaceable local typed evaluator** improve research triage, provenance-grounded citation assessment and human review while N1 owns immutable source truth, Core alone writes accepted research state, and N7 owns capability and explicit researcher adjudication? We evaluated **models and bounded interface behavior separately**, not the TypeSafe proprietary Jev provider. Original [Notion epic](https://app.notion.com/p/3e49cb079ddb801db7ddda66ae715eaa); [R4 protocol/benchmark](jev-r4-qualification.md); [R4 remaining gates/actual archive composition](jev-r4-remainder-closeout.md).
+
+## Dated findings that determine current scope
+
+1. **Qwen3 zero/size study:** Original 0.6B Q8_0 forced `REVIEW` on all 30 synthetic routed cases (10/30 authored matches); controlled NEW fixture 0.6B 16/36, 1.7B 12/36, **neither recognized a single one of 12 explicit exclusions**. Model size or legal constrained output did not imply semantic selectivity. Runs [35945776462](https://github.com/mberrys/ivory/actions/runs/35945776462), [35946966485](https://github.com/mberrys/ivory/actions/runs/35946966485). Exact tested prompts/grammar/Q8_0 models are not approved automatic abstract screeners.
+2. **Real SYNERGY historic review labels:** A NEW 96-record cohort (24 title/abstract screen-positive) had rules 18 vs MiniLM lexical+decomp mean 20 vs DeBERTa lexical+decomp mean 20 at review budget top48, **but the all-four NLI entailment>=0.5 candidate gate proposed zero additional records on either 96-case cohort for either model**. MiniLM's top48 ultimately full-text-included recall *fell* from rules 8/10 to 7/10 on NEW cohort; historically seen cohort rules 7/7 vs MiniLM 5/7 and DeBERTa 6/7. These secondary labels require full text and cannot be claimed as abstract-screen gold. Two models, same 192 records and 18 authored three-way synthetic diagnostics in [run 35949038033](https://github.com/mberrys/ivory/actions/runs/35949038033). Neither a model-only rank nor a 0.5 NLI softmax threshold qualifies full academic inclusion.
+3. **N1 mechanical input and scoped model:** Archived historical advising N1 golden citation remains `BLOCKED/context-unavailable` despite quote and representation digest matches; **never model-dispatch it**. A DIFFERENT NEW full-span synthetic original archive kernel fixture produces mechanically `EXACT/not-applicable`; local MiniLM evaluated its bounded projection and generated typed experimental receipt with replay/reader parity and zero canonical writes. [Run 35952242656](https://github.com/mberrys/ivory/actions/runs/35952242656). The original archived N1 in-memory kernel is **not** the V5 production Core.
+4. **Review and safety boundary:** 48/48 isolated seam/human-reference/journal tests [run 35952000544](https://github.com/mberrys/ivory/actions/runs/35952000544), including deterministic no-model, stale ref, revocation during inference, no unauthorized egress, corrupt journal, reviewer/model roles, double reviewer impersonation, and no research acceptance. The experimental local journal is NOT a selected durable N2 CAS+SQL writer, and its trusted-caller string is NOT production N7 authentication.
+5. **Independent human benchmark still absent:** New 120-case nonoverlapping blinded reviewer worklist generated with no historical labels or human votes in [CORRECTED run 35952537458](https://github.com/mberrys/ivory/actions/runs/35952537458). Source-text curation rights and independent two-person review remain external tasks. The earlier worklist run 35952000614 incorrectly included a link to label-bearing audit source in each reviewer file; it is superseded, not a blind study. Published consensus alone cannot become two source-recorded votes.
+6. **Runtime limits:** Real mini evaluation on archive synthetic complete citation: 24 tokenizer input tokens / 49.374 ms GitHub CPU inference (3.242 s with load). No RTX 3090, licensed local distribution, power-loss transactional N2, or monetary billing qualification; no external private research bytes sent. NLI softmax is not calibrated truth; 3-way NLI output does not automatically map to 5-way academic support.
+
+## Decision, scoped to tested applications
+
+- **Do not adopt** Qwen3 tested prompted-choice recipes as automated research screeners.
+- **Do not adopt** compound or four-way MiniLM/DeBERTa entailment `>=0.5` as binary screening/exclusion gate, an EvidenceLink confidence field or a publication decision. It added zero candidates and does not reflect calibrated academic eligibility.
+- **Retain the portable typed/local-evaluator interface as an optional experiment**, version model/question/policy/exact snapshot and record outcomes with separate provenance. Model outputs are proposals/observations, not acceptances; fail closed on incomplete mechanical citation. Keep no-model workflow.
+- **Do not embed** experimental JSONL journal, archived in-memory N1/N7 agents, or reviewer audit test harness into production Theia/V5 as an independent canonical authority.
+- **Do not close** overall R4 scholarly qualification or R5 final ADR while researcher votes, real V5 Core/N7 selected architecture and complete writer/restart/cross-client evidence are absent. A negative final architectural disposition can be chosen later without a positive model benchmark, but only after user-owned V5 authority and actual deployment constraints are reconciled.
+
+## Minimal dependency queue for V5 owner (not a new shadow subsystem)
+
+| Edge | Owner | Evidence required |
+|---|---|---|
+| independent two-reader reference corpus -> honest academic error and disagreements | academic research protocol/reviewers | rights-approved label-free text; two genuinely independent blind decisions and adjudication, all source/annotation hashes; unchanged untouched holdout |
+| Core-owned canonical N1/N2 -> model-visible exact basis | V5 Core owner | one selected store, CAS+SQL rollback/restart, original exact revs, context receipt, bounded projection and denial on incomplete context |
+| N7 grant/approval -> bounded evaluate → proposed Assessment → researcher decision | N7 and V5 Core owners | authenticated, revoked/stale/malicious/duplicate negative cases, exact model/policy/question/permission lineage, no agent-controlled acceptance |
+| durable receipt → CLI/Studio same read | Core API/N5 owner | two deployed clients agree after restart and reference correction; old snapshot unchanged; no-model path |
+| target hardware/model-license/cost/capsule gate → product decision | release/engineering | source/weights rights, exact token counts, actual CPU/GPU memory and latency RTX 3090 + CPU fallback, verified incurred costs and deployment/offline behavior |
+
+**R5 global status: retained experimental architecture, specific screened model configurations rejected for autonomous screening; final V5 ADR still open.** Historical documentation not rewritten to show a spurious pass.
