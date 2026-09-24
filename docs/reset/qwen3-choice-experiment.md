@@ -44,3 +44,18 @@ Hugging Face plugin was invoked to authenticate/inspect the official model and t
 **R5 disposition on this specific configuration:** fail to demonstrate useful semantic routing. **Retain the vendor-neutral port, not this Qwen prompt/grammar recipe as a production model.** The rules baseline was sufficient on most synthetic labels, and the Qwen arm added latency without selectively excluding or shortlisting any tested title/abstract. Nothing here falsifies the general replaceable Jev-like architecture or a different model, prompt, or task; the 36 authored cases are not an independently reviewed research corpus.
 
 **Investigate next as a separate exploratory diagnostic:** compare an unrestricted/no-thinking Qwen response and a shorter forced-choice prompt on a few *already observed* public cases to determine whether the all-REVIEW collapse is a constrained-decoding/prompt artifact. Such post-hoc probes are for root cause, never merged into the preregistered score or called held-out qualification.
+
+## Exploratory label-collapse follow-up — exact run 35946254018
+
+**Completed [GitHub Actions run 35946254018](https://github.com/mberrys/ivory/actions/runs/35946254018)** at `83403431bccdbd926966305b0dee808018f05770`. Its local `llama.cpp` model came from **the identical pinned Qwen GGUF SHA** as the original run, and the six public synthetic cases were **already observed** in the preregistered 36-case fixture. Artifact `ivory-qwen3-label-collapse-probe` ID `10786921635`. Experiment code: [qwen3-collapse-probe.py](../../experiments/jev-seam/qwen3-collapse-probe.py).
+
+**Three exploratory arms, six pre-observed cases each:**
+- Zero-shot unconstrained: 6/6 raw outputs were `<think>\n\n</think>\n\nCANDIDATE`. **Zero strict schema-valid outputs** as raw strings; permissively stripping the thinking wrapper would still give a constant CANDIDATE, not a meaningful classifier.
+- Few-shot **same restricted grammar**: 6/6 strictly legal outputs were `REVIEW`; only 1/6 matched the authored REVIEW label. No rescue by two-class examples or option grammar.
+- Few-shot unconstrained: 6/6 raw outputs were again the same thinking wrapper and `CANDIDATE`; zero exact-label strings.
+
+**Interpretation bounded to this setup:** The failure is not explained only by the original instructions lacking few-shot examples. Forced-label decoding yields an all-REVIEW collapse; unforced decoding with `/no_think` still emits an internal wrapper then collapses to all-CANDIDATE. There is no stable, semantically selective choice signal established on the observed cases. The model/provider adapter must not simply strip or hallucinate valid answers on malformed output and promote them to canonical research decisions.
+
+**Crucial separation:** These six cases were selected from cases already seen; this is a root-cause probe, not a second independent score, not a held-out model calibration study and not an improved preregistered result. The original **10/30 Qwen vs 34/36 simple rules** observation remains unchanged and the candidate remains **research-only / not selected** for this Choice task.
+
+**Next bounded task if continuing:** investigate a stronger small instruct model (e.g., Qwen3-1.7B locally, same typed output contract) on fresh, reviewer-reviewed cases; benchmark against rules and the no-model route. An alternate candidate should earn adoption on correct exclusions, recall, abstention, downstream review burden and disclosure constraints—not on valid JSON alone.
