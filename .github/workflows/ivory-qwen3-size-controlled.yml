@@ -1,0 +1,56 @@
+name: Ivory Qwen3 size-controlled Choice experiment (synthetic)
+on:
+  push:
+    branches:
+      - experiment/jev-r2-r3-semantic-seam
+    paths:
+      - experiments/jev-seam/qwen3-size-controlled.py
+      - .github/workflows/ivory-qwen3-size-controlled.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  same-fixture-choice:
+    name: Qwen3 ${{ matrix.arm }} / identical NEW screening fixture
+    runs-on: ubuntu-22.04
+    timeout-minutes: 58
+    strategy:
+      fail-fast: false
+      matrix:
+        arm: ['1.7B', '0.6B']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install local llama.cpp CPU and Hugging Face model client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build libopenblas-dev
+          python -m pip install --upgrade pip
+          CMAKE_ARGS="-DGGML_NATIVE=OFF -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS" \
+            CMAKE_BUILD_PARALLEL_LEVEL=2 \
+            python -m pip install --no-cache-dir 'llama-cpp-python==0.3.16'
+          python -m pip install --no-cache-dir 'huggingface_hub>=0.30,<1'
+      - name: Inference and persist full outcome including misclassifications
+        env:
+          HF_HUB_DISABLE_TELEMETRY: '1'
+          GGML_LOG_LEVEL: '2'
+        run: |
+          set -o pipefail
+          python experiments/jev-seam/qwen3-size-controlled.py --arm ${{ matrix.arm }} | tee qwen3-size-raw.log
+          sed -n 's/^IVORY_NEXT_CHOICE_RESULT=//p' qwen3-size-raw.log > qwen3-size-result.json
+          python -m json.tool qwen3-size-result.json > /dev/null
+          python -c "import json; r=json.load(open('qwen3-size-result.json')); assert r['cases_total']==42 and r['model_dispatches']==36 and r['fixture_hard_abstentions']==6; assert all(not x['model_called'] and x['choice']=='ABSTAIN' for x in r['rows'] if x['gate']!='complete'); print('fixture, provenance and bounded guard assertions passed')"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ivory-qwen3-next-${{ matrix.arm }}-evidence
+          path: |
+            qwen3-size-result.json
+            qwen3-size-raw.log
+          if-no-files-found: warn
