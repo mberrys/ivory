@@ -74,7 +74,10 @@ def main():
   with (dest/"instructions.md").open("w",encoding="utf8") as fp:
     fp.write("# R4 independent human review packet — not yet annotated\n\n"
      "Independent researcher A and B must each use ONLY their own file; do not share answers.\n"
-     "Look up the exact record_id in the cited public source if usage rights permit.\n"
+     "Do NOT give the upstream audit CSV or its URL to either reviewer: it contains\n"
+     "historical decisions. A rights-authorized curator must separately present the\n"
+     "title/abstract text WITHOUT historical labels, model scores or other votes.\n"
+     "This frozen worklist does not yet contain the source text for screening.\n"
      "Task: historical review's title/abstract eligibility for an original intervention "
      "nudging healthcare professionals toward evidence-based practice; mark "
      "screen_decision include/exclude/uncertain; state reason and context_adequate.\n"
