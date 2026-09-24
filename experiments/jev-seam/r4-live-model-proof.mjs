@@ -81,7 +81,7 @@ try{
   assert.equal(model.calls(),1);
   assert.notEqual(observed.body.observation.outcome,'invalid');
   assert.notEqual(observed.body.observation.outcome,'unavailable');
-  assert.equal(observed.body.observation.outcome,'answered'||'abstained');
+  assert.ok(['answered','abstained'].includes(observed.body.observation.outcome));
   assert.equal(observed.body.evaluator.mode,'live');
   assert.equal(observed.body.evaluator.evidenceClass,'local-live-model');
   assert.equal(observed.body.evaluator.version,SHA);
