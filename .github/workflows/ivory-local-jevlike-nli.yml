@@ -1,0 +1,45 @@
+name: Ivory local Jev-like NLI diagnostic (experimental)
+
+on:
+  push:
+    branches:
+      - experiment/jev-r2-r3-semantic-seam
+    paths:
+      - experiments/jev-seam/local-nli-diagnostic.py
+      - .github/workflows/ivory-local-jevlike-nli.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mini-nli:
+    name: Local MiniLM NLI, public synthetic inputs only
+    runs-on: ubuntu-22.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install local CPU inference dependencies
+        run: |
+          python -m pip install --disable-pip-version-check torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check 'transformers>=4.45,<5' 'huggingface_hub>=0.24,<2' sentencepiece
+      - name: Run one small local NLI model against authored public examples
+        env:
+          HF_HUB_DISABLE_TELEMETRY: '1'
+          HF_HUB_DISABLE_XET: '1'
+          TRANSFORMERS_OFFLINE: '0'
+          TOKENIZERS_PARALLELISM: 'false'
+        run: |
+          python experiments/jev-seam/local-nli-diagnostic.py | tee local-nli-evidence.json
+          python -m json.tool local-nli-evidence.json >/dev/null
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ivory-local-nli-diagnostic
+          path: local-nli-evidence.json
+          if-no-files-found: warn
