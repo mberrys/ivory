@@ -145,7 +145,7 @@ test('J3: partial/inaccessible research abstains before dispatch', async () => {
 test('J3: disallow remote evaluator for local-only rights, including approved body', async () => {
   const c = compileSemanticBasis(fixture({ localOnly: true }));
   let calls = 0;
-  const remote = { ...supported, remote: true, mode: 'live',
+  const remote = { ...supported, remote: true, mode: 'live', transport: 'injected-test-only',
     evaluate: () => { calls++; throw Error('must not transmit'); } };
   const out = await evaluateSemantic(c, request(c), remote, { approvedBodyDigest: digest(c.state) });
   assert.equal(out.outcome, 'abstained');
@@ -155,7 +155,7 @@ test('J3: disallow remote evaluator for local-only rights, including approved bo
 test('J3: external rights still require approval of exact transmitted projection', async () => {
   const c = compileSemanticBasis(fixture());
   const wire = [];
-  const remote = { ...supported, remote: true, mode: 'live', id: 'injected-provider-fixture',
+  const remote = { ...supported, remote: true, mode: 'live', transport: 'injected-test-only', id: 'injected-provider-fixture',
     evaluate: (state, q) => { wire.push(structuredClone(state)); return supported.evaluate(state, q); } };
   const denied = await evaluateSemantic(c, request(c), remote, { approvedBodyDigest: digest('different') });
   assert.equal(denied.outcome, 'abstained');
@@ -225,4 +225,16 @@ test('J9: request cannot add acceptance or publication labels', () => {
     questionSet: { id: 'claim-support', version: 'v1', options: ['accept', 'publish', 'abstain'] },
   };
   assert.throws(() => semanticRequest(c, q), /legal semantic options/);
+});
+
+test('J3 hard stop: genuine remote adapter is never invoked without exact SDK wire approval', async () => {
+  const c = compileSemanticBasis(fixture());
+  let called = 0;
+  const actualRemote = { ...supported, remote: true, mode: 'live',
+    evaluate: () => { called++; throw Error('remote egress attempted'); } };
+  const result = await evaluateSemantic(c, request(c), actualRemote,
+    { approvedBodyDigest: digest(c.state) });
+  assert.equal(result.outcome, 'abstained');
+  assert.ok(result.limits.includes('real-provider-wire-approval-not-implemented'));
+  assert.equal(called, 0);
 });
