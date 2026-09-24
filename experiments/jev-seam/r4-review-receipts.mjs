@@ -139,6 +139,12 @@ export class ExperimentalReviewJournal {
     this.#append({kind:'revoke',id});
   }
   #eligible(compiled, request, grantId) {
+    if (!request || typeof request !== 'object' || Array.isArray(request) ||
+        Object.keys(request).length !== 7) fail('invalid_evaluation_request');
+    const {requestDigest,...requestBody}=request;
+    if (requestDigest !== digest(requestBody) || request.purpose !== 'citation-support' ||
+        JSON.stringify(request.questionSet?.options) !== JSON.stringify(semanticLabels))
+      fail('forged_or_invalid_request');
     const grant=this.#grants.get(requireText(grantId,'grant_id'));
     if (!grant || grant.revoked) fail('capability_revoked_or_missing');
     if (!compiled || compiled.mechanical !== 'exact' ||
