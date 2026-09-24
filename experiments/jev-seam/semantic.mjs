@@ -200,6 +200,14 @@ export async function evaluateSemantic(compiled, request, adapter, permission = 
     throw new TypeError('request digest mismatch or unexpected fields');
   }
   const limits = ['experimental-only', 'not-calibrated'];
+  // The TypeSafe SDK can serialize additional question/policy fields beyond this
+  // projection. Until its ACTUAL HTTP body is captured and approved, fail closed
+  // for every genuine remote adapter. Only deliberately injected transport doubles
+  // are callable in this isolated synthetic harness; they are never live evidence.
+  if (adapter.remote && adapter.transport !== 'injected-test-only') {
+    return freeze(resultBase(request, adapter, 'abstained',
+      [...limits, 'real-provider-wire-approval-not-implemented']));
+  }
   if (!compiled.state.completeness.complete) {
     return freeze(resultBase(request, adapter, 'abstained', [...limits, 'incomplete-basis']));
   }
