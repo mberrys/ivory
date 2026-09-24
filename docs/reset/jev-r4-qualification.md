@@ -31,3 +31,37 @@ Do NOT score an unverified provider or synthetic hard-gate as a genuine human su
 ## Verified boundary-regression evidence, same R4 code head
 
 At [workflow 35949037916](https://github.com/mberrys/ivory/actions/runs/35949037916), revision `60e9378887e4c398a1a8bedda2e3dd3883b765ff`, **archive-and-boundaries** job `107473357048` succeeded **28/28** isolated tests (N1 exact reference + synthetic J3/J9 permission and fail-closed behaviors). **Archived N1 golden trace** job `107473357319` succeeded **1/1**, but observed receipt context is **unavailable** despite quote/selector/representation digest matching, therefore evaluator refused dispatch as required. This is not a pass for complete-basis real-model qualification. The clean upstream Theia build job is an environmental V5 reset regression, not an evaluator quality measurement; report its completion separately.
+
+## R4 first empirical arm — MiniLM actual local result
+
+[GitHub R4 run 35949038033](https://github.com/mberrys/ivory/actions/runs/35949038033) MiniLM job `107473357565`: **SUCCESS**. Artifact `ivory-r4-minilm-empirical-evidence`, ID `10788335940`. Model pinned `cross-encoder/nli-MiniLM2-L6-H768@b95119ce93d3e065de6214e38cd4a97b0f2f2c6d`. Source CSV SHA256 matched the earlier `abfbdb973aa125f26ce872a5193c931d0690f7fe2e1fb75551de9c0acecd200f`; prior cohort identity `7cdc3e30527041b6751947f3deb9fe5dc9d23a86a6568a7d096410db5dd741a7`, new nonoverlapping cohort `b6ac2fd480dcf4aec78699325ad61d9c7b78aa84504bf18fde9440ce6a8d7e47`. All 960 title/abstract–hypothesis pairs and 18 synthetic three-way NLI probes ran on CPU. Model loading 3.337 s, cohort inference 215.161 s, full script 219.423 s on GitHub runner; 960 pairs at <=384 tokens each (actual tokenizer total not logged). No private corpus egress.
+
+**NEW unseen public 96-record cohort, primary historical title/abstract label (24 positive):**
+| Fixed rank | Top 24 | Top 48 | Top 72 | AP |
+|---|---:|---:|---:|---:|
+| Original lexical rules | 12 | 18 | 22 | .494682 |
+| Original compound NLI | 5 | 11 | 17 | .236812 |
+| Decomposed NLI mean | 6 | 11 | 18 | .246895 |
+| Decomposed NLI minimum | 4 | 14 | 19 | .268930 |
+| Lexical + original compound | 12 | 18 | 23 | .511318 |
+| Lexical + decomposed mean | 12 | **20** | 22 | .526621 |
+| Lexical + decomposed minimum | 12 | 19 | 23 | .516122 |
+
+**PREVIOUSLY SEEN cohort, primary historical title/abstract label (24 positive):**
+| Fixed rank | Top 24 | Top 48 | Top 72 | AP |
+|---|---:|---:|---:|---:|
+| Original lexical rules | 9 | 15 | 23 | .331841 |
+| Original compound NLI | 8 | 15 | 18 | .316534 |
+| Decomposed NLI mean | 8 | 11 | 16 | .266087 |
+| Decomposed NLI minimum | 11 | 15 | 20 | .441243 |
+| Lexical + original compound | 7 | 17 | 23 | .375446 |
+| Lexical + decomposed mean | 7 | **17** | 23 | .350536 |
+| Lexical + decomposed minimum | 8 | **17** | **24** | .444943 |
+
+**Secondary full-text final-inclusion counterexample:** on the unseen cohort 10 records were ultimately included. At top 48 original rules found **8**, lexical+decomposed mean **7**, lexical+decomposed min **6**, compound alone **5**. The lexical+mean gain at 48 comes from replacing eight documents sharing lexical rule score=2: three screen-positive records gained, one screen-positive final-included record (ID 1210) lost, yielding +2 abstract-screen positives but -1 final inclusion. This explicitly refutes claiming monotonic workload improvement. On seen cohort 7 ultimately included: rules top48 **7**, lexical+decomposed mean **5**.
+
+**Candidate route no gain:** On new cohort `all four entailment>=0.5` = 0/96; combined OR rules candidate = unchanged 23 records (12 historical screen-positive, 11 negative); prior cohort likewise 0/96 new model candidates and unchanged 33 rule candidates (11 positive). Not qualified as a binary screening or exclusion gate.
+
+**Synthetic semantic support by class:** **14/18** authored synthetic NLI predictions: entailment 5/6, contradiction 6/6, neutral 3/6. The entailment error S02 was the total-count statement 42 adults + 8 children ⇒ 50 people misclassified as contradiction. Three neutrals S13/S14/S18 were called contradiction. Synthetic-only 5-bin top-class ECE .131043; this **does not constitute calibrated scholarly evidence or a basis for confidence in EvidenceLinks**. The historical binary screening labels cannot be used as ground truth for NLI semantic-support probabilities.
+
+**Arm disposition:** true local inference and bounded task demonstration, **not a candidate-route success**; the ranking gain is mixed and at the cost of previously included studies at fixed review budget. DeBERTa same-basis comparator must be read before final R4 report.
