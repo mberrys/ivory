@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - integration/ivory-v5-reset-archive
+      - experiment/jev-r2-r3-semantic-seam
   workflow_dispatch:
 permissions:
   contents: read
