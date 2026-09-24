@@ -27,7 +27,9 @@ function compileFromArchive(f, snapshot, exactClaim, exactLink) {
   const fragmentRevision = kernel.getRevision(f.fragment);
   const cited = kernel.resolveCitation(f.fragment, snapshot.snapshotId);
   const receipt = kernel.verifyCitation(f.fragment);
-  assert.equal(receipt.status, 'EXACT');
+  assert.equal(receipt.checks.representationDigest, true);
+  assert.equal(receipt.checks.selectorBytes, true);
+  assert.notEqual(receipt.status, 'MISMATCH');
   assert.equal(receipt.semanticSupport, 'not-assessed');
   assert.equal(cited.quote, fragmentRevision.payload.selector.quote);
   // Verify every historical record's ORIGINAL N1 digest and membership before projection.
@@ -65,7 +67,9 @@ function compileFromArchive(f, snapshot, exactClaim, exactLink) {
       manifestDigest: digest(members), members,
     },
     sources: [source], fragments: [fragment], statement, link,
-    completeness: { complete: true, omissions: [] },
+    completeness: receipt.status === 'EXACT'
+      ? { complete: true, omissions: [] }
+      : { complete: false, omissions: ['archived-n1-mechanical-context-' + receipt.checks.context] },
   });
 }
 function question(compiled) {
@@ -101,6 +105,9 @@ test('R2 real archived N1: exact S1/S2 citations, author disagreement, revision 
   const after = await evaluateSemantic(second, question(second), rules);
   assert.equal(before.outcome, 'abstained');
   assert.equal(after.outcome, 'abstained');
+  assert.ok(before.limits.includes('incomplete-basis'));
+  assert.ok(after.limits.includes('incomplete-basis'));
+  assert.equal(first.state.completeness.omissions[0], 'archived-n1-mechanical-context-unavailable');
   assert.notEqual(before.requestDigest, after.requestDigest);
   assert.equal(f.kernel.resolveCitation(f.fragment, f.snapshot1.snapshotId).quote, first.state.fragments[0].quote);
   const readers = createResearchClients(f.kernel);
