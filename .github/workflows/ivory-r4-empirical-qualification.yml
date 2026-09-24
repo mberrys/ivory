@@ -1,0 +1,51 @@
+name: Ivory R4 empirical qualification (research only)
+on:
+  push:
+    branches:
+      - experiment/jev-r2-r3-semantic-seam
+    paths:
+      - experiments/jev-seam/r4-criterion-decomposition.py
+      - .github/workflows/ivory-r4-empirical-qualification.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-screening-and-synthetic-class:
+    name: R4 / ${{ matrix.model }} / fixed historical and new cohorts
+    runs-on: ubuntu-22.04
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      matrix:
+        model: [minilm, deberta]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: CPU-only dependencies
+        run: |
+          python -m pip install --disable-pip-version-check 'torch' --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install --disable-pip-version-check 'transformers>=4.45,<5' 'huggingface_hub>=0.30,<1' sentencepiece protobuf
+      - name: Execute R4 five-query comparison and 18 synthetic semantic class cases
+        env:
+          HF_HUB_DISABLE_TELEMETRY: '1'
+          TOKENIZERS_PARALLELISM: 'false'
+        run: |
+          set -o pipefail
+          python experiments/jev-seam/r4-criterion-decomposition.py --model ${{ matrix.model }} | tee r4-raw.log
+          sed -n 's/^IVORY_R4_QUALIFICATION=//p' r4-raw.log > r4-observation.json
+          python -m json.tool r4-observation.json > /dev/null
+          python -c "import json; x=json.load(open('r4-observation.json')); assert x['perf']['total_cohort_pairs']==960; assert all(len(y)==96 for y in x['per_case_records_no_full_text'].values()); assert len(x['synthetic_nli']['rows'])==18; assert not set(x['per_case_records_no_full_text']['new_unseen'][0]).intersection({'title','abstract'}); assert set(x['model']['labelmap'].values())=={'entailment','neutral','contradiction'}; print('artifact and predeclared cohort contract verified')"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ivory-r4-${{ matrix.model }}-empirical-evidence
+          path: |
+            r4-observation.json
+            r4-raw.log
+          if-no-files-found: warn
