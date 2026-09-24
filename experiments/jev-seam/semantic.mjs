@@ -54,6 +54,8 @@ function membership(snapshot, record, projectId) {
   obj(record, 'research record');
   if (!KINDS.has(record.kind)) throw new TypeError('unsupported research record kind');
   const ref = exactRef(record.ref, projectId);
+  const { revisionDigest, ...revisionPreimage } = record;
+  if (revisionDigest !== digest(revisionPreimage)) throw new TypeError('research revision digest mismatch');
   const matches = snapshot.members.filter(item => eq(exactRef(item.ref, projectId), ref));
   if (matches.length !== 1 || matches[0].revisionDigest !== record.revisionDigest) {
     throw new TypeError('record absent from exact snapshot or revision digest mismatch');
@@ -111,6 +113,7 @@ export function compileSemanticBasis(input) {
     return digest(exactRef(m.ref, projectId));
   });
   if (new Set(memberKeys).size !== memberKeys.length) throw new TypeError('duplicate snapshot members');
+  if (snapshot.manifestDigest !== digest(snapshot.members)) throw new TypeError('snapshot manifest digest mismatch');
   if (!Array.isArray(input.sources) || input.sources.length === 0 || input.sources.length > 16) {
     throw new TypeError('bounded source set required');
   }
