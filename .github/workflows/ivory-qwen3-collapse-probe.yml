@@ -1,0 +1,53 @@
+name: Ivory Qwen3 collapse diagnostic (exploratory)
+
+on:
+  push:
+    branches:
+      - experiment/jev-r2-r3-semantic-seam
+    paths:
+      - experiments/jev-seam/qwen3-collapse-probe.py
+      - .github/workflows/ivory-qwen3-collapse-probe.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qwen3-prompt-diagnostic:
+    name: Explore label collapse / pinned official Q8_0 / synthetic-only
+    runs-on: ubuntu-22.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU inference dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build libopenblas-dev
+          python -m pip install --upgrade pip
+          CMAKE_ARGS="-DGGML_NATIVE=OFF -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS" \
+            CMAKE_BUILD_PARALLEL_LEVEL=2 \
+            python -m pip install --no-cache-dir 'llama-cpp-python==0.3.16'
+          python -m pip install --no-cache-dir 'huggingface_hub>=0.30,<1'
+      - name: Run three decoding/prompt variants on previously observed synthetic cases
+        env:
+          HF_HUB_DISABLE_TELEMETRY: '1'
+          GGML_LOG_LEVEL: '2'
+        run: |
+          set -o pipefail
+          python experiments/jev-seam/qwen3-collapse-probe.py | tee qwen3-probe.log
+          sed -n 's/^IVORY_QWEN3_PROBE=//p' qwen3-probe.log > qwen3-probe.json
+          python -m json.tool qwen3-probe.json > /dev/null
+          python -c "import json; r=json.load(open('qwen3-probe.json')); assert len(r['rows'])==18 and len(r['per_arm'])==3; print('probe complete; semantic results not asserted')"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ivory-qwen3-label-collapse-probe
+          path: |
+            qwen3-probe.json
+            qwen3-probe.log
+          if-no-files-found: warn
