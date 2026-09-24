@@ -27,3 +27,7 @@ The original historical-N1 source/quote-selector bytes match while receipt conte
 Do NOT score an unverified provider or synthetic hard-gate as a genuine human success. Keep all wrong cases, no silent relabeling, avoid a post-hoc winner claim. A proposed paper is researcher review priority, not an accepted EvidenceLink. Absence of V5 Core/N7 durable Assessment/permission/restart experiments remains explicitly BLOCKED after any CI success. If this same-review public dataset does not yield a generalizable model improvement over no-model rules, R4 should retain the negative outcome without another model-size escalation.
 
 **Actual observed results and final R4 gate ledger will be appended, never overwrite this preregistration.**
+
+## Verified boundary-regression evidence, same R4 code head
+
+At [workflow 35949037916](https://github.com/mberrys/ivory/actions/runs/35949037916), revision `60e9378887e4c398a1a8bedda2e3dd3883b765ff`, **archive-and-boundaries** job `107473357048` succeeded **28/28** isolated tests (N1 exact reference + synthetic J3/J9 permission and fail-closed behaviors). **Archived N1 golden trace** job `107473357319` succeeded **1/1**, but observed receipt context is **unavailable** despite quote/selector/representation digest matching, therefore evaluator refused dispatch as required. This is not a pass for complete-basis real-model qualification. The clean upstream Theia build job is an environmental V5 reset regression, not an evaluator quality measurement; report its completion separately.
