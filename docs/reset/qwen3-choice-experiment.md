@@ -28,3 +28,19 @@ Hugging Face plugin was invoked to authenticate/inspect the official model and t
 - A proper R4 study needs two human reviewers, representative held-out real *rights-approved* papers, actual Core-authenticated mechanical context, a freeze before model tuning, provenance-consistent N7 authorization, cost/latency on target desktop, and an honest no-model baseline.
 
 **Outcome at protocol creation:** pending named GitHub job. Update this *append-only* with the exact completed run and observed failures; do not overwrite the preregistration.
+
+## Actual preregistered result — exact run 35945776462
+
+**Run:** [Ivory local Qwen3 bounded routing, 35945776462](https://github.com/mberrys/ivory/actions/runs/35945776462). Named job `Qwen3 0.6B official Q8_0 / CPU / public synthetic screening` **succeeded** at commit `72611fcccd4d42de92bd331bb4a10b50714a2a1d`; dependencies, actual local Hugging Face model inference, JSON validation and artifact upload all succeeded. Artifact `ivory-qwen3-local-choice-evidence` ID `10786981071`, containing all 36 per-case records and raw output.
+
+- Official model repo revision `Qwen/Qwen3-0.6B-GGUF@23749fefcc72300e3a2ad315e1317431b06b590a`; `Qwen3-0.6B-Q8_0.gguf` SHA256 `9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031`. It is **Q8_0**, not Q4_K_M.
+- Authored synthetic fixture SHA256 `e09c24c113ea15bb40d9e04ba0fab4953b9e0d0442a8508eca38748c7531701a`.
+- 36 cases: 30 actual model dispatch, six synthetic hard gate abstentions. **Every one** of 30 model decisions was `REVIEW`: 0/8 authored CANDIDATE, 0/12 authored EXCLUDE, 10/10 authored REVIEW matched. 6/6 synthetic guard cases abstained **before calling Qwen**, as designed. Model matches authored labels: **10/30** dispatched, **16/36** including gates. Simple literal rules arm **34/36**, same synthetic cases. Do not call either result independent accuracy.
+- Constrained grammar allowed 0 unknown output strings, but was **not evidence that Qwen understood the task**. Both hostile-instruction cases resulted in REVIEW, not correct EXCLUDE; no tool/acceptance capability existed.
+- Median CPU call latency ~**4,437 ms**, p95 ~**5,003 ms**, total ~**135 s including model load/download**. Environment: GitHub-hosted Linux CPU, not user's RTX 3090/workstation.
+- The original Q4_K_M attempt [run 35945651800](https://github.com/mberrys/ivory/actions/runs/35945651800) failed **before inference** because the official Qwen Hub repository listed five files and zero Q4_K_M matches. Keep this failure as provenance; do not conflate it with a Qwen model result.
+- Hugging Face Jobs itself rejected the earlier CPU submission with HTTP 402 before inference. The successful run fetched official HF model bytes but executed on GitHub Actions, not Hugging Face Jobs.
+
+**R5 disposition on this specific configuration:** fail to demonstrate useful semantic routing. **Retain the vendor-neutral port, not this Qwen prompt/grammar recipe as a production model.** The rules baseline was sufficient on most synthetic labels, and the Qwen arm added latency without selectively excluding or shortlisting any tested title/abstract. Nothing here falsifies the general replaceable Jev-like architecture or a different model, prompt, or task; the 36 authored cases are not an independently reviewed research corpus.
+
+**Investigate next as a separate exploratory diagnostic:** compare an unrestricted/no-thinking Qwen response and a shorter forced-choice prompt on a few *already observed* public cases to determine whether the all-REVIEW collapse is a constrained-decoding/prompt artifact. Such post-hoc probes are for root cause, never merged into the preregistered score or called held-out qualification.
