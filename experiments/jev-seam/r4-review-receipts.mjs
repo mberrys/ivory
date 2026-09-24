@@ -160,7 +160,7 @@ export class ExperimentalReviewJournal {
     if (!['rules','simulation','live'].includes(adapter.mode)) fail('illegal_adapter_mode');
     requireText(adapter.id,'adapter_id');requireText(adapter.version,'adapter_version');
     const callId=digest({grantId,requestDigest:request.requestDigest,
-      adapter:{id:adapter.id,version:adapter.version,mode}});
+      adapter:{id:adapter.id,version:adapter.version,mode:adapter.mode}});
     // Idempotency before inference across restart; no repeated paid evaluation.
     const already=[...this.#assessments.values()].find(x=>x.body.callId===callId);
     if (already) return publicReceipt(already);
@@ -174,7 +174,7 @@ export class ExperimentalReviewJournal {
         snapshot:copy(compiled.state.snapshot),claimRef:copy(compiled.state.statement.ref),
         fragmentRefs:copy(compiled.state.fragments.map(x=>x.ref)),
         questionSet:copy(request.questionSet),policy:copy(request.policy),
-        evaluator:{id:adapter.id,version:adapter.version,mode, evidenceClass:mode},
+        evaluator:{id:adapter.id,version:adapter.version,mode:adapter.mode, evidenceClass:mode},
         observation:copy(observation),
         limits:['experimental-review-only','not-canonical-acceptance',
           'not-production-n7-authentication','not-durable-v5-core']};
