@@ -45,3 +45,17 @@ A model's softmax or constrained-token logprobs are **not** the likelihood that 
 - **V5 product integration:** remains blocked on selected durable Core, typed Assessment/adjudication owner, real N7 composition, restart/capsule proof and Theia/CLI parity; do not promote the diagnostic or change V5 ADR based on 12 synthetic cases.
 
 **Decision:** local small-NLI **candidate retained for further experiment**; neither Jev nor any local substitute is selected for production. The research epic remains open.
+
+## Observed result — exact named GitHub execution
+
+**Run:** [35942354731](https://github.com/mberrys/ivory/actions/runs/35942354731), `Local MiniLM NLI, public synthetic inputs only`, completed **success** at experiment commit `8f6e245233e4b00e5faf8277910bd7ef652563a1`. All named steps succeeded: CPU dependencies, actual inference, JSON parse and evidence artifact upload. GitHub artifact `ivory-local-nli-diagnostic` (ID `10785751379`) contains `local-nli-evidence.json`.
+
+- Exact model: `cross-encoder/nli-MiniLM2-L6-H768@b95119ce93d3e065de6214e38cd4a97b0f2f2c6d`.
+- Exact test inputs: 12 authored PUBLIC synthetic text-pairs; fixture SHA-256 `938f4685d6ec3a0caa7245244626c3f421cbad48bc84d0239188da413476e173`. They are **not** independently reviewed scholarly labels.
+- Observed predictions matching the *authored synthetic* labels: **12/12**. Diagnostic inference timing ~29–50 ms per pair; total model load plus evaluation **6.04 s**. Environment: Ubuntu/Linux runner, Python 3.11.16, `torch 2.14.0+cpu`. Timing depends on runner/hardware and is not an Ivory application benchmark.
+- Notable near-ambiguous synthetic case `P07`: premise “The study sampled 12 adults at one clinic without a control group” against hypothesis “The study demonstrated causality across all clinics.” Predicted `neutral` with **0.59143871** softmax, while `contradiction` had **0.40444168**. This illustrates sensitivity to scope/causal language and why a high maximum label probability is not proof of research support.
+- No Jev/TypeSafe inference or private corpus transmission. The model executed locally on the GitHub runner; the **public synthetic** fixture and its model request necessarily exist in the GitHub execution environment. The earlier archived-N1 basis remained **undispatched** due to the mechanical-context gate.
+
+**Qualified finding:** local small-model typed NLI execution is feasible and has a useful first diagnostic. **NOT qualified:** production adoption, full Ivory support/partial/unsupported/contradicted mapping, independent held-out accuracy, calibration, offline desktop performance, N7 dispatch/governance, durability, semantic adoption or AutoResearch integration.
+
+**Next experiments remain:** same-basis DeBERTa/rules comparison, harder researcher-reviewed scope/negation/quantifier cases, and a separate Qwen/llama.cpp typed routing experiment if the flexible-Choice part of Jev-like behavior is needed.
