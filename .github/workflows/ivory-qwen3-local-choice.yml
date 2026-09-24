@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   qwen3-local-routing:
-    name: Qwen3 0.6B Q4_K_M / CPU / public synthetic screening
+    name: Qwen3 0.6B official Q8_0 / CPU / public synthetic screening
     runs-on: ubuntu-22.04
     timeout-minutes: 55
     steps:
