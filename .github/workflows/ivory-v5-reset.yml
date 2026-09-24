@@ -65,3 +65,33 @@ jobs:
           npm run build
           sha256sum package-lock.json
           git rev-parse HEAD
+
+  archived-n1-bridge:
+    name: Archived N1 golden trace to isolated Jev seam
+    runs-on: ubuntu-22.04
+    timeout-minutes: 40
+    steps:
+      - name: Checkout experiment only
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Checkout pinned N1 archive
+        uses: actions/checkout@v4
+        with:
+          repository: mberrys/ivory-archive
+          ref: bfcb283c4fe32b64b67a325f8f55aca08314296f
+          path: .audit/archive
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install archival compile dependencies without build hooks
+        working-directory: .audit/archive
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Compile isolated archived identity and N1 reference kernel
+        working-directory: .audit/archive
+        run: |
+          node node_modules/typescript/bin/tsc --project packages/ivory-identity/tsconfig.json
+          node node_modules/typescript/bin/tsc --project packages/ivory-tower-research-kernel/tsconfig.json
+      - name: Run real archived N1-to-Jev-seam composition test
+        run: node --test experiments/jev-seam/*.bridge.mjs
