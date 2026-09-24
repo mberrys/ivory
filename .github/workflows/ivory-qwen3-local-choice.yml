@@ -1,0 +1,54 @@
+name: Ivory local Qwen3 bounded routing (experimental)
+
+on:
+  push:
+    branches:
+      - experiment/jev-r2-r3-semantic-seam
+    paths:
+      - experiments/jev-seam/qwen3-choice-diagnostic.py
+      - .github/workflows/ivory-qwen3-local-choice.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qwen3-local-routing:
+    name: Qwen3 0.6B Q4_K_M / CPU / public synthetic screening
+    runs-on: ubuntu-22.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU-only llama.cpp and Hub client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build libopenblas-dev
+          python -m pip install --upgrade pip
+          CMAKE_ARGS="-DGGML_NATIVE=OFF -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS" \
+            CMAKE_BUILD_PARALLEL_LEVEL=2 \
+            python -m pip install --no-cache-dir 'llama-cpp-python==0.3.16'
+          python -m pip install --no-cache-dir 'huggingface_hub>=0.30,<1'
+      - name: Download pinned official Hugging Face GGUF and execute bounded model diagnostic
+        env:
+          HF_HUB_DISABLE_TELEMETRY: '1'
+          TOKENIZERS_PARALLELISM: 'false'
+          GGML_LOG_LEVEL: '2'
+        run: |
+          set -o pipefail
+          python experiments/jev-seam/qwen3-choice-diagnostic.py | tee qwen3-raw-output.log
+          sed -n 's/^IVORY_QWEN3_RESULT=//p' qwen3-raw-output.log > qwen3-observation.json
+          python -m json.tool qwen3-observation.json > /dev/null
+          python -c "import json; r=json.load(open('qwen3-observation.json')); assert r['total_cases']==36 and r['core_gate_abstentions']==6; assert r['model_dispatched']==30 and r['model_invalid_output_count']==0; print('structural/gate check passed')"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ivory-qwen3-local-choice-evidence
+          path: |
+            qwen3-observation.json
+            qwen3-raw-output.log
+          if-no-files-found: warn
