@@ -1,0 +1,39 @@
+name: Ivory R4 independent-human blinded review worklist (research-only)
+on:
+  push:
+    branches:
+      - experiment/jev-r2-r3-semantic-seam
+    paths:
+      - experiments/jev-seam/r4-blinded-human-worklist.py
+      - .github/workflows/ivory-r4-human-worklist.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prepare:
+    name: Freeze new blind reviewer A/B packets (no human decisions fabricated)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Select untouched real sources, never distribute historical votes
+        run: |
+          set -o pipefail
+          python experiments/jev-seam/r4-blinded-human-worklist.py | tee r4-worklist-raw.log
+          sed -n 's/^IVORY_R4_REVIEW_PACKET=//p' r4-worklist-raw.log > r4-worklist-summary.json
+          python -m json.tool r4-worklist-summary.json >/dev/null
+          python -c "import csv,json; m=json.load(open('r4-worklist-summary.json')); a=list(csv.DictReader(open('r4-human-worklist/reviewer_A.csv'))); b=list(csv.DictReader(open('r4-human-worklist/reviewer_B.csv'))); assert m['holdout_records']==120 and m['previous_model_observed_excluded']==192 and len(a)==len(b)==120; assert all(x['screen_decision']==x['reviewer_id']=='' for x in a+b); assert all(x['record_id']==y['record_id'] for x,y in zip(a,b)); print('blindness/holdout assertions passed')"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ivory-r4-independent-reviewer-packets-not-yet-annotated
+          path: |
+            r4-human-worklist/
+            r4-worklist-summary.json
+            r4-worklist-raw.log
+          if-no-files-found: warn
