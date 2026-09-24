@@ -77,8 +77,8 @@ api=HfApi()
 sha=api.model_info(MODEL).sha
 assert sha and len(sha)==40
 files=api.list_repo_files(MODEL,revision=sha)
-candidates=[f for f in files if f.lower().endswith(".gguf") and "q4_k_m" in f.lower()]
-assert len(candidates)==1, {"q4_k_m_candidates":candidates,"total_files":len(files)}
+candidates=[f for f in files if f.lower().endswith(".gguf") and "q8_0" in f.lower()]
+assert len(candidates)==1, {"q8_0_candidates":candidates,"total_files":len(files)}
 file=candidates[0]
 t0=time.perf_counter()
 model_path=hf_hub_download(repo_id=MODEL,filename=file,revision=sha)
