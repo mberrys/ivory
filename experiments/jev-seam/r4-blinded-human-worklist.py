@@ -65,13 +65,12 @@ def main():
   if len(chosen)!=PACKET_N:raise RuntimeError("too_few_holdout_records")
   dest=Path(os.environ.get("IVORY_R4_REVIEW_PACKET_DIR","r4-human-worklist"))
   dest.mkdir(parents=True,exist_ok=True)
-  columns=["record_id","text_sha256","source_url","screen_decision","reason",
+  columns=["record_id","text_sha256","screen_decision","reason",
            "context_adequate","reviewer_id","reviewer_role","annotated_at"]
   for name in ("A","B"):
     with (dest/("reviewer_"+name+".csv")).open("w",newline="",encoding="utf8") as fp:
       writer=csv.DictWriter(fp,fieldnames=columns);writer.writeheader()
-      writer.writerows([{"record_id":r["id"],"text_sha256":r["textsha"],
-        "source_url":SOURCE} for r in chosen])
+      writer.writerows([{"record_id":r["id"],"text_sha256":r["textsha"]} for r in chosen])
   with (dest/"instructions.md").open("w",encoding="utf8") as fp:
     fp.write("# R4 independent human review packet — not yet annotated\n\n"
      "Independent researcher A and B must each use ONLY their own file; do not share answers.\n"
@@ -93,12 +92,14 @@ def main():
       "source_text_copied":False,"source_labels_exported":False,
       "actual_independent_reviewers":0,"adjudications":0,
       "limitations":[
-        "This is a recruitment/reviewer-ready packet, not a claim of independent review.",
-        "The exact historical review eligibility must be shown to reviewers with legal source access.",
+        "This is a frozen blind reviewer WORKLIST, not yet a content-complete review packet or an independent review.",
+        "A rights-authorized curator must present label-free title/abstract text separately; the upstream source URL exposes historic labels and must NEVER be shown to reviewers.",
         "Two reviewers must genuinely annotate; historical consensus labels or model decisions cannot fill their columns."]}
   (dest/"manifest.json").write_text(json.dumps(output,indent=2,sort_keys=True),encoding="utf8")
   assert all("label_included" not in (dest/("reviewer_"+name+".csv")).read_text()
       and "label_abstract_screening" not in (dest/("reviewer_"+name+".csv")).read_text()
+      and SOURCE not in (dest/("reviewer_"+name+".csv")).read_text()
+      and "source_url" not in (dest/("reviewer_"+name+".csv")).read_text()
       for name in ("A","B"))
   print("IVORY_R4_REVIEW_PACKET="+json.dumps(output,sort_keys=True))
 if __name__=="__main__":main()
