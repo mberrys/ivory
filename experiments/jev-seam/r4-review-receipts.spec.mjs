@@ -197,3 +197,17 @@ test('R4 journal tampering and partial writes fail closed, never silently replay
   writeFileSync(x.path,original.slice(0,-1));
   assert.throws(()=>new ExperimentalReviewJournal(x.path),/truncated_journal_fail_closed/);
 });
+
+test('R4 cached assessment cannot be retrieved with same digest but forged body or option list',async t=>{
+  const x=make(t),a=adapter();
+  await x.journal.assess({compiled:x.compiled,request:x.request,adapter:a,grantId:'g1'});
+  const bad=structuredClone(x.request);
+  bad.policy.id='other-policy';
+  await assert.rejects(()=>x.journal.assess({compiled:x.compiled,request:bad,adapter:a,grantId:'g1'}),
+    /forged_or_invalid_request/);
+  bad.policy.id=x.request.policy.id;
+  bad.questionSet.options=['supported','accept'];
+  await assert.rejects(()=>x.journal.assess({compiled:x.compiled,request:bad,adapter:a,grantId:'g1'}),
+    /forged_or_invalid_request/);
+  assert.equal(a.calls(),1);
+});
