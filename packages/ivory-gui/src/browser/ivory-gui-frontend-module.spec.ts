@@ -9,7 +9,11 @@
 // *****************************************************************************
 
 import { readFileSync } from 'fs';
+import { Container } from '@theia/core/shared/inversify';
+import { FrontendApplicationContribution } from '@theia/core/lib/browser';
+import { bindRootContributionProvider, ContributionProvider } from '@theia/core/lib/common';
 import { expect } from 'chai';
+import ivoryGuiFrontendModule from './ivory-gui-frontend-module';
 
 const moduleSource = readFileSync('src/browser/ivory-gui-frontend-module.ts', 'utf8');
 
@@ -19,5 +23,14 @@ describe('Ivory GUI frontend module build boundary', () => {
         expect(moduleSource).to.contain('../../src/browser/tokens/ivory-semantic-tokens.css');
         expect(moduleSource).to.contain('../../src/browser/tokens/liquidify.generated.css');
         expect(moduleSource).not.to.contain("import './style/ivory-gui.css'");
+    });
+
+    it('does not duplicate the application contribution provider', () => {
+        const container = new Container();
+        bindRootContributionProvider(container, FrontendApplicationContribution);
+        container.load(ivoryGuiFrontendModule);
+
+        const provider = container.getNamed<ContributionProvider<FrontendApplicationContribution>>(ContributionProvider, FrontendApplicationContribution);
+        expect(provider.getContributions).to.be.a('function');
     });
 });
