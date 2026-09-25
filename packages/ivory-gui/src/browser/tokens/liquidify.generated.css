@@ -1,0 +1,18 @@
+/*
+ * Minimal token snapshot from tuliopc23/LiqUIdify.
+ * Revision: bc462c6e0bcc502938013b02c6434ac06c8350a0
+ * Sources: styled-system/styles.css, panda.config.ts
+ * License: MIT
+ *
+ * This file is intentionally not a component-library stylesheet.
+ */
+:root {
+    --liquidify-glass-bg: rgba(255, 255, 255, 0.1);
+    --liquidify-glass-border: rgba(255, 255, 255, 0.2);
+    --liquidify-glass-subtle-bg: rgba(255, 255, 255, 0.06);
+    --liquidify-glass-subtle-border: rgba(255, 255, 255, 0.12);
+    --liquidify-glass-blur: 12px;
+    --liquidify-selection: rgba(0, 115, 255, 0.3);
+    --liquidify-radius: 12px;
+    --liquidify-shadow: 0 12px 32px rgba(46, 38, 28, 0.12);
+}

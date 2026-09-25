@@ -56,5 +56,36 @@ describe('Ivory dashboard widget', () => {
         expect(widget.node.querySelector('main[data-ivory-dashboard="true"]')).not.to.equal(undefined);
         expect(widget.node.querySelector('h1')?.textContent).to.equal('Ivory evidence workspace');
     });
+
+    it('filters evidence from the search field and exposes an empty state', () => {
+        React.act(() => {
+            widget.update();
+            MessageLoop.flush();
+        });
+        expect(widget.node.querySelector('input[type="search"]')).not.to.equal(undefined);
+        expect(widget.node.querySelectorAll('.ivory-evidence-card')).to.have.length(3);
+
+        React.act(() => {
+            widget.setQueryForTest('token');
+            MessageLoop.flush();
+        });
+        expect(widget.node.querySelectorAll('.ivory-evidence-card')).to.have.length(1);
+        expect(widget.node.querySelector('.ivory-evidence-card h3')?.textContent).to.equal('Token provenance');
+
+        React.act(() => {
+            widget.setQueryForTest('not-found');
+            MessageLoop.flush();
+        });
+        expect(widget.node.querySelector('.ivory-empty-state')?.textContent).to.equal('No evidence matches this query.');
+    });
+
+    it('exposes the command button by its accessible name', () => {
+        React.act(() => {
+            widget.update();
+            MessageLoop.flush();
+        });
+        const button = widget.node.querySelector('button');
+        expect(button?.getAttribute('aria-label')).to.equal('Run evidence check');
+    });
 });
 

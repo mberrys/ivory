@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/tuliopc23/LiqUIdify",
+  "revision": "bc462c6e0bcc502938013b02c6434ac06c8350a0",
+  "retrieved": "2026-09-24",
+  "license": "MIT",
+  "sourcePaths": [
+    "styled-system/styles.css",
+    "panda.config.ts"
+  ],
+  "vendored": "minimal token subset only"
+}

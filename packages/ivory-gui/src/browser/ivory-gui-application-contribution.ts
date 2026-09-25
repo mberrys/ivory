@@ -8,21 +8,16 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { AbstractViewContribution } from '@theia/core/lib/browser/shell/view-contribution';
+import { FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { injectable } from '@theia/core/shared/inversify';
-import { IvoryDashboardWidget } from './ivory-dashboard-widget';
 
 @injectable()
-export class IvoryDashboardContribution extends AbstractViewContribution<IvoryDashboardWidget> {
-    constructor() {
-        super({
-            widgetId: IvoryDashboardWidget.ID,
-            widgetName: IvoryDashboardWidget.LABEL,
-            defaultWidgetOptions: {
-                area: 'main',
-                rank: 0
-            },
-            toggleCommandId: 'ivory.dashboard.toggle'
-        });
+export class IvoryGuiApplicationContribution implements FrontendApplicationContribution {
+    initialize(): void {
+        document.documentElement.dataset.ivoryGui = 'prototype';
+    }
+
+    onStop(): void {
+        delete document.documentElement.dataset.ivoryGui;
     }
 }
