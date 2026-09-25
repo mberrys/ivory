@@ -171,7 +171,11 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
     --ivory-ink: var(--theia-foreground, var(--theia-editor-foreground, #ffffff));
     --ivory-muted: var(--theia-descriptionForeground, var(--ivory-ink));
     --ivory-accent: var(--theia-focusBorder, var(--ivory-ink));
-    --ivory-accent-soft: var(--theia-list-activeSelectionBackground, var(--theia-editor-background, #000000));
+    --ivory-accent-soft: var(--theia-list-activeSelectionBackground, var(--ivory-surface, #000000));
+    /* The trailing fallback is --ivory-surface, not --theia-editor-background:
+     * that is a Theia property, and a rule on <body> cannot read an html inline
+     * value, so the chain never terminated. High Contrast Dark defines no
+     * list.activeSelectionBackground at all, so this is the path that runs. */
     --ivory-border: var(--theia-foreground, var(--ivory-ink));
     /* Not var(--theia-contrastBorder, ...) first: that role is undefined in HC,
      * so the chain fell through to --theia-widget-border (#303031), which is

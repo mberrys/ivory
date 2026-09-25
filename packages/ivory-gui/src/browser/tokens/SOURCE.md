@@ -92,15 +92,31 @@ The unfocused row takes the same fill as the focused one. A quieter step is not 
 
 Both roles are declared on the themed `body`, never on `html`. Theia sets its own values for them on the element carrying the theme class, so a declaration on `html` is inherited and loses regardless of source order. A live probe showed the rule sitting in `bundle.css` while the value still resolved to Theia's native `#37373D`.
 
-### High contrast cannot carry this on a fill
+### High contrast signals state with a boundary, not a fill
 
-The HC themes cannot reach 3:1 with a selection fill at all, and that is a property of high contrast rather than a gap in the palette. Their selection fill is Theia's own `#094771` on the `#252526` sidebar, which is 1.57:1, and no darker fill does better without abandoning the dark background those themes exist to provide. HC signals state with a boundary instead, so the unfocused HC selected row gets a 1px `outline` in `--ivory-foreground` (`#cccccc`) at `outline-offset: -1px`, so the ring is
-drawn inside the row and measured against the `#094771` fill it sits on: 6.08:1. A live browser
-confirms the offset, and the ring would be 9.54:1 against the `#252526` sidebar if it were not. The focused HC row keeps the Ivory ring in `--theia-foreground` (`#cccccc`, 6.08:1 on the fill), because HC's `--theia-focusBorder` is `#007fd4` and only reaches 2.32:1 there.
+High Contrast Dark defines no `list.activeSelectionBackground` and no
+`list.inactiveSelectionBackground`, so a selected row has no fill and no
+indication. That is the theme's own behaviour, and the package does not
+replace it with a fill: on a black canvas, `--ivory-accent-soft` correctly
+resolves to `#000000`, which would be invisible. A fill light enough to clear
+3:1 against black also sinks the row label below 4.5:1, which is the trade a
+high-contrast theme refuses to make. So the unfocused selected row gets a 1px
+`outline` in `--ivory-focus-on-soft` (`#ffffff`, 21:1) at `outline-offset: -1px`,
+drawn inside the row.
 
-That boundary is scoped to `.theia-Tree:not(:focus-within)`. Without the guard it outranks the focused ring and drags it back to 2.32:1, which a live probe caught.
+That boundary is scoped to `.theia-Tree:not(:focus-within)`. Without the guard
+it outranks the ring a focused tree already paints and drags it back to the
+weaker `focusBorder` (`#f38518`, 8.18:1), which a live probe caught.
 
-The 22% focus halo cannot reach 3:1 by itself. It supplements the 2px outline rather than replacing it, and is asserted only to remain visible rather than decorative, with its percentage read from the stylesheet.
+The same reasoning governs hover in High Contrast Dark, where
+`list.hoverBackground` is likewise undefined: the fill stays `transparent` and
+the state is a 1px outline in `--ivory-hover` (21:1). High Contrast Light
+defines a 10%-alpha hover wash, which the package leaves untouched.
+
+The 22% focus halo cannot reach 3:1 by itself. It supplements the 2px outline
+rather than replacing it, and is asserted only to remain visible rather than
+decorative, with its percentage read from the stylesheet.
+
 
 ## Text on the accent fill
 
@@ -110,67 +126,74 @@ The status bar paints `--ivory-surface` on `--ivory-ink` and was measured the sa
 
 ## High contrast
 
-`body.theia-hc` and `body.theia-hcLight` map every colour role to a native Theia variable, including the status roles and `danger`, and drop the soft elevation (`--ivory-shadow: none`, `--ivory-radius: 0px`).
+`body.theia-hc` and `body.theia-hcLight` keep Theia's own palette. The ivory
+roles read Theia's values, and the package republishes a Theia role only where
+Theia defines none for the theme.
 
-The reason each role maps to a Theia variable rather than to a Poteto literal is unchanged: leaving the status roles unmapped let them inherit the ordinary light Poteto literals, which measure 3.31:1 and 3.26:1 on black and get worse against Theia's own high-contrast canvas. A test still fails if any colour role is missing from that block.
+Every figure below was measured in a live browser with the theme selected
+through the command palette (`Color Theme` -> `High Contrast (Theia)` /
+`High Contrast Light (Theia)`). That distinction matters: Theia writes its
+palette to `<html>` as inline custom properties from the *active* theme, so
+adding a `theia-hc` class to a dark workbench leaves the dark palette in
+place. An earlier version of this document measured high contrast that way
+and every number in it was the dark theme's.
 
-### The whole high-contrast branch was inert
+### High Contrast Dark
 
-Every figure above was computed from the stylesheet, and the stylesheet was wrong in a way no structural test could see. Two facts about how Theia paints its theme combine to cancel the entire block:
-
-1. Theia writes each `--theia-*` colour as an **inline style on `documentElement`** (`packages/core/src/browser/color-application-contribution.ts:95`), not in a stylesheet. An inline style on the root outranks every stylesheet rule.
-2. A `var()` reference on `<body>` cannot read an inline value declared on `<html>`. The reference resolves as undefined and the chain falls through to its fallback.
-
-The two stylesheets then made a same-element cycle: the token file derived `--ivory-ink: var(--theia-foreground, …)` on the HC body, while `ivory-gui.css` set `--theia-foreground: var(--ivory-ink)` on that same body. A cycle makes every property in it invalid at computed-value time, so the rules matched, the declarations were present, and the computed values were empty. A live browser measured `--ivory-ink`, `--ivory-canvas`, `--ivory-border` and eight other roles as empty strings while the test suite reported 49 passing.
-
-The consequence for this document: **every high-contrast ratio previously published here was fiction.** The ordinary light and dark figures are unaffected — they never took part in the cycle.
-
-The fix splits the two jobs. The ivory→Theia push in `ivory-gui.css` is now scoped to `body.theia-light` and `body.theia-dark` only, because in high contrast those roles already hold Theia's own values and re-pointing them only creates a cycle. The high-contrast rule publishes just the roles that genuinely fill a gap:
-
-- `--theia-statusBar-border` and `--theia-statusBar-noFolderBorder`, which Theia maps to `contrastBorder` in HC, a role with no default, so the status bar's `border-top` shorthand was invalid and the bar computed `border-top-width: 0px` with no boundary at all. The package now sets `border-top: 1px solid var(--ivory-border-on-ink)` outright rather than setting only a colour on a border the browser had collapsed to zero width.
-- `--theia-list-hoverBackground` and its foreground, because HC otherwise gives an item no signal on pointer hover.
-- The status-bar element rule, which paints the HC bar fill from `--ivory-canvas` rather than `--ivory-ink`. The bar is an ink band — a dark fill with a light boundary and light text — and `--ivory-ink` is Theia's high-contrast *foreground* (`#cccccc`). Filling the bar with it made the fill and the boundary the same colour, which a live browser measured at 1.00:1.
-
-Two roles deliberately do **not** lead with a Theia variable, because on `<body>` they cannot:
-
-- `--ivory-border-on-ink`, which points at `--ivory-ink`. Leading with `--theia-widget-border` produced an empty value and the 0px bar above.
-- `--ivory-border` and `--ivory-hover`, which point at `--theia-foreground`. `contrastBorder` is undefined in HC, so the chain used to fall through to `--theia-widget-border` (`#303031`), only 1.26:1 on the HC canvas and unable to carry a component boundary.
-
-### What high contrast paints, measured
-
-Read from a live browser's computed styles under `body.theia-hc`, not from the stylesheet:
-
-| role | value |
-| --- | --- |
-| `--ivory-canvas` | `#1e1e1e` |
-| `--ivory-surface` | `#252526` |
-| `--ivory-surface-raised` | `#3c3c3c` |
-| `--ivory-ink` | `#cccccc` |
-| `--ivory-muted` | `rgba(204, 204, 204, 0.7)` |
-| `--ivory-border`, `--ivory-border-on-ink`, `--ivory-hover`, `--ivory-focus-on-soft` | `#cccccc` |
-| `--ivory-accent-soft` | `#094771` |
-| `--ivory-on-accent` | `#ffffff` |
-
-| painted pair | ratio | needs |
+| role | value | source |
 | --- | --- | --- |
-| body text on canvas | 10.38:1 | 4.5 |
-| body text on surface | 9.54:1 | 4.5 |
-| body text on raised surface | 6.87:1 | 4.5 |
-| muted on canvas | 5.78:1 | 4.5 |
-| muted on surface | 5.44:1 | 4.5 |
-| selected label on the fill | 6.08:1 | 4.5 |
-| on-accent on the fill | 9.76:1 | 4.5 |
-| focus ring on the fill | 6.08:1 | 3 |
-| component border on canvas | 10.38:1 | 3 |
-| component border on surface | 9.54:1 | 3 |
-| bar boundary on the bar fill | 10.38:1 | 3 |
+| `--ivory-canvas`, `--ivory-surface`, `--ivory-surface-raised` | `#000000` | `editor-background`, `sideBar-background`, `input-background` |
+| `--ivory-ink`, `--ivory-foreground` | `#ffffff` | `foreground` |
+| `--ivory-muted` | `rgba(255, 255, 255, 0.7)` | `descriptionForeground` |
+| `--ivory-border`, `--ivory-hover`, `--ivory-focus-on-soft` | `#ffffff` | `foreground` |
+| `--ivory-accent`, `--ivory-focus` | `#f38518` | `focusBorder` |
+| `--theia-contrastBorder` | `#6fc3df` | `contrastBorder` |
+| `--ivory-success` | `#487e02` | `successBackground` |
+| `--ivory-warning` | `rgba(255, 204, 0, 0.8)` | `warningBackground` |
+| `--ivory-danger` | `#000000` | `errorBackground` |
 
-One pair does not reach AA and cannot be made to. Theia's native high-contrast muted text composites to `#a1a1a1` on the raised card fill, which is 4.27:1 on `#3c3c3c`, and the HC palette has no lighter step that keeps a darker one readable. The card fill is Theia's own, so the fix belongs on the text side: the two labels the package itself paints on a card, `.ivory-card-kind` and `.ivory-evidence-card p`, use the opaque ink under HC, which clears 6.87:1 on that same fill. A test asserts both halves of this — that native muted does fall short there, and that the override is present — so neither the palette nor the exception can drift silently.
+Painted pairs, all over the `#000000` canvas:
 
-### Hover is a boundary in high contrast
+| pair | ratio | needs |
+| --- | --- | --- |
+| ink on canvas | 21.00:1 | 4.5 |
+| muted on canvas | 9.90:1 | 4.5 |
+| status bar boundary on the canvas | 10.55:1 | 3 |
+| hover boundary on the canvas | 21.00:1 | 3 |
+| focus ring on the canvas | 21.00:1 | 3 |
 
-No fill light enough to clear 3:1 against the HC canvas keeps a 4.5:1 label against the HC foreground: the native inactive-selection wash `#094771` is 1.71:1 on the canvas, and every lighter candidate drops the label below AA. So under HC a hover is signalled by a 1px `outline` at `--ivory-hover` with `outline-offset: -1px`, over a transparent background — the same strategy the selected row already uses. A test fails if that outline is removed.
+### High Contrast Light
 
-### A note on the unresolved-role assertion
+| role | value | source |
+| --- | --- | --- |
+| `--ivory-canvas`, `--ivory-surface`, `--ivory-surface-raised` | `#ffffff` | `editor-background`, `sideBar-background`, `input-background` |
+| `--ivory-ink`, `--ivory-foreground` | `#292929` | `foreground` |
+| `--ivory-muted` | `rgba(41, 41, 41, 0.7)` | `descriptionForeground` |
+| `--ivory-border`, `--ivory-hover` | `#292929` | `foreground` |
+| `--theia-contrastBorder`, `--theia-widget-border` | `#0f4a85` | `contrastBorder` |
+| `--ivory-accent`, `--ivory-focus` | `#006bbd` | `focusBorder` |
+| `--ivory-success`, `--ivory-warning`, `--ivory-danger` | `#292929` | fall back to the foreground; this theme defines none |
 
-The high-contrast test resolves every role the package publishes and requires a real colour out of it, using Theia's actual inline values as test data. A chain that ends at a Theia role is left unresolved on purpose: the package cannot read those from `<body>`, and inventing a value would make the assertion pass without proving anything. What it must never be is a chain that returns to a role the package publishes, because that is the cycle the browser drops to nothing.
+The status bar boundary measures 8.98:1 against the `#ffffff` app shell.
+
+### What the two themes leave undefined, and what the package supplies
+
+- `list.hoverBackground` is undefined in High Contrast Dark, so a hovered row
+  or menu item would give no signal at all. The package sets it to `transparent`
+  and signals hover with a 1px `outline` in `--ivory-hover` (21:1). High
+  Contrast Light defines a 10%-alpha wash, which the package leaves alone.
+- `list.activeSelectionBackground` and `list.inactiveSelectionBackground` are
+  undefined in High Contrast Dark, so a selected row has no fill. The package
+  outlines the unfocused selected row in `--ivory-focus-on-soft` rather than
+  inventing a fill; a fill is the wrong signal on a black canvas, and
+  `--ivory-accent-soft` correctly resolves to the canvas. The ordinary
+  light/dark themes are unaffected and keep the fill-based rule.
+- The status bar needs nothing. Both high-contrast themes define
+  `statusBar.border` (`contrastBorder`), which measures 10.55:1 dark and
+  8.98:1 light. The package publishes no bar role under high contrast; doing
+  so would shadow a value that is already correct.
+
+### Non-colour overrides
+
+`--ivory-radius: 0px` and `--ivory-shadow: none` are kept under high contrast
+because that is the theme's intent. They are not colour decisions.
