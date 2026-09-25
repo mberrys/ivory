@@ -123,6 +123,9 @@
       "path": "../../packages/getting-started"
     },
     {
+      "path": "../../packages/ivory-gui"
+    },
+    {
       "path": "../../packages/keymaps"
     },
     {

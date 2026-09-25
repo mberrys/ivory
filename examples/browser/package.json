@@ -63,6 +63,7 @@
     "@theia/file-search": "1.75.0",
     "@theia/filesystem": "1.75.0",
     "@theia/getting-started": "1.75.0",
+    "@theia/ivory-gui": "1.75.0",
     "@theia/keymaps": "1.75.0",
     "@theia/markers": "1.75.0",
     "@theia/memory-inspector": "1.75.0",
