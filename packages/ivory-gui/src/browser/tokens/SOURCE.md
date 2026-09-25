@@ -33,37 +33,48 @@ Every other vendored alias is consumed by the semantic bridge, and `ivory-semant
 
 Upstream ships only 100/500/600 steps per hue and no darker step. A role is aliased only where that step clears WCAG AA as the text the prototype actually paints it in; everywhere else the bridge uses an accessible Poteto value and keeps the upstream alias vendored as the record of what was pinned.
 
-The status roles are painted by `.ivory-status-pill`, which sets the label to the status colour itself over a 14% tint of that same colour, on the card. Every figure below is that painted pair, not the status value against the bare canvas. Measuring the wrong pair is how this table was wrong twice: an earlier draft credited upstream light orange with failing "on canvas" when it in fact clears there, and the dark steps were claimed to "clear 8:1" when the worst case is 3.19:1.
+The status roles are painted by `.ivory-status-pill`, which sets the label to the status colour itself over a 14% tint of that same colour, on the card (`--ivory-surface-raised` over the dashboard's canvas). Every figure below is that painted pair, measured over the card, not the status value against the bare canvas. Getting this wrong is how this table was wrong twice before: an earlier draft credited upstream light orange with failing "on canvas" when it in fact clears there, and the dark steps were claimed to "clear 8:1" when the worst case is 2.38:1.
 
-| Role | Theme | Upstream | Painted ratio | Poteto value | Result |
-| --- | --- | --- | --- | --- | --- |
-| `success` | light | `#248A3D` | 3.53:1 | `#2d6b48` | 4.98:1 |
-| `warning` | light | `#C93400` | 4.09:1 | `#80560f` | 5.05:1 |
-| `danger` | light | `#D70015` | 4.00:1 | `#a83e3e` | 4.79:1 |
-| `success` | dark | `#34C759` | 4.38:1 | `#8fd0a8` | 5.13:1 |
-| `warning` | dark | `#FF9500` | 4.42:1 | `#e0b878` | 5.01:1 |
-| `danger` | dark | `#FF2D92` | 3.19:1 | `#f2b8b5` | 5.35:1 |
+| Role | Theme | Upstream on the card | Poteto on the card | Poteto on the canvas |
+| --- | --- | --- | --- | --- |
+| `success` | light | 3.69:1 | 5.18:1 | 6.35:1 |
+| `warning` | light | 4.27:1 | 5.24:1 | 6.45:1 |
+| `danger` | light | 4.16:1 | 4.97:1 | 6.13:1 |
+| `success` | dark | 2.38:1 | 4.96:1 | 6.65:1 |
+| `warning` | dark | 2.10:1 | 4.78:1 | 6.39:1 |
+| `danger` | dark | 2.20:1 | 5.12:1 | 6.96:1 |
 
-The dark accent is declined for a different reason. Upstream's `#007AFF` scores 4.24:1 on the canvas, 4.41:1 on the surface and 3.10:1 on the raised card, then 1.63:1 against the `#0056CC` accent-soft that Theia paints behind a selected row, missing the 3:1 non-text minimum. `#f0a583` clears all of them at 8.44, 8.79, 6.17 and 3.25.
+The three light upstream steps miss the 4.5:1 text minimum on the card, and all three dark steps miss it by a wide margin, so every status role declines its alias in both themes. Upstream light orange is the near miss at 4.27:1: it clears comfortably on the bare canvas (5.28:1) and only fails on the tint it is actually painted over, which is why the exception is a per-backdrop judgement rather than a per-hue one.
 
-`ivory-gui.spec.ts` measures each of these painted pairs, including the flattened alpha stack for the translucent dark surface and raised roles, and the pill assertions fail if any of the six status values is reverted to its upstream alias.
+The dark accent is declined for a different reason, as non-text rather than text. Upstream's `#007AFF` scores 4.24:1 on the canvas, 4.41:1 on the surface and 3.10:1 on the raised card, missing the 3:1 non-text minimum. `#f0a583` clears all three at 8.44, 8.79 and 6.17.
+
+`ivory-gui.spec.ts` measures each of these painted pairs, including the flattened alpha stack for the translucent dark surface and raised roles, and the pill assertions fail if any status value is reverted to its upstream alias. The tint percentage is read from the stylesheet per role rather than assumed, so changing the queued pill's 14% to 40% fails the suite even though the ready pill's is untouched.
 
 ## Non-text contrast
 
-WCAG 1.4.11 requires 3:1 for anything that identifies a control or conveys state. Four roles in this package are painted as non-text, and three of them decline their upstream aliases because it cannot be met.
+WCAG 1.4.11 requires 3:1 for anything that identifies a control or conveys state. Six roles in this package are painted as non-text, and five of them decline their upstream aliases because it cannot be met there. Every translucent figure is composited over the surface that role is actually painted on, not flattened once against the canvas and compared with a different surface.
 
-| Role | Theme | Upstream | Measured | Shipped | Result |
+| Role | Theme | Upstream | Measured against | Shipped | Result |
 | --- | --- | --- | --- | --- | --- |
 | `border` | light | `#E5E5EA` | 1.20 canvas, 1.15 surface, 1.26 card | `#84848c` | 3.55 / 3.41 / 3.71 |
 | `border` | dark | 8% white | 1.26 / 1.24 / 1.28 | 42% white | 4.02 / 4.08 / 3.49 |
-| `focus` | dark | `#007AFF` | 2.96 card, 1.63 selection | `#8fc0ff` | 6.31 card, 3.48 selection |
+| `focus` | dark | `#007AFF` | 2.96 card, 1.63 selection | `#8fc0ff` | 6.31 card, 9.04 canvas |
+| `accent-soft` | light | `#D1E9FF` | 1.15 panel, 1.25 card, 1.20 canvas | `#0090ca` | 3.30 / 3.59 / 3.44 |
+| `accent-soft` | dark | `#0056CC` | 2.70 panel, 1.81 card, 2.60 canvas | `#0090ca` | 4.93 / 3.30 / 4.73 |
+| `border-on-ink` | dark | `--ivory-accent` | 2.02 on the white bar fill | `#5a5a60` | 6.85 |
 | `surface-raised` | light | `#FAFAFA` | 1.00 against its own canvas | `#ffffff` | 1.04 fill, 3.71 via the border |
 
-The light raised fill needs explaining, because its own contrast is still 1.04. Upstream's light canvas and light raised surface are both `#FAFAFA`, so a light card had no fill separation at all and was bounded only by a 1.20:1 border: an invisible rectangle. The border now carries the separation at 3.71:1, and `ivory-gui.spec.ts` asserts that a card is separated by its fill *or* its border, never by a 1px line nobody can see.
+Three of these need explaining, because the shipped value is not simply "darker" or "lighter".
 
-The 42% dark border is the lowest white alpha that clears 3:1 on all three backdrops; 34% reaches only 2.81:1 on the card, which is the darkest of the three.
+**The light raised fill** still measures 1.04:1 against the canvas, and that is deliberate. Upstream's light canvas and light raised surface are both `#FAFAFA`, so a light card had no fill separation at all and was bounded only by a 1.20:1 border: an invisible rectangle. The border now carries the separation at 3.71:1, and `ivory-gui.spec.ts` asserts that a card is separated by its fill *or* its border, never by a 1px line nobody can see.
 
-The focus halo is 22% of the focus colour and cannot reach 3:1 by itself. It is a supplement to the 2px outline, not the indicator, and is only asserted to remain visible rather than decorative.
+**The 42% dark border** clears 3:1 on all three backdrops. The binding case is the card at 3.49:1, since it is the darkest of the three. 34% fails there at 2.81:1; 37% passes at 3.05:1 and was rejected because a value that close to the minimum leaves no room for an upstream nudge.
+
+**The selection fill** is the hardest constraint in the package, because Theia paints a selection on more than one surface. List and menu-bar selections sit on the panel, quick-input and menu selections on the raised card, and in the dark theme those two surfaces are `#18181a` and `#373739` - only 1.49:1 apart. A fill has to be 3:1 from both while the label on it stays at 4.5:1, which leaves a narrow band; `#0090ca` is the value that clears both themes at their worst surface, and it is used in both so the selection does not change hue between them. A white label reaches only 3.59:1 on it, so the label is near-black, which is why `--ivory-on-accent-soft` exists: body ink is 5.13:1 on the fill in the light theme but only 3.59:1 in the dark one, so neither the body ink nor white works for both.
+
+The selection fill previously came straight from Theia's own palette, which is the same value in both themes and fails the same way, so this is an inherited defect that the activation has to override rather than one the package introduced.
+
+The 22% focus halo cannot reach 3:1 by itself. It supplements the 2px outline rather than replacing it, and is asserted only to remain visible rather than decorative, with its percentage read from the stylesheet.
 
 ## Text on the accent fill
 

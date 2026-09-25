@@ -11,7 +11,7 @@
 import { injectable, postConstruct } from '@theia/core/shared/inversify';
 import { Message, ReactWidget, codicon } from '@theia/core/lib/browser';
 import * as React from '@theia/core/shared/react';
-import { filterIvoryEvidence, IvoryEvidence } from './ivory-dashboard-model';
+import { EvidenceStatus, filterIvoryEvidence, IvoryEvidence } from './ivory-dashboard-model';
 
 export const PROTOTYPE_EVIDENCE: readonly IvoryEvidence[] = [
     {
@@ -37,7 +37,7 @@ export const PROTOTYPE_EVIDENCE: readonly IvoryEvidence[] = [
     }
 ];
 
-function StatusPill({ status }: { status: string }): React.ReactNode {
+function StatusPill({ status }: { status: EvidenceStatus }): React.ReactNode {
     return <span className='ivory-status-pill' data-status={status}>{status}</span>;
 }
 

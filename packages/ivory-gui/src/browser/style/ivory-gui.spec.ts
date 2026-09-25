@@ -132,12 +132,19 @@ function blendOn(foreground: string, alpha: number, background: string): string 
  * from the stylesheet rather than hardcoded, so editing the CSS changes what is
  * measured: at 14% the labels sit near AA, and the first failure is around 19%.
  */
-const PILL_TINT = (() => {
-    // Anchor on the status roles: an unanchored --ivory-\w+ also matches the
-    // 22% focus halo, which is a different thing entirely.
-    const mix = declarationsOnlyForOrder().match(/color-mix\(in srgb, var\(--ivory-(?:success|warning|danger)\) ([\d.]+)%, transparent\)/);
-    expect(mix, 'the status pill tint percentage').to.not.equal(undefined);
-    return Number(mix![1]) / 100;
+const pillTintFor = (() => {
+    // Read the tint per role, by name. A single non-global match would return
+    // only the first of the two separate declarations, so the queued pill would
+    // be measured at whatever percentage the success pill happens to use, and
+    // an unanchored --ivory-\w+ would match the 22% focus halo instead.
+    const css = declarationsOnlyForOrder();
+    const read = (role: 'success' | 'warning' | 'danger') => {
+        const mix = css.match(new RegExp(
+            `color-mix\\(in srgb, var\\(--ivory-${role}\\) ([\\d.]+)%, transparent\\)`));
+        expect(mix, `the ${role} status pill tint percentage`).to.not.equal(undefined);
+        return Number(mix![1]) / 100;
+    };
+    return read;
 })();
 
 /** The stylesheet with comments removed, so prose is never read as CSS. */
@@ -248,9 +255,8 @@ describe('Ivory Poteto visual contract', () => {
         // The card sits on the dashboard root, which paints the canvas
         // (ivory-gui.css:297), not the surface role.
         const card = lightThemeColor('surface-raised', canvas);
-        const danger = lightThemeColor('danger');
-        for (const [role, value] of [['success', success], ['warning', warning], ['danger', danger]] as const) {
-            expect(contrastRatio(value, blendOn(value, PILL_TINT, card)), `light ${role} pill label`)
+        for (const [role, value] of [['success', success], ['warning', warning]] as const) {
+            expect(contrastRatio(value, blendOn(value, pillTintFor(role), card)), `light ${role} pill label`)
                 .to.be.greaterThanOrEqual(4.5);
         }
         expect(contrastRatio(lightThemeColor('focus'), card), 'light focus ring on card')
@@ -273,10 +279,9 @@ describe('Ivory Poteto visual contract', () => {
         const accent = themeColor('dark', 'accent', canvas);
         const success = themeColor('dark', 'success');
         const warning = themeColor('dark', 'warning');
-        const danger = themeColor('dark', 'danger');
         // The label on the accent fill. This is its own role because --ivory-surface
         // is 60%-alpha glass in dark, so a surface-coloured label composites over
-        // the accent and falls to 3.27:1.
+        // the accent and falls to 3.65:1.
         const onAccent = themeColor('dark', 'on-accent');
         const onAccentLight = themeColor('light', 'on-accent');
 
@@ -299,14 +304,11 @@ describe('Ivory Poteto visual contract', () => {
         // that same role as its background, so the painted pair is the status
         // colour on its own tint. Measuring ink here would pass regardless of
         // which status value is in play.
-        for (const [role, value] of [['success', success], ['warning', warning], ['danger', danger]] as const) {
-            const tint = blendOn(value, PILL_TINT, raised);
+        for (const [role, value] of [['success', success], ['warning', warning]] as const) {
+            const tint = blendOn(value, pillTintFor(role), raised);
             expect(contrastRatio(value, tint), `dark ${role} pill label`).to.be.greaterThanOrEqual(4.5);
         }
-        // The accent is also the icon colour on an accent-soft selection row,
-        // which is a non-text contrast (3:1), and the focus ring on a card.
-        expect(contrastRatio(accent, themeColor('dark', 'accent-soft')), 'dark accent on selection row')
-            .to.be.greaterThanOrEqual(3);
+        // The focus ring is painted on a card, not on a selection fill.
         expect(contrastRatio(themeColor('dark', 'focus'), raised), 'dark focus ring on card')
             .to.be.greaterThanOrEqual(3);
     });
@@ -360,17 +362,20 @@ describe('Ivory Poteto visual contract', () => {
     });
 
     it('keeps the focus ring and its halo at 3:1 where they are painted', () => {
-        // The ring is drawn on the dashboard root, the cards and the input, and
-        // the focus border is also published as --theia-focusBorder, which Theia
-        // paints over the selection background.
+        // The ring is drawn on the dashboard root, the cards and the input.
+        // It is deliberately NOT asserted on a selected row: Theia keeps
+        // selection and focus as separate states, so a selected row paints
+        // --theia-list-activeSelectionBackground and a focused row paints
+        // --theia-list-focusBackground. No ring is ever drawn on the selection
+        // fill, and the pair is in fact 1.82:1 light and 1.91:1 dark - which is
+        // exactly why it must not be asserted, since asserting it would either
+        // fail forever or push the fill somewhere it does not belong.
         for (const theme of ['light', 'dark'] as const) {
             const canvas = themeColor(theme, 'canvas');
             const card = themeColor(theme, 'surface-raised', canvas);
             const focus = themeColor(theme, 'focus', canvas);
             expect(contrastRatio(focus, card), `${theme} focus ring on a card`).to.be.greaterThanOrEqual(3);
             expect(contrastRatio(focus, canvas), `${theme} focus ring on the canvas`).to.be.greaterThanOrEqual(3);
-            expect(contrastRatio(focus, themeColor(theme, 'accent-soft')), `${theme} focus on a selected row`)
-                .to.be.greaterThanOrEqual(3);
             // The halo is a low-alpha supplement and cannot reach 3:1 by
             // itself, so it is not held to the non-text minimum; assert only
             // that it is actually visible against the card rather than a
@@ -380,6 +385,74 @@ describe('Ivory Poteto visual contract', () => {
             const halo = blendOn(focus, haloPercent / 100, card);
             expect(contrastRatio(halo, card), `${theme} focus halo on a card`).to.be.greaterThan(1.2);
         }
+    });
+
+    it('paints exactly the statuses the widget can emit', () => {
+        // A status role that is declared, measured and unreachable is a hole:
+        // the contrast suite proves --ivory-danger is accessible, but no rule
+        // paints a danger pill and no status emits one, so those assertions
+        // were measuring a pair the browser never composites. Pin the two sets
+        // to each other so neither can drift alone.
+        // Read the source, not lib/: the stylesheets above are read the same
+        // way, and the union is a type that compiles away.
+        const model = readFileSync('src/browser/ivory-dashboard-model.ts', 'utf-8');
+        const union = /export type EvidenceStatus\s*=\s*([^;]+);/.exec(model);
+        expect(union, 'the EvidenceStatus union is declared').to.not.equal(undefined);
+        const emitted = [...union![1].matchAll(/'([\w]+)'/g)].map(m => m[1]).sort();
+
+        const painted = [...stylesheet.matchAll(/ivory-status-pill\[data-status='(\w+)'\]/g)]
+            .map(m => m[1]);
+        expect(painted, 'every painted status has an emitted counterpart')
+            .to.have.members(emitted);
+        // Every status role a pill rule paints is a real role, and the contrast
+        // suite's pill assertions cover exactly that set: success for
+        // ready/verified and warning for queued. `danger` is a declared,
+        // contrast-tested role with no pill rule, so it is deliberately outside
+        // this loop - which is why the pill assertions must not name it.
+        const rolesPainted = [...stylesheet.matchAll(
+            /ivory-status-pill\[data-status='\w+'\][\s\S]{0,200}?color: var\(--ivory-(\w+)\)/g)]
+            .map(m => m[1]);
+        expect([...new Set(rolesPainted)].sort(), 'the roles the pills actually paint')
+            .to.have.members(['success', 'warning']);
+    });
+
+    it('marks a selected row with a 3:1 fill and readable text on it', () => {
+        // A selection is the shell's primary "this row is chosen" signal, so the
+        // fill owes 3:1 against every surface Theia paints it on, and the text
+        // on the fill owes 4.5:1. Both halves are needed: a mid-blue that clears
+        // the panel leaves body ink at 2.01:1 on it.
+        for (const theme of ['light', 'dark'] as const) {
+            const canvas = themeColor(theme, 'canvas');
+            const panel = themeColor(theme, 'surface', canvas);
+            // list/menubar selection sits on the panel; quickInput and menu
+            // selection sit on the raised card, which is a lighter surface.
+            const raised = themeColor(theme, 'surface-raised', canvas);
+            const fill = themeColor(theme, 'accent-soft');
+            const onFill = themeColor(theme, 'on-accent-soft');
+            for (const [label, backdrop] of [['panel', panel], ['raised', raised], ['canvas', canvas]] as const) {
+                expect(contrastRatio(fill, backdrop), `${theme} selection fill on the ${label}`)
+                    .to.be.greaterThanOrEqual(3);
+            }
+            expect(contrastRatio(onFill, fill), `${theme} text on a selection fill`)
+                .to.be.greaterThanOrEqual(4.5);
+            // The selection roles must all read that pair, not body ink.
+            for (const role of ['menu-selectionForeground', 'menubar-selectionForeground',
+                                'quickInputList-focusForeground', 'list-activeSelectionForeground']) {
+                expect(stylesheet, role).to.contain(`--theia-${role}: var(--ivory-on-accent-soft)`);
+            }
+        }
+    });
+
+    it('keeps the status bar boundary at 3:1 on the bar fill', () => {
+        // The bar's 1px top border separates it from the panel, and the fill is
+        // the opaque ink role, so the border needs its own step: --ivory-accent
+        // reaches only 2.81:1 light and 2.02:1 dark there.
+        for (const theme of ['light', 'dark'] as const) {
+            const bar = themeColor(theme, 'ink', themeColor(theme, 'canvas'));
+            expect(contrastRatio(themeColor(theme, 'border-on-ink'), bar), `${theme} status bar border`)
+                .to.be.greaterThanOrEqual(3);
+        }
+        expect(stylesheet, 'status bar border role').to.contain('--theia-statusBar-border: var(--ivory-border-on-ink)');
     });
 
     it('keeps keyboard focus visible and respects reduced motion', () => {

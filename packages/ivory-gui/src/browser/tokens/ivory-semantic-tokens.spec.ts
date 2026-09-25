@@ -69,7 +69,13 @@ describe('Ivory semantic token snapshot', () => {
         // accessible Poteto literal. Both are acceptable; a half-alias, or an
         // alias to a value that fails AA, is not. The measured justification
         // for each exception lives in the stylesheet comment beside it.
-        const fallbackOnly = new Set(['success', 'warning', 'danger', 'accent', 'border', 'surface-raised', 'focus']);
+        // A role that is not aliased must be a documented accessibility
+        // exception, and there are two kinds: the three status roles and the
+        // dark accent, which are painted as 10-12px text, and the non-text
+        // roles - the border, the light raised fill, the dark focus ring and
+        // the selection fill - which owe 3:1 as boundaries instead.
+        const fallbackOnly = new Set(['success', 'warning', 'danger', 'accent', 'border',
+                                        'surface-raised', 'focus', 'accent-soft']);
         for (const role of roles) {
             const declarations = [...lightAndDark.matchAll(new RegExp(`--ivory-${role}:\\s*([^;]+);`, 'g'))];
             expect(declarations, role).to.have.length.greaterThan(0);
@@ -103,8 +109,8 @@ describe('Ivory semantic token snapshot', () => {
         // background, and in both themes the border (3:1 non-text), the raised
         // fill (light: identical to the canvas) and the dark focus ring.
         const declined = {
-            light: ['success', 'warning', 'danger', 'border', 'surface-raised'],
-            dark: ['success', 'warning', 'danger', 'accent', 'border', 'focus']
+            light: ['success', 'warning', 'danger', 'border', 'surface-raised', 'accent-soft'],
+            dark: ['success', 'warning', 'danger', 'accent', 'border', 'focus', 'accent-soft']
         };
         for (const [theme, block] of [['light', lightBlock], ['dark', darkBlock]] as const) {
             for (const role of ['success', 'warning', 'danger', 'accent']) {

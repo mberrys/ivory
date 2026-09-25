@@ -8,12 +8,20 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
+/**
+ * The statuses a pill can carry. `ivory-gui.css` paints one
+ * `.ivory-status-pill[data-status]` rule per value, so this union and that
+ * stylesheet have to agree: widening one without the other leaves a role that
+ * is declared, contrast-tested and unreachable.
+ */
+export type EvidenceStatus = 'ready' | 'verified' | 'queued';
+
 export interface IvoryEvidence {
     readonly title: string;
     readonly summary: string;
     readonly source: string;
     readonly kind: string;
-    readonly status: string;
+    readonly status: EvidenceStatus;
 }
 
 export function filterIvoryEvidence(evidence: readonly IvoryEvidence[], query: string): IvoryEvidence[] {

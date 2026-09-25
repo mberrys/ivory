@@ -23,7 +23,17 @@ html[data-ivory-gui='prototype'] {
     --ivory-ink: var(--verified-upstream-ink, #1f2933);
     --ivory-muted: var(--verified-upstream-muted, #5f6b75);
     --ivory-accent: var(--verified-upstream-accent, #b44b32);
-    --ivory-accent-soft: var(--verified-upstream-accent-soft, #f1c2ae);
+    /* WCAG 1.4.11: a selection fill is a non-text boundary, so it owes 3:1
+     * against the surface it marks. Upstream's #d1e9ff is 1.15:1 on the
+     * #f5f5f7 panel, 1.25:1 on the white card and 1.20:1 on the canvas, and
+     * Theia inherits the same value, so the shell's "this row is selected"
+     * signal is invisible without this override. Measured 3.30 on the panel,
+     * 3.59 on the card and 3.44 on the canvas. */
+    --ivory-accent-soft: #0090ca;
+    /* The text on that fill. A mid-blue carries a near-black label at 5.51:1
+     * where white reaches only 3.59:1, so both themes label selections this
+     * way; the role exists because dark body ink is 3.59:1 on the fill. */
+    --ivory-on-accent-soft: #0a0a0a;
     /*
      * The border and the raised fill both decline their upstream aliases. Every
      * 1px border in the package identifies a control, and WCAG 1.4.11 needs
@@ -35,6 +45,7 @@ html[data-ivory-gui='prototype'] {
      * now white, and the border carries the separation.
      */
     --ivory-border: #84848c;
+    --ivory-border-on-ink: #84848c;
     --ivory-focus: var(--verified-upstream-focus, #1d6fc2);
     /*
      * All three status roles are painted by .ivory-status-pill as 10px/700
@@ -54,7 +65,7 @@ html[data-ivory-gui='prototype'] {
     /*
      * Text painted on the accent fill. It cannot be --ivory-surface: in the
      * dark theme that alias is 60%-alpha glass, so a label in that colour
-     * composites over the accent and drops to 3.27:1. One flat colour per
+     * composites over the accent and drops to 3.65:1. One flat colour per
      * theme keeps the role opaque in both states: the light value is the
      * resolved surface, the dark value the upstream canvas, and both clear AA
      * on the accent and on the ink hover background.
@@ -77,11 +88,21 @@ html[data-ivory-gui='prototype'] body.theia-dark {
     --ivory-ink: var(--verified-upstream-ink, #f4eee5);
     --ivory-muted: var(--verified-upstream-muted, #b7ada1);
     /* Border: upstream's 8% white measures 1.24-1.28:1, and 34% still only
-     * reaches 2.81:1 on the card, so 42% is the lowest step that clears 3:1 on
-     * the card, canvas and surface alike. */
+     * reaches 2.81:1 on the card, which is the darkest of the three. 37% does
+     * clear, at 3.05:1, and is rejected for having no useful margin; 42% ships
+     * at 3.49:1 on the card, 4.02 on the canvas and 4.08 on the surface. */
     --ivory-border: rgba(255, 255, 255, 0.42);
     --ivory-accent: #f0a583;
-    --ivory-accent-soft: var(--verified-upstream-accent-soft, #5d3e32);
+    /* The dark status bar fill is opaque white ink, so a 42% white border would
+     * vanish into it. The bar's own boundary needs a dark step. */
+    --ivory-border-on-ink: #5a5a60;
+    /* The fill has to clear 3:1 against both surfaces Theia paints it on - the
+     * #18181a panel and the #373739 card, which are only 1.49:1 apart - so the
+     * usable band is narrow. Upstream's #0056cc reaches 2.70:1 and 1.81:1.
+     * #0090ca is the same value the light theme uses: 4.93 on the panel,
+     * 3.30 on the card, 4.73 on the canvas. */
+    --ivory-accent-soft: #0090ca;
+    --ivory-on-accent-soft: #0a0a0a;
     /* Focus: upstream's #007AFF measures 2.96:1 on the card and 1.63:1 against
      * the #0056CC selection background it is also painted over, so it is
      * rejected for the same reason the accent is. #8fc0ff clears both at 6.31
@@ -133,6 +154,8 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
     --ivory-warning: var(--theia-warningBackground, var(--theia-foreground, var(--ivory-ink)));
     --ivory-danger: var(--theia-errorBackground, var(--theia-foreground, var(--ivory-ink)));
     --ivory-on-accent: var(--theia-button-foreground, var(--ivory-ink));
+    --ivory-on-accent-soft: var(--theia-menu-foreground, var(--theia-foreground, var(--ivory-ink)));
+    --ivory-border-on-ink: var(--theia-contrastBorder, var(--theia-widget-border, var(--ivory-ink)));
     --ivory-radius: 0px;
     --ivory-shadow: none;
 }

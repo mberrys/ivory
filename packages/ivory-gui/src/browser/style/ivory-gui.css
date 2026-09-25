@@ -55,16 +55,16 @@ html[data-ivory-gui='prototype'] body.theia-dark {
     --theia-statusBar-foreground: var(--ivory-surface);
     --theia-statusBar-noFolderBackground: var(--ivory-ink);
     --theia-statusBar-noFolderForeground: var(--ivory-surface);
-    --theia-statusBar-border: var(--ivory-accent);
-    --theia-statusBar-noFolderBorder: var(--ivory-accent);
+    --theia-statusBar-border: var(--ivory-border-on-ink);
+    --theia-statusBar-noFolderBorder: var(--ivory-border-on-ink);
     --theia-menu-background: var(--ivory-surface-raised);
     --theia-menu-foreground: var(--ivory-ink);
     --theia-menu-border: var(--ivory-border);
     --theia-menu-selectionBackground: var(--ivory-accent-soft);
-    --theia-menu-selectionForeground: var(--ivory-ink);
+    --theia-menu-selectionForeground: var(--ivory-on-accent-soft);
     --theia-menu-selectionBorder: var(--ivory-accent);
     --theia-menubar-selectionBackground: var(--ivory-accent-soft);
-    --theia-menubar-selectionForeground: var(--ivory-ink);
+    --theia-menubar-selectionForeground: var(--ivory-on-accent-soft);
     --theia-input-background: var(--ivory-surface-raised);
     --theia-input-foreground: var(--ivory-ink);
     --theia-input-border: var(--ivory-border);
@@ -72,14 +72,14 @@ html[data-ivory-gui='prototype'] body.theia-dark {
     --theia-quickInput-background: var(--ivory-surface-raised);
     --theia-quickInput-foreground: var(--ivory-ink);
     --theia-quickInputList-focusBackground: var(--ivory-accent-soft);
-    --theia-quickInputList-focusForeground: var(--ivory-ink);
+    --theia-quickInputList-focusForeground: var(--ivory-on-accent-soft);
     --theia-quickInputTitle-background: var(--ivory-surface);
     --theia-widget-border: var(--ivory-border);
     --theia-dropdown-background: var(--ivory-surface-raised);
     --theia-dropdown-foreground: var(--ivory-ink);
     --theia-dropdown-border: var(--ivory-border);
     --theia-list-activeSelectionBackground: var(--ivory-accent-soft);
-    --theia-list-activeSelectionForeground: var(--ivory-ink);
+    --theia-list-activeSelectionForeground: var(--ivory-on-accent-soft);
     --theia-focusBorder: var(--ivory-focus);
     --theia-widget-shadow: rgba(0, 0, 0, 0.16);
     --theia-contrastBorder: var(--ivory-border);
@@ -123,7 +123,7 @@ html[data-ivory-gui='prototype'] .lm-MenuBar-item {
 
 html[data-ivory-gui='prototype'] .lm-MenuBar-item:hover,
 html[data-ivory-gui='prototype'] .lm-MenuBar-item.lm-mod-active {
-    color: var(--ivory-ink);
+    color: var(--ivory-on-accent-soft);
     background: var(--ivory-accent-soft);
 }
 
@@ -255,9 +255,9 @@ html[data-ivory-gui='prototype'] .quick-input-widget .quick-input-box {
 
 html[data-ivory-gui='prototype'] .lm-Menu-item.lm-mod-active,
 html[data-ivory-gui='prototype'] .lm-Menu-item.lm-mod-active > div {
-    color: var(--ivory-ink);
+    color: var(--ivory-on-accent-soft);
     background: var(--ivory-accent-soft);
-    border-color: var(--ivory-accent);
+    border-color: var(--ivory-on-accent-soft);
 }
 
 html[data-ivory-gui='prototype'] .dialogOverlay {
