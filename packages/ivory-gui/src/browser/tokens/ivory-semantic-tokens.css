@@ -210,10 +210,12 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
     --ivory-border-on-ink: var(--ivory-ink, #000);
     /* Theia writes every --theia-* colour as an INLINE style on <html>
        (color-application-contribution.ts:95). An inline style on the root outranks
-       every stylesheet rule, and a rule on <body> cannot read an html inline value
-       through var(): it resolves as undefined and falls through to its fallback.
-       So this role must resolve from the ivory scale, which is published on the same
-       element, not from a Theia role. */
+       every stylesheet rule that sets the SAME property name, so republishing a
+       Theia role on <body> only wins where <body> is the element carrying the
+       theme class. Custom properties do inherit, so a var() on <body> can read
+       the html inline - reading it is what the roles above rely on. What cannot
+       survive is a same-element cycle, which is why the ivory push into Theia's
+       names is scoped to the ordinary themes. */
     --ivory-radius: 0px;
     --ivory-shadow: none;
 }

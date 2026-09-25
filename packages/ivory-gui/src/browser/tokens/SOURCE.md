@@ -178,10 +178,20 @@ The status bar boundary measures 8.98:1 against the `#ffffff` app shell.
 
 ### What the two themes leave undefined, and what the package supplies
 
-- `list.hoverBackground` is undefined in High Contrast Dark, so a hovered row
-  or menu item would give no signal at all. The package sets it to `transparent`
-  and signals hover with a 1px `outline` in `--ivory-hover` (21:1). High
-  Contrast Light defines a 10%-alpha wash, which the package leaves alone.
+- `list.hoverBackground` is undefined in High Contrast Dark, so a hovered item
+  would give no signal at all. The package publishes the native foreground
+  (`#ffffff`, 21:1) for that role. It must be a *colour*, not the keyword
+  `transparent`: core paints `.theia-Card-interactive:hover` with
+  `color-mix(in srgb, var(--theia-list-hoverBackground) 50%, var(--theia-editor-background))`,
+  and mixing `transparent` into that computes to `color(srgb 0 0 0 / 0.5)`, which
+  over the black canvas composites to the canvas itself at 1.00:1 — the card
+  silently stops responding to hover. A live browser measured that value.
+  High Contrast Light defines a 10%-alpha wash of its own, which the package
+  also overrides, for the same reason: the rest of the package paints a hover
+  colour there, and a keyword would break the `color-mix` regardless.
+
+  Tree and menu *rows* are signalled with a 1px `outline` rather than a wash,
+  because a wash on a black canvas is what sank the label below 4.5:1.
 - `list.activeSelectionBackground` and `list.inactiveSelectionBackground` are
   undefined in High Contrast Dark, so a selected row has no fill. The package
   outlines the unfocused selected row in `--ivory-focus-on-soft` rather than

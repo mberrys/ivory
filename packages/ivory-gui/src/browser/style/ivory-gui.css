@@ -109,11 +109,19 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
     background: var(--ivory-canvas);
     color: var(--ivory-ink);
 
-    /* Theia defines no hover wash for high contrast, so a hovered row or menu
-     * item gives no signal at all. The element rules signal hover with a 1px
-     * outline instead; this keeps the role defined so anything else reading it
-     * gets a value rather than nothing. */
-    --theia-list-hoverBackground: transparent;
+    /* Theia defines no hover wash for high contrast, so a hovered item gives no
+     * signal at all. The role needs a real COLOUR here, not a keyword: core
+     * paints .theia-Card-interactive:hover with
+     * `color-mix(in srgb, var(--theia-list-hoverBackground) 50%,
+     *  var(--theia-editor-background))`, and mixing `transparent` into that
+     * yields 50%-alpha black, which over the black canvas composites to the
+     * canvas itself at 1.00:1 - the card silently stops responding to hover.
+     * --ivory-hover is the native foreground (#ffffff, 21:1 on the canvas), so
+     * half of it is a wash that is actually visible.
+     *
+     * The tree and menu rows are outlined rather than washed; see the :hover
+     * element rules below. */
+    --theia-list-hoverBackground: var(--ivory-hover);
     --theia-list-hoverForeground: var(--ivory-ink);
 }
 
