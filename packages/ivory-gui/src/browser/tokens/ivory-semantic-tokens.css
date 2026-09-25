@@ -19,12 +19,22 @@
 html[data-ivory-gui='prototype'] {
     --ivory-canvas: var(--verified-upstream-canvas, #f7f4ed);
     --ivory-surface: var(--verified-upstream-surface, #fffdf8);
-    --ivory-surface-raised: var(--verified-upstream-surface-raised, #ffffff);
+    --ivory-surface-raised: #ffffff;
     --ivory-ink: var(--verified-upstream-ink, #1f2933);
     --ivory-muted: var(--verified-upstream-muted, #5f6b75);
     --ivory-accent: var(--verified-upstream-accent, #b44b32);
     --ivory-accent-soft: var(--verified-upstream-accent-soft, #f1c2ae);
-    --ivory-border: var(--verified-upstream-border, #d9d2c3);
+    /*
+     * The border and the raised fill both decline their upstream aliases. Every
+     * 1px border in the package identifies a control, and WCAG 1.4.11 needs
+     * 3:1 for that: upstream's #E5E5EA measures 1.20:1 on the canvas and 1.15:1
+     * on the surface, which leaves the search input's edge and the card outlines
+     * imperceptible. #84848c measures 3.55 and 3.41. Upstream's raised fill is
+     * #FAFAFA, identical to its canvas, so light cards had no fill contrast at
+     * all (1.00:1) and were bounded only by that invisible border; the fill is
+     * now white, and the border carries the separation.
+     */
+    --ivory-border: #84848c;
     --ivory-focus: var(--verified-upstream-focus, #1d6fc2);
     /*
      * All three status roles are painted by .ivory-status-pill as 10px/700
@@ -66,10 +76,17 @@ html[data-ivory-gui='prototype'] body.theia-dark {
     --ivory-surface-raised: var(--verified-upstream-surface-raised, #2f2c28);
     --ivory-ink: var(--verified-upstream-ink, #f4eee5);
     --ivory-muted: var(--verified-upstream-muted, #b7ada1);
-    --ivory-border: var(--verified-upstream-border, #4a443d);
+    /* Border: upstream's 8% white measures 1.24-1.28:1, and 34% still only
+     * reaches 2.81:1 on the card, so 42% is the lowest step that clears 3:1 on
+     * the card, canvas and surface alike. */
+    --ivory-border: rgba(255, 255, 255, 0.42);
     --ivory-accent: #f0a583;
     --ivory-accent-soft: var(--verified-upstream-accent-soft, #5d3e32);
-    --ivory-focus: var(--verified-upstream-focus, #7eb8e8);
+    /* Focus: upstream's #007AFF measures 2.96:1 on the card and 1.63:1 against
+     * the #0056CC selection background it is also painted over, so it is
+     * rejected for the same reason the accent is. #8fc0ff clears both at 6.31
+     * and 3.48. */
+    --ivory-focus: #8fc0ff;
     /*
      * The accent and the three status roles deliberately decline their upstream
      * aliases here, for the same reason the light block declines green, orange
@@ -108,8 +125,9 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
     /*
      * High contrast gets no aliases of any kind, including the status roles.
      * Leaving these unset would let them inherit the ordinary light Poteto
-     * literals, which score 3.06:1 and 3.02:1 on a black canvas. The native
-     * palette is the only defensible source here.
+     * literals, which score 3.31:1 and 3.26:1 on black and only 2.63:1 and
+     * 2.58:1 against Theia's own high-contrast canvas. The native palette is
+     * the only defensible source here.
      */
     --ivory-success: var(--theia-successBackground, var(--theia-foreground, var(--ivory-ink)));
     --ivory-warning: var(--theia-warningBackground, var(--theia-foreground, var(--ivory-ink)));

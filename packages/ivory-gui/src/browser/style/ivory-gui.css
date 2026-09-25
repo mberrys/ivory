@@ -93,15 +93,10 @@ html[data-ivory-gui='prototype'] body.theia-dark {
 }
 
 /*
- * Must come after the combined light/dark rule above and match or exceed its
- * specificity, or the dark shadow never applies. Declaring it in a separate
- * earlier rule with identical specificity is silently dead CSS.
+ * The dark shadow has to come after the combined light/dark rule above, which
+ * already sets 0.16: an earlier rule of equal specificity is dead CSS and the
+ * light value would win in both themes.
  */
-html[data-ivory-gui='prototype'] body.theia-light,
-html[data-ivory-gui='prototype'] body.theia-dark {
-    --theia-widget-shadow: rgba(0, 0, 0, 0.16);
-}
-
 html[data-ivory-gui='prototype'] body.theia-dark {
     --theia-widget-shadow: rgba(0, 0, 0, 0.38);
 }

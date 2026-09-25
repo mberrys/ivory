@@ -69,7 +69,7 @@ describe('Ivory semantic token snapshot', () => {
         // accessible Poteto literal. Both are acceptable; a half-alias, or an
         // alias to a value that fails AA, is not. The measured justification
         // for each exception lives in the stylesheet comment beside it.
-        const fallbackOnly = new Set(['success', 'warning', 'danger', 'accent']);
+        const fallbackOnly = new Set(['success', 'warning', 'danger', 'accent', 'border', 'surface-raised', 'focus']);
         for (const role of roles) {
             const declarations = [...lightAndDark.matchAll(new RegExp(`--ivory-${role}:\\s*([^;]+);`, 'g'))];
             expect(declarations, role).to.have.length.greaterThan(0);
@@ -79,7 +79,10 @@ describe('Ivory semantic token snapshot', () => {
                     continue;
                 }
                 expect(fallbackOnly.has(role), `${role} is not aliased but is not a documented exception`).to.equal(true);
-                expect(declaration[1], role).to.match(/^#[0-9a-f]{6}$/i);
+                // A declined role carries a literal of its own: an opaque hex,
+                // or rgba() when the accessible step needs an alpha (the dark
+                // border is 42% white).
+                expect(declaration[1], role).to.match(/^(#[0-9a-f]{6}|rgba?\([\d.,\s]+\))$/i);
             }
             expect(snapshot, role).to.contain(`--verified-upstream-${role}:`);
         }
@@ -94,9 +97,14 @@ describe('Ivory semantic token snapshot', () => {
         // the pill paints; the light accent and danger-era roles that remain
         // clear. On the dark card the 500 steps and the blue accent all fail,
         // so dark declines all four.
+        // A role is declined per theme where the upstream step fails the
+        // threshold it is painted against: the three status roles as 10px pill
+        // labels, the dark accent as text and as an icon on the selection
+        // background, and in both themes the border (3:1 non-text), the raised
+        // fill (light: identical to the canvas) and the dark focus ring.
         const declined = {
-            light: ['success', 'warning', 'danger'],
-            dark: ['success', 'warning', 'danger', 'accent']
+            light: ['success', 'warning', 'danger', 'border', 'surface-raised'],
+            dark: ['success', 'warning', 'danger', 'accent', 'border', 'focus']
         };
         for (const [theme, block] of [['light', lightBlock], ['dark', darkBlock]] as const) {
             for (const role of ['success', 'warning', 'danger', 'accent']) {
