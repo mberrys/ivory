@@ -1,41 +1,589 @@
-/* Poteto tokens are mapped to Ivory semantic roles below. */
-:root {
-    --ivory-poteto-canvas: #f7f4ed;
-    --ivory-poteto-surface: #fffdf8;
-    --ivory-poteto-ink: #1f2933;
-    --ivory-poteto-muted: #68737d;
-    --ivory-poteto-line: #d9d2c3;
-    --ivory-poteto-accent: #d96c4f;
-    --ivory-poteto-accent-soft: #f1c2ae;
-    --ivory-poteto-success: #3f7d5a;
-    --ivory-poteto-shadow: 0 12px 32px rgba(46, 38, 28, 0.12);
+/*
+ * Poteto visual foundation for the Ivory browser prototype.
+ * The activation marker is added by IvoryGuiApplicationContribution and removed on stop.
+ * Every shell rule stays under the marker so removing the package restores Theia styling.
+ */
+
+html[data-ivory-gui='prototype'] {
+    --ivory-canvas: #f7f4ed;
+    --ivory-surface: #fffdf8;
+    --ivory-surface-raised: #ffffff;
+    --ivory-ink: #1f2933;
+    --ivory-muted: #68737d;
+    --ivory-border: #d9d2c3;
+    --ivory-accent: #d96c4f;
+    --ivory-accent-soft: #f1c2ae;
+    --ivory-focus: #1d6fc2;
+    --ivory-success: #3f7d5a;
+    --ivory-warning: #9a6a18;
+    --ivory-danger: #b24b4b;
+    --ivory-radius: 12px;
+    --ivory-shadow: 0 12px 32px rgba(46, 38, 28, 0.12);
+    --theia-ui-font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+    --theia-ui-font-size1: 13px;
+    --theia-ui-padding: 8px;
+    --theia-border-width: 1px;
 }
 
-[data-ivory-dashboard='true'] {
+html[data-ivory-gui='prototype'] body.theia-light {
+    --ivory-canvas: #f7f4ed;
+    --ivory-surface: #fffdf8;
+    --ivory-surface-raised: #ffffff;
+    --ivory-ink: #1f2933;
+    --ivory-muted: #68737d;
+    --ivory-border: #d9d2c3;
+    --ivory-accent: #d96c4f;
+    --ivory-accent-soft: #f1c2ae;
+    --ivory-focus: #1d6fc2;
+    --ivory-shadow: 0 12px 32px rgba(46, 38, 28, 0.12);
+}
+
+html[data-ivory-gui='prototype'] body.theia-dark {
+    --ivory-canvas: #1b1a18;
+    --ivory-surface: #242220;
+    --ivory-surface-raised: #2f2c28;
+    --ivory-ink: #f4eee5;
+    --ivory-muted: #b7ada1;
+    --ivory-border: #4a443d;
+    --ivory-accent: #e38b6c;
+    --ivory-accent-soft: #5d3e32;
+    --ivory-focus: #7eb8e8;
+    --ivory-success: #79bf94;
+    --ivory-warning: #d7a85e;
+    --ivory-danger: #e17b77;
+    --ivory-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+    --theia-widget-shadow: rgba(0, 0, 0, 0.38);
+}
+
+html[data-ivory-gui='prototype'] body {
+    --theia-editor-background: var(--ivory-canvas);
+    --theia-editor-foreground: var(--ivory-ink);
+    --theia-foreground: var(--ivory-ink);
+    --theia-textLink-foreground: var(--ivory-accent);
+    --theia-textLink-activeForeground: var(--ivory-accent);
+    --theia-icon-foreground: var(--ivory-muted);
+    --theia-activityBar-background: var(--ivory-canvas);
+    --theia-activityBar-foreground: var(--ivory-ink);
+    --theia-activityBar-inactiveForeground: var(--ivory-muted);
+    --theia-activityBar-activeBackground: var(--ivory-surface-raised);
+    --theia-activityBar-activeBorder: var(--ivory-accent);
+    --theia-activityBar-border: var(--ivory-border);
+    --theia-sideBar-background: var(--ivory-surface);
+    --theia-sideBar-foreground: var(--ivory-ink);
+    --theia-sideBarSectionHeader-background: var(--ivory-surface);
+    --theia-sideBarSectionHeader-foreground: var(--ivory-muted);
+    --theia-sideBarSectionHeader-border: var(--ivory-border);
+    --theia-titleBar-activeBackground: var(--ivory-surface);
+    --theia-titleBar-activeForeground: var(--ivory-ink);
+    --theia-titleBar-inactiveBackground: var(--ivory-surface);
+    --theia-titleBar-inactiveForeground: var(--ivory-muted);
+    --theia-titleBar-border: var(--ivory-border);
+    --theia-tab-activeBackground: var(--ivory-surface-raised);
+    --theia-tab-inactiveBackground: var(--ivory-canvas);
+    --theia-tab-activeForeground: var(--ivory-ink);
+    --theia-tab-inactiveForeground: var(--ivory-muted);
+    --theia-tab-unfocusedInactiveForeground: var(--ivory-muted);
+    --theia-tab-unfocusedActiveForeground: var(--ivory-muted);
+    --theia-tab-border: var(--ivory-border);
+    --theia-editorGroupHeader-tabsBackground: var(--ivory-surface);
+    --theia-editorGroupHeader-tabsBorder: var(--ivory-border);
+    --theia-editorGroup-border: var(--ivory-border);
+    --theia-statusBar-background: var(--ivory-ink);
+    --theia-statusBar-foreground: var(--ivory-surface);
+    --theia-statusBar-noFolderBackground: var(--ivory-ink);
+    --theia-statusBar-noFolderForeground: var(--ivory-surface);
+    --theia-statusBar-border: var(--ivory-accent);
+    --theia-statusBar-noFolderBorder: var(--ivory-accent);
+    --theia-menu-background: var(--ivory-surface-raised);
+    --theia-menu-foreground: var(--ivory-ink);
+    --theia-menu-border: var(--ivory-border);
+    --theia-menu-selectionBackground: var(--ivory-accent-soft);
+    --theia-menu-selectionForeground: var(--ivory-ink);
+    --theia-menu-selectionBorder: var(--ivory-accent);
+    --theia-menubar-selectionBackground: var(--ivory-accent-soft);
+    --theia-menubar-selectionForeground: var(--ivory-ink);
+    --theia-input-background: var(--ivory-surface-raised);
+    --theia-input-foreground: var(--ivory-ink);
+    --theia-input-border: var(--ivory-border);
+    --theia-input-placeholderForeground: var(--ivory-muted);
+    --theia-quickInput-background: var(--ivory-surface-raised);
+    --theia-quickInput-foreground: var(--ivory-ink);
+    --theia-quickInputList-focusBackground: var(--ivory-accent-soft);
+    --theia-quickInputList-focusForeground: var(--ivory-ink);
+    --theia-quickInputTitle-background: var(--ivory-surface);
+    --theia-widget-border: var(--ivory-border);
+    --theia-dropdown-background: var(--ivory-surface-raised);
+    --theia-dropdown-foreground: var(--ivory-ink);
+    --theia-dropdown-border: var(--ivory-border);
+    --theia-list-activeSelectionBackground: var(--ivory-accent-soft);
+    --theia-list-activeSelectionForeground: var(--ivory-ink);
+    --theia-focusBorder: var(--ivory-focus);
+    --theia-widget-shadow: rgba(46, 38, 28, 0.16);
+    --theia-contrastBorder: var(--ivory-border);
+    --theia-panel-border: var(--ivory-border);
+    --theia-panel-background: var(--ivory-surface);
+    --theia-panelTitle-activeForeground: var(--ivory-ink);
+    --theia-panelTitle-inactiveForeground: var(--ivory-muted);
+    --theia-panelTitle-activeBorder: var(--ivory-accent);
+    background: var(--ivory-canvas);
+    color: var(--ivory-ink);
+}
+
+html[data-ivory-gui='prototype'] #theia-app-shell {
+    background: var(--ivory-canvas);
+}
+
+html[data-ivory-gui='prototype'] #theia-top-panel {
+    min-height: 34px;
+    background: var(--ivory-surface);
+    color: var(--ivory-ink);
+    border-bottom-color: var(--ivory-border);
+}
+
+html[data-ivory-gui='prototype'] .lm-MenuBar {
+    background: var(--ivory-surface);
+}
+
+html[data-ivory-gui='prototype'] .lm-MenuBar-item {
+    border-radius: 6px;
+    margin: 0 2px;
+}
+
+html[data-ivory-gui='prototype'] .lm-MenuBar-item:hover,
+html[data-ivory-gui='prototype'] .lm-MenuBar-item.lm-mod-active {
+    color: var(--ivory-ink);
+    background: var(--ivory-accent-soft);
+}
+
+html[data-ivory-gui='prototype'] .theia-app-sidebar-container {
+    background: var(--ivory-canvas);
+    border-color: var(--ivory-border);
+}
+
+html[data-ivory-gui='prototype'] .lm-TabBar.theia-app-sides {
+    background: var(--ivory-canvas);
+    color: var(--ivory-muted);
+}
+
+html[data-ivory-gui='prototype'] .lm-TabBar.theia-app-sides .lm-TabBar-tab {
+    margin: 3px 5px;
+    min-height: 38px;
+    height: 38px;
+    border-radius: 8px;
+    color: var(--ivory-muted);
+}
+
+html[data-ivory-gui='prototype'] .lm-TabBar.theia-app-sides .lm-TabBar-tab:hover,
+html[data-ivory-gui='prototype'] .lm-TabBar.theia-app-sides .lm-TabBar-tab.lm-mod-current {
+    color: var(--ivory-ink);
+    background: var(--ivory-surface-raised);
+    box-shadow: 0 2px 8px rgba(46, 38, 28, 0.08);
+}
+
+html[data-ivory-gui='prototype'] .lm-TabBar.theia-app-left .lm-TabBar-tab.lm-mod-current {
+    box-shadow: inset 3px 0 0 var(--ivory-accent);
+}
+
+html[data-ivory-gui='prototype'] .lm-TabBar.theia-app-right .lm-TabBar-tab.lm-mod-current {
+    box-shadow: inset -3px 0 0 var(--ivory-accent);
+}
+
+html[data-ivory-gui='prototype'] .theia-side-panel {
+    background: var(--ivory-surface);
+    color: var(--ivory-ink);
+}
+
+html[data-ivory-gui='prototype'] .theia-view-container-part-header,
+html[data-ivory-gui='prototype'] .theia-sidepanel-toolbar {
+    background: var(--ivory-surface);
+    color: var(--ivory-muted);
+    border-bottom-color: var(--ivory-border);
+}
+
+html[data-ivory-gui='prototype'] .theia-view-container-part-header .label {
+    color: var(--ivory-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+html[data-ivory-gui='prototype'] .theia-app-centers {
+    background: var(--ivory-surface);
+    border-bottom: 1px solid var(--ivory-border);
+}
+
+html[data-ivory-gui='prototype'] .theia-app-centers .lm-TabBar-tab {
+    height: 38px;
+    line-height: 38px;
+    margin: 4px 3px 0;
+    border: 1px solid transparent;
+    border-bottom: 0;
+    border-radius: 8px 8px 0 0;
+    background: var(--ivory-canvas);
+    color: var(--ivory-muted);
+}
+
+html[data-ivory-gui='prototype'] .theia-app-centers .lm-TabBar-tab.lm-mod-current {
+    color: var(--ivory-ink);
+    background: var(--ivory-surface-raised);
+    border-color: var(--ivory-border);
+    box-shadow: inset 0 3px 0 var(--ivory-accent);
+}
+
+html[data-ivory-gui='prototype'] .theia-app-centers::after {
+    background: var(--ivory-border);
+}
+
+html[data-ivory-gui='prototype'] #theia-main-content-panel,
+html[data-ivory-gui='prototype'] #theia-main-content-panel .lm-Widget.lm-DockPanel-widget,
+html[data-ivory-gui='prototype'] #theia-main-content-panel .monaco-editor,
+html[data-ivory-gui='prototype'] #theia-main-content-panel .monaco-editor-background {
+    background-color: var(--ivory-canvas);
+}
+
+html[data-ivory-gui='prototype'] #theia-main-content-panel .lm-DockPanel-handle[data-orientation='horizontal'] {
+    border-left-color: var(--ivory-border);
+}
+
+html[data-ivory-gui='prototype'] #theia-statusBar {
+    min-height: 24px;
+    background: var(--ivory-ink);
+    color: var(--ivory-surface);
+    border-top-color: var(--ivory-accent);
+}
+
+html[data-ivory-gui='prototype'] body.theia-no-open-workspace #theia-statusBar {
+    background: var(--ivory-ink);
+    color: var(--ivory-surface);
+    border-top-color: var(--ivory-accent);
+}
+
+html[data-ivory-gui='prototype'] #theia-statusBar .area .element {
+    color: var(--ivory-surface);
+}
+
+html[data-ivory-gui='prototype'] .lm-Menu,
+html[data-ivory-gui='prototype'] .quick-input-widget {
+    background: var(--ivory-surface-raised);
+    color: var(--ivory-ink);
+    border: 1px solid var(--ivory-border);
+    border-radius: var(--ivory-radius);
+    box-shadow: var(--ivory-shadow);
+}
+
+html[data-ivory-gui='prototype'] .quick-input-widget .quick-input-header,
+html[data-ivory-gui='prototype'] .quick-input-widget .quick-input-box {
+    background: var(--ivory-surface-raised);
+    color: var(--ivory-ink);
+}
+
+html[data-ivory-gui='prototype'] .lm-Menu-item.lm-mod-active,
+html[data-ivory-gui='prototype'] .lm-Menu-item.lm-mod-active > div {
+    color: var(--ivory-ink);
+    background: var(--ivory-accent-soft);
+    border-color: var(--ivory-accent);
+}
+
+html[data-ivory-gui='prototype'] .dialogOverlay {
+    background: rgba(31, 41, 51, 0.32);
+}
+
+html[data-ivory-gui='prototype'] .dialogOverlay .dialogBlock {
+    background: var(--ivory-surface-raised);
+    color: var(--ivory-ink);
+    border: 1px solid var(--ivory-border);
+    border-radius: var(--ivory-radius);
+    box-shadow: var(--ivory-shadow);
+}
+
+html[data-ivory-gui='prototype'] .dialogOverlay .dialogTitle {
+    background: var(--ivory-surface);
+    color: var(--ivory-ink);
+    border-bottom: 1px solid var(--ivory-border);
+}
+
+html[data-ivory-gui='prototype'] :is(button, input, select, textarea, [tabindex], .lm-TabBar-tab):focus-visible {
+    outline: 2px solid var(--ivory-focus);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--ivory-focus) 22%, transparent);
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] {
     box-sizing: border-box;
     min-height: 100%;
-    padding: 2.25rem clamp(1.25rem, 4vw, 3.5rem);
-    color: var(--ivory-poteto-ink);
-    background: var(--ivory-poteto-canvas);
+    padding: 28px clamp(24px, 4vw, 56px) 48px;
+    color: var(--ivory-ink);
+    background: var(--ivory-canvas);
     font-family: 'Avenir Next', 'Segoe UI', sans-serif;
 }
 
-[data-ivory-dashboard='true'] * {
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] * {
     box-sizing: inherit;
 }
 
-[data-ivory-dashboard='true'] h1 {
-    margin: 0;
-    color: var(--ivory-poteto-ink);
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] > * {
+    max-width: 1160px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-dashboard-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--ivory-border);
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-eyebrow {
+    margin: 0 0 8px;
+    color: var(--ivory-accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] h1,
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] h2,
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] h3,
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] p {
+    margin-top: 0;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] h1 {
+    margin-bottom: 8px;
+    color: var(--ivory-ink);
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-size: clamp(2rem, 3.2vw, 3rem);
     font-weight: 500;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-lede {
+    max-width: 560px;
+    margin-bottom: 0;
+    color: var(--ivory-muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-command-button {
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: 0 16px;
+    border: 1px solid var(--ivory-accent);
+    border-radius: 8px;
+    color: var(--ivory-surface);
+    background: var(--ivory-accent);
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-command-button:hover {
+    background: var(--ivory-ink);
+    border-color: var(--ivory-ink);
+    color: var(--ivory-surface);
+    box-shadow: 0 6px 16px rgba(46, 38, 28, 0.14);
+    transform: translateY(-1px);
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-section {
+    padding-top: 28px;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 16px;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] h2 {
+    margin-bottom: 4px;
+    color: var(--ivory-ink);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-section-heading p {
+    margin-bottom: 0;
+    color: var(--ivory-muted);
+    font-size: 12px;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-search-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ivory-muted);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-search-label input {
+    width: 220px;
+    min-height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--ivory-border);
+    border-radius: 8px;
+    outline: none;
+    color: var(--ivory-ink);
+    background: var(--ivory-surface-raised);
+    font: inherit;
+    font-size: 12px;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-search-label input::placeholder {
+    color: var(--ivory-muted);
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-card {
+    min-width: 0;
+    min-height: 188px;
+    padding: 18px;
+    border: 1px solid var(--ivory-border);
+    border-radius: var(--ivory-radius);
+    background: var(--ivory-surface-raised);
+    box-shadow: 0 4px 12px rgba(46, 38, 28, 0.05);
+    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-card:hover {
+    border-color: var(--ivory-accent);
+    box-shadow: var(--ivory-shadow);
+    transform: translateY(-2px);
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-card-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-card-kind {
+    color: var(--ivory-muted);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-status-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 0 8px;
+    border-radius: 999px;
+    color: var(--ivory-ink);
+    background: var(--ivory-canvas);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-status-pill[data-status='verified'],
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-status-pill[data-status='ready'] {
+    color: var(--ivory-success);
+    background: color-mix(in srgb, var(--ivory-success) 14%, transparent);
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-status-pill[data-status='queued'] {
+    color: var(--ivory-warning);
+    background: color-mix(in srgb, var(--ivory-warning) 14%, transparent);
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-card h3 {
+    margin-bottom: 8px;
+    color: var(--ivory-ink);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-card p {
+    margin-bottom: 16px;
+    color: var(--ivory-muted);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-card-source {
+    display: block;
+    margin-bottom: 0;
+    overflow-wrap: anywhere;
+    color: var(--ivory-accent);
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-empty-state {
+    margin: 0;
+    padding: 32px;
+    border: 1px dashed var(--ivory-border);
+    border-radius: var(--ivory-radius);
+    color: var(--ivory-muted);
+    background: var(--ivory-surface);
+    text-align: center;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    [data-ivory-dashboard='true'] * {
-        transition-duration: 0.01ms !important;
+    html[data-ivory-gui='prototype'] * {
         animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+@media (max-width: 1050px) {
+    html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 720px) {
+    html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] {
+        padding: 20px 16px 36px;
+    }
+
+    html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-dashboard-header,
+    html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-section-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-search-label {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-search-label input {
+        width: 100%;
+    }
+
+    html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-list {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
