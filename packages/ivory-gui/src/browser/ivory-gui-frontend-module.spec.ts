@@ -14,6 +14,7 @@ import { FrontendApplicationContribution } from '@theia/core/lib/browser';
 import { bindRootContributionProvider, ContributionProvider } from '@theia/core/lib/common';
 import { expect } from 'chai';
 import ivoryGuiFrontendModule from './ivory-gui-frontend-module';
+import { IvoryGuiApplicationContribution } from './ivory-gui-application-contribution';
 
 const moduleSource = readFileSync('src/browser/ivory-gui-frontend-module.ts', 'utf8');
 
@@ -32,5 +33,6 @@ describe('Ivory GUI frontend module build boundary', () => {
 
         const provider = container.getNamed<ContributionProvider<FrontendApplicationContribution>>(ContributionProvider, FrontendApplicationContribution);
         expect(provider.getContributions).to.be.a('function');
+        expect(container.isBound(IvoryGuiApplicationContribution)).to.equal(true);
     });
 });

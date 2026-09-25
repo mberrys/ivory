@@ -24,5 +24,6 @@ export default new ContainerModule(bind => {
         id: IvoryDashboardWidget.ID,
         createWidget: () => context.container.get<IvoryDashboardWidget>(IvoryDashboardWidget)
     })).inSingletonScope();
+    bind(IvoryGuiApplicationContribution).toSelf().inSingletonScope();
     bind(FrontendApplicationContribution).toService(IvoryGuiApplicationContribution);
 });
