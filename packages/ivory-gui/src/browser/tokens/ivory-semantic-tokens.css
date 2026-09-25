@@ -161,6 +161,9 @@ html[data-ivory-gui='prototype'] body.theia-dark {
     --ivory-danger: #f2b8b5;
     --ivory-on-accent: #1c1c1e;
     --ivory-shadow: var(--verified-upstream-shadow, 0 16px 36px rgba(0, 0, 0, 0.28));
+    /* The bar is painted as a --ivory-ink band, so its label is the surface
+     * colour. */
+    --ivory-statusBar-label: var(--ivory-surface);
 }
 
 html[data-ivory-gui='prototype'] body.theia-hc,
@@ -177,10 +180,10 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
      * value, so the chain never terminated. High Contrast Dark defines no
      * list.activeSelectionBackground at all, so this is the path that runs. */
     --ivory-border: var(--theia-foreground, var(--ivory-ink));
-    /* Not var(--theia-contrastBorder, ...) first: that role is undefined in HC,
-     * so the chain fell through to --theia-widget-border (#303031), which is
-     * 1.26:1 on the HC canvas and cannot carry a component boundary. The
-     * foreground is defined in both HC themes and clears 3:1 comfortably. */
+    /* The foreground, not a border role. widget.border is #6fc3df in HC Dark
+     * and #0f4a85 in HC Light, which do clear 3:1 - but a widget border is
+     * a different job from a selected-row ring, and the foreground is defined
+     * in every theme and reads as deliberate emphasis rather than a frame. */
     --ivory-focus: var(--theia-focusBorder, var(--ivory-ink));
     /*
      * High contrast gets no aliases of any kind, including the status roles.
@@ -194,9 +197,10 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
     --ivory-danger: var(--theia-errorBackground, var(--theia-foreground, var(--ivory-ink)));
     --ivory-on-accent: var(--theia-button-foreground, var(--ivory-ink));
     --ivory-on-accent-soft: var(--theia-menu-foreground, var(--theia-foreground, var(--ivory-ink)));
-    /* Not --theia-focusBorder: HC sets that to #007fd4, which is only 2.32:1
-     * on the HC selection fill #094771. --theia-foreground is #cccccc there and
-     * clears 6.08:1, so the selected row keeps a visible ring in HC. */
+    /* The foreground, not focusBorder: focusBorder is #f38518 in HC Dark and
+     * #006bbd in HC Light. The selection fill in HC Dark is the canvas, so the
+     * ring has to carry the state on its own; the foreground measures 21:1 on
+     * that canvas and 14.55:1 in HC Light. */
     --ivory-focus-on-soft: var(--theia-foreground, var(--theia-focusBorder, var(--ivory-ink)));
     --ivory-hover: var(--theia-foreground, var(--ivory-ink));
     /* The colour core mixes to paint a hovered CARD, which is a different
@@ -206,10 +210,12 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
      * to be a visible step off the black canvas. contrastBorder clears
      * both: 6.67:1 for the label, 3.15:1 for the step. */
     --ivory-hover-wash: var(--theia-contrastBorder, var(--theia-foreground, var(--ivory-ink)));
-    /* Not the inactive-selection wash: #094771 is 1.71:1 on the HC canvas, and
-     * no wash light enough to clear 3:1 keeps a 4.5:1 label against the HC
-     * foreground. In high contrast a hover is a boundary, not a fill - the
-     * same strategy the selected row already uses. */
+    /* Not the inactive-selection wash. High Contrast Dark defines no selection
+     * fill at all, so --ivory-accent-soft resolves to the canvas there and a
+     * fill-based indicator would be invisible; and a wash light enough to be
+     * visible on black drops the white label below 4.5:1. In high contrast a
+     * hover is a boundary, not a fill - the same strategy the selected row
+     * already uses. */
     /* Not var(--theia-contrastBorder, ...) first: HC leaves that role EMPTY, so
      * a live browser computed border-top-width: 0px on the status bar and the
      * bar had no boundary at all. Point at a role that is actually defined in
@@ -225,4 +231,9 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
        names is scoped to the ordinary themes. */
     --ivory-radius: 0px;
     --ivory-shadow: none;
+    /* The bar has no fill under high contrast - Theia leaves it transparent
+     * so the canvas shows through - and --ivory-surface resolves to the same
+     * value as the canvas here, which made the label invisible at 1.00:1 in
+     * both high-contrast themes. The label is the theme foreground. */
+    --ivory-statusBar-label: var(--ivory-ink);
 }

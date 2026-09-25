@@ -267,12 +267,13 @@ html[data-ivory-gui='prototype'] #theia-statusBar {
     min-height: 24px;
     background: var(--ivory-ink);
     color: var(--ivory-surface);
-    /* The width and style are set here, not inherited: core's shorthand
-     * `border-top: var(--theia-border-width) solid var(--theia-statusBar-border)`
-     * is invalid at computed-value time under high contrast, because
-     * statusBar.noFolderBorder -> statusBar.border -> contrastBorder and that
-     * role is undefined in HC. A colour on a 0px border paints nothing: a
-     * live browser computed border-top-width: 0px on the bar. */
+    /* The width and style are restated here rather than left to inherit. Core's
+     * shorthand is `border-top: var(--theia-border-width) solid
+     * var(--theia-statusBar-border)` at (1,0,0) and this rule is (1,1,1), so
+     * whatever it sets is what the browser draws. Restating only the colour
+     * would leave the width and the style to the inherited value, which is
+     * fragile: a theme that does not set --theia-border-width would compute a
+     * 0px border and the boundary would silently vanish. */
     border-top: 1px solid var(--ivory-border-on-ink);
 }
 
@@ -285,8 +286,8 @@ html[data-ivory-gui='prototype'] #theia-statusBar {
 
 html[data-ivory-gui='prototype'] body.theia-hc .theia-TreeNode:hover,
 html[data-ivory-gui='prototype'] body.theia-hcLight .theia-TreeNode:hover,
-html[data-ivory-gui='prototype'] body.theia-hc .lm-MenuItem:hover,
-html[data-ivory-gui='prototype'] body.theia-hcLight .lm-MenuItem:hover {
+html[data-ivory-gui='prototype'] body.theia-hc .lm-Menu-item:hover,
+html[data-ivory-gui='prototype'] body.theia-hcLight .lm-Menu-item:hover {
     /* In high contrast a hover is a boundary, not a wash, because Theia
      * defines no list.hoverBackground for the theme - there is no fill to
      * paint and none to wash. --ivory-hover is #ffffff, 21:1 on the black
@@ -312,17 +313,33 @@ html[data-ivory-gui='prototype'] body.theia-hcLight.theia-no-open-workspace #the
 html[data-ivory-gui='prototype'] body.theia-no-open-workspace #theia-statusBar {
     background: var(--ivory-ink);
     color: var(--ivory-surface);
-    /* The width and style are set here, not inherited: core's shorthand
-     * `border-top: var(--theia-border-width) solid var(--theia-statusBar-border)`
-     * is invalid at computed-value time under high contrast, because
-     * statusBar.noFolderBorder -> statusBar.border -> contrastBorder and that
-     * role is undefined in HC. A colour on a 0px border paints nothing: a
-     * live browser computed border-top-width: 0px on the bar. */
+    /* The width and style are restated here rather than left to inherit. Core's
+     * shorthand is `border-top: var(--theia-border-width) solid
+     * var(--theia-statusBar-border)` at (1,0,0) and this rule is (1,1,1), so
+     * whatever it sets is what the browser draws. Restating only the colour
+     * would leave the width and the style to the inherited value, which is
+     * fragile: a theme that does not set --theia-border-width would compute a
+     * 0px border and the boundary would silently vanish. */
     border-top: 1px solid var(--ivory-border-on-ink);
 }
 
+/* The status bar is an ink band in the ordinary themes: a dark fill with a
+ * light label, and --ivory-surface is that label. Under high contrast the bar
+ * has no fill of its own - Theia leaves the fill transparent so the canvas
+ * shows through - and --ivory-surface resolves to the SAME value as the
+ * canvas in both high-contrast themes (sideBar.background and
+ * editor.background are both #000000 dark and #ffffff light). Painting the
+ * label with it made the status bar text invisible: a live browser measured
+ * 1.00:1 in each, black on black and white on white.
+ *
+ * So the label role has to differ by theme, because the BACKDROP does: the
+ * ordinary themes paint an --ivory-ink band and need a light label, while
+ * high contrast leaves the bar transparent and needs the theme's foreground.
+ * --ivory-statusBar-label is that role. Core sets
+ * `.area .element { color: var(--theia-statusBar-foreground) }` at (1,0,1) and
+ * this rule is (1,2,1), so the role has to be named here. */
 html[data-ivory-gui='prototype'] #theia-statusBar .area .element {
-    color: var(--ivory-surface);
+    color: var(--ivory-statusBar-label);
 }
 
 html[data-ivory-gui='prototype'] .lm-Menu,

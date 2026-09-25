@@ -162,8 +162,10 @@ Painted pairs, all over the `#000000` canvas:
 | ink on canvas | 21.00:1 | 4.5 |
 | muted on canvas | 9.90:1 | 4.5 |
 | status bar boundary on the canvas | 10.55:1 | 3 |
+| status bar label on the canvas | 21.00:1 | 4.5 |
 | hover boundary on the canvas | 21.00:1 | 3 |
-| focus ring on the canvas | 21.00:1 | 3 |
+| selected-row ring (`--ivory-focus-on-soft`) on the canvas | 21.00:1 | 3 |
+| `--ivory-focus` (`#f38518`) on the canvas | 8.18:1 | 3 |
 | label on the card hover fill core paints | 6.67:1 | 4.5 |
 | card hover fill against the canvas | 3.15:1 | 1.2 |
 
@@ -181,6 +183,25 @@ Painted pairs, all over the `#000000` canvas:
 | `--ivory-success`, `--ivory-warning`, `--ivory-danger` | `#292929` | fall back to the foreground; this theme defines none |
 
 The status bar boundary measures 8.98:1 against the `#ffffff` app shell.
+
+### The status bar label
+
+The bar's *text* was the one pair the suite never measured. Its label rule read
+`--ivory-surface` unconditionally, which is correct for an ink band and wrong
+for a transparent bar: in both high-contrast themes `--ivory-surface` resolves
+to the same value as the canvas (`sideBar.background` and `editor.background`
+are both `#000000` dark and `#ffffff` light), so the label was painted
+`#000000` on `#000000` and `#ffffff` on `#ffffff`. A live browser measured
+**1.00:1** in each — the status bar text was invisible in both high-contrast
+themes while every other assertion in this suite passed.
+
+The fix is a per-theme role, `--ivory-statusBar-label`, because the *backdrop*
+is what differs rather than the text: the ordinary themes paint the bar as an
+`--ivory-ink` band and need a light label, so the role is `--ivory-surface`
+there; high contrast leaves the bar transparent and needs the theme's
+foreground, so the role is `--ivory-ink` there. Measured: `21.00:1` in High
+Contrast Dark, `14.55:1` in High Contrast Light, and the ordinary themes are
+unchanged at `18.07:1` and `19.29:1`.
 
 ### What the two themes leave undefined, and what the package supplies
 

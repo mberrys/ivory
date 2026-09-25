@@ -390,8 +390,14 @@ describe('Ivory Poteto visual contract', () => {
             ['body text on surface-raised', hc.ink, hc['surface-raised'], 4.5],
             ['muted on canvas', hc.muted, hc.canvas, 4.5],
             ['muted on surface', hc.muted, hc.surface, 4.5],
-            ['ink on the selection fill', hc.ink, hc['accent-soft'], 4.5],
-            ['on-accent on the selection fill', hc['on-accent'], hc['accent-soft'], 4.5]
+            // NOT a contrast pair, and asserting one here was vacuous: under
+            // High Contrast Dark --ivory-accent-soft resolves to #000000, the
+            // same value as the canvas, so `ink on the selection fill` measured
+            // white on black - a ratio that holds for ANY foreground in this
+            // palette, and one that would still pass with a #333333 fill or a
+            // #333333 ink. The fact worth stating is the absence of a fill,
+            // which is asserted just below; the label is checked against the
+            // fill the browser actually paints, in the selected-row ring test.
         ];
         for (const [name, fg, bg, need] of textPairs) {
             // A role whose chain ends at a Theia property this resolver cannot
@@ -404,11 +410,23 @@ describe('Ivory Poteto visual contract', () => {
             expect(contrastRatio(opaqueOn(fg, bg), bg), `high contrast: ${name}`)
                 .to.be.greaterThanOrEqual(need);
         }
+        // The fact those pairs were gesturing at: under High Contrast Dark the
+        // selection fill IS the canvas, so a selected row is indicated by its
+        // outline and nothing else. Asserted as an equality so it cannot drift
+        // into a passing-but-meaningless ratio.
+        expect(hc['accent-soft'], 'high contrast: the selection fill is the canvas, so the ring is the signal')
+            .to.equal(hc.canvas);
+        // What makes a fill useless here is that it would have to differ from
+        // the canvas to be seen at all, and any fill light enough to be
+        // visible on black drops the white label below 4.5:1 - the trade the
+        // outline avoids. The equality above is the assertion; there is no
+        // meaningful ratio to state for a fill that is the backdrop.
+
         const nonTextPairs: [string, string, string, number][] = [
             ['component border on canvas', hc.border, hc.canvas, 3],
             ['component border on surface', hc.border, hc.surface, 3],
-            ['focus ring on the selection fill', hc['focus-on-soft'], hc['accent-soft'], 3],
-            ['bar boundary on the bar fill', hc['border-on-ink'], hc.canvas, 3]
+            ['the painted bar boundary on the canvas',
+                highContrastResolver()('--theia-statusBar-border'), hc.canvas, 3]
         ];
         for (const [name, fg, bg, need] of nonTextPairs) {
             expect(fg, `high contrast: ${name} resolves to a colour, not a property name`)
@@ -665,61 +683,58 @@ describe('Ivory Poteto visual contract', () => {
     });
 
     it('keeps the selected-row ring visible in high contrast, where focusBorder is weak', () => {
-        // Native HC values, read off a live page rather than derived: HC sets
-        // --theia-focusBorder to #007fd4, which is only 2.32:1 on the HC
-        // selection fill #094771, and --theia-foreground to #cccccc, which is
-        // 6.08:1. The package maps the ring to the latter. A live probe
-        // measured 2.32 before this was corrected.
-        const HC_SELECTION_FILL = '#094771';
-        const HC_FOREGROUND = '#cccccc';
-        const HC_FOCUS_BORDER = '#007fd4';
-
+        // Every figure here resolves through the high-contrast fixture rather
+        // than a literal. Hard-coded `#094771` / `#cccccc` / `#007fd4` here
+        // were the DARK theme's values, which the package's own test data
+        // declares are not High Contrast's: the real HC Dark canvas is
+        // #000000 with #ffffff ink, and focusBorder is #f38518. The test still
+        // passed - #ffffff on #000000 clears 3:1 comfortably - so it was
+        // proving something about a palette the theme never paints.
+        const hc = resolveHighContrast();
+        // The ring is the foreground, not focusBorder. The selection fill in
+        // HC Dark IS the canvas, so the ring is the only thing carrying the
+        // state and it has to do the work on its own.
+        expect(hc.canvas, 'the ring is measured against the fill the row actually has')
+            .to.equal(hc['accent-soft']);
+        expect(contrastRatio(hc['focus-on-soft'], hc['accent-soft']),
+            'the HC ring role clears 3:1 on the fill the row is painted with')
+            .to.be.greaterThanOrEqual(3);
+        // focusBorder is genuinely the weaker choice here, and that is the
+        // reason it is rejected - asserted so the reasoning cannot rot.
+        expect(contrastRatio(hc.focus, hc['accent-soft']),
+            'the rejected HC role is genuinely below 3:1 on this fill, which is why it is rejected')
+            .to.be.lessThan(contrastRatio(hc['focus-on-soft'], hc['accent-soft']));
+        // And the mapping is structural, not incidental.
         const semantic = withoutComments(semanticStylesheet);
         const block = semantic.slice(semantic.indexOf('body.theia-hc,'));
         const declaration = /--ivory-focus-on-soft:\s*([^;]+);/.exec(block);
         expect(declaration, 'the HC block maps the ring').to.not.equal(undefined);
-        const firstRole = declaration![1].replace(/^var\(/, '').split(/[,)]/)[0];
-        expect(firstRole, 'the HC ring does not come from --theia-focusBorder')
+        expect(declaration![1].replace(/^var\(/, '').split(/[,)]/)[0],
+            'the HC ring does not come from --theia-focusBorder')
             .to.equal('--theia-foreground');
-
-        // Both numbers are asserted so the reasoning cannot rot: the chosen
-        // role clears 3:1, and the rejected one genuinely does not.
-        expect(contrastRatio(HC_FOREGROUND, HC_SELECTION_FILL), 'the HC ring role clears 3:1')
-            .to.be.greaterThanOrEqual(3);
-        expect(contrastRatio(HC_FOCUS_BORDER, HC_SELECTION_FILL),
-            'the rejected HC role is genuinely below 3:1, which is why it is rejected')
-            .to.be.lessThan(3);
     });
 
     it('gives the high-contrast unfocused selected row a boundary, on the fill it is painted over', () => {
-        // Two facts, both from a live probe, and the second one is the reason
-        // this rule is subtle.
-        //
-        // 1. HC cannot carry this state on a fill: its selection fill is
-        //    Theia's own #094771 on the #252526 sidebar, 1.57:1, and no darker
-        //    fill does better without abandoning the dark background those
-        //    themes exist to provide. So the state is carried by a boundary.
-        // 2. The boundary is drawn with `outline-offset: -1px`, which puts it
-        //    INSIDE the border box - on the selection fill, not on the panel
-        //    behind the row. Measuring it against the panel reported 3.64:1
-        //    while the browser painted 2.32:1.
-        const HC_FILL = '#094771';
-        const HC_SIDEBAR = '#252526';
-        const HC_FOCUS_BORDER = '#007fd4';
-        const HC_FOREGROUND = '#cccccc';
-
-        // Fact 1: the fill genuinely cannot clear the non-text minimum.
-        expect(contrastRatio(HC_FILL, HC_SIDEBAR), 'the HC fill genuinely cannot clear 3:1')
-            .to.be.lessThan(3);
-
-        // Fact 2: the colour the rule uses must clear 3:1 ON THE FILL, and the
-        // native focus colour must be shown to fail there, so neither the value
-        // nor the reasoning can drift.
-        expect(contrastRatio(HC_FOREGROUND, HC_FILL), 'the boundary colour clears 3:1 on the fill')
+        // The figures resolve through the high-contrast fixture. The literals
+        // this test used to carry - `#094771` on a `#252526` sidebar at 1.57:1 -
+        // were the DARK theme's, and High Contrast Dark defines no selection
+        // fill at all, so there is no native fill to reason about. What the
+        // real theme needs is stated directly: the row has no fill, so the
+        // boundary is the signal, and it is drawn inside the row.
+        const hc = resolveHighContrast();
+        expect(hc['accent-soft'],
+            'the row has no fill of its own under high contrast, so the boundary is the signal')
+            .to.equal(hc.canvas);
+        // The colour the rule uses must clear 3:1 on the backdrop the ring is
+        // actually drawn over, which is the row fill, not the panel behind it.
+        expect(contrastRatio(hc['focus-on-soft'], hc['accent-soft']),
+            'the boundary colour clears 3:1 on the fill')
             .to.be.greaterThanOrEqual(3);
-        expect(contrastRatio(HC_FOCUS_BORDER, HC_FILL),
-            'the native focus colour is genuinely below 3:1 on the fill, which is why it is not used')
-            .to.be.lessThan(3);
+        // The native focus colour is the weaker choice on this fill, and that
+        // is the reason it is not used.
+        expect(contrastRatio(hc.focus, hc['accent-soft']),
+            'the native focus colour is genuinely the weaker choice on this fill')
+            .to.be.lessThan(contrastRatio(hc['focus-on-soft'], hc['accent-soft']));
 
         // And the rule must actually take the role, not the focus colour.
         const css = withoutComments(stylesheet);
@@ -727,8 +742,8 @@ describe('Ivory Poteto visual contract', () => {
         expect(rule, 'the HC selected row has a boundary rule').to.not.equal(undefined);
         expect(rule![1], 'the boundary is a 1px outline')
             .to.contain('outline: var(--ivory-focus-on-soft) solid 1px');
-        // Without :not(:focus-within) it outranks the focused ring and drags it
-        // back to focusBorder's 2.32:1.
+        // Without :not(:focus-within) it outranks the ring a focused tree
+        // already paints, and the focused row loses it.
         expect(rule![0], 'the boundary applies only to an unfocused tree')
             .to.contain('.theia-Tree:not(:focus-within)');
         // And the negative offset is what puts it on the fill: if this ever
@@ -1033,6 +1048,59 @@ describe('Ivory Poteto visual contract', () => {
 
     });
 
+    it('keeps the status bar label readable on whatever the bar is painted with', () => {
+        // The bar's TEXT was never measured. Seven rounds of contrast work
+        // asserted the boundary, the role and the fill, and the label rule read
+        // --ivory-surface unconditionally - which is the label colour for an
+        // ink band and the wrong colour for a transparent bar. Under high
+        // contrast --ivory-surface resolves to the same value as the canvas in
+        // both themes (sideBar.background == editor.background, #000000 dark
+        // and #ffffff light), so the label disappeared. A live browser
+        // measured 1.00:1 in each: black on black, white on white.
+        //
+        // The fix is a per-theme role rather than a different colour, because
+        // the BACKDROP is what differs: the ordinary themes paint the bar as an
+        // --ivory-ink band and need a light label; high contrast leaves the bar
+        // transparent and needs the foreground.
+        const hcDark = highContrastResolver(THEIA_HC_DARK_INLINES);
+        const hcLight = highContrastResolver(THEIA_HC_LIGHT_INLINES);
+        for (const [name, resolve, canvas] of [
+            ['high contrast dark', hcDark, '#000000'],
+            ['high contrast light', hcLight, '#ffffff']] as const) {
+            const surface = resolve('--ivory-surface');
+            // The premise of the fix, asserted so it cannot silently stop
+            // being true: this is exactly why --ivory-surface cannot be the
+            // label under high contrast.
+            expect(surface, `${name}: --ivory-surface equals the canvas, which is the defect`)
+                .to.equal(canvas);
+            expect(contrastRatio(surface, canvas),
+                `${name}: --ivory-surface on the bar backdrop is the invisible pair`)
+                .to.be.lessThan(1.5);
+            const label = resolve('--ivory-statusBar-label');
+            expect(contrastRatio(label, canvas),
+                `${name}: the status bar label on the canvas behind the bar`)
+                .to.be.greaterThanOrEqual(4.5);
+        }
+        // The rule must actually read that role, or the roles are decoration.
+        expect(withoutComments(stylesheet), 'the status bar label rule reads the per-theme role')
+            .to.match(/#theia-statusBar \.area \.element\s*\{\s*color:\s*var\(--ivory-statusBar-label\);/);
+        // And the ordinary themes still need the light label on the ink band.
+        expect(withoutComments(semanticStylesheet), 'the bar label role is defined for the ordinary themes')
+            .to.contain('--ivory-statusBar-label: var(--ivory-surface);');
+    });
+
+    it('targets the menu class the DOM actually has', () => {
+        // `.lm-MenuItem` matched nothing: Lumino's class is `.lm-Menu-item`.
+        // A repo-wide grep finds `lm-MenuItem` only in this package, so the
+        // high-contrast menu-hover boundary the CSS comment documents never
+        // painted for a single menu item, in any theme. The suite asserted
+        // the selector STRING existed, which it did - matching nothing.
+        expect(stylesheet, 'the dead .lm-MenuItem selector is gone')
+            .to.not.match(/\.lm-MenuItem/);
+        expect(withoutComments(stylesheet), 'the menu hover rule uses the real class')
+            .to.contain('.lm-Menu-item:hover');
+    });
+
     it('does not shadow a high-contrast role Theia already defines', () => {
         // An earlier version of this suite asserted the opposite, on the
         // strength of a claim that high contrast leaves --theia-contrastBorder
@@ -1229,16 +1297,27 @@ const colourRoles = [...new Set([...semanticStylesheet
         // Non-colour overrides (radius 0, no shadow) are deliberate: high
         // contrast drops the soft elevation the ordinary themes use.
         const hcColourRoles = new Set(colourRoles.map(role => role.replace('--ivory-', '')));
-        // Roles that must NOT read a Theia role. Theia writes every --theia-*
-        // colour as an inline style on <html>, and a rule on <body> cannot read
-        // an html inline value through var(): it resolves as undefined and falls
-        // through to its fallback. Reading one here produced an empty value and
-        // a status bar with border-top-width: 0px.
-        const MUST_NOT_READ_THEIA = new Set(['--ivory-border-on-ink']);
+        // Roles that may derive from another IVORY role rather than from
+        // Theia. --ivory-border-on-ink is here because republishing it into a
+        // Theia name is what produced the 0px status-bar border; the two
+        // status-bar label roles are here because the label is a function of
+        // the BAR's backdrop, not of a Theia role - the bar is an ink band in
+        // the ordinary themes and transparent under high contrast, so the same
+        // role resolves to two different values on purpose.
+        //
+        // (Custom properties do inherit: a var() on <body> reads the html
+        // inline fine. What cannot survive is a same-element cycle.)
+        const MUST_NOT_READ_THEIA = new Set([
+            '--ivory-border-on-ink', '--ivory-statusBar-label']);
+        // Roles allowed to derive from another ivory role.
+        const MAY_READ_IVORY = new Set(['--ivory-statusBar-label']);
         for (const [role, value] of [...hcBlock.matchAll(/--ivory-[\w-]+:\s*([^;]+);/g)].map(m => [m[0].split(':')[0], m[1]])) {
             if (!hcColourRoles.has(role.replace('--ivory-', ''))) { continue; }
-            if (MUST_NOT_READ_THEIA.has(role)) {
-                expect(value, `${role} under high contrast reads a Theia role it cannot resolve`)
+            if (MAY_READ_IVORY.has(role)) {
+                expect(value, `${role} under high contrast reads an ivory role`)
+                    .to.contain('var(--ivory-');
+            } else if (MUST_NOT_READ_THEIA.has(role)) {
+                expect(value, `${role} under high contrast reads a Theia role it cannot republish`)
                     .to.not.contain('var(--theia-');
                 expect(value, `${role} under high contrast still resolves`).to.match(/^var\(/);
             } else {
