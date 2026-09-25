@@ -123,8 +123,11 @@ describe('Ivory dashboard widget', () => {
         expect(widget.node.querySelector('.ivory-empty-state')?.textContent).to.equal('No evidence matches this query.');
     });
 
-    it('activates the reversible shell marker only while attached', () => {
-        expect(document.documentElement.dataset.ivoryGui).to.equal(undefined);
+    it('leaves the application-owned shell marker in place when the view closes', () => {
+        // The application contribution owns the marker for the whole session.
+        // The widget must not revoke it on detach, or closing the dashboard
+        // would strip the theme from a live workbench with no way back.
+        document.documentElement.dataset.ivoryGui = 'prototype';
 
         React.act(() => {
             Widget.attach(widget, document.body);
@@ -136,7 +139,8 @@ describe('Ivory dashboard widget', () => {
             widget.close();
             MessageLoop.flush();
         });
-        expect(document.documentElement.dataset.ivoryGui).to.equal(undefined);
+        expect(document.documentElement.dataset.ivoryGui).to.equal('prototype');
+        delete document.documentElement.dataset.ivoryGui;
     });
 
     it('runs an evidence check and reports the result in a live status', () => {

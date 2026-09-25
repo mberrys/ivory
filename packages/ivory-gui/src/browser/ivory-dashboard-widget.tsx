@@ -62,13 +62,12 @@ export class IvoryDashboardWidget extends ReactWidget {
 
     protected override onAfterAttach(message: Message): void {
         super.onAfterAttach(message);
-        document.documentElement.dataset.ivoryGui = 'prototype';
     }
 
-    protected override onBeforeDetach(message: Message): void {
-        delete document.documentElement.dataset.ivoryGui;
-        super.onBeforeDetach(message);
-    }
+    // The application contribution owns the activation marker for the whole
+    // session, so this widget deliberately neither sets nor clears it. Clearing
+    // it on detach would strip the theme from a live workbench with no way back
+    // short of a reload.
 
     private query = '';
     private evidenceStatus: string | undefined;
