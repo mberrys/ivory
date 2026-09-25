@@ -157,12 +157,17 @@ html[data-ivory-gui='prototype'] .lm-TabBar.theia-app-sides .lm-TabBar-tab.lm-mo
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
+/*
+ * box-shadow is not additive, so this replaces the elevation set at the current-
+ * tab rule above rather than adding to it. Compose both rather than trading the
+ * drop shadow away for the selection bar.
+ */
 html[data-ivory-gui='prototype'] .lm-TabBar.theia-app-left .lm-TabBar-tab.lm-mod-current {
-    box-shadow: inset 3px 0 0 var(--ivory-accent);
+    box-shadow: inset 3px 0 0 var(--ivory-accent), 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 html[data-ivory-gui='prototype'] .lm-TabBar.theia-app-right .lm-TabBar-tab.lm-mod-current {
-    box-shadow: inset -3px 0 0 var(--ivory-accent);
+    box-shadow: inset -3px 0 0 var(--ivory-accent), 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 html[data-ivory-gui='prototype'] .theia-side-panel {

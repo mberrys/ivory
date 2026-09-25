@@ -136,6 +136,18 @@ describe('Ivory Poteto visual contract', () => {
     it('keeps every shell override behind the reversible activation marker', () => {
         expect(stylesheet).to.contain("html[data-ivory-gui='prototype']");
         expect(stylesheet).not.to.contain("html:not([data-ivory-gui='prototype'])");
+        // Assert every top-level rule is scoped, not merely that the marker
+        // appears somewhere. Split on top-level braces so a comma-separated
+        // :is() list is read as the single rule it is.
+        const css = declarationsOnlyForOrder();
+        const rules = [...css.matchAll(/(^|[{}])\s*([^{}@]+?)\s*\{/g)].map(m => m[2].trim());
+        expect(rules, 'top-level rules found').to.not.be.empty;
+        const unscoped = rules.filter(selector => !selector.startsWith(
+            "html[data-ivory-gui='prototype']") && !selector.startsWith('@'));
+        expect(unscoped, `rules not behind the activation marker: ${unscoped.join(' | ')}`).to.be.empty;
+        for (const forbidden of [':root', '@import', 'url(', '@font-face']) {
+            expect(css, `stylesheet must not contain ${forbidden}`).to.not.contain(forbidden);
+        }
     });
 
     it('maps light and dark themes to the semantic surface roles', () => {
@@ -218,10 +230,16 @@ describe('Ivory Poteto visual contract', () => {
         expect(contrastRatio(muted, surface), 'muted text').to.be.greaterThanOrEqual(4.5);
         expect(contrastRatio(accent, surface), 'accent text').to.be.greaterThanOrEqual(4.5);
         expect(contrastRatio(ink, canvas)).to.be.greaterThanOrEqual(4.5);
-        // The pill paints its label in --ivory-ink over a 14% tint of the status
-        // colour, so measure ink against that composite, not status on tint.
-        expect(contrastRatio(ink, blendOn(success, 0.14, canvas)), 'verified status').to.be.greaterThanOrEqual(4.5);
-        expect(contrastRatio(ink, blendOn(warning, 0.14, canvas)), 'queued status').to.be.greaterThanOrEqual(4.5);
+        // The pill paints its label in the status colour over a 14% tint of that
+        // same role, and it sits on a card, so measure the real pair.
+        const card = lightThemeColor('surface-raised', surface);
+        const danger = lightThemeColor('danger');
+        for (const [role, value] of [['success', success], ['warning', warning], ['danger', danger]] as const) {
+            expect(contrastRatio(value, blendOn(value, 0.14, card)), `light ${role} pill label`)
+                .to.be.greaterThanOrEqual(4.5);
+        }
+        expect(contrastRatio(lightThemeColor('focus'), card), 'light focus ring on card')
+            .to.be.greaterThanOrEqual(3);
     });
 
     it('keeps small dark-theme text at WCAG AA contrast', () => {
@@ -259,12 +277,20 @@ describe('Ivory Poteto visual contract', () => {
             .to.be.greaterThanOrEqual(4.5);
         // Status pills are painted inside a card, so the 14% tint composites
         // over the raised card surface rather than the canvas.
-        // The pill paints its label in --ivory-ink over a 14% tint of the status
-        // colour, so measure ink against that composite, not status on tint.
+        // .ivory-status-pill sets `color: var(--ivory-<status>)` and a 14% tint of
+        // that same role as its background, so the painted pair is the status
+        // colour on its own tint. Measuring ink here would pass regardless of
+        // which status value is in play.
         for (const [role, value] of [['success', success], ['warning', warning], ['danger', danger]] as const) {
             const tint = blendOn(value, 0.14, raised);
-            expect(contrastRatio(ink, tint), `dark ${role} pill label`).to.be.greaterThanOrEqual(4.5);
+            expect(contrastRatio(value, tint), `dark ${role} pill label`).to.be.greaterThanOrEqual(4.5);
         }
+        // The accent is also the icon colour on an accent-soft selection row,
+        // which is a non-text contrast (3:1), and the focus ring on a card.
+        expect(contrastRatio(accent, themeColor('dark', 'accent-soft')), 'dark accent on selection row')
+            .to.be.greaterThanOrEqual(3);
+        expect(contrastRatio(themeColor('dark', 'focus'), raised), 'dark focus ring on card')
+            .to.be.greaterThanOrEqual(3);
     });
 
     it('keeps semantic roles in the token bridge instead of duplicating them in the shell layer', () => {
@@ -293,11 +319,16 @@ describe('Ivory Poteto visual contract', () => {
         const suppressors = [...declarationsOnly.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
             .filter(([, , body]) => /(^|;)\s*outline\s*:\s*none\s*(;|$)/.test(body))
             .map(([, selector]) => selector.trim());
-        expect(suppressors, 'rules that remove the outline').to.not.be.empty;
+        // Assert the specific known suppressor is present, rather than that some
+        // suppressor exists: a bare `to.not.be.empty` makes the test depend on
+        // the defect being there and fails if the defect is ever fixed.
+        expect(suppressors.some(s => s.includes('.ivory-search-label input')),
+            'the search input rule that suppresses the outline').to.equal(true);
 
         const focusRules = [...declarationsOnly.matchAll(/([^{}]+:focus-visible[^{}]*)\{([^{}]*)\}/g)]
             .filter(([, , body]) => /(^|;)\s*outline\s*:\s*(?!none)/.test(body));
-        expect(focusRules, 'rules that restore a visible outline').to.not.be.empty;
+        expect(focusRules.some(([, selector]) => selector.includes('.ivory-search-label input')),
+            'the rule that restores the search input outline').to.equal(true);
 
         // Every selector that suppresses the outline must have a matching
         // :focus-visible rule, otherwise focus there is invisible. Compare with
@@ -333,6 +364,20 @@ describe('Ivory Poteto visual contract', () => {
         expect(dark[dark.length - 1].selector).to.not.contain('theia-light,');
     });
 
+    it('composes the side-tab selection bar with the elevation instead of replacing it', () => {
+        // box-shadow does not accumulate: a later rule that sets only the inset
+        // selection bar silently discards the drop shadow from the current-tab
+        // rule above it. Both sides must list both shadows.
+        const css = declarationsOnlyForOrder();
+        for (const side of ['left', 'right']) {
+            const body = css.match(new RegExp(
+                `\\.lm-TabBar\\.theia-app-${side} \\.lm-TabBar-tab\\.lm-mod-current \\{([^{}]*)\\}`))?.[1];
+            expect(body, `the ${side} current-tab rule`).to.be.a('string');
+            expect(body, `${side} selection bar`).to.contain('inset');
+            expect(body, `${side} elevation`).to.contain('0 2px 8px');
+        }
+    });
+
     it('maps every ordinary role in high contrast so none falls back to the light literals', () => {
         const semanticNoComments = withoutComments(semanticStylesheet);
 const hcBlock = semanticNoComments.slice(semanticNoComments.indexOf('body.theia-hc,'));
@@ -343,7 +388,7 @@ const hcBlock = semanticNoComments.slice(semanticNoComments.indexOf('body.theia-
         // counterpart and correctly keep their values.
         const colourRoles = [...semanticStylesheet
             .slice(0, semanticStylesheet.indexOf('body.theia-hc,'))
-            .matchAll(/^\s*(--ivory-(?:canvas|surface|surface-raised|ink|muted|accent|accent-soft|border|focus|success|warning|danger)):/gm)]
+            .matchAll(/^\s*(--ivory-(?:canvas|surface|surface-raised|ink|muted|accent|accent-soft|border|focus|success|warning|danger|on-accent)):/gm)]
             .map(match => match[1]);
         expect(colourRoles, 'ordinary colour roles found').to.not.be.empty;
         for (const role of new Set(colourRoles)) {

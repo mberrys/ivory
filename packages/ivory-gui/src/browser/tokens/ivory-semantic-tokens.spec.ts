@@ -89,12 +89,13 @@ describe('Ivory semantic token snapshot', () => {
         const lightBlock = declarationsOnly.split('body.theia-dark {')[0];
         const darkBlock = declarationsOnly.split('body.theia-dark {')[1];
         // A role is declined per theme, and only where the upstream step fails
-        // WCAG AA as the small text the prototype paints it in. On the light
-        // canvas upstream green and orange fail but its accent and danger clear,
-        // so light keeps aliasing those two; on the dark card the 500 steps and
-        // the blue accent all fail, so dark declines all four.
+        // WCAG AA as the text the prototype actually paints it in. Upstream's
+        // light green, orange and red all fail as 10px pill labels on the tint
+        // the pill paints; the light accent and danger-era roles that remain
+        // clear. On the dark card the 500 steps and the blue accent all fail,
+        // so dark declines all four.
         const declined = {
-            light: ['success', 'warning'],
+            light: ['success', 'warning', 'danger'],
             dark: ['success', 'warning', 'danger', 'accent']
         };
         for (const [theme, block] of [['light', lightBlock], ['dark', darkBlock]] as const) {

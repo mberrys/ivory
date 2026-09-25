@@ -27,20 +27,27 @@ html[data-ivory-gui='prototype'] {
     --ivory-border: var(--verified-upstream-border, #d9d2c3);
     --ivory-focus: var(--verified-upstream-focus, #1d6fc2);
     /*
-     * Declined for the same reason as in the dark block below: upstream's light
-     * green (#248A3D, 3.53:1) and orange (#C93400, 4.09:1) cannot clear WCAG AA
-     * as small text, and upstream ships no darker step to reach. Accent and
-     * danger do clear on the light canvas, so they keep their aliases.
+     * All three status roles are painted by .ivory-status-pill as 10px/700
+     * labels in the status colour over a 14% tint of that same colour. Measured
+     * on that tint, upstream's light green scores 3.53:1, its orange 4.09:1 and
+     * its red 4.00:1, and it ships no darker step to reach. The accent is used
+     * as text and as a fill rather than as a pill label, so it keeps its alias.
      */
     --ivory-success: #2d6b48;
     --ivory-warning: #80560f;
-    --ivory-danger: var(--verified-upstream-danger, #b24b4b);
+    /*
+     * Also declined: upstream's #D70015 scores 4.17:1 on the 14% tint this pill
+     * paints over the card, just under AA. The alias stays vendored as the
+     * record of the pinned value.
+     */
+    --ivory-danger: #a83e3e;
     /*
      * Text painted on the accent fill. It cannot be --ivory-surface: in the
      * dark theme that alias is 60%-alpha glass, so a label in that colour
-     * composites over the accent and drops to 3.27:1. These are the flat
-     * colours the two surfaces resolve to, so the role stays opaque in both
-     * states and clears AA on the accent and on the ink hover background.
+     * composites over the accent and drops to 3.27:1. One flat colour per
+     * theme keeps the role opaque in both states: the light value is the
+     * resolved surface, the dark value the upstream canvas, and both clear AA
+     * on the accent and on the ink hover background.
      */
     --ivory-on-accent: #f5f5f7;
     --ivory-radius: var(--verified-upstream-radius, 12px);
@@ -60,20 +67,25 @@ html[data-ivory-gui='prototype'] body.theia-dark {
     --ivory-ink: var(--verified-upstream-ink, #f4eee5);
     --ivory-muted: var(--verified-upstream-muted, #b7ada1);
     --ivory-border: var(--verified-upstream-border, #4a443d);
-    --ivory-accent: #e38b6c;
+    --ivory-accent: #f0a583;
     --ivory-accent-soft: var(--verified-upstream-accent-soft, #5d3e32);
     --ivory-focus: var(--verified-upstream-focus, #7eb8e8);
     /*
      * The accent and the three status roles deliberately decline their upstream
-     * aliases here, for the same reason the light block declines green and
-     * orange: the 500 step is not legible as 10-12px text on these backdrops.
-     * The accent is 11px eyebrow text, a card source line, and the button fill,
-     * and upstream's #007AFF scores 4.24:1 on the canvas, 4.41:1 on the
-     * surface and 3.10:1 on the raised card. The status roles are 10px/700 pill
-     * labels; against the 14% tint the pill paints on that card, upstream
-     * scores success 4.38:1, warning 4.42:1 and danger 3.19:1. The Poteto
-     * values below clear 4.5:1 in every one of those positions. The aliases
-     * stay vendored as the record of the pinned values.
+     * aliases here, for the same reason the light block declines green, orange
+     * and red: the 500 step is not legible as the small text the prototype
+     * actually paints it in.
+     *
+     * The accent is 11px eyebrow text, a card source line, the button fill, and
+     * the icon colour on an accent-soft selection row. Upstream's #007AFF
+     * scores 4.24:1 on the canvas, 4.41:1 on the surface and 3.10:1 on the
+     * raised card, then 2.55:1 against the #0056CC selection background, which
+     * misses the 3:1 non-text minimum. The status roles are 10px/700 pill
+     * labels in the status colour itself (see .ivory-status-pill in
+     * ivory-gui.css), measured against the 14% tint that pill paints on the
+     * card: upstream scores success 4.38:1, warning 4.42:1 and danger 3.19:1.
+     * The values below clear 4.5:1 in every one of those positions. The
+     * aliases stay vendored as the record of the pinned values.
      */
     --ivory-success: #8fd0a8;
     --ivory-warning: #e0b878;
