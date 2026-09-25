@@ -11,10 +11,6 @@ html[data-ivory-gui='prototype'] {
     --theia-border-width: 1px;
 }
 
-html[data-ivory-gui='prototype'] body.theia-dark {
-    --theia-widget-shadow: rgba(0, 0, 0, 0.38);
-}
-
 html[data-ivory-gui='prototype'] body {
     --theia-ui-font-family: 'Avenir Next', 'Segoe UI', sans-serif;
     background: var(--ivory-canvas);
@@ -94,6 +90,20 @@ html[data-ivory-gui='prototype'] body.theia-dark {
     --theia-panelTitle-activeBorder: var(--ivory-accent);
     background: var(--ivory-canvas);
     color: var(--ivory-ink);
+}
+
+/*
+ * Must come after the combined light/dark rule above and match or exceed its
+ * specificity, or the dark shadow never applies. Declaring it in a separate
+ * earlier rule with identical specificity is silently dead CSS.
+ */
+html[data-ivory-gui='prototype'] body.theia-light,
+html[data-ivory-gui='prototype'] body.theia-dark {
+    --theia-widget-shadow: rgba(0, 0, 0, 0.16);
+}
+
+html[data-ivory-gui='prototype'] body.theia-dark {
+    --theia-widget-shadow: rgba(0, 0, 0, 0.38);
 }
 
 html[data-ivory-gui='prototype'] #theia-app-shell {
@@ -342,7 +352,7 @@ html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-command-bu
     padding: 0 16px;
     border: 1px solid var(--ivory-accent);
     border-radius: 8px;
-    color: var(--ivory-surface);
+    color: var(--ivory-on-accent);
     background: var(--ivory-accent);
     cursor: pointer;
     font: inherit;
@@ -355,7 +365,7 @@ html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-command-bu
 html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-command-button:hover {
     background: var(--ivory-ink);
     border-color: var(--ivory-ink);
-    color: var(--ivory-surface);
+    color: var(--ivory-on-accent);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
     transform: translateY(-1px);
 }
@@ -408,6 +418,13 @@ html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-search-lab
     background: var(--ivory-surface-raised);
     font: inherit;
     font-size: 12px;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-search-label input:focus-visible {
+    /* Must outrank the `outline: none` in the base rule above, or the keyboard
+     * focus ring is killed and only the low-contrast halo remains. */
+    outline: 2px solid var(--ivory-focus);
+    outline-offset: 2px;
 }
 
 html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-search-label input::placeholder {

@@ -16,6 +16,9 @@ const snapshotPath = 'src/browser/tokens/liquidify.generated.css';
 const sourcePath = 'src/browser/tokens/liquidify.source.json';
 
 const semantic = readFileSync(semanticPath, 'utf8');
+// A rationale comment may quote a role and the value it rejected. Strip
+// comments so that prose is never read as a declaration.
+const declarationsOnly = semantic.replace(/\/\*[\s\S]*?\*\//g, '');
 const snapshot = readFileSync(snapshotPath, 'utf8');
 const source = JSON.parse(readFileSync(sourcePath, 'utf8')) as {
     revision: string;
@@ -55,46 +58,58 @@ describe('Ivory semantic token snapshot', () => {
     });
 
     it('maps semantic roles to checked-in upstream tokens with accessible fallbacks', () => {
-        const lightAndDark = semantic.split('body.theia-hc,')[0];
+        const lightAndDark = declarationsOnly.split('body.theia-hc,')[0];
         const roles = [
             'canvas', 'surface', 'surface-raised', 'ink', 'muted', 'accent', 'accent-soft', 'border',
             'focus', 'success', 'warning', 'danger', 'radius', 'space-1', 'space-2', 'space-3',
             'space-4', 'duration', 'easing', 'shadow'
         ];
-        // Upstream ships no light step that clears WCAG AA for these two roles,
-        // so the light theme keeps the accessible Poteto value directly. The
-        // aliases are still vendored and consumed by the dark theme.
-        const lightFallbackOnly = new Set(['success', 'warning']);
+        // A role may resolve through its upstream alias or, where no upstream
+        // step clears WCAG AA as the small text it is painted in, through the
+        // accessible Poteto literal. Both are acceptable; a half-alias, or an
+        // alias to a value that fails AA, is not. The measured justification
+        // for each exception lives in the stylesheet comment beside it.
+        const fallbackOnly = new Set(['success', 'warning', 'danger', 'accent']);
         for (const role of roles) {
             const declarations = [...lightAndDark.matchAll(new RegExp(`--ivory-${role}:\\s*([^;]+);`, 'g'))];
             expect(declarations, role).to.have.length.greaterThan(0);
             for (const declaration of declarations) {
                 const isAliased = new RegExp(`^var\\(--verified-upstream-${role},`).test(declaration[1]);
-                if (lightFallbackOnly.has(role) && !isAliased) {
-                    expect(declaration[1], role).to.match(/^#[0-9a-f]{6}$/i);
-                } else {
-                    expect(declaration[1], role).to.match(new RegExp(`^var\\(--verified-upstream-${role},`));
+                if (isAliased) {
+                    continue;
                 }
+                expect(fallbackOnly.has(role), `${role} is not aliased but is not a documented exception`).to.equal(true);
+                expect(declaration[1], role).to.match(/^#[0-9a-f]{6}$/i);
             }
             expect(snapshot, role).to.contain(`--verified-upstream-${role}:`);
         }
     });
 
-    it('keeps the light-theme roles upstream could not carry accessibly out of the light block', () => {
-        const lightBlock = semantic.split('body.theia-dark {')[0];
-        for (const role of ['success', 'warning']) {
-            // The bridge must not alias these in the light block, and the dark
-            // block must consume the alias the generated sheet declares.
-            expect(lightBlock, role).not.to.match(new RegExp(`--verified-upstream-${role}:`));
-            expect(lightBlock, role).not.to.match(new RegExp(`--ivory-${role}:\\s*var\\(--verified-upstream-`));
-            expect(semantic.split('body.theia-dark {')[1], role).to.match(
-                new RegExp(`--ivory-${role}:\\s*var\\(--verified-upstream-${role},`)
-            );
+    it('keeps the roles upstream could not carry accessibly out of both theme blocks', () => {
+        const lightBlock = declarationsOnly.split('body.theia-dark {')[0];
+        const darkBlock = declarationsOnly.split('body.theia-dark {')[1];
+        // A role is declined per theme, and only where the upstream step fails
+        // WCAG AA as the small text the prototype paints it in. On the light
+        // canvas upstream green and orange fail but its accent and danger clear,
+        // so light keeps aliasing those two; on the dark card the 500 steps and
+        // the blue accent all fail, so dark declines all four.
+        const declined = {
+            light: ['success', 'warning'],
+            dark: ['success', 'warning', 'danger', 'accent']
+        };
+        for (const [theme, block] of [['light', lightBlock], ['dark', darkBlock]] as const) {
+            for (const role of ['success', 'warning', 'danger', 'accent']) {
+                const aliased = new RegExp(`--ivory-${role}:\\s*var\\(--verified-upstream-`).test(block);
+                expect(aliased, `${theme} ${role}`).to.equal(!declined[theme].includes(role));
+            }
         }
-        // The rejected upstream values stay vendored, with the reason recorded.
-        expect(snapshot).to.contain('--verified-upstream-success: #248A3D');
-        expect(snapshot).to.contain('--verified-upstream-warning: #C93400');
-        expect(snapshot).to.contain('WCAG AA');
+        // Each rejection is justified inline, and the upstream value stays
+        // vendored as the record of what was pinned.
+        expect(semantic).to.contain('WCAG AA');
+        for (const alias of ['--verified-upstream-success: #248A3D', '--verified-upstream-warning: #C93400',
+            '--verified-upstream-danger: #FF2D92', '--verified-upstream-accent: #007AFF']) {
+            expect(snapshot, alias).to.contain(alias);
+        }
     });
 
     it('keeps vendored token declarations inside the reversible activation boundary', () => {

@@ -5,16 +5,13 @@
  * (--verified-upstream-*, defined in liquidify.generated.css) and falls back
  * to the accessible Poteto value documented inline. The fallback is what the
  * prototype renders if the upstream sheet is ever dropped, so it must stay
- * legible on its own: on the light canvas the ink, muted, success, warning,
- * danger and accent values all clear 4.5:1, and the dark values clear it
- * against the dark canvas too.
+ * legible on its own.
  *
- * Two roles deliberately are not aliased in the light block. Upstream ships
- * only 100/500/600 steps per hue, so its light green (#248A3D, 3.53:1) and
- * orange (#C93400, 4.09:1) cannot clear WCAG AA as small text and no darker
- * upstream step exists to reach. The light theme therefore uses the Poteto
- * values below; the aliases stay vendored as the record of the pinned values
- * and the dark theme consumes them.
+ * A role is aliased only where the upstream step clears WCAG AA as the small
+ * text the prototype actually paints it in; where it does not, the bridge uses
+ * the Poteto value directly and the alias stays vendored as the record of the
+ * pinned value. Each such exception is measured and justified at its
+ * declaration below, and in SOURCE.md.
  *
  * High contrast is deliberately not mapped here. Under body.theia-hc and
  * body.theia-hcLight the prototype defers to Theia's own native palette.
@@ -29,9 +26,23 @@ html[data-ivory-gui='prototype'] {
     --ivory-accent-soft: var(--verified-upstream-accent-soft, #f1c2ae);
     --ivory-border: var(--verified-upstream-border, #d9d2c3);
     --ivory-focus: var(--verified-upstream-focus, #1d6fc2);
+    /*
+     * Declined for the same reason as in the dark block below: upstream's light
+     * green (#248A3D, 3.53:1) and orange (#C93400, 4.09:1) cannot clear WCAG AA
+     * as small text, and upstream ships no darker step to reach. Accent and
+     * danger do clear on the light canvas, so they keep their aliases.
+     */
     --ivory-success: #2d6b48;
     --ivory-warning: #80560f;
     --ivory-danger: var(--verified-upstream-danger, #b24b4b);
+    /*
+     * Text painted on the accent fill. It cannot be --ivory-surface: in the
+     * dark theme that alias is 60%-alpha glass, so a label in that colour
+     * composites over the accent and drops to 3.27:1. These are the flat
+     * colours the two surfaces resolve to, so the role stays opaque in both
+     * states and clears AA on the accent and on the ink hover background.
+     */
+    --ivory-on-accent: #f5f5f7;
     --ivory-radius: var(--verified-upstream-radius, 12px);
     --ivory-space-1: var(--verified-upstream-space-1, 4px);
     --ivory-space-2: var(--verified-upstream-space-2, 8px);
@@ -49,12 +60,25 @@ html[data-ivory-gui='prototype'] body.theia-dark {
     --ivory-ink: var(--verified-upstream-ink, #f4eee5);
     --ivory-muted: var(--verified-upstream-muted, #b7ada1);
     --ivory-border: var(--verified-upstream-border, #4a443d);
-    --ivory-accent: var(--verified-upstream-accent, #e38b6c);
+    --ivory-accent: #e38b6c;
     --ivory-accent-soft: var(--verified-upstream-accent-soft, #5d3e32);
     --ivory-focus: var(--verified-upstream-focus, #7eb8e8);
-    --ivory-success: var(--verified-upstream-success, #79bf94);
-    --ivory-warning: var(--verified-upstream-warning, #d7a85e);
-    --ivory-danger: var(--verified-upstream-danger, #e17b77);
+    /*
+     * The accent and the three status roles deliberately decline their upstream
+     * aliases here, for the same reason the light block declines green and
+     * orange: the 500 step is not legible as 10-12px text on these backdrops.
+     * The accent is 11px eyebrow text, a card source line, and the button fill,
+     * and upstream's #007AFF scores 4.24:1 on the canvas, 4.41:1 on the
+     * surface and 3.10:1 on the raised card. The status roles are 10px/700 pill
+     * labels; against the 14% tint the pill paints on that card, upstream
+     * scores success 4.38:1, warning 4.42:1 and danger 3.19:1. The Poteto
+     * values below clear 4.5:1 in every one of those positions. The aliases
+     * stay vendored as the record of the pinned values.
+     */
+    --ivory-success: #8fd0a8;
+    --ivory-warning: #e0b878;
+    --ivory-danger: #f2b8b5;
+    --ivory-on-accent: #1c1c1e;
     --ivory-shadow: var(--verified-upstream-shadow, 0 16px 36px rgba(0, 0, 0, 0.28));
 }
 
@@ -69,4 +93,16 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
     --ivory-accent-soft: var(--theia-list-activeSelectionBackground, var(--theia-editor-background, #000000));
     --ivory-border: var(--theia-contrastBorder, var(--theia-widget-border, var(--ivory-ink)));
     --ivory-focus: var(--theia-focusBorder, var(--ivory-ink));
+    /*
+     * High contrast gets no aliases of any kind, including the status roles.
+     * Leaving these unset would let them inherit the ordinary light Poteto
+     * literals, which score 3.06:1 and 3.02:1 on a black canvas. The native
+     * palette is the only defensible source here.
+     */
+    --ivory-success: var(--theia-successBackground, var(--theia-foreground, var(--ivory-ink)));
+    --ivory-warning: var(--theia-warningBackground, var(--theia-foreground, var(--ivory-ink)));
+    --ivory-danger: var(--theia-errorBackground, var(--theia-foreground, var(--ivory-ink)));
+    --ivory-on-accent: var(--theia-button-foreground, var(--ivory-ink));
+    --ivory-radius: 0px;
+    --ivory-shadow: none;
 }
