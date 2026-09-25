@@ -37,6 +37,16 @@ html[data-ivory-gui='prototype'] {
      * than the fill being bent to suit it. */
     --ivory-accent-soft: #0090ca;
     --ivory-focus-on-soft: #002e6e;
+    --ivory-hover: #dcdce2;
+    /* A visible hover wash. The native --theia-list-hoverBackground is
+     * 1.00:1 on Theia's own light sidebar (#F0F0F0 on #F3F3F3) and 1.05:1
+     * on the Ivory panel, so the hover state was invisible before this. That
+     * is inherited rather than introduced, but the activation repaints the
+     * panel the row sits on, and an unperceivable state is a dead state. */
+    /* A visible hover wash. The native --theia-list-hoverBackground is 1.00:1
+     * on Theia's own light sidebar (#F0F0F0 on #F3F3F3) and 1.05:1 on the Ivory
+     * panel, so the hover state was invisible before this - inherited, not
+     * introduced, but the activation repaints the panel it sits on. */
     /* The text on that fill. A mid-blue carries a near-black label at 5.51:1
      * where white reaches only 3.59:1, so both themes label selections this
      * way; the role exists because dark body ink is 3.59:1 on the fill. */
@@ -57,8 +67,10 @@ html[data-ivory-gui='prototype'] {
     /*
      * All three status roles are painted by .ivory-status-pill as 10px/700
      * labels in the status colour over a 14% tint of that same colour. Measured
-     * on that tint, upstream's light green scores 3.53:1, its orange 4.09:1 and
-     * its red 4.00:1, and it ships no darker step to reach. The accent is used
+     * on that tint over the CARD, upstream's light green scores 3.69:1, its
+     * orange 4.27:1 and its red 4.16:1, and it ships no darker step to reach.
+     * Over the canvas the same three read 3.53, 4.09 and 4.00, so the backdrop
+     * has to be named for the figures to mean anything. The accent is used
      * as text and as a fill rather than as a pill label, so it keeps its alias.
      */
     --ivory-success: #2d6b48;
@@ -116,6 +128,11 @@ html[data-ivory-gui='prototype'] body.theia-dark {
      * than the fill being bent to suit it. */
     --ivory-accent-soft: #0090ca;
     --ivory-focus-on-soft: #002e6e;
+    --ivory-hover: #35383b;
+    /* A visible hover wash. The native --theia-list-hoverBackground is 1.00:1
+     * on Theia's own light sidebar (#F0F0F0 on #F3F3F3) and 1.05:1 on the Ivory
+     * panel, so the hover state was invisible before this - inherited, not
+     * introduced, but the activation repaints the panel it sits on. */
     --ivory-on-accent-soft: #0a0a0a;
     /* Focus: upstream's #007AFF measures 2.96:1 on the card and 1.63:1 against
      * the #0056CC selection background it is also painted over, so it is
@@ -155,7 +172,11 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
     --ivory-muted: var(--theia-descriptionForeground, var(--ivory-ink));
     --ivory-accent: var(--theia-focusBorder, var(--ivory-ink));
     --ivory-accent-soft: var(--theia-list-activeSelectionBackground, var(--theia-editor-background, #000000));
-    --ivory-border: var(--theia-contrastBorder, var(--theia-widget-border, var(--ivory-ink)));
+    --ivory-border: var(--theia-foreground, var(--ivory-ink));
+    /* Not var(--theia-contrastBorder, ...) first: that role is undefined in HC,
+     * so the chain fell through to --theia-widget-border (#303031), which is
+     * 1.26:1 on the HC canvas and cannot carry a component boundary. The
+     * foreground is defined in both HC themes and clears 3:1 comfortably. */
     --ivory-focus: var(--theia-focusBorder, var(--ivory-ink));
     /*
      * High contrast gets no aliases of any kind, including the status roles.
@@ -173,7 +194,22 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
      * on the HC selection fill #094771. --theia-foreground is #cccccc there and
      * clears 6.08:1, so the selected row keeps a visible ring in HC. */
     --ivory-focus-on-soft: var(--theia-foreground, var(--theia-focusBorder, var(--ivory-ink)));
-    --ivory-border-on-ink: var(--theia-contrastBorder, var(--theia-widget-border, var(--ivory-ink)));
+    --ivory-hover: var(--theia-foreground, var(--ivory-ink));
+    /* Not the inactive-selection wash: #094771 is 1.71:1 on the HC canvas, and
+     * no wash light enough to clear 3:1 keeps a 4.5:1 label against the HC
+     * foreground. In high contrast a hover is a boundary, not a fill - the
+     * same strategy the selected row already uses. */
+    /* Not var(--theia-contrastBorder, ...) first: HC leaves that role EMPTY, so
+     * a live browser computed border-top-width: 0px on the status bar and the
+     * bar had no boundary at all. Point at a role that is actually defined in
+     * every theme, so the fallback is never the thing that resolves. */
+    --ivory-border-on-ink: var(--ivory-ink, #000);
+    /* Theia writes every --theia-* colour as an INLINE style on <html>
+       (color-application-contribution.ts:95). An inline style on the root outranks
+       every stylesheet rule, and a rule on <body> cannot read an html inline value
+       through var(): it resolves as undefined and falls through to its fallback.
+       So this role must resolve from the ivory scale, which is published on the same
+       element, not from a Theia role. */
     --ivory-radius: 0px;
     --ivory-shadow: none;
 }

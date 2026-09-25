@@ -12,8 +12,8 @@
  * revision. Line references are recorded in liquidify.source.json.
  *
  * Light-theme note: upstream ships only 100/500/600 steps per hue and no
- * darker step, so its light green (#248A3D, 3.53:1) and orange (#C93400,
- * 4.09:1) cannot clear WCAG AA as small text. Those two aliases are vendored
+ * darker step, so its light green (#248A3D, 3.69:1) and orange (#C93400,
+ * 4.27:1) cannot clear WCAG AA as small text on the card the pill sits on. Those two aliases are vendored
  * and verified here as the record of the pinned values, but the light theme
  * in ivory-semantic-tokens.css declines to consume them and uses the
  * accessible Poteto fallbacks instead. The dark theme consumes them.

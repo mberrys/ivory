@@ -152,6 +152,63 @@ function declarationsOnlyForOrder(): string {
     return stylesheet.replace(/\/\*[\s\S]*?\*\//g, '');
 }
 
+/** Every themed-body rule whose selector can match a high-contrast body. */
+function hcCapableRules(css: string): RegExpExecArray[] {
+    const attr = 'data-ivory-gui=\'prototype\'';
+    const one = 'html\\[' + attr + '\\]\\s*body(?:\\.theia-\\w+)?';
+    const rule = new RegExp('((?:' + one + '\\s*,\\s*)*' + one + ')\\s*\\{([^}]*)\\}', 'g');
+    return [...css.matchAll(rule)].filter(m => /theia-hc/.test(m[1]));
+}
+
+/**
+ * The themes each --theia-* role is published for, keyed by role name. Read
+ * from the stylesheet rather than asserted literally, so a theme can be added
+ * or removed without this quietly stopping checking anything.
+ */
+function themedBodyRoles(css: string, role: string): string[] {
+    const attr = 'data-ivory-gui=\'prototype\'';
+    const one = 'html\\[' + attr + '\\]\\s*body\\.theia-\\w+';
+    const block = new RegExp('((?:' + one + '\\s*,\\s*)+' + one + ')\\s*\\{([^}]*)\\}', 'g');
+    const found: string[] = [];
+    for (const m of withoutComments(css).matchAll(block)) {
+        if (m[2].includes(`--theia-${role}:`)) {
+            found.push(...[...m[1].matchAll(/body\.theia-(\w+)/g)].map(x => x[1]));
+        }
+    }
+    return [...new Set(found)];
+}
+
+/**
+ * The colour variables Theia writes inline on <html> in its two high-contrast
+ * themes, read from a live browser (computed styles on document.body under
+ * body.theia-hc). A rule on <body> cannot read them through var(), so the
+ * stylesheet tests cannot derive them; without these the high-contrast
+ * contrast assertions were computed against a resolver that never saw a real
+ * high-contrast value, and every number in them was fiction.
+ */
+const THEIA_HC_INLINES: Readonly<Record<string, string>> = Object.freeze({
+    '--theia-editor-background': '#1e1e1e',
+    '--theia-sideBar-background': '#252526',
+    '--theia-input-background': '#3c3c3c',
+    '--theia-foreground': '#cccccc',
+    '--theia-descriptionForeground': 'rgba(204, 204, 204, 0.7)',
+    '--theia-widget-border': '#303031',
+    '--theia-focusBorder': '#007fd4',
+    '--theia-list-activeSelectionBackground': '#094771',
+    '--theia-list-inactiveSelectionBackground': '#094771',
+    '--theia-menu-foreground': '#cccccc',
+    '--theia-button-foreground': '#ffffff',
+    '--theia-warningBackground': '#cccccc',
+    '--theia-errorBackground': '#cccccc',
+    '--theia-successBackground': '#cccccc',
+    // Undefined in high contrast: Theia maps these to contrastBorder, which
+    // has no default. A var() naming it falls through, which is the whole
+    // reason the status bar had border-top-width: 0px.
+    '--theia-contrastBorder': '',
+    '--theia-statusBar-border': '',
+    '--theia-statusBar-noFolderBorder': '',
+});
+
 describe('Ivory Poteto visual contract', () => {
     it('keeps every shell override behind the reversible activation marker', () => {
         expect(stylesheet).to.contain("html[data-ivory-gui='prototype']");
@@ -183,10 +240,22 @@ describe('Ivory Poteto visual contract', () => {
         expect(stylesheet).to.contain('--theia-widget-shadow: rgba(0, 0, 0, 0.38)');
         expect(stylesheet).not.to.contain('46, 38, 28');
         expect(stylesheet).to.contain('color: var(--ivory-on-accent)');
-        expectContains(stylesheet,
-            "html[data-ivory-gui='prototype'] body.theia-light,\n" +
-            "html[data-ivory-gui='prototype'] body.theia-dark {\n" +
-            '    --theia-editor-background: var(--ivory-canvas);');
+        // Find the rule that publishes the editor background, rather than
+        // matching a literal selector: the theme list has to be able to grow
+        // without this assertion silently stopping.
+        const editorRule = /\{([^}]*--theia-editor-background:[^}]*)\}/.exec(withoutComments(stylesheet));
+        expect(editorRule, 'the editor background is published').to.not.equal(undefined);
+        expect(editorRule![1]).to.contain('--theia-editor-background: var(--ivory-canvas)');
+        // The ivory -> Theia push is deliberately light/dark only. In high
+        // contrast Theia already owns these roles, and pushing them would make
+        // each one reference an ivory role that references it back.
+        const editorThemes = [...withoutComments(stylesheet).slice(
+            0, withoutComments(stylesheet).indexOf(editorRule![0])
+        ).matchAll(/body\.theia-(\w+)/g)].map(m => m[1]);
+        expect([...new Set(editorThemes)], 'the push rule covers light and dark')
+            .to.include.members(['light', 'dark']);
+        expect(editorThemes, 'the push rule does not reach high contrast')
+            .to.not.include.members(['hc', 'hcLight']);
         expectContains(stylesheet,
             "html[data-ivory-gui='prototype'] #theia-top-panel {\n" +
             '    min-height: 34px;\n' +
@@ -195,9 +264,47 @@ describe('Ivory Poteto visual contract', () => {
     });
 
     it('preserves native high-contrast palettes and the Poteto font on Windows', () => {
-        expectContains(stylesheet,
-            "html[data-ivory-gui='prototype'] body.theia-light,\n" +
-            "html[data-ivory-gui='prototype'] body.theia-dark {");
+        // Every role the package paints against must resolve to something in
+        // EVERY theme. A role published for light and dark but not for HC falls
+        // through to Theia's own value there, and Theia leaves statusBar.border
+        // empty in HC: a live browser then computed border-top-width: 0px.
+        for (const role of ['statusBar-border', 'list-hoverBackground']) {
+            const themes = themedBodyRoles(stylesheet, role);
+            for (const theme of ['light', 'dark', 'hc', 'hcLight']) {
+                expect(themes, `${role} is published for body.theia-${theme}`).to.include(theme);
+            }
+        }
+
+        // The real hazard is a same-element cycle, not a missing theme. A cycle
+        // makes every property in it invalid at computed-value time, so the rule
+        // matches, the declaration is present, and the computed value is still
+        // empty -- which is how the whole HC branch used to resolve to nothing
+        // while every structural test passed.
+        const nc = withoutComments(stylesheet);
+        const ncSemantic = withoutComments(semanticStylesheet);
+        // Map each HC ivory role to the Theia role its value LEADS with. Only
+        // that one matters: a fallback further down the chain never participates
+        // in a cycle, because a var() only resolves the next name once the
+        // previous one is defined.
+        const hcIvoryLeader = new Map<string, string>();
+        for (const m of ncSemantic.matchAll(/(--ivory-[\w-]+):\s*var\((--theia-[\w-]+)/g)) {
+            hcIvoryLeader.set(m[1], m[2]);
+        }
+        const hcIvoryRoles = new Set(hcIvoryLeader.keys());
+        expect(hcIvoryRoles.size, 'the HC block derives ivory roles from Theia roles')
+            .to.be.greaterThan(0);
+        // Only rules that can actually apply in HC matter here: a light/dark
+        // rule never matches body.theia-hc, so a mutual reference between the
+        // two files is inert there rather than cyclic.
+        for (const m of hcCapableRules(nc)) {
+            for (const d of m[2].matchAll(/(--theia-[\w-]+):\s*var\((--ivory-[\w-]+)\);/g)) {
+                const leader = hcIvoryLeader.get(d[2]);
+                expect(leader === d[1],
+                    `${d[1]} must not point at ${d[2]}, which leads with ${leader} in high contrast`)
+                    .to.equal(false);
+            }
+        }
+
         expectContains(semanticStylesheet,
             "html[data-ivory-gui='prototype'] body.theia-hc,\n" +
             "html[data-ivory-gui='prototype'] body.theia-hcLight {");
@@ -209,7 +316,7 @@ describe('Ivory Poteto visual contract', () => {
             '--ivory-muted: var(--theia-descriptionForeground, var(--ivory-ink))',
             '--ivory-accent: var(--theia-focusBorder, var(--ivory-ink))',
             '--ivory-accent-soft: var(--theia-list-activeSelectionBackground, var(--theia-editor-background, #000000))',
-            '--ivory-border: var(--theia-contrastBorder, var(--theia-widget-border, var(--ivory-ink)))',
+            '--ivory-border: var(--theia-foreground, var(--ivory-ink))',
             '--ivory-focus: var(--theia-focusBorder, var(--ivory-ink))'
         ]) {
             expect(semanticStylesheet).to.contain(variable);
@@ -217,6 +324,83 @@ describe('Ivory Poteto visual contract', () => {
         expectContains(stylesheet,
             "html[data-ivory-gui='prototype'] body {\n" +
             "    --theia-ui-font-family: 'Avenir Next', 'Segoe UI', sans-serif;");
+
+        // Resolve the high-contrast roles against Theia's real inline values
+        // and check the pairs the browser actually paints. Every one of these
+        // figures was previously computed from a resolver that never saw a
+        // high-contrast value, so they were fiction: the whole HC branch
+        // resolved to nothing and the assertions still passed.
+        const hc = resolveHighContrast();
+        const textPairs: [string, string, string, number][] = [
+            ['body text on canvas', hc.ink, hc.canvas, 4.5],
+            ['body text on surface', hc.ink, hc.surface, 4.5],
+            ['body text on surface-raised', hc.ink, hc['surface-raised'], 4.5],
+            ['muted on canvas', hc.muted, hc.canvas, 4.5],
+            ['muted on surface', hc.muted, hc.surface, 4.5],
+            ['ink on the selection fill', hc.ink, hc['accent-soft'], 4.5],
+            ['on-accent on the selection fill', hc['on-accent'], hc['accent-soft'], 4.5]
+        ];
+        for (const [name, fg, bg, need] of textPairs) {
+            expect(contrastRatio(opaqueOn(fg, bg), bg), `high contrast: ${name}`)
+                .to.be.greaterThanOrEqual(need);
+        }
+        const nonTextPairs: [string, string, string, number][] = [
+            ['component border on canvas', hc.border, hc.canvas, 3],
+            ['component border on surface', hc.border, hc.surface, 3],
+            ['focus ring on the selection fill', hc['focus-on-soft'], hc['accent-soft'], 3],
+            ['bar boundary on the bar fill', hc['border-on-ink'], hc.canvas, 3]
+        ];
+        for (const [name, fg, bg, need] of nonTextPairs) {
+            expect(contrastRatio(fg, bg), `high contrast: ${name}`).to.be.greaterThanOrEqual(need);
+        }
+
+        // The card's own secondary label sits on the raised card fill, where
+        // Theia's native high-contrast muted text does not reach 4.5:1. The
+        // package paints that label, so the package uses the opaque ink there.
+        expect(contrastRatio(opaqueOn(hc.muted, hc['surface-raised']), hc['surface-raised']),
+            'high contrast: native muted on the raised card fill').to.be.below(4.5);
+        expectContains(stylesheet, 'body.theia-hc .ivory-card-kind');
+        expectContains(stylesheet, 'body.theia-hcLight .ivory-card-kind');
+
+        // And the bar's own fill and boundary must differ, or the boundary
+        // paints nothing. A live browser measured 1.00:1 when the fill was the
+        // foreground and the boundary was the same foreground.
+        expect(contrastRatio(hc['border-on-ink'], hc.canvas),
+            'high contrast: the bar boundary against the bar fill')
+            .to.be.greaterThanOrEqual(3);
+
+        // The unfocused high-contrast selected row is signalled by a ring drawn
+        // INSIDE the row, so the boundary it has to clear is the selection fill
+        // it sits on, not the sidebar beside it. Assert the offset, because a
+        // ring measured on the wrong backdrop is the difference between 6.08:1
+        // and a number that only looks compliant.
+        const hcSelection = withoutComments(stylesheet);
+        const unfocusedRule = /body\.theia-hc[^}]*:not\(:focus-within\)[^{]*\{([^}]*)\}/.exec(hcSelection);
+        expect(unfocusedRule, 'the unfocused high-contrast selected row is styled').to.not.equal(undefined);
+        expect(unfocusedRule![1], 'the ring is drawn inside the row')
+            .to.match(/outline-offset:\s*-1px/);
+        expect(contrastRatio(hc['focus-on-soft'], hc['accent-soft']),
+            'high contrast: the unfocused selection ring on the fill').to.be.greaterThanOrEqual(3);
+
+        // Resolve the roles the BROWSER PAINTS, not the ivory roles behind
+        // them. Theia writes --theia-statusBar-border inline on <html> and it
+        // maps to contrastBorder there, which has no value; a body rule
+        // pointing at it therefore resolves to nothing and the bar computes
+        // border-top-width: 0px. Asserting the ivory role passed while the
+        // painted role was empty, which is the defect this test exists for.
+        const resolveRole = highContrastResolver();
+        for (const role of ['--theia-statusBar-border', '--theia-statusBar-noFolderBorder',
+            '--theia-list-hoverBackground', '--theia-list-hoverForeground']) {
+            const value = resolveRole(role);
+            expect(value, `high contrast: ${role} resolves to a real colour`)
+                .to.match(/^(#[\da-f]{3,8}|rgba?\()/i);
+        }
+        const painted = {
+            '--theia-statusBar-border': resolveRole('--theia-statusBar-border')
+        };
+        expect(contrastRatio(painted['--theia-statusBar-border'], hc.canvas),
+            'high contrast: the painted bar boundary on the bar fill')
+            .to.be.greaterThanOrEqual(3);
     });
 
     it('covers the existing workbench surfaces without replacing their DOM', () => {
@@ -415,38 +599,50 @@ describe('Ivory Poteto visual contract', () => {
             .to.be.lessThan(3);
     });
 
-    it('gives the high-contrast unfocused selected row a boundary, because a fill cannot reach 3:1 there', () => {
-        // The HC selection fill is Theia's own #094771 on the HC sidebar
-        // #252526, which is 1.57:1 - a dark high-contrast theme cannot reach
-        // 3:1 with a fill at all. HC signals the state with a border instead.
-        // A live probe measured the row at 1.57 before this rule existed.
+    it('gives the high-contrast unfocused selected row a boundary, on the fill it is painted over', () => {
+        // Two facts, both from a live probe, and the second one is the reason
+        // this rule is subtle.
+        //
+        // 1. HC cannot carry this state on a fill: its selection fill is
+        //    Theia's own #094771 on the #252526 sidebar, 1.57:1, and no darker
+        //    fill does better without abandoning the dark background those
+        //    themes exist to provide. So the state is carried by a boundary.
+        // 2. The boundary is drawn with `outline-offset: -1px`, which puts it
+        //    INSIDE the border box - on the selection fill, not on the panel
+        //    behind the row. Measuring it against the panel reported 3.64:1
+        //    while the browser painted 2.32:1.
         const HC_FILL = '#094771';
         const HC_SIDEBAR = '#252526';
         const HC_FOCUS_BORDER = '#007fd4';
+        const HC_FOREGROUND = '#cccccc';
 
-        // Document why the fill is not expected to clear the non-text minimum.
+        // Fact 1: the fill genuinely cannot clear the non-text minimum.
         expect(contrastRatio(HC_FILL, HC_SIDEBAR), 'the HC fill genuinely cannot clear 3:1')
             .to.be.lessThan(3);
-        // And the border that carries the signal instead does clear it.
-        expect(contrastRatio(HC_FOCUS_BORDER, HC_SIDEBAR), 'the HC boundary clears 3:1')
-            .to.be.greaterThanOrEqual(3);
 
-        // The rule must exist, and be scoped to both HC themes.
+        // Fact 2: the colour the rule uses must clear 3:1 ON THE FILL, and the
+        // native focus colour must be shown to fail there, so neither the value
+        // nor the reasoning can drift.
+        expect(contrastRatio(HC_FOREGROUND, HC_FILL), 'the boundary colour clears 3:1 on the fill')
+            .to.be.greaterThanOrEqual(3);
+        expect(contrastRatio(HC_FOCUS_BORDER, HC_FILL),
+            'the native focus colour is genuinely below 3:1 on the fill, which is why it is not used')
+            .to.be.lessThan(3);
+
+        // And the rule must actually take the role, not the focus colour.
         const css = withoutComments(stylesheet);
         const rule = /body\.theia-hcLight \.theia-Tree:not\(:focus-within\) \.theia-TreeNode\.theia-mod-selected\s*\{([^}]*)\}/.exec(css);
         expect(rule, 'the HC selected row has a boundary rule').to.not.equal(undefined);
-        expect(rule![1], 'the boundary is a 1px outline in the native focus colour')
-            .to.contain('outline: var(--theia-focusBorder) solid 1px');
-        // Without :not(:focus-within) this rule outranks the focused ring and
-        // drags it back to focusBorder's 2.32:1 on the HC fill.
+        expect(rule![1], 'the boundary is a 1px outline')
+            .to.contain('outline: var(--ivory-focus-on-soft) solid 1px');
+        // Without :not(:focus-within) it outranks the focused ring and drags it
+        // back to focusBorder's 2.32:1.
         expect(rule![0], 'the boundary applies only to an unfocused tree')
             .to.contain('.theia-Tree:not(:focus-within)');
-        // And it must not apply to the ordinary themes, where the fill does
-        // the work and a second outline would double the ring.
-        const ordinary = /body\.theia-(?:light|dark)[^}]*\.theia-mod-selected\s*\{([^}]*outline[^}]*)\}/.exec(css);
-        if (ordinary) {
-            expect(ordinary![1], 'ordinary themes do not add a second boundary').to.not.equal('');
-        }
+        // And the negative offset is what puts it on the fill: if this ever
+        // becomes 0 or 1px, the backdrop changes and this whole test is void.
+        expect(rule![1], 'the ring is drawn inside the row, on the fill')
+            .to.contain('outline-offset: -1px');
     });
 
     it('declares the unfocused-selection roles on the themed body, where they win', () => {
@@ -606,6 +802,147 @@ describe('Ivory Poteto visual contract', () => {
                 .to.be.greaterThanOrEqual(3);
         }
         expect(stylesheet, 'status bar border role').to.contain('--theia-statusBar-border: var(--ivory-border-on-ink)');
+
+        // The role resolving is NOT the same as the role being painted. Core
+        // paints `border-top: solid var(--theia-statusBar-border)` at (1,0,0),
+        // and this package's #theia-statusBar rule is (1,1,1), so whatever that
+        // rule sets is what the browser draws. A previous version of this test
+        // measured the role while the rule painted --ivory-accent, so the suite
+        // went green on 4.97:1 while the page showed 2.81:1. Resolve the colour
+        // the same way the cascade does: the later element rule wins.
+        const barRule = /#theia-statusBar\s*\{([^}]*)\}/.exec(withoutComments(stylesheet));
+        expect(barRule, 'the status bar element rule exists').to.not.equal(undefined);
+        const painted = /border-top:\s*([^;]+);/.exec(barRule![1]);
+        expect(painted, 'the element rule sets the border').to.not.equal(undefined);
+        // The width and the style must be set here too. Core's shorthand is
+        // invalid at computed-value time under high contrast - statusBar.
+        // noFolderBorder -> statusBar.border -> contrastBorder, and that role is
+        // undefined in HC - so a colour alone lands on a 0px border and paints
+        // nothing. A live browser measured border-top-width: 0px.
+        expect(painted![1].trim(), 'the painted boundary is width, style and the accessible colour')
+            .to.equal('1px solid var(--ivory-border-on-ink)');
+        const noFolderRole = /--theia-statusBar-noFolderBorder:\s*([^;]+);/.exec(
+            withoutComments(stylesheet).slice(withoutComments(stylesheet).indexOf('body.theia-hc,')));
+        expect(noFolderRole, 'HC publishes the no-folder bar boundary').to.not.equal(undefined);
+        expect(noFolderRole![1].trim()).to.equal('var(--ivory-border-on-ink)');
+        // No rule may restate it as a different colour: that is the shadowing.
+        for (const match of withoutComments(stylesheet).matchAll(/border-top-color:\s*([^;]+);/g)) {
+            expect(match[1].trim(), 'every border-top-color uses the accessible role')
+                .to.equal('var(--ivory-border-on-ink)');
+        }
+    });
+
+    it('resolves every high-contrast role to a real value, the way the browser does', () => {
+        // The high-contrast branch used to resolve to nothing at all and every
+        // structural test still passed. The cause was a same-element cycle
+        // between the two stylesheets: the token file derived
+        // --ivory-ink: var(--theia-foreground) while the shell file set
+        // --theia-foreground: var(--ivory-ink) on the same body. A cycle makes
+        // every property in it invalid at computed-value time, so the rules
+        // matched, the declarations were present, and the computed values were
+        // empty. Only a live browser showed it.
+        //
+        // The shared resolver walks var() references across both stylesheets
+        // and throws on a cycle or an undefined role, which is what the browser
+        // does with such a value: nothing. Assert on every role the package
+        // publishes for high contrast, including the --theia-* names the
+        // browser paints.
+        const resolveRole = highContrastResolver();
+        for (const role of ['--ivory-canvas', '--ivory-surface', '--ivory-surface-raised',
+            '--ivory-ink', '--ivory-muted', '--ivory-accent', '--ivory-accent-soft',
+            '--ivory-border', '--ivory-border-on-ink', '--ivory-focus', '--ivory-focus-on-soft',
+            '--ivory-hover', '--ivory-on-accent', '--ivory-on-accent-soft',
+            '--ivory-success', '--ivory-warning', '--ivory-danger',
+            '--theia-statusBar-border', '--theia-statusBar-noFolderBorder',
+            '--theia-list-hoverBackground', '--theia-list-hoverForeground']) {
+            let value: string;
+            try {
+                value = resolveRole(role);
+            } catch (error) {
+                throw new Error(`${role} under high contrast: ${(error as Error).message}`);
+            }
+            expect(value, `${role} under high contrast is an unresolved var()`)
+                .to.not.match(/^var\(/);
+        }
+
+    });
+
+    it('resolves the status bar boundary in high contrast, where contrastBorder is empty', () => {
+        // A role that RESOLVES is not the same as a role that resolves to
+        // something. HC maps --theia-border-on-ink through
+        // --theia-contrastBorder, and HC leaves that role empty - so the
+        // var() chain produced no usable colour, the status bar computed
+        // `border-top-width: 0px`, and the bar had no boundary at all. A live
+        // browser found this; no amount of reading the stylesheet would.
+        //
+        // Guard it structurally: every role a var() chain names FIRST must be
+        // one Theia actually defines in all four themes, so the fallback is
+        // never what resolves.
+        const hc = withoutComments(semanticStylesheet).slice(
+            withoutComments(semanticStylesheet).indexOf('body.theia-hc,'));
+        // No closing paren in the pattern: the value is a comma-separated
+        // fallback list, so the FIRST var() has no ')' after its role and a
+        // pattern demanding one silently matched nothing.
+        const mapping = /--ivory-border-on-ink:\s*([^;]+);/.exec(hc);
+        expect(mapping, 'HC maps the bar boundary').to.not.equal(undefined);
+        expect(mapping![1], 'HC does not lead with a Theia role it cannot resolve')
+            .to.equal('var(--ivory-ink, #000)');
+    });
+
+    it('makes the hover state perceptible without losing the label', () => {
+        // WCAG 1.4.11 is deliberately NOT applied at 3:1 here. It governs
+        // information required to IDENTIFY a component; a pointer hover is not
+        // required for that, because the row is already identified by its label,
+        // its position and the panel boundary, and keyboard focus - the
+        // interaction that does identify a row - is asserted at 3:1 above. What
+        // 1.4.11 does require is that the state is not a dead state, and what
+        // 1.4.3/1.4.6 require is that the label survives it.
+        //
+        // The native --theia-list-hoverBackground is 1.00:1 on Theia's own light
+        // sidebar (#F0F0F0 on #F3F3F3) and 1.05:1 on the Ivory panel: invisible
+        // in both themes. tree.css:67-70 paints that fill and a hover foreground
+        // on the same node, so both are mapped here.
+        for (const theme of ['light', 'dark'] as const) {
+            const canvas = themeColor(theme, 'canvas');
+            const panel = themeColor(theme, 'surface', canvas);
+            const hover = themeColor(theme, 'hover');
+            for (const [label, backdrop] of [['panel', panel], ['canvas', canvas]] as const) {
+                expect(contrastRatio(hover, backdrop), `${theme} hover is visible on the ${label}`)
+                    .to.be.greaterThan(1.1);
+            }
+            // themeColor composites a translucent role over a backdrop, and
+            // defaults to white when given none - which silently turns the dark
+            // theme's white ink into white-on-white. Name the backdrop.
+            expect(contrastRatio(themeColor(theme, 'ink', panel), hover), `${theme} label on a hover wash`)
+                .to.be.greaterThanOrEqual(4.5);
+        }
+        // Both roles are mapped, not just the fill: tree.css:67-70 sets a hover
+        // foreground on the same node, and leaving it native put light ink on a
+        // light wash in the dark theme.
+        expect(stylesheet).to.contain('--theia-list-hoverBackground: var(--ivory-hover)');
+        expect(stylesheet).to.contain('--theia-list-hoverForeground: var(--ivory-ink)');
+    });
+
+    it('gives the selection border role a colour that clears 3:1 on the fill it sits on', () => {
+        // --theia-menu-selectionBorder was mapped to --ivory-accent, which is
+        // 1.82:1 light and 1.78:1 dark on the #0090ca fill. Only a later element
+        // rule happened to save the visible menu, so the role itself was a dead
+        // 3:1 claim: any other consumer of the role got the failing value.
+        for (const theme of ['light', 'dark'] as const) {
+            const fill = themeColor(theme, 'accent-soft');
+            const border = themeColor(theme, 'focus-on-soft');
+            expect(contrastRatio(border, fill), `${theme} selection border on the selection fill`)
+                .to.be.greaterThanOrEqual(3);
+        }
+        // Both border roles are drawn ON the fill, so both must clear 3:1
+        // there: core paints the menu item's border at menus.css:148-149 and
+        // the menu-bar item's left/right borders at menus.css:66-69. The
+        // menu-bar one was unmapped entirely, so HC's active menu-bar item had
+        // no boundary at all.
+        for (const role of ['menu-selectionBorder', 'menubar-selectionBorder'] as const) {
+            expect(stylesheet, `the ${role} role is the accessible ring colour`)
+                .to.contain(`--theia-${role}: var(--ivory-focus-on-soft)`);
+        }
     });
 
     it('keeps keyboard focus visible and respects reduced motion', () => {
@@ -712,11 +1049,100 @@ const colourRoles = [...new Set([...semanticStylesheet
         // Non-colour overrides (radius 0, no shadow) are deliberate: high
         // contrast drops the soft elevation the ordinary themes use.
         const hcColourRoles = new Set(colourRoles.map(role => role.replace('--ivory-', '')));
+        // Roles that must NOT read a Theia role. Theia writes every --theia-*
+        // colour as an inline style on <html>, and a rule on <body> cannot read
+        // an html inline value through var(): it resolves as undefined and falls
+        // through to its fallback. Reading one here produced an empty value and
+        // a status bar with border-top-width: 0px.
+        const MUST_NOT_READ_THEIA = new Set(['--ivory-border-on-ink']);
         for (const [role, value] of [...hcBlock.matchAll(/--ivory-[\w-]+:\s*([^;]+);/g)].map(m => [m[0].split(':')[0], m[1]])) {
-            if (hcColourRoles.has(role.replace('--ivory-', ''))) {
+            if (!hcColourRoles.has(role.replace('--ivory-', ''))) { continue; }
+            if (MUST_NOT_READ_THEIA.has(role)) {
+                expect(value, `${role} under high contrast reads a Theia role it cannot resolve`)
+                    .to.not.contain('var(--theia-');
+                expect(value, `${role} under high contrast still resolves`).to.match(/^var\(/);
+            } else {
                 expect(value, `${role} under high contrast`).to.contain('var(--theia-');
             }
         }
         expect(hcBlock, 'high contrast drops the soft elevation').to.contain('--ivory-shadow: none');
     });
 });
+
+/** Flatten a translucent colour over the backdrop it is painted on. */
+function opaqueOn(colour: string, backdrop: string): string {
+    const rgba = /^rgba\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)[,\s/]+([\d.]+)\s*\)$/.exec(colour);
+    if (!rgba) { return colour; }
+    return blendOn(`#${[rgba[1], rgba[2], rgba[3]].map(n => Math.round(Number(n)).toString(16).padStart(2, '0')).join('')}`,
+        Number(rgba[4]), backdrop);
+}
+
+/**
+ * Resolve the high-contrast semantic roles to the colours a browser paints.
+ *
+ * The chain runs across two stylesheets and the element each declares on: the
+ * token file derives the ivory roles from Theia's roles, and the shell file
+ * pushes ivory roles back into Theia's names. Resolving a role therefore means
+ * following references across both, and a name that appears twice on the same
+ * element is a cycle, which the browser drops to nothing.
+ */
+function highContrastResolver(): (name: string) => string {
+    const semantic = withoutComments(semanticStylesheet);
+    const shell = withoutComments(stylesheet);
+    const collect = (css: string): Map<string, string> => {
+        const declarations = new Map<string, string>();
+        for (const m of css.matchAll(/(--[\w-]+):\s*([^;{}]+);/g)) { declarations.set(m[1], m[2].trim()); }
+        return declarations;
+    };
+    // Ivory roles come from the token file's HC block; Theia role overrides
+    // from the shell file's HC-capable rules. A role declared on <body> wins
+    // over anything Theia writes inline on <html>.
+    const body = new Map<string, string>(collect(semantic));
+    const root = new Map<string, string>(Object.entries(THEIA_HC_INLINES));
+    // Only the rules whose selector can match a high-contrast body. The
+    // light/dark rules publish the same --theia-* names with ivory values, and
+    // reading those here would make every role look like a cycle.
+    for (const rule of hcCapableRules(shell)) {
+        for (const m of rule[2].matchAll(/(--theia-[\w-]+):\s*([^;{}]+);/g)) {
+            body.set(m[1], m[2].trim());
+        }
+    }
+
+    const resolve = (name: string, trail: Set<string>): string => {
+        if (trail.has(name)) { throw new Error('cycle: ' + [...trail, name].join(' -> ')); }
+        const value = body.get(name) ?? root.get(name);
+        if (value === undefined || value === '') { throw new Error(`${name} is undefined in high contrast`); }
+        const call = /^var\((.*)\)$/.exec(value);
+        if (!call) { return value; }
+        const args: string[] = [];
+        let depth = 0; let current = '';
+        for (const ch of call[1]) {
+            if (ch === '(') { depth++; } else if (ch === ')') { depth--; }
+            if (ch === ',' && depth === 0) { args.push(current); current = ''; } else { current += ch; }
+        }
+        args.push(current);
+        for (const arg of args) {
+            const trimmed = arg.trim();
+            if (!trimmed) { continue; }
+            if (!/^--[\w-]+$/.test(trimmed)) { return trimmed; }
+            const inner = body.get(trimmed) ?? root.get(trimmed);
+            if (inner === undefined || inner === '') { continue; }
+            return resolve(trimmed, new Set([...trail, name]));
+        }
+        throw new Error(`${name} has no resolvable argument`);
+    };
+
+    return (name: string) => resolve(name, new Set());
+}
+
+/** The high-contrast semantic roles, resolved the way the browser resolves them. */
+function resolveHighContrast(): Record<string, string> {
+    const resolve = highContrastResolver();
+    const resolved: Record<string, string> = {};
+    for (const role of ['canvas', 'surface', 'surface-raised', 'ink', 'muted', 'accent',
+        'accent-soft', 'border', 'border-on-ink', 'focus', 'focus-on-soft', 'hover',
+        'on-accent', 'on-accent-soft', 'success', 'warning', 'danger']) {
+        resolved[role] = resolve('--ivory-' + role);
+    }
+    return resolved;
+}

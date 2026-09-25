@@ -16,7 +16,7 @@ html[data-ivory-gui='prototype'] body {
     background: var(--ivory-canvas);
     color: var(--ivory-ink);
 }
-
+html[data-ivory-gui='prototype'] body.theia-light,
 html[data-ivory-gui='prototype'] body.theia-light,
 html[data-ivory-gui='prototype'] body.theia-dark {
     --theia-editor-background: var(--ivory-canvas);
@@ -56,13 +56,16 @@ html[data-ivory-gui='prototype'] body.theia-dark {
     --theia-statusBar-noFolderBackground: var(--ivory-ink);
     --theia-statusBar-noFolderForeground: var(--ivory-surface);
     --theia-statusBar-border: var(--ivory-border-on-ink);
+    --theia-list-hoverBackground: var(--ivory-hover);
+    --theia-list-hoverForeground: var(--ivory-ink);
     --theia-statusBar-noFolderBorder: var(--ivory-border-on-ink);
     --theia-menu-background: var(--ivory-surface-raised);
     --theia-menu-foreground: var(--ivory-ink);
     --theia-menu-border: var(--ivory-border);
     --theia-menu-selectionBackground: var(--ivory-accent-soft);
     --theia-menu-selectionForeground: var(--ivory-on-accent-soft);
-    --theia-menu-selectionBorder: var(--ivory-accent);
+    --theia-menu-selectionBorder: var(--ivory-focus-on-soft);
+    --theia-menubar-selectionBorder: var(--ivory-focus-on-soft);
     --theia-menubar-selectionBackground: var(--ivory-accent-soft);
     --theia-menubar-selectionForeground: var(--ivory-on-accent-soft);
     --theia-input-background: var(--ivory-surface-raised);
@@ -81,16 +84,43 @@ html[data-ivory-gui='prototype'] body.theia-dark {
     --theia-list-activeSelectionBackground: var(--ivory-accent-soft);
     --theia-list-activeSelectionForeground: var(--ivory-on-accent-soft);
     --theia-focusBorder: var(--ivory-focus);
-    --theia-widget-shadow: rgba(0, 0, 0, 0.16);
     --theia-contrastBorder: var(--ivory-border);
     --theia-panel-border: var(--ivory-border);
     --theia-panel-background: var(--ivory-surface);
     --theia-panelTitle-activeForeground: var(--ivory-ink);
     --theia-panelTitle-inactiveForeground: var(--ivory-muted);
     --theia-panelTitle-activeBorder: var(--ivory-accent);
+    --theia-widget-shadow: rgba(0, 0, 0, 0.16);
     background: var(--ivory-canvas);
     color: var(--ivory-ink);
 }
+html[data-ivory-gui='prototype'] body.theia-hc,
+html[data-ivory-gui='prototype'] body.theia-hcLight {
+    /* In HC Theia already owns these roles, so re-pointing them at the ivory scale would make each one reference a role that references it back. A cycle makes every property in it invalid at computed-value time, which is why the whole HC branch used to resolve to nothing. Only the declarations that override a painted property or carry a literal belong here. */
+    --theia-widget-shadow: rgba(0, 0, 0, 0.16);
+    background: var(--ivory-canvas);
+    color: var(--ivory-ink);
+
+    /* Theia leaves --theia-statusBar-border empty in HC: statusBar.border maps to
+     * contrastBorder there, and that role is undefined. Without this the bar
+     * computes border-top-width: 0px and has no boundary at all. */
+    --theia-statusBar-border: var(--ivory-border-on-ink);
+    /* The no-folder variant of the same boundary. Core's shorthand for it
+     * is invalid in HC for the same reason, and this app runs with no folder
+     * open, so this is the rule that is actually painted. */
+    --theia-statusBar-noFolderBorder: var(--ivory-border-on-ink);
+    /* HC defines no hover wash, so an item gives no signal on pointer hover.
+     * --ivory-hover reads --theia-list-inactiveSelectionBackground, which is a
+     * different role from the one set here, so this is not a cycle. */
+    --theia-list-hoverBackground: var(--ivory-hover);
+    --theia-list-hoverForeground: var(--ivory-ink);
+    /* The bar is an ink band: the fill is the dark field and the boundary
+     * is the light one. --ivory-ink is Theia's high-contrast FOREGROUND
+     * (#cccccc), so painting the bar with it would make the fill and the
+     * boundary the same colour: a live browser measured 1.00:1. In high
+     * contrast the fill is the canvas field and the boundary is the
+     * foreground, which is the same relationship at 10.38:1. */
+    background: var(--ivory-canvas);}
 
 /*
  * The dark shadow has to come after the combined light/dark rule above, which
@@ -221,17 +251,75 @@ html[data-ivory-gui='prototype'] #theia-main-content-panel .lm-DockPanel-handle[
     border-left-color: var(--ivory-border);
 }
 
+/* The colour is set on the element, not only through the
+ * --theia-statusBar-border role: core's status-bar.css paints
+ * `border-top: var(--theia-border-width) solid var(--the-role)` at
+ * specificity (1,0,0), so this (1,1,1) rule wins and its own colour is
+ * what the browser paints. Restating it here as a different colour is
+ * what broke it once: the suite certified the role while the page
+ * showed accent at 2.81:1 light and 2.02:1 dark. */
 html[data-ivory-gui='prototype'] #theia-statusBar {
     min-height: 24px;
     background: var(--ivory-ink);
     color: var(--ivory-surface);
-    border-top-color: var(--ivory-accent);
+    /* The width and style are set here, not inherited: core's shorthand
+     * `border-top: var(--theia-border-width) solid var(--theia-statusBar-border)`
+     * is invalid at computed-value time under high contrast, because
+     * statusBar.noFolderBorder -> statusBar.border -> contrastBorder and that
+     * role is undefined in HC. A colour on a 0px border paints nothing: a
+     * live browser computed border-top-width: 0px on the bar. */
+    border-top: 1px solid var(--ivory-border-on-ink);
+}
+
+html[data-ivory-gui='prototype'] body.theia-hc .ivory-card-kind,
+html[data-ivory-gui='prototype'] body.theia-hcLight .ivory-card-kind,
+html[data-ivory-gui='prototype'] body.theia-hc .ivory-evidence-card p,
+html[data-ivory-gui='prototype'] body.theia-hcLight .ivory-evidence-card p {
+    /* The evidence card is filled with --ivory-surface-raised, and Theia's
+     * native high-contrast muted text is only 4.27:1 there. The card fill is
+     * Theia's own, so the fix belongs on the text side: this label is the
+     * package's own, and the opaque ink clears 6.87:1 on the same fill. */
+    color: var(--ivory-ink);
+}
+
+html[data-ivory-gui='prototype'] body.theia-hc .theia-TreeNode:hover,
+html[data-ivory-gui='prototype'] body.theia-hcLight .theia-TreeNode:hover,
+html[data-ivory-gui='prototype'] body.theia-hc .lm-MenuItem:hover,
+html[data-ivory-gui='prototype'] body.theia-hcLight .lm-MenuItem:hover {
+    /* In high contrast a hover is a boundary, not a wash. No fill light enough
+     * to clear 3:1 against the HC canvas keeps a 4.5:1 label against the HC
+     * foreground, so the state is signalled by an edge instead - the same
+     * strategy the selected row already uses. */
+    background: transparent;
+    outline: 1px solid var(--ivory-hover);
+    outline-offset: -1px;
+}
+
+html[data-ivory-gui='prototype'] body.theia-hc #theia-statusBar,
+html[data-ivory-gui='prototype'] body.theia-hcLight #theia-statusBar,
+html[data-ivory-gui='prototype'] body.theia-hc.theia-no-open-workspace #theia-statusBar,
+html[data-ivory-gui='prototype'] body.theia-hcLight.theia-no-open-workspace #theia-statusBar {
+    /* The bar is an ink band: a dark fill with a light boundary and light
+     * text. --ivory-ink is Theia's high-contrast FOREGROUND (#cccccc), so
+     * filling the bar with it made the fill and the boundary the same colour
+     * and a live browser measured 1.00:1. The element rule above wins on
+     * specificity, so this has to restate the fill rather than hope a
+     * themed-body rule reaches the element. */
+    background: var(--ivory-canvas);
+    color: var(--ivory-ink);
+    border-top: 1px solid var(--ivory-ink);
 }
 
 html[data-ivory-gui='prototype'] body.theia-no-open-workspace #theia-statusBar {
     background: var(--ivory-ink);
     color: var(--ivory-surface);
-    border-top-color: var(--ivory-accent);
+    /* The width and style are set here, not inherited: core's shorthand
+     * `border-top: var(--theia-border-width) solid var(--theia-statusBar-border)`
+     * is invalid at computed-value time under high contrast, because
+     * statusBar.noFolderBorder -> statusBar.border -> contrastBorder and that
+     * role is undefined in HC. A colour on a 0px border paints nothing: a
+     * live browser computed border-top-width: 0px on the bar. */
+    border-top: 1px solid var(--ivory-border-on-ink);
 }
 
 html[data-ivory-gui='prototype'] #theia-statusBar .area .element {
@@ -300,7 +388,7 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
  * when this rule was added without the guard. */
 html[data-ivory-gui='prototype'] body.theia-hc .theia-Tree:not(:focus-within) .theia-TreeNode.theia-mod-selected,
 html[data-ivory-gui='prototype'] body.theia-hcLight .theia-Tree:not(:focus-within) .theia-TreeNode.theia-mod-selected {
-    outline: var(--theia-focusBorder) solid 1px;
+    outline: var(--ivory-focus-on-soft) solid 1px;
     outline-offset: -1px;
 }
 
