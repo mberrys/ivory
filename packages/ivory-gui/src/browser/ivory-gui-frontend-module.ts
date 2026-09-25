@@ -14,7 +14,9 @@ import { bindRootContributionProvider } from '@theia/core/lib/common';
 import { IvoryDashboardContribution } from './ivory-dashboard-contribution';
 import { IvoryGuiApplicationContribution } from './ivory-gui-application-contribution';
 import { IvoryDashboardWidget } from './ivory-dashboard-widget';
-import './style/ivory-gui.css';
+import '../../src/browser/tokens/liquidify.generated.css';
+import '../../src/browser/tokens/ivory-semantic-tokens.css';
+import '../../src/browser/style/ivory-gui.css';
 
 export default new ContainerModule(bind => {
     bindViewContribution(bind, IvoryDashboardContribution);
