@@ -17,7 +17,6 @@ html[data-ivory-gui='prototype'] body {
     color: var(--ivory-ink);
 }
 html[data-ivory-gui='prototype'] body.theia-light,
-html[data-ivory-gui='prototype'] body.theia-light,
 html[data-ivory-gui='prototype'] body.theia-dark {
     --theia-editor-background: var(--ivory-canvas);
     --theia-editor-foreground: var(--ivory-ink);
@@ -116,12 +115,15 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
      *  var(--theia-editor-background))`, and mixing `transparent` into that
      * yields 50%-alpha black, which over the black canvas composites to the
      * canvas itself at 1.00:1 - the card silently stops responding to hover.
-     * --ivory-hover is the native foreground (#ffffff, 21:1 on the canvas), so
-     * half of it is a wash that is actually visible.
+     * It cannot be --ivory-hover either: core HALVES the role, and half of the
+     * native foreground is #808080, where the white label is only 3.95:1. The
+     * wash must be dark enough for the label and light enough to read as a step
+     * off the canvas, which is what --ivory-hover-wash is for - 6.67:1 for the
+     * label and 3.15:1 for the step. Both figures are from a live browser.
      *
      * The tree and menu rows are outlined rather than washed; see the :hover
      * element rules below. */
-    --theia-list-hoverBackground: var(--ivory-hover);
+    --theia-list-hoverBackground: var(--ivory-hover-wash);
     --theia-list-hoverForeground: var(--ivory-ink);
 }
 

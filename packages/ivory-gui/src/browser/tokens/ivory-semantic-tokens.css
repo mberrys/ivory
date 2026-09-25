@@ -199,6 +199,13 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
      * clears 6.08:1, so the selected row keeps a visible ring in HC. */
     --ivory-focus-on-soft: var(--theia-foreground, var(--theia-focusBorder, var(--ivory-ink)));
     --ivory-hover: var(--theia-foreground, var(--ivory-ink));
+    /* The colour core mixes to paint a hovered CARD, which is a different
+     * job from the outline the tree and menu rows use. It has to be dark
+     * enough that the white label survives the 50% mix (the foreground
+     * itself mixes to #808080, where white is only 3.95:1) and light enough
+     * to be a visible step off the black canvas. contrastBorder clears
+     * both: 6.67:1 for the label, 3.15:1 for the step. */
+    --ivory-hover-wash: var(--theia-contrastBorder, var(--theia-foreground, var(--ivory-ink)));
     /* Not the inactive-selection wash: #094771 is 1.71:1 on the HC canvas, and
      * no wash light enough to clear 3:1 keeps a 4.5:1 label against the HC
      * foreground. In high contrast a hover is a boundary, not a fill - the

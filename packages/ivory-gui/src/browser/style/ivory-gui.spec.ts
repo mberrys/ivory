@@ -476,11 +476,18 @@ describe('Ivory Poteto visual contract', () => {
         const hoverRole = resolveRole('--theia-list-hoverBackground');
         expect(hoverRole, 'high contrast: the hover role is a colour, not a keyword')
             .to.match(/^(#[\da-f]{3,8}|rgba?\()/i);
-        // Half of it, mixed the way core mixes it, still has to be a visible
-        // step away from the canvas it is painted over.
-        expect(contrastRatio(opaqueOn(hoverRole, hc.canvas), hc.canvas),
-            'high contrast: the card hover wash is a visible step from the canvas')
-            .to.be.greaterThan(1.2);
+        // The role is not what gets painted - core HALVES it. Assert against
+        // the mixed result, which is the colour the browser actually puts
+        // behind the label. The native foreground fails here: half of #ffffff
+        // is #808080, where white is only 3.95:1. A live browser measured
+        // exactly that before the role was given its own value.
+        const mixed = mixHalf(hoverRole, hc.canvas);
+        expect(contrastRatio(hc.ink, mixed),
+            'high contrast: the label on the card hover fill core paints')
+            .to.be.greaterThanOrEqual(4.5);
+        expect(contrastRatio(mixed, hc.canvas),
+            'high contrast: the card hover fill is a visible step from the canvas')
+            .to.be.greaterThanOrEqual(1.2);
         // The tree and menu rows are outlined rather than washed, so the
         // boundary itself still has to clear 3:1.
         expect(contrastRatio(hc.hover, hc.canvas),
@@ -1243,6 +1250,14 @@ const colourRoles = [...new Set([...semanticStylesheet
 });
 
 /** Flatten a translucent colour over the backdrop it is painted on. */
+/** The colour `color-mix(in srgb, H 50%, B)` produces: halfway between. */
+function mixHalf(hex: string, backdrop: string): string {
+    const channels = (c: string): number[] => [0, 2, 4].map(o => Number.parseInt(c.slice(1 + o, 3 + o), 16));
+    const h = channels(hex);
+    const b = channels(backdrop);
+    return `#${h.map((v, i) => Math.round(v * 0.5 + b[i] * 0.5).toString(16).padStart(2, '0')).join('')}`;
+}
+
 function opaqueOn(colour: string, backdrop: string): string {
     const rgba = /^rgba\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)[,\s/]+([\d.]+)\s*\)$/.exec(colour);
     if (!rgba) { return colour; }
@@ -1355,7 +1370,7 @@ function resolveHighContrast(): Record<string, string> {
     const resolve = highContrastResolver();
     const resolved: Record<string, string> = {};
     for (const role of ['canvas', 'surface', 'surface-raised', 'ink', 'muted', 'accent',
-        'accent-soft', 'border', 'border-on-ink', 'focus', 'focus-on-soft', 'hover',
+        'accent-soft', 'border', 'border-on-ink', 'focus', 'focus-on-soft', 'hover', 'hover-wash',
         'on-accent', 'on-accent-soft', 'success', 'warning', 'danger']) {
         resolved[role] = resolve('--ivory-' + role);
     }

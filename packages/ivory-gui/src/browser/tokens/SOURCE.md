@@ -108,10 +108,12 @@ That boundary is scoped to `.theia-Tree:not(:focus-within)`. Without the guard
 it outranks the ring a focused tree already paints and drags it back to the
 weaker `focusBorder` (`#f38518`, 8.18:1), which a live probe caught.
 
-The same reasoning governs hover in High Contrast Dark, where
-`list.hoverBackground` is likewise undefined: the fill stays `transparent` and
-the state is a 1px outline in `--ivory-hover` (21:1). High Contrast Light
-defines a 10%-alpha hover wash, which the package leaves untouched.
+Hover is the one place where High Contrast needs a *fill* as well as the
+outline, because core paints `.theia-Card-interactive:hover` with a
+`color-mix`, and that is where the constraints bite. See the high-contrast
+section below for the measured figures; the short version is that the role
+cannot be the keyword `transparent` and cannot be the full foreground either,
+so it gets its own value.
 
 The 22% focus halo cannot reach 3:1 by itself. It supplements the 2px outline
 rather than replacing it, and is asserted only to remain visible rather than
@@ -148,6 +150,7 @@ and every number in it was the dark theme's.
 | `--ivory-border`, `--ivory-hover`, `--ivory-focus-on-soft` | `#ffffff` | `foreground` |
 | `--ivory-accent`, `--ivory-focus` | `#f38518` | `focusBorder` |
 | `--theia-contrastBorder` | `#6fc3df` | `contrastBorder` |
+| `--ivory-hover-wash` | `#6fc3df` | `contrastBorder`; the colour core halves for the card hover |
 | `--ivory-success` | `#487e02` | `successBackground` |
 | `--ivory-warning` | `rgba(255, 204, 0, 0.8)` | `warningBackground` |
 | `--ivory-danger` | `#000000` | `errorBackground` |
@@ -161,6 +164,8 @@ Painted pairs, all over the `#000000` canvas:
 | status bar boundary on the canvas | 10.55:1 | 3 |
 | hover boundary on the canvas | 21.00:1 | 3 |
 | focus ring on the canvas | 21.00:1 | 3 |
+| label on the card hover fill core paints | 6.67:1 | 4.5 |
+| card hover fill against the canvas | 3.15:1 | 1.2 |
 
 ### High Contrast Light
 
@@ -172,6 +177,7 @@ Painted pairs, all over the `#000000` canvas:
 | `--ivory-border`, `--ivory-hover` | `#292929` | `foreground` |
 | `--theia-contrastBorder`, `--theia-widget-border` | `#0f4a85` | `contrastBorder` |
 | `--ivory-accent`, `--ivory-focus` | `#006bbd` | `focusBorder` |
+| `--ivory-hover-wash` | `#0f4a85` | `contrastBorder`; the colour core halves for the card hover |
 | `--ivory-success`, `--ivory-warning`, `--ivory-danger` | `#292929` | fall back to the foreground; this theme defines none |
 
 The status bar boundary measures 8.98:1 against the `#ffffff` app shell.
@@ -179,19 +185,30 @@ The status bar boundary measures 8.98:1 against the `#ffffff` app shell.
 ### What the two themes leave undefined, and what the package supplies
 
 - `list.hoverBackground` is undefined in High Contrast Dark, so a hovered item
-  would give no signal at all. The package publishes the native foreground
-  (`#ffffff`, 21:1) for that role. It must be a *colour*, not the keyword
-  `transparent`: core paints `.theia-Card-interactive:hover` with
-  `color-mix(in srgb, var(--theia-list-hoverBackground) 50%, var(--theia-editor-background))`,
-  and mixing `transparent` into that computes to `color(srgb 0 0 0 / 0.5)`, which
-  over the black canvas composites to the canvas itself at 1.00:1 — the card
-  silently stops responding to hover. A live browser measured that value.
-  High Contrast Light defines a 10%-alpha wash of its own, which the package
-  also overrides, for the same reason: the rest of the package paints a hover
-  colour there, and a keyword would break the `color-mix` regardless.
+  would give no signal at all. The package publishes `--ivory-hover-wash` for
+  that role: Theia's own `contrastBorder` (`#6fc3df` dark, `#0f4a85` light).
 
-  Tree and menu *rows* are signalled with a 1px `outline` rather than a wash,
-  because a wash on a black canvas is what sank the label below 4.5:1.
+  Two constraints had to hold at once, and each rules out the obvious answer:
+
+  - The role must be a real *colour*, not the keyword `transparent`. Core paints
+    `.theia-Card-interactive:hover` with `color-mix(in srgb,
+    var(--theia-list-hoverBackground) 50%, var(--theia-editor-background))`.
+    Mixing `transparent` into that computes to `color(srgb 0 0 0 / 0.5)`, which
+    over the black canvas composites to the canvas itself at `1.00:1` — the card
+    silently stops responding to hover. A live browser measured that value.
+  - It cannot be the native foreground either, because core *halves* the role.
+    Half of `#ffffff` is `#808080`, where the white label is only `3.95:1`. Also
+    measured in a live browser, before the role was given its own value.
+
+  `contrastBorder` satisfies both: 6.67:1 for the label and 3.15:1 for the step
+  off the canvas in High Contrast Dark, 5.62:1 and 2.59:1 in High Contrast
+  Light. High Contrast Light does define a 10%-alpha hover wash of its own; the
+  package overrides it so the same role means the same thing in both themes, and
+  because a keyword there would break the `color-mix` just the same.
+
+  Tree and menu *rows* keep `--ivory-hover` and are signalled with a 1px
+  `outline` rather than a wash, because a wash on a black canvas is what sank
+  the label below 4.5:1.
 - `list.activeSelectionBackground` and `list.inactiveSelectionBackground` are
   undefined in High Contrast Dark, so a selected row has no fill. The package
   outlines the unfocused selected row in `--ivory-focus-on-soft` rather than
