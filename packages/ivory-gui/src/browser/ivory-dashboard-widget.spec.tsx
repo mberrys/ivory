@@ -18,6 +18,7 @@ FrontendApplicationConfigProvider.set({});
 
 import { expect } from 'chai';
 import * as React from '@theia/core/shared/react';
+import { Container } from '@theia/core/shared/inversify';
 import { MessageLoop } from '@theia/core/shared/@lumino/messaging';
 import { IvoryDashboardWidget } from './ivory-dashboard-widget';
 
@@ -46,6 +47,20 @@ describe('Ivory dashboard widget', () => {
             widget.dispose();
             MessageLoop.flush();
         });
+    });
+
+    it('renders when resolved through the production DI container', async () => {
+        const container = new Container();
+        container.bind(IvoryDashboardWidget).toSelf();
+
+        const resolved = container.get(IvoryDashboardWidget);
+        widget = resolved;
+        React.act(() => MessageLoop.flush());
+        await new Promise<void>(resolve => setImmediate(resolve));
+        React.act(() => MessageLoop.flush());
+
+        expect(resolved.node.querySelector('main[data-ivory-dashboard="true"]')).not.to.equal(undefined);
+        expect(resolved.node.querySelector('h1')?.textContent).to.equal('Ivory evidence workspace');
     });
 
     it('renders the dashboard as a named main landmark', () => {

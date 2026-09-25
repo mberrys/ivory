@@ -8,7 +8,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { injectable } from '@theia/core/shared/inversify';
+import { injectable, postConstruct } from '@theia/core/shared/inversify';
 import { ReactWidget, codicon } from '@theia/core/lib/browser';
 import * as React from '@theia/core/shared/react';
 import { filterIvoryEvidence, IvoryEvidence } from './ivory-dashboard-model';
@@ -53,6 +53,11 @@ export class IvoryDashboardWidget extends ReactWidget {
         this.title.caption = IvoryDashboardWidget.LABEL;
         this.title.closable = true;
         this.title.iconClass = codicon('dashboard');
+    }
+
+    @postConstruct()
+    protected init(): void {
+        this.update();
     }
 
     private query = '';
