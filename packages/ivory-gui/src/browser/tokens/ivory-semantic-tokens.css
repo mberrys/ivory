@@ -1,25 +1,72 @@
 /*
  * Semantic bridge for the Poteto prototype.
- * Upstream values are pinned in liquidify.generated.css.
+ *
+ * Every ordinary role resolves through its pinned upstream alias
+ * (--verified-upstream-*, defined in liquidify.generated.css) and falls back
+ * to the accessible Poteto value documented inline. The fallback is what the
+ * prototype renders if the upstream sheet is ever dropped, so it must stay
+ * legible on its own: on the light canvas the ink, muted, success, warning,
+ * danger and accent values all clear 4.5:1, and the dark values clear it
+ * against the dark canvas too.
+ *
+ * Two roles deliberately are not aliased in the light block. Upstream ships
+ * only 100/500/600 steps per hue, so its light green (#248A3D, 3.53:1) and
+ * orange (#C93400, 4.09:1) cannot clear WCAG AA as small text and no darker
+ * upstream step exists to reach. The light theme therefore uses the Poteto
+ * values below; the aliases stay vendored as the record of the pinned values
+ * and the dark theme consumes them.
+ *
+ * High contrast is deliberately not mapped here. Under body.theia-hc and
+ * body.theia-hcLight the prototype defers to Theia's own native palette.
  */
-:root {
-    --ivory-canvas: #f7f4ed;
-    --ivory-surface: #fffdf8;
-    --ivory-surface-raised: #ffffff;
-    --ivory-ink: #1f2933;
-    --ivory-muted: #5f6b75;
-    --ivory-accent: #b44b32;
-    --ivory-border: #d9d2c3;
-    --ivory-focus: #1d6fc2;
+html[data-ivory-gui='prototype'] {
+    --ivory-canvas: var(--verified-upstream-canvas, #f7f4ed);
+    --ivory-surface: var(--verified-upstream-surface, #fffdf8);
+    --ivory-surface-raised: var(--verified-upstream-surface-raised, #ffffff);
+    --ivory-ink: var(--verified-upstream-ink, #1f2933);
+    --ivory-muted: var(--verified-upstream-muted, #5f6b75);
+    --ivory-accent: var(--verified-upstream-accent, #b44b32);
+    --ivory-accent-soft: var(--verified-upstream-accent-soft, #f1c2ae);
+    --ivory-border: var(--verified-upstream-border, #d9d2c3);
+    --ivory-focus: var(--verified-upstream-focus, #1d6fc2);
     --ivory-success: #2d6b48;
     --ivory-warning: #80560f;
-    --ivory-danger: #b24b4b;
-    --ivory-radius: 12px;
-    --ivory-space-1: 4px;
-    --ivory-space-2: 8px;
-    --ivory-space-3: 16px;
-    --ivory-space-4: 24px;
-    --ivory-duration: 160ms;
-    --ivory-easing: cubic-bezier(0.2, 0, 0, 1);
-    --ivory-shadow: var(--liquidify-shadow, 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35));
+    --ivory-danger: var(--verified-upstream-danger, #b24b4b);
+    --ivory-radius: var(--verified-upstream-radius, 12px);
+    --ivory-space-1: var(--verified-upstream-space-1, 4px);
+    --ivory-space-2: var(--verified-upstream-space-2, 8px);
+    --ivory-space-3: var(--verified-upstream-space-3, 16px);
+    --ivory-space-4: var(--verified-upstream-space-4, 24px);
+    --ivory-duration: var(--verified-upstream-duration, 160ms);
+    --ivory-easing: var(--verified-upstream-easing, cubic-bezier(0.2, 0, 0, 1));
+    --ivory-shadow: var(--verified-upstream-shadow, 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35));
+}
+
+html[data-ivory-gui='prototype'] body.theia-dark {
+    --ivory-canvas: var(--verified-upstream-canvas, #1b1a18);
+    --ivory-surface: var(--verified-upstream-surface, #242220);
+    --ivory-surface-raised: var(--verified-upstream-surface-raised, #2f2c28);
+    --ivory-ink: var(--verified-upstream-ink, #f4eee5);
+    --ivory-muted: var(--verified-upstream-muted, #b7ada1);
+    --ivory-border: var(--verified-upstream-border, #4a443d);
+    --ivory-accent: var(--verified-upstream-accent, #e38b6c);
+    --ivory-accent-soft: var(--verified-upstream-accent-soft, #5d3e32);
+    --ivory-focus: var(--verified-upstream-focus, #7eb8e8);
+    --ivory-success: var(--verified-upstream-success, #79bf94);
+    --ivory-warning: var(--verified-upstream-warning, #d7a85e);
+    --ivory-danger: var(--verified-upstream-danger, #e17b77);
+    --ivory-shadow: var(--verified-upstream-shadow, 0 16px 36px rgba(0, 0, 0, 0.28));
+}
+
+html[data-ivory-gui='prototype'] body.theia-hc,
+html[data-ivory-gui='prototype'] body.theia-hcLight {
+    --ivory-canvas: var(--theia-editor-background, #000000);
+    --ivory-surface: var(--theia-sideBar-background, var(--theia-editor-background, #000000));
+    --ivory-surface-raised: var(--theia-input-background, var(--theia-editor-background, #000000));
+    --ivory-ink: var(--theia-foreground, var(--theia-editor-foreground, #ffffff));
+    --ivory-muted: var(--theia-descriptionForeground, var(--ivory-ink));
+    --ivory-accent: var(--theia-focusBorder, var(--ivory-ink));
+    --ivory-accent-soft: var(--theia-list-activeSelectionBackground, var(--theia-editor-background, #000000));
+    --ivory-border: var(--theia-contrastBorder, var(--theia-widget-border, var(--ivory-ink)));
+    --ivory-focus: var(--theia-focusBorder, var(--ivory-ink));
 }

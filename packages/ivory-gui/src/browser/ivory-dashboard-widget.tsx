@@ -76,7 +76,7 @@ export class IvoryDashboardWidget extends ReactWidget {
     protected render(): React.ReactNode {
         const evidence = filterIvoryEvidence(PROTOTYPE_EVIDENCE, this.query);
         return (
-            <main data-ivory-dashboard='true' aria-labelledby='ivory-dashboard-title'>
+            <main data-ivory-dashboard='true' aria-labelledby='ivory-dashboard-title' tabIndex={-1}>
                 <header className='ivory-dashboard-header'>
                     <div>
                         <p className='ivory-eyebrow'>Poteto prototype / evidence workspace</p>
@@ -118,11 +118,6 @@ export class IvoryDashboardWidget extends ReactWidget {
         this.evidenceStatus = `Evidence check complete. ${sourced} of ${PROTOTYPE_EVIDENCE.length} local records have a source.`;
         this.update();
     };
-
-    public setQueryForTest(query: string): void {
-        this.query = query;
-        this.update();
-    }
 }
 
 interface EvidenceListProps {

@@ -12,22 +12,76 @@ import { readFileSync } from 'fs';
 import { expect } from 'chai';
 
 const stylesheet = readFileSync('src/browser/style/ivory-gui.css', 'utf8');
+const semanticStylesheet = readFileSync('src/browser/tokens/ivory-semantic-tokens.css', 'utf8');
+const generatedStylesheet = readFileSync('src/browser/tokens/liquidify.generated.css', 'utf8');
 const rootThemeBlock = stylesheet.match(
     /html\[data-ivory-gui='prototype'\] \{([\s\S]*?)\n\}/
 )?.[1] ?? '';
-const lightThemeBlock = stylesheet.match(
-    /html\[data-ivory-gui='prototype'\] body\.theia-light \{([\s\S]*?)\n\}/
+const semanticLightThemeBlock = semanticStylesheet.match(
+    /html\[data-ivory-gui='prototype'\] \{([\s\S]*?)\n\}/
 )?.[1] ?? '';
-const effectiveLightThemeBlock = `${rootThemeBlock}\n${lightThemeBlock}`;
+const effectiveLightThemeBlock = `${semanticLightThemeBlock}\n${rootThemeBlock}`;
+// The light aliases live before the dark override, exactly as the cascade sees them.
+const generatedLightBlock = generatedStylesheet.split('body.theia-dark {')[0];
 
-function lightThemeColor(variable: string): string {
+/**
+ * Resolve a light-theme semantic role the way the browser does: follow the
+ * var(--verified-upstream-*, fallback) reference to the checked-in upstream
+ * alias, and fall back to the inline literal when no alias is declared for
+ * that theme.
+ */
+function lightThemeValue(variable: string): string {
     const matches = [...effectiveLightThemeBlock.matchAll(
-        new RegExp(`--ivory-${variable}:\\s*(#[0-9a-f]{6});`, 'g')
+        new RegExp(`--ivory-${variable}:\\s*([^;]+);`, 'g')
     )];
     if (matches.length === 0) {
         throw new Error(`Missing light-theme color for ${variable}`);
     }
-    return matches[matches.length - 1][1];
+    const declared = matches[matches.length - 1][1].trim();
+    const reference = /^var\(\s*(--verified-upstream-[\w-]+)\s*,\s*(.+)\)$/.exec(declared);
+    if (!reference) {
+        return declared;
+    }
+    const alias = reference[1].replace('--verified-upstream-', '');
+    const upstream = generatedLightBlock.match(
+        new RegExp(`--verified-upstream-${alias}:\\s*([^;]+);`)
+    )?.[1].trim();
+    return upstream ?? reference[2].replace(/\)$/, '').trim();
+}
+
+function parseColor(value: string): { channels: [number, number, number]; alpha: number } {
+    const hex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(value);
+    if (hex) {
+        const digits = hex[1].length === 3
+            ? hex[1].split('').map(digit => digit + digit).join('')
+            : hex[1];
+        return {
+            channels: [0, 2, 4].map(offset => Number.parseInt(digits.slice(offset, offset + 2), 16)) as [number, number, number],
+            alpha: 1
+        };
+    }
+    const functional = /^rgba?\(([^)]+)\)$/i.exec(value);
+    if (functional) {
+        const parts = functional[1].split(',').map(part => part.trim());
+        return {
+            channels: [Number(parts[0]), Number(parts[1]), Number(parts[2])],
+            alpha: parts.length > 3 ? Number(parts[3]) : 1
+        };
+    }
+    throw new Error(`Unrecognized color value: ${value}`);
+}
+
+/** Composite a possibly translucent color over an opaque backdrop. */
+function lightThemeColor(variable: string, backdrop?: string): string {
+    const { channels, alpha } = parseColor(lightThemeValue(variable));
+    if (alpha === 1) {
+        return `#${channels.map(channel => channel.toString(16).padStart(2, '0')).join('')}`;
+    }
+    const under = parseColor(backdrop ?? '#ffffff');
+    return `#${channels.map((channel, index) => {
+        const composited = Math.round(channel * alpha + under.channels[index] * (1 - alpha));
+        return composited.toString(16).padStart(2, '0');
+    }).join('')}`;
 }
 
 function linearize(channel: number): number {
@@ -61,16 +115,21 @@ describe('Ivory Poteto visual contract', () => {
     });
 
     it('maps light and dark themes to the semantic surface roles', () => {
-        expect(stylesheet).to.contain('body.theia-light');
-        expect(stylesheet).to.contain('body.theia-dark');
+        expect(semanticStylesheet).to.contain("html[data-ivory-gui='prototype'] {");
+        expect(semanticStylesheet).to.contain('body.theia-dark');
         expect(stylesheet).to.contain('--theia-editor-background: var(--ivory-canvas)');
         expect(stylesheet).to.contain('--theia-sideBar-background: var(--ivory-surface)');
         expect(stylesheet).to.contain('--theia-statusBar-background: var(--ivory-ink)');
         expect(stylesheet).to.contain('--theia-quickInput-background: var(--ivory-surface-raised)');
         expect(stylesheet).to.contain('--theia-quickInputList-focusBackground: var(--ivory-accent-soft)');
+        expect(stylesheet).to.contain('--theia-widget-shadow: rgba(0, 0, 0, 0.16)');
+        expect(stylesheet).to.contain('html[data-ivory-gui=\'prototype\'] body.theia-dark');
+        expect(stylesheet).to.contain('--theia-widget-shadow: rgba(0, 0, 0, 0.38)');
+        expect(stylesheet).not.to.contain('46, 38, 28');
         expect(stylesheet).to.contain('color: var(--ivory-surface)');
         expect(stylesheet).to.contain(
-            "html[data-ivory-gui='prototype'] body {\n" +
+            "html[data-ivory-gui='prototype'] body.theia-light,\n" +
+            "html[data-ivory-gui='prototype'] body.theia-dark {\n" +
             '    --theia-editor-background: var(--ivory-canvas);'
         );
         expect(stylesheet).to.contain(
@@ -78,6 +137,34 @@ describe('Ivory Poteto visual contract', () => {
             '    min-height: 34px;\n' +
             '    background: var(--ivory-surface);\n' +
             '    color: var(--ivory-ink);'
+        );
+    });
+
+    it('preserves native high-contrast palettes and the Poteto font on Windows', () => {
+        expect(stylesheet).to.contain(
+            "html[data-ivory-gui='prototype'] body.theia-light,\n" +
+            "html[data-ivory-gui='prototype'] body.theia-dark {"
+        );
+        expect(semanticStylesheet).to.contain(
+            "html[data-ivory-gui='prototype'] body.theia-hc,\n" +
+            "html[data-ivory-gui='prototype'] body.theia-hcLight {"
+        );
+        for (const variable of [
+            '--ivory-canvas: var(--theia-editor-background, #000000)',
+            '--ivory-surface: var(--theia-sideBar-background, var(--theia-editor-background, #000000))',
+            '--ivory-surface-raised: var(--theia-input-background, var(--theia-editor-background, #000000))',
+            '--ivory-ink: var(--theia-foreground, var(--theia-editor-foreground, #ffffff))',
+            '--ivory-muted: var(--theia-descriptionForeground, var(--ivory-ink))',
+            '--ivory-accent: var(--theia-focusBorder, var(--ivory-ink))',
+            '--ivory-accent-soft: var(--theia-list-activeSelectionBackground, var(--theia-editor-background, #000000))',
+            '--ivory-border: var(--theia-contrastBorder, var(--theia-widget-border, var(--ivory-ink)))',
+            '--ivory-focus: var(--theia-focusBorder, var(--ivory-ink))'
+        ]) {
+            expect(semanticStylesheet).to.contain(variable);
+        }
+        expect(stylesheet).to.contain(
+            "html[data-ivory-gui='prototype'] body {\n" +
+            "    --theia-ui-font-family: 'Avenir Next', 'Segoe UI', sans-serif;"
         );
     });
 
@@ -102,17 +189,30 @@ describe('Ivory Poteto visual contract', () => {
         const surface = lightThemeColor('surface');
         const canvas = lightThemeColor('canvas');
         const accent = lightThemeColor('accent');
+        // Upstream declares ink and muted as translucent black, so they must be
+        // composited over the surface they actually sit on before measuring.
+        const muted = lightThemeColor('muted', surface);
+        const ink = lightThemeColor('ink', canvas);
         const success = lightThemeColor('success');
         const warning = lightThemeColor('warning');
         const successTint = blendOn(success, 0.14, canvas);
         const warningTint = blendOn(warning, 0.14, canvas);
 
-        expect(contrastRatio(lightThemeColor('muted'), surface), 'muted text').to.be.greaterThanOrEqual(4.5);
+        expect(contrastRatio(muted, surface), 'muted text').to.be.greaterThanOrEqual(4.5);
         expect(contrastRatio(accent, surface), 'accent text').to.be.greaterThanOrEqual(4.5);
         expect(contrastRatio(surface, accent), 'button text').to.be.greaterThanOrEqual(4.5);
         expect(contrastRatio(success, successTint), 'verified status').to.be.greaterThanOrEqual(4.5);
         expect(contrastRatio(warning, warningTint), 'queued status').to.be.greaterThanOrEqual(4.5);
-        expect(contrastRatio(lightThemeColor('ink'), canvas)).to.be.greaterThanOrEqual(4.5);
+        expect(contrastRatio(ink, canvas)).to.be.greaterThanOrEqual(4.5);
+    });
+
+    it('keeps semantic roles in the token bridge instead of duplicating them in the shell layer', () => {
+        for (const role of ['canvas', 'surface', 'surface-raised', 'ink', 'muted', 'accent', 'border', 'focus', 'success', 'warning', 'danger', 'radius', 'shadow']) {
+            expect(semanticStylesheet).to.contain(`--ivory-${role}:`);
+            expect(rootThemeBlock).not.to.contain(`--ivory-${role}:`);
+        }
+        expect(stylesheet).to.contain('var(--ivory-ink)');
+        expect(stylesheet).to.contain('var(--ivory-accent)');
     });
 
     it('keeps keyboard focus visible and respects reduced motion', () => {

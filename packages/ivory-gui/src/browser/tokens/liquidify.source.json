@@ -5,7 +5,82 @@
   "license": "MIT",
   "sourcePaths": [
     "styled-system/styles.css",
-    "panda.config.ts"
+    "panda.config.ts",
+    "libs/components/src/styles/panda.css",
+    "libs/components/src/styles/new-design-system.css",
+    "LICENSE"
   ],
-  "vendored": "minimal token subset only"
+  "sourceFiles": [
+    {
+      "path": "styled-system/styles.css",
+      "sha256": "d3d736943c594c6037956bf1441ec19843f8a883794ef2415330a79c4e0ad926",
+      "lines": "90-91,327-331,349,749,753,755,767,771,776,778,780-782,789-792,800-801,803-804,806-809,811,813-814,825-826,852-853,892,903,907,938-943",
+      "transformation": "minimal declaration subset; gray surface ramp, system accents, semantic text, selection, glass, blur, radius, spacing, duration, easing, and elevation-8 shadow"
+    },
+    {
+      "path": "panda.config.ts",
+      "sha256": "894d8f83e967279e891f935e56fae91e55661de583240b74156639b43652b53b",
+      "lines": "1651",
+      "transformation": "elevation-8 shadow value verified"
+    },
+    {
+      "path": "libs/components/src/styles/panda.css",
+      "sha256": "082acae74d7fd359411b7cc50500b17746d6619fb7cbeefac23f9f274b366d27",
+      "lines": "6-14,40-61",
+      "transformation": "dark and light glass surface, border, text, and shadow overrides; no component recipe copied"
+    },
+    {
+      "path": "libs/components/src/styles/new-design-system.css",
+      "sha256": "5286fbdab4857461a27d0f3fec9ff24d898f56982c5f70a8e1688da4ca7d776b",
+      "lines": "1-18,151-158",
+      "transformation": "source context verified; no font layer copied"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "768fcec404fb02240dd579f6b99ba2de1a7ebbd8db472d791cbc9881ed9f9047",
+      "lines": "1-21",
+      "transformation": "notice reproduced in THIRD_PARTY_NOTICE.md"
+    }
+  ],
+  "aliasSources": {
+    "light": {
+      "accent": "styled-system/styles.css:792 --colors-blue-600",
+      "accent-soft": "styled-system/styles.css:790 --colors-blue-100",
+      "border": "styled-system/styles.css:811 --colors-border-default",
+      "canvas": "styled-system/styles.css:808 --colors-bg-canvas",
+      "danger": "styled-system/styles.css:807 --colors-pink-600",
+      "focus": "styled-system/styles.css:792 --colors-blue-600",
+      "ink": "styled-system/styles.css:813 --colors-semantic-label",
+      "muted": "styled-system/styles.css:814 --colors-semantic-secondary-label",
+      "success": "styled-system/styles.css:801 --colors-green-600",
+      "surface": "styled-system/styles.css:809 --colors-bg-surface",
+      "surface-raised": "styled-system/styles.css:808 --colors-bg-canvas",
+      "warning": "styled-system/styles.css:804 --colors-orange-600",
+      "radius": "styled-system/styles.css:853 --radii-lg",
+      "space-1": "styled-system/styles.css:938 --spacing-glass-xs",
+      "space-2": "styled-system/styles.css:939 --spacing-glass-sm",
+      "space-3": "styled-system/styles.css:941 --spacing-glass-lg",
+      "space-4": "styled-system/styles.css:943 --spacing-glass-2xl",
+      "duration": "styled-system/styles.css:903 --durations-glass-instant",
+      "easing": "styled-system/styles.css:907 --easings-glass-flow",
+      "shadow": "styled-system/styles.css:892 --shadows-elevation-8"
+    },
+    "dark": {
+      "accent": "styled-system/styles.css:791 --colors-blue-500",
+      "accent-soft": "styled-system/styles.css:792 --colors-blue-600",
+      "border": "libs/components/src/styles/panda.css:47 --colors-glass-border",
+      "canvas": "styled-system/styles.css:789 --colors-gray-900",
+      "danger": "styled-system/styles.css:806 --colors-pink-500",
+      "focus": "styled-system/styles.css:791 --colors-blue-500",
+      "ink": "libs/components/src/styles/panda.css:41 --colors-text-glass-primary",
+      "muted": "libs/components/src/styles/panda.css:43 --colors-text-glass-muted",
+      "success": "styled-system/styles.css:800 --colors-green-500",
+      "surface": "libs/components/src/styles/panda.css:46 --colors-glass-bg",
+      "surface-raised": "styled-system/styles.css:826 --colors-materials-thin",
+      "warning": "styled-system/styles.css:803 --colors-orange-500",
+      "shadow": "libs/components/src/styles/panda.css:48 --shadows-glass-base"
+    }
+  },
+  "vendored": "minimal token subset only",
+  "notice": "THIRD_PARTY_NOTICE.md"
 }

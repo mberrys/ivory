@@ -1,12 +1,22 @@
 /*
  * Minimal token snapshot from tuliopc23/LiqUIdify.
  * Revision: bc462c6e0bcc502938013b02c6434ac06c8350a0
- * Sources: styled-system/styles.css, panda.config.ts
+ * Sources: styled-system/styles.css, panda.config.ts,
+ *          libs/components/src/styles/panda.css
  * License: MIT
  *
  * This file is intentionally not a component-library stylesheet.
+ * Every --verified-upstream-* value is copied verbatim from the pinned
+ * revision. Line references are recorded in liquidify.source.json.
+ *
+ * Light-theme note: upstream ships only 100/500/600 steps per hue and no
+ * darker step, so its light green (#248A3D, 3.53:1) and orange (#C93400,
+ * 4.09:1) cannot clear WCAG AA as small text. Those two aliases are vendored
+ * and verified here as the record of the pinned values, but the light theme
+ * in ivory-semantic-tokens.css declines to consume them and uses the
+ * accessible Poteto fallbacks instead. The dark theme consumes them.
  */
-:root {
+html[data-ivory-gui='prototype'] {
     --liquidify-glass-bg: rgba(255, 255, 255, 0.1);
     --liquidify-glass-border: rgba(255, 255, 255, 0.2);
     --liquidify-glass-subtle-bg: rgba(255, 255, 255, 0.06);
@@ -15,4 +25,50 @@
     --liquidify-selection: rgba(0, 115, 255, 0.3);
     --liquidify-radius: 12px;
     --liquidify-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+
+    /* Upstream light defaults, copied verbatim.
+       styles.css:780-782, 790-792, 801, 804, 807-809, 811, 813-814,
+       852-853, 892, 903, 907, 938-943 */
+    --verified-upstream-accent: #0056CC;
+    --verified-upstream-accent-soft: #D1E9FF;
+    --verified-upstream-border: #E5E5EA;
+    --verified-upstream-canvas: #FAFAFA;
+    --verified-upstream-danger: #D70015;
+    --verified-upstream-focus: #0056CC;
+    --verified-upstream-ink: rgba(0, 0, 0, 0.92);
+    --verified-upstream-muted: rgba(0, 0, 0, 0.6);
+    --verified-upstream-success: #248A3D;
+    --verified-upstream-surface: #F5F5F7;
+    --verified-upstream-surface-raised: #FAFAFA;
+    --verified-upstream-warning: #C93400;
+
+    /* Upstream scale tokens, shared by both themes. */
+    --verified-upstream-radius: 12px;
+    --verified-upstream-space-1: 4px;
+    --verified-upstream-space-2: 8px;
+    --verified-upstream-space-3: 16px;
+    --verified-upstream-space-4: 24px;
+    --verified-upstream-duration: 0.15s;
+    --verified-upstream-easing: cubic-bezier(0.25, 0.1, 0.25, 1.0);
+    --verified-upstream-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* Upstream dark overrides. The dark surface family comes from the dark glass
+   block in panda.css and the dark glass text/materials tokens, because
+   upstream themes no dark surface ramp beyond the gray scale.
+   panda.css:40-50, styles.css:776-778, 789, 825 */
+html[data-ivory-gui='prototype'] body.theia-dark {
+    --verified-upstream-accent: #007AFF;
+    --verified-upstream-accent-soft: #0056CC;
+    --verified-upstream-border: rgba(255, 255, 255, 0.08);
+    --verified-upstream-canvas: #1C1C1E;
+    --verified-upstream-danger: #FF2D92;
+    --verified-upstream-focus: #007AFF;
+    --verified-upstream-ink: rgba(255, 255, 255, 1);
+    --verified-upstream-muted: rgba(255, 255, 255, 0.7);
+    --verified-upstream-success: #34C759;
+    --verified-upstream-surface: rgba(22, 22, 24, 0.6);
+    --verified-upstream-surface-raised: rgba(255, 255, 255, 0.12);
+    --verified-upstream-warning: #FF9500;
+    --verified-upstream-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 2px 10px rgba(0, 0, 0, 0.35);
 }

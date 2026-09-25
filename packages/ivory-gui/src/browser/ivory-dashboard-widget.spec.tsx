@@ -27,7 +27,24 @@ disableReactActEnvironment();
 disableJSDOM();
 
 describe('Ivory dashboard widget', () => {
+    function typeIntoSearch(input: HTMLInputElement, value: string): void {
+        const view = input.ownerDocument.defaultView as unknown as { Event: typeof Event; HTMLInputElement: typeof HTMLInputElement };
+        const nativeSetter = Object.getOwnPropertyDescriptor(view.HTMLInputElement.prototype, 'value')?.set;
+        if (!nativeSetter) {
+            throw new Error('The test window does not expose an input value setter.');
+        }
+        React.act(() => {
+            nativeSetter.call(input, value);
+            input.dispatchEvent(new view.Event('input', { bubbles: true }));
+            MessageLoop.flush();
+        });
+    }
+
     let widget: IvoryDashboardWidget;
+
+    it('does not expose a test-only query mutation', () => {
+        expect(Object.prototype.hasOwnProperty.call(IvoryDashboardWidget.prototype, 'setQueryForTest')).to.equal(false);
+    });
 
     before(() => {
         disableJSDOM = enableJSDOM();
@@ -73,25 +90,36 @@ describe('Ivory dashboard widget', () => {
         expect(widget.node.querySelector('h1')?.textContent).to.equal('Ivory evidence workspace');
     });
 
+    it('exposes the landmark to focus so activating the view moves focus into it', () => {
+        React.act(() => {
+            widget.update();
+            MessageLoop.flush();
+        });
+        const landmark = widget.node.querySelector<HTMLElement>('main[data-ivory-dashboard="true"]');
+        expect(landmark).to.exist;
+        // Theia warns when an activated widget never receives focus. A landmark
+        // is not focusable by default, so the view must opt in explicitly.
+        expect(landmark?.getAttribute('tabindex')).to.equal('-1');
+    });
+
     it('filters evidence from the search field and exposes an empty state', () => {
         React.act(() => {
             widget.update();
             MessageLoop.flush();
         });
-        expect(widget.node.querySelector('input[type="search"]')).not.to.equal(undefined);
+        const input = widget.node.querySelector<HTMLInputElement>('input[type="search"]');
+        expect(input).to.exist;
+        if (!input) {
+            throw new Error('The dashboard search input was not rendered.');
+        }
         expect(widget.node.querySelectorAll('.ivory-evidence-card')).to.have.length(3);
 
-        React.act(() => {
-            widget.setQueryForTest('token');
-            MessageLoop.flush();
-        });
+        typeIntoSearch(input, 'token');
+        expect(input.value).to.equal('token');
         expect(widget.node.querySelectorAll('.ivory-evidence-card')).to.have.length(1);
         expect(widget.node.querySelector('.ivory-evidence-card h3')?.textContent).to.equal('Token provenance');
 
-        React.act(() => {
-            widget.setQueryForTest('not-found');
-            MessageLoop.flush();
-        });
+        typeIntoSearch(input, 'not-found');
         expect(widget.node.querySelector('.ivory-empty-state')?.textContent).to.equal('No evidence matches this query.');
     });
 

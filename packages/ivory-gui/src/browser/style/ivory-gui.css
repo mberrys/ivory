@@ -5,59 +5,24 @@
  */
 
 html[data-ivory-gui='prototype'] {
-    --ivory-canvas: #f7f4ed;
-    --ivory-surface: #fffdf8;
-    --ivory-surface-raised: #ffffff;
-    --ivory-ink: #1f2933;
-    --ivory-muted: #5f6b75;
-    --ivory-border: #d9d2c3;
-    --ivory-accent: #b44b32;
-    --ivory-accent-soft: #f1c2ae;
-    --ivory-focus: #1d6fc2;
-    --ivory-success: #2d6b48;
-    --ivory-warning: #80560f;
-    --ivory-danger: #b24b4b;
-    --ivory-radius: 12px;
-    --ivory-shadow: var(--liquidify-shadow, 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35));
     --theia-ui-font-family: 'Avenir Next', 'Segoe UI', sans-serif;
     --theia-ui-font-size1: 13px;
     --theia-ui-padding: 8px;
     --theia-border-width: 1px;
 }
 
-html[data-ivory-gui='prototype'] body.theia-light {
-    --ivory-canvas: #f7f4ed;
-    --ivory-surface: #fffdf8;
-    --ivory-surface-raised: #ffffff;
-    --ivory-ink: #1f2933;
-    --ivory-muted: #5f6b75;
-    --ivory-border: #d9d2c3;
-    --ivory-accent: #b44b32;
-    --ivory-accent-soft: #f1c2ae;
-    --ivory-focus: #1d6fc2;
-    --ivory-success: #2d6b48;
-    --ivory-warning: #80560f;
-    --ivory-shadow: var(--liquidify-shadow, 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35));
-}
-
 html[data-ivory-gui='prototype'] body.theia-dark {
-    --ivory-canvas: #1b1a18;
-    --ivory-surface: #242220;
-    --ivory-surface-raised: #2f2c28;
-    --ivory-ink: #f4eee5;
-    --ivory-muted: #b7ada1;
-    --ivory-border: #4a443d;
-    --ivory-accent: #e38b6c;
-    --ivory-accent-soft: #5d3e32;
-    --ivory-focus: #7eb8e8;
-    --ivory-success: #79bf94;
-    --ivory-warning: #d7a85e;
-    --ivory-danger: #e17b77;
-    --ivory-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
     --theia-widget-shadow: rgba(0, 0, 0, 0.38);
 }
 
 html[data-ivory-gui='prototype'] body {
+    --theia-ui-font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+    background: var(--ivory-canvas);
+    color: var(--ivory-ink);
+}
+
+html[data-ivory-gui='prototype'] body.theia-light,
+html[data-ivory-gui='prototype'] body.theia-dark {
     --theia-editor-background: var(--ivory-canvas);
     --theia-editor-foreground: var(--ivory-ink);
     --theia-foreground: var(--ivory-ink);
@@ -120,7 +85,7 @@ html[data-ivory-gui='prototype'] body {
     --theia-list-activeSelectionBackground: var(--ivory-accent-soft);
     --theia-list-activeSelectionForeground: var(--ivory-ink);
     --theia-focusBorder: var(--ivory-focus);
-    --theia-widget-shadow: rgba(46, 38, 28, 0.16);
+    --theia-widget-shadow: rgba(0, 0, 0, 0.16);
     --theia-contrastBorder: var(--ivory-border);
     --theia-panel-border: var(--ivory-border);
     --theia-panel-background: var(--ivory-surface);
