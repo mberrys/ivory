@@ -9,7 +9,8 @@
 // *****************************************************************************
 
 import { ContainerModule } from '@theia/core/shared/inversify';
-import { WidgetFactory, bindViewContribution } from '@theia/core/lib/browser';
+import { FrontendApplicationContribution, WidgetFactory, bindViewContribution } from '@theia/core/lib/browser';
+import { bindRootContributionProvider } from '@theia/core/lib/common';
 import { IvoryDashboardContribution } from './ivory-dashboard-contribution';
 import { IvoryDashboardWidget } from './ivory-dashboard-widget';
 import './style/ivory-gui.css';
@@ -21,4 +22,6 @@ export default new ContainerModule(bind => {
         id: IvoryDashboardWidget.ID,
         createWidget: () => context.container.get<IvoryDashboardWidget>(IvoryDashboardWidget)
     })).inSingletonScope();
+    bindRootContributionProvider(bind, FrontendApplicationContribution);
+    bind(FrontendApplicationContribution).toService(IvoryDashboardContribution);
 });

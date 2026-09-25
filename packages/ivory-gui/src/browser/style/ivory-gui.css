@@ -1,0 +1,41 @@
+/* Poteto tokens are mapped to Ivory semantic roles below. */
+:root {
+    --ivory-poteto-canvas: #f7f4ed;
+    --ivory-poteto-surface: #fffdf8;
+    --ivory-poteto-ink: #1f2933;
+    --ivory-poteto-muted: #68737d;
+    --ivory-poteto-line: #d9d2c3;
+    --ivory-poteto-accent: #d96c4f;
+    --ivory-poteto-accent-soft: #f1c2ae;
+    --ivory-poteto-success: #3f7d5a;
+    --ivory-poteto-shadow: 0 12px 32px rgba(46, 38, 28, 0.12);
+}
+
+[data-ivory-dashboard='true'] {
+    box-sizing: border-box;
+    min-height: 100%;
+    padding: 2.25rem clamp(1.25rem, 4vw, 3.5rem);
+    color: var(--ivory-poteto-ink);
+    background: var(--ivory-poteto-canvas);
+    font-family: 'Avenir Next', 'Segoe UI', sans-serif;
+}
+
+[data-ivory-dashboard='true'] * {
+    box-sizing: inherit;
+}
+
+[data-ivory-dashboard='true'] h1 {
+    margin: 0;
+    color: var(--ivory-poteto-ink);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [data-ivory-dashboard='true'] * {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
