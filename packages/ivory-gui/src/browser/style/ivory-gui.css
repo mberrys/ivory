@@ -1,6 +1,6 @@
 /*
  * Poteto visual foundation for the Ivory browser prototype.
- * The activation marker is added by IvoryGuiApplicationContribution and removed on stop.
+ * The application contribution owns startup cleanup; the dashboard widget follows attach and detach.
  * Every shell rule stays under the marker so removing the package restores Theia styling.
  */
 
@@ -9,16 +9,16 @@ html[data-ivory-gui='prototype'] {
     --ivory-surface: #fffdf8;
     --ivory-surface-raised: #ffffff;
     --ivory-ink: #1f2933;
-    --ivory-muted: #68737d;
+    --ivory-muted: #5f6b75;
     --ivory-border: #d9d2c3;
-    --ivory-accent: #d96c4f;
+    --ivory-accent: #b44b32;
     --ivory-accent-soft: #f1c2ae;
     --ivory-focus: #1d6fc2;
-    --ivory-success: #3f7d5a;
-    --ivory-warning: #9a6a18;
+    --ivory-success: #2d6b48;
+    --ivory-warning: #80560f;
     --ivory-danger: #b24b4b;
     --ivory-radius: 12px;
-    --ivory-shadow: 0 12px 32px rgba(46, 38, 28, 0.12);
+    --ivory-shadow: var(--liquidify-shadow, 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35));
     --theia-ui-font-family: 'Avenir Next', 'Segoe UI', sans-serif;
     --theia-ui-font-size1: 13px;
     --theia-ui-padding: 8px;
@@ -30,12 +30,14 @@ html[data-ivory-gui='prototype'] body.theia-light {
     --ivory-surface: #fffdf8;
     --ivory-surface-raised: #ffffff;
     --ivory-ink: #1f2933;
-    --ivory-muted: #68737d;
+    --ivory-muted: #5f6b75;
     --ivory-border: #d9d2c3;
-    --ivory-accent: #d96c4f;
+    --ivory-accent: #b44b32;
     --ivory-accent-soft: #f1c2ae;
     --ivory-focus: #1d6fc2;
-    --ivory-shadow: 0 12px 32px rgba(46, 38, 28, 0.12);
+    --ivory-success: #2d6b48;
+    --ivory-warning: #80560f;
+    --ivory-shadow: var(--liquidify-shadow, 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35));
 }
 
 html[data-ivory-gui='prototype'] body.theia-dark {
@@ -177,7 +179,7 @@ html[data-ivory-gui='prototype'] .lm-TabBar.theia-app-sides .lm-TabBar-tab:hover
 html[data-ivory-gui='prototype'] .lm-TabBar.theia-app-sides .lm-TabBar-tab.lm-mod-current {
     color: var(--ivory-ink);
     background: var(--ivory-surface-raised);
-    box-shadow: 0 2px 8px rgba(46, 38, 28, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 html[data-ivory-gui='prototype'] .lm-TabBar.theia-app-left .lm-TabBar-tab.lm-mod-current {
@@ -389,7 +391,7 @@ html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-command-bu
     background: var(--ivory-ink);
     border-color: var(--ivory-ink);
     color: var(--ivory-surface);
-    box-shadow: 0 6px 16px rgba(46, 38, 28, 0.14);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
     transform: translateY(-1px);
 }
 
@@ -463,7 +465,7 @@ html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-c
     border: 1px solid var(--ivory-border);
     border-radius: var(--ivory-radius);
     background: var(--ivory-surface-raised);
-    box-shadow: 0 4px 12px rgba(46, 38, 28, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
@@ -546,6 +548,12 @@ html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-empty-stat
     color: var(--ivory-muted);
     background: var(--ivory-surface);
     text-align: center;
+}
+
+html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-status {
+    margin: 18px 0 0;
+    color: var(--ivory-muted);
+    font-size: 12px;
 }
 
 @media (prefers-reduced-motion: reduce) {

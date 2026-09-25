@@ -9,7 +9,7 @@
 // *****************************************************************************
 
 import { injectable, postConstruct } from '@theia/core/shared/inversify';
-import { ReactWidget, codicon } from '@theia/core/lib/browser';
+import { Message, ReactWidget, codicon } from '@theia/core/lib/browser';
 import * as React from '@theia/core/shared/react';
 import { filterIvoryEvidence, IvoryEvidence } from './ivory-dashboard-model';
 
@@ -60,7 +60,18 @@ export class IvoryDashboardWidget extends ReactWidget {
         this.update();
     }
 
+    protected override onAfterAttach(message: Message): void {
+        super.onAfterAttach(message);
+        document.documentElement.dataset.ivoryGui = 'prototype';
+    }
+
+    protected override onBeforeDetach(message: Message): void {
+        delete document.documentElement.dataset.ivoryGui;
+        super.onBeforeDetach(message);
+    }
+
     private query = '';
+    private evidenceStatus: string | undefined;
 
     protected render(): React.ReactNode {
         const evidence = filterIvoryEvidence(PROTOTYPE_EVIDENCE, this.query);
@@ -72,7 +83,7 @@ export class IvoryDashboardWidget extends ReactWidget {
                         <h1 id='ivory-dashboard-title'>{IvoryDashboardWidget.LABEL}</h1>
                         <p className='ivory-lede'>A quiet surface for tracing claims, sources, and open work.</p>
                     </div>
-                    <button type='button' className='ivory-command-button' aria-label='Run evidence check'>
+                    <button type='button' className='ivory-command-button' aria-label='Run evidence check' onClick={this.runEvidenceCheck}>
                         Run check
                     </button>
                 </header>
@@ -96,10 +107,17 @@ export class IvoryDashboardWidget extends ReactWidget {
                         </label>
                     </div>
                     <EvidenceList evidence={evidence} />
+                    {this.evidenceStatus && <p className='ivory-evidence-status' role='status'>{this.evidenceStatus}</p>}
                 </section>
             </main>
         );
     }
+
+    private readonly runEvidenceCheck = (): void => {
+        const sourced = PROTOTYPE_EVIDENCE.filter(item => item.source.trim().length > 0).length;
+        this.evidenceStatus = `Evidence check complete. ${sourced} of ${PROTOTYPE_EVIDENCE.length} local records have a source.`;
+        this.update();
+    };
 
     public setQueryForTest(query: string): void {
         this.query = query;

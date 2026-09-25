@@ -14,5 +14,5 @@
     --liquidify-glass-blur: 12px;
     --liquidify-selection: rgba(0, 115, 255, 0.3);
     --liquidify-radius: 12px;
-    --liquidify-shadow: 0 12px 32px rgba(46, 38, 28, 0.12);
+    --liquidify-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }

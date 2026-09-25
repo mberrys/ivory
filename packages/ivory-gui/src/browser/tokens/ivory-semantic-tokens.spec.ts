@@ -37,7 +37,8 @@ describe('Ivory semantic token snapshot', () => {
         }
     });
 
-    it('keeps the vendored snapshot attributed and free of runtime imports', () => {
+    it('vendors a shadow declaration from the pinned upstream source', () => {
+        expect(snapshot).to.contain('0 8px 24px rgba(0, 0, 0, 0.12)');
         expect(snapshot).to.contain('bc462c6e0bcc502938013b02c6434ac06c8350a0');
         expect(snapshot).not.to.contain('http://');
         expect(snapshot).not.to.contain('https://');

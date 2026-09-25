@@ -24,7 +24,7 @@ describe('Ivory GUI application contribution', () => {
     before(() => disableJSDOM = enableJSDOM());
     after(() => disableJSDOM());
 
-    it('sets and removes the reversible prototype marker', () => {
+    it('keeps application activation and clears it on stop', () => {
         const contribution = new IvoryGuiApplicationContribution();
 
         contribution.initialize();

@@ -12,6 +12,47 @@ import { readFileSync } from 'fs';
 import { expect } from 'chai';
 
 const stylesheet = readFileSync('src/browser/style/ivory-gui.css', 'utf8');
+const rootThemeBlock = stylesheet.match(
+    /html\[data-ivory-gui='prototype'\] \{([\s\S]*?)\n\}/
+)?.[1] ?? '';
+const lightThemeBlock = stylesheet.match(
+    /html\[data-ivory-gui='prototype'\] body\.theia-light \{([\s\S]*?)\n\}/
+)?.[1] ?? '';
+const effectiveLightThemeBlock = `${rootThemeBlock}\n${lightThemeBlock}`;
+
+function lightThemeColor(variable: string): string {
+    const matches = [...effectiveLightThemeBlock.matchAll(
+        new RegExp(`--ivory-${variable}:\\s*(#[0-9a-f]{6});`, 'g')
+    )];
+    if (matches.length === 0) {
+        throw new Error(`Missing light-theme color for ${variable}`);
+    }
+    return matches[matches.length - 1][1];
+}
+
+function linearize(channel: number): number {
+    const value = channel / 255;
+    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+}
+
+function luminance(color: string): number {
+    const channels = [0, 2, 4].map(offset => linearize(Number.parseInt(color.slice(1 + offset, 3 + offset), 16)));
+    return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+}
+
+function contrastRatio(foreground: string, background: string): number {
+    const values = [luminance(foreground), luminance(background)].sort((left, right) => right - left);
+    return (values[0] + 0.05) / (values[1] + 0.05);
+}
+
+function blendOn(foreground: string, alpha: number, background: string): string {
+    const backgroundChannels = [0, 2, 4].map(offset => Number.parseInt(background.slice(1 + offset, 3 + offset), 16));
+    const channels = [0, 2, 4].map(offset => {
+        const value = Number.parseInt(foreground.slice(1 + offset, 3 + offset), 16);
+        return Math.round(value * alpha + backgroundChannels[offset / 2] * (1 - alpha));
+    });
+    return `#${channels.map(channel => channel.toString(16).padStart(2, '0')).join('')}`;
+}
 
 describe('Ivory Poteto visual contract', () => {
     it('keeps every shell override behind the reversible activation marker', () => {
@@ -55,6 +96,23 @@ describe('Ivory Poteto visual contract', () => {
         ]) {
             expect(stylesheet).to.contain(selector);
         }
+    });
+
+    it('keeps small light-theme text at WCAG AA contrast', () => {
+        const surface = lightThemeColor('surface');
+        const canvas = lightThemeColor('canvas');
+        const accent = lightThemeColor('accent');
+        const success = lightThemeColor('success');
+        const warning = lightThemeColor('warning');
+        const successTint = blendOn(success, 0.14, canvas);
+        const warningTint = blendOn(warning, 0.14, canvas);
+
+        expect(contrastRatio(lightThemeColor('muted'), surface), 'muted text').to.be.greaterThanOrEqual(4.5);
+        expect(contrastRatio(accent, surface), 'accent text').to.be.greaterThanOrEqual(4.5);
+        expect(contrastRatio(surface, accent), 'button text').to.be.greaterThanOrEqual(4.5);
+        expect(contrastRatio(success, successTint), 'verified status').to.be.greaterThanOrEqual(4.5);
+        expect(contrastRatio(warning, warningTint), 'queued status').to.be.greaterThanOrEqual(4.5);
+        expect(contrastRatio(lightThemeColor('ink'), canvas)).to.be.greaterThanOrEqual(4.5);
     });
 
     it('keeps keyboard focus visible and respects reduced motion', () => {

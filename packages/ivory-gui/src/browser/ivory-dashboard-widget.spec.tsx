@@ -20,6 +20,7 @@ import { expect } from 'chai';
 import * as React from '@theia/core/shared/react';
 import { Container } from '@theia/core/shared/inversify';
 import { MessageLoop } from '@theia/core/shared/@lumino/messaging';
+import { Widget } from '@theia/core/lib/browser';
 import { IvoryDashboardWidget } from './ivory-dashboard-widget';
 
 disableReactActEnvironment();
@@ -94,13 +95,38 @@ describe('Ivory dashboard widget', () => {
         expect(widget.node.querySelector('.ivory-empty-state')?.textContent).to.equal('No evidence matches this query.');
     });
 
-    it('exposes the command button by its accessible name', () => {
+    it('activates the reversible shell marker only while attached', () => {
+        expect(document.documentElement.dataset.ivoryGui).to.equal(undefined);
+
+        React.act(() => {
+            Widget.attach(widget, document.body);
+            MessageLoop.flush();
+        });
+        expect(document.documentElement.dataset.ivoryGui).to.equal('prototype');
+
+        React.act(() => {
+            widget.close();
+            MessageLoop.flush();
+        });
+        expect(document.documentElement.dataset.ivoryGui).to.equal(undefined);
+    });
+
+    it('runs an evidence check and reports the result in a live status', () => {
         React.act(() => {
             widget.update();
             MessageLoop.flush();
         });
         const button = widget.node.querySelector('button');
         expect(button?.getAttribute('aria-label')).to.equal('Run evidence check');
+        expect(widget.node.querySelector('[role="status"]')).not.to.exist;
+
+        React.act(() => {
+            button?.click();
+            MessageLoop.flush();
+        });
+
+        expect(widget.node.querySelector('[role="status"]')?.textContent)
+            .to.equal('Evidence check complete. 3 of 3 local records have a source.');
     });
 });
 
