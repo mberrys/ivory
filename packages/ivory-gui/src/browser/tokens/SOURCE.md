@@ -35,18 +35,20 @@ Upstream ships only 100/500/600 steps per hue and no darker step. A role is alia
 
 The status roles are painted by `.ivory-status-pill`, which sets the label to the status colour itself over a 14% tint of that same colour, on the card (`--ivory-surface-raised` over the dashboard's canvas). Every figure below is that painted pair, measured over the card, not the status value against the bare canvas. Getting this wrong is how this table was wrong twice before: an earlier draft credited upstream light orange with failing "on canvas" when it in fact clears there, and the dark steps were claimed to "clear 8:1" when the worst case is 2.38:1.
 
-| Role | Theme | Upstream on the card | Poteto on the card | Poteto on the canvas |
-| --- | --- | --- | --- | --- |
-| `success` | light | 3.69:1 | 5.18:1 | 6.35:1 |
-| `warning` | light | 4.27:1 | 5.24:1 | 6.45:1 |
-| `danger` | light | 4.16:1 | 4.97:1 | 6.13:1 |
-| `success` | dark | 2.38:1 | 4.96:1 | 6.65:1 |
-| `warning` | dark | 2.10:1 | 4.78:1 | 6.39:1 |
-| `danger` | dark | 2.20:1 | 5.12:1 | 6.96:1 |
+| Role | Theme | Upstream alias | Upstream, painted | Poteto value | Poteto, painted | Poteto on canvas |
+| --- | --- | --- | --- | --- | --- | --- |
+| `success` | light | `#248A3D` | 3.69:1 | `#2d6b48` | 5.18:1 | 6.08:1 |
+| `warning` | light | `#C93400` | 4.27:1 | `#80560f` | 5.24:1 | 6.18:1 |
+| `danger` | light | `#D70015` | 4.16:1 | `#a83e3e` | 4.97:1 | 5.88:1 |
+| `success` | dark | `#34C759` | 4.23:1 | `#8fd0a8` | 4.96:1 | 9.52:1 |
+| `warning` | dark | `#FF9500` | 4.27:1 | `#e0b878` | 4.78:1 | 9.15:1 |
+| `danger` | dark | `#FF2D92` | 3.05:1 | `#f2b8b5` | 5.12:1 | 9.96:1 |
+
+The "painted" columns are the status colour on its own 14% tint over that theme's card - `#ffffff` in light, `#373739` in dark. The last column is the same colour on the bare canvas, and it is there to make one thing visible: the two backdrops rank the upstream steps very differently. Upstream light orange and light green both clear 4.5:1 on the canvas and fail only on the tint, while upstream dark magenta fails on both. So the exception is a per-backdrop judgement, not a per-hue one, and reading the canvas column alone would pick the wrong three roles to keep.
 
 The three light upstream steps miss the 4.5:1 text minimum on the card, and all three dark steps miss it by a wide margin, so every status role declines its alias in both themes. Upstream light orange is the near miss at 4.27:1: it clears comfortably on the bare canvas (5.28:1) and only fails on the tint it is actually painted over, which is why the exception is a per-backdrop judgement rather than a per-hue one.
 
-The dark accent is declined for a different reason, as non-text rather than text. Upstream's `#007AFF` scores 4.24:1 on the canvas, 4.41:1 on the surface and 3.10:1 on the raised card, missing the 3:1 non-text minimum. `#f0a583` clears all three at 8.44, 8.79 and 6.17.
+The dark accent is declined for a different reason, as non-text rather than text. Upstream's `#007AFF` scores 4.24:1 on the canvas, 4.41:1 on the surface and 2.96:1 on the raised card, missing the 3:1 non-text minimum by 0.04. `#f0a583` clears all three at 8.44, 8.79 and 5.89.
 
 `ivory-gui.spec.ts` measures each of these painted pairs, including the flattened alpha stack for the translucent dark surface and raised roles, and the pill assertions fail if any status value is reverted to its upstream alias. The tint percentage is read from the stylesheet per role rather than assumed, so changing the queued pill's 14% to 40% fails the suite even though the ready pill's is untouched.
 
@@ -73,6 +75,28 @@ Three of these need explaining, because the shipped value is not simply "darker"
 **The selection fill** is the hardest constraint in the package, because Theia paints a selection on more than one surface. List and menu-bar selections sit on the panel, quick-input and menu selections on the raised card, and in the dark theme those two surfaces are `#18181a` and `#373739` - only 1.49:1 apart. A fill has to be 3:1 from both while the label on it stays at 4.5:1, which leaves a narrow band; `#0090ca` is the value that clears both themes at their worst surface, and it is used in both so the selection does not change hue between them. A white label reaches only 3.59:1 on it, so the label is near-black, which is why `--ivory-on-accent-soft` exists: body ink is 5.13:1 on the fill in the light theme but only 3.59:1 in the dark one, so neither the body ink nor white works for both.
 
 The selection fill previously came straight from Theia's own palette, which is the same value in both themes and fails the same way, so this is an inherited defect that the activation has to override rather than one the package introduced.
+
+## The selected row, which Theia paints three ways
+
+`packages/core/src/browser/style/tree.css` paints a selected tree row from two rules that target the same node. Under `:focus-within` it sets the fill, the label **and** `outline: var(--theia-focusBorder) solid 1px` together; without focus it sets a different fill and label. So the fill is never the only thing marking the row, and the general focus colour is not usable as the ring on top of the selection fill - it is 1.82:1 in the light theme and 1.91:1 in the dark one. The selected state therefore gets its own ring colour:
+
+| Pair | Backdrop | Ratio |
+| --- | --- | --- |
+| ring `#002e6e` on the fill, both ordinary themes | `#0090ca` | 3.62:1 |
+| label on the fill | `#0090ca` | 5.51:1 |
+| unfocused fill on the panel, light / dark | `#f5f5f7` / `#18181a` | 3.30:1 / 4.93:1 |
+
+A Chromium run measured 3.44:1 for the light panel rather than 3.30:1, because the live sidebar composites `--ivory-surface` over the canvas instead of using the flat `#f5f5f7` token. The table gives the flat token so it can be recomputed; the proof script reports what the browser paints.
+
+The unfocused row takes the same fill as the focused one. A quieter step is not available: the label on it falls below 4.5:1 and so does the ring. The two states are told apart by the presence of the ring, not by a different colour.
+
+Both roles are declared on the themed `body`, never on `html`. Theia sets its own values for them on the element carrying the theme class, so a declaration on `html` is inherited and loses regardless of source order. A live probe showed the rule sitting in `bundle.css` while the value still resolved to Theia's native `#37373D`.
+
+### High contrast cannot carry this on a fill
+
+The HC themes cannot reach 3:1 with a selection fill at all, and that is a property of high contrast rather than a gap in the palette. Their selection fill is Theia's own `#094771` on the `#252526` sidebar, which is 1.57:1, and no darker fill does better without abandoning the dark background those themes exist to provide. HC signals state with a boundary instead, so the unfocused HC selected row gets a 1px `outline` in the native focus colour, which measures 3.64:1 on the sidebar against it. The focused HC row keeps the Ivory ring in `--theia-foreground` (`#cccccc`, 6.08:1 on the fill), because HC's `--theia-focusBorder` is `#007fd4` and only reaches 2.32:1 there.
+
+That boundary is scoped to `.theia-Tree:not(:focus-within)`. Without the guard it outranks the focused ring and drags it back to 2.32:1, which a live probe caught.
 
 The 22% focus halo cannot reach 3:1 by itself. It supplements the 2px outline rather than replacing it, and is asserted only to remain visible rather than decorative, with its percentage read from the stylesheet.
 

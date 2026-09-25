@@ -253,6 +253,57 @@ html[data-ivory-gui='prototype'] .quick-input-widget .quick-input-box {
     color: var(--ivory-ink);
 }
 
+/* Theia draws a 1px --theia-focusBorder outline on a selected tree row
+ * (packages/core/src/browser/style/tree.css:105), on top of the selection fill.
+ * The general focus role is only 1.82:1 light and 1.91:1 dark against that
+ * fill, so the selected state gets its own ring colour. */
+html[data-ivory-gui='prototype'] .theia-Tree:focus-within .theia-TreeNode.theia-mod-selected {
+    outline-color: var(--ivory-focus-on-soft);
+}
+
+/* B2: an UNfocused tree paints its selected row with
+ * --theia-list-inactiveSelectionBackground, which this package left at Theia's
+ * native value: 1.14:1 on the light sidebar and 1.50:1 in dark, so the row
+ * disappears the moment the tree loses focus. It takes the same fill as the
+ * focused state: a quieter step cannot be used, because the label on it drops
+ * below 4.5:1 and the selected-row ring below 3:1. The unfocused row is
+ * distinguished by the absence of the ring, not by a different colour.
+ *
+ * These two must be declared on the themed BODY, not on html. Theia sets its
+ * own value for both roles on the element carrying the theme class, so a
+ * declaration on html is inherited and loses to it no matter which comes
+ * first in the sheet. A live probe showed exactly that: the value resolved to
+ * Theia's native #37373D while this rule sat a line above it in bundle.css.
+ *
+ * HC is included on purpose. Theia paints the HC inactive selection with its own
+ * native #37373D, which is 1.41:1 on the HC panel, so scoping this to the two
+ * ordinary themes left the high-contrast selected row invisible. */
+html[data-ivory-gui='prototype'] body.theia-light,
+html[data-ivory-gui='prototype'] body.theia-dark,
+html[data-ivory-gui='prototype'] body.theia-hc,
+html[data-ivory-gui='prototype'] body.theia-hcLight {
+    --theia-list-inactiveSelectionBackground: var(--ivory-accent-soft);
+    --theia-list-inactiveSelectionForeground: var(--ivory-on-accent-soft);
+}
+
+/* The HC selection fill is Theia's own #094771, which is only 1.57:1 on the HC
+ * sidebar #252526 - a high-contrast theme cannot reach 3:1 with a fill, because
+ * its whole point is a dark background. HC signals state with a border instead,
+ * which is why Theia paints those themes this way. Give the unfocused selected
+ * row a 1px boundary in the native focus colour: #007fd4 scores 3.96:1 on the
+ * panel behind it, so the row is now findable without a fill change.
+ *
+ * `:not(:focus-within)` is load-bearing. A focused tree already paints the
+ * selected row with the Ivory ring in --theia-foreground (6.08:1 on the HC
+ * fill), and an unscoped rule here would override it back to the 2.32:1
+ * focusBorder. Found by live probe: the HC focused ring regressed to 2.32
+ * when this rule was added without the guard. */
+html[data-ivory-gui='prototype'] body.theia-hc .theia-Tree:not(:focus-within) .theia-TreeNode.theia-mod-selected,
+html[data-ivory-gui='prototype'] body.theia-hcLight .theia-Tree:not(:focus-within) .theia-TreeNode.theia-mod-selected {
+    outline: var(--theia-focusBorder) solid 1px;
+    outline-offset: -1px;
+}
+
 html[data-ivory-gui='prototype'] .lm-Menu-item.lm-mod-active,
 html[data-ivory-gui='prototype'] .lm-Menu-item.lm-mod-active > div {
     color: var(--ivory-on-accent-soft);

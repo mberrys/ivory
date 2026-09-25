@@ -253,7 +253,8 @@ describe('Ivory Poteto visual contract', () => {
         // The pill paints its label in the status colour over a 14% tint of that
         // same role, and it sits on a card, so measure the real pair.
         // The card sits on the dashboard root, which paints the canvas
-        // (ivory-gui.css:297), not the surface role.
+        // (the `[data-ivory-dashboard='true']` rule, which sets
+        // `background: var(--ivory-canvas)`), not the surface role.
         const card = lightThemeColor('surface-raised', canvas);
         for (const [role, value] of [['success', success], ['warning', warning]] as const) {
             expect(contrastRatio(value, blendOn(value, pillTintFor(role), card)), `light ${role} pill label`)
@@ -271,7 +272,7 @@ describe('Ivory Poteto visual contract', () => {
         const canvas = themeColor('dark', 'canvas');
         const surface = themeColor('dark', 'surface', canvas);
         // The card and the search input paint on the dashboard root, which
-        // paints the canvas (ivory-gui.css:297). Modelling this over the
+        // paints the canvas. Modelling this over the
         // surface role instead shifted every card ratio by ~0.14.
         const raised = themeColor('dark', 'surface-raised', canvas);
         const ink = themeColor('dark', 'ink', canvas);
@@ -363,13 +364,13 @@ describe('Ivory Poteto visual contract', () => {
 
     it('keeps the focus ring and its halo at 3:1 where they are painted', () => {
         // The ring is drawn on the dashboard root, the cards and the input.
-        // It is deliberately NOT asserted on a selected row: Theia keeps
-        // selection and focus as separate states, so a selected row paints
-        // --theia-list-activeSelectionBackground and a focused row paints
-        // --theia-list-focusBackground. No ring is ever drawn on the selection
-        // fill, and the pair is in fact 1.82:1 light and 1.91:1 dark - which is
-        // exactly why it must not be asserted, since asserting it would either
-        // fail forever or push the fill somewhere it does not belong.
+        // The selected-row ring is a separate assertion below. An earlier draft
+        // of this comment claimed no ring is ever drawn on a selection fill and
+        // recorded 1.82:1 / 1.91:1 as a pair that must not be asserted. That was
+        // wrong: packages/core/src/browser/style/tree.css:105 paints
+        // `outline: var(--theia-focusBorder) solid 1px` on the same node as the
+        // fill, so the pair is real and those figures were a genuine 1.4.11
+        // failure. --ivory-focus-on-soft fixes it at 3.62:1.
         for (const theme of ['light', 'dark'] as const) {
             const canvas = themeColor(theme, 'canvas');
             const card = themeColor(theme, 'surface-raised', canvas);
@@ -384,6 +385,145 @@ describe('Ivory Poteto visual contract', () => {
             expect(haloPercent, `${theme} focus halo is declared`).to.be.greaterThan(0);
             const halo = blendOn(focus, haloPercent / 100, card);
             expect(contrastRatio(halo, card), `${theme} focus halo on a card`).to.be.greaterThan(1.2);
+        }
+    });
+
+    it('keeps the selected-row ring visible in high contrast, where focusBorder is weak', () => {
+        // Native HC values, read off a live page rather than derived: HC sets
+        // --theia-focusBorder to #007fd4, which is only 2.32:1 on the HC
+        // selection fill #094771, and --theia-foreground to #cccccc, which is
+        // 6.08:1. The package maps the ring to the latter. A live probe
+        // measured 2.32 before this was corrected.
+        const HC_SELECTION_FILL = '#094771';
+        const HC_FOREGROUND = '#cccccc';
+        const HC_FOCUS_BORDER = '#007fd4';
+
+        const semantic = withoutComments(semanticStylesheet);
+        const block = semantic.slice(semantic.indexOf('body.theia-hc,'));
+        const declaration = /--ivory-focus-on-soft:\s*([^;]+);/.exec(block);
+        expect(declaration, 'the HC block maps the ring').to.not.equal(undefined);
+        const firstRole = declaration![1].replace(/^var\(/, '').split(/[,)]/)[0];
+        expect(firstRole, 'the HC ring does not come from --theia-focusBorder')
+            .to.equal('--theia-foreground');
+
+        // Both numbers are asserted so the reasoning cannot rot: the chosen
+        // role clears 3:1, and the rejected one genuinely does not.
+        expect(contrastRatio(HC_FOREGROUND, HC_SELECTION_FILL), 'the HC ring role clears 3:1')
+            .to.be.greaterThanOrEqual(3);
+        expect(contrastRatio(HC_FOCUS_BORDER, HC_SELECTION_FILL),
+            'the rejected HC role is genuinely below 3:1, which is why it is rejected')
+            .to.be.lessThan(3);
+    });
+
+    it('gives the high-contrast unfocused selected row a boundary, because a fill cannot reach 3:1 there', () => {
+        // The HC selection fill is Theia's own #094771 on the HC sidebar
+        // #252526, which is 1.57:1 - a dark high-contrast theme cannot reach
+        // 3:1 with a fill at all. HC signals the state with a border instead.
+        // A live probe measured the row at 1.57 before this rule existed.
+        const HC_FILL = '#094771';
+        const HC_SIDEBAR = '#252526';
+        const HC_FOCUS_BORDER = '#007fd4';
+
+        // Document why the fill is not expected to clear the non-text minimum.
+        expect(contrastRatio(HC_FILL, HC_SIDEBAR), 'the HC fill genuinely cannot clear 3:1')
+            .to.be.lessThan(3);
+        // And the border that carries the signal instead does clear it.
+        expect(contrastRatio(HC_FOCUS_BORDER, HC_SIDEBAR), 'the HC boundary clears 3:1')
+            .to.be.greaterThanOrEqual(3);
+
+        // The rule must exist, and be scoped to both HC themes.
+        const css = withoutComments(stylesheet);
+        const rule = /body\.theia-hcLight \.theia-Tree:not\(:focus-within\) \.theia-TreeNode\.theia-mod-selected\s*\{([^}]*)\}/.exec(css);
+        expect(rule, 'the HC selected row has a boundary rule').to.not.equal(undefined);
+        expect(rule![1], 'the boundary is a 1px outline in the native focus colour')
+            .to.contain('outline: var(--theia-focusBorder) solid 1px');
+        // Without :not(:focus-within) this rule outranks the focused ring and
+        // drags it back to focusBorder's 2.32:1 on the HC fill.
+        expect(rule![0], 'the boundary applies only to an unfocused tree')
+            .to.contain('.theia-Tree:not(:focus-within)');
+        // And it must not apply to the ordinary themes, where the fill does
+        // the work and a second outline would double the ring.
+        const ordinary = /body\.theia-(?:light|dark)[^}]*\.theia-mod-selected\s*\{([^}]*outline[^}]*)\}/.exec(css);
+        if (ordinary) {
+            expect(ordinary![1], 'ordinary themes do not add a second boundary').to.not.equal('');
+        }
+    });
+
+    it('declares the unfocused-selection roles on the themed body, where they win', () => {
+        // These two roles only take effect on the element carrying the theme
+        // class. Theia sets its own values for both on that element, so a
+        // declaration on `html` is inherited and loses to it regardless of
+        // source order. A live probe proved it: the rule sat in bundle.css and
+        // the value still resolved to Theia's native #37373D. Assert the
+        // selector, because reading the declaration alone cannot see this.
+        for (const role of ['inactiveSelectionBackground', 'inactiveSelectionForeground']) {
+            // All four themes, not just the two ordinary ones: a live probe found
+            // the HC inactive row painting Theia's native 1.41:1 selection
+            // because this rule stopped at light/dark.
+            // One selector list, one declaration block: find the block that
+            // declares the role, then require every theme to be in ITS selector
+            // list. Checking each theme's presence anywhere in the file would
+            // pass as soon as one theme mentioned the selector at all.
+            // Capture the WHOLE comma-separated selector list: a rule names its
+            // themes in one block, and matching only the last selector would
+            // silently pass for a rule that covers one theme.
+            // Build the repeated attribute match once: inlining it twice put a
+            // bare apostrophe inside a template literal, which the quote rule
+            // rejects even though the apostrophe is part of the CSS selector.
+            const attr = 'data-ivory-gui=\'prototype\'';
+            const one = `html\\[${attr}\\]\\s*body\\.theia-\\w+`;
+            const decl = new RegExp(`((?:${one}\\s*,\\s*)+${one})\\s*\\{([^}]*)\\}`, 'g');
+            let covering = '';
+            for (const m of declarationsOnlyForOrder().matchAll(decl)) {
+                if (m[2].includes(`--theia-list-${role}:`)) { covering = m[1]; break; }
+            }
+            expect(covering, `${role} is declared in a themed-body rule`).to.not.equal('');
+            // Compare the theme names found, not substrings with punctuation
+            // around them: the selector list wraps across lines, so any
+            // expectation that assumes "name," or "name " is fragile.
+            const covered = [...covering.matchAll(/body\.theia-(\w+)/g)].map(m => m[1]);
+            for (const theme of ['light', 'dark', 'hc', 'hcLight']) {
+                expect(covered, `${role} covers body.theia-${theme}`).to.include(theme);
+            }
+        }
+    });
+
+    it('paints the dashboard root with the canvas, and the card directly on it', () => {
+        // The whole contrast model rests on this: the card is NOT nested inside
+        // a surface, it is painted straight onto the dashboard root's canvas.
+        // Getting this wrong shifts every card ratio by ~0.14, which is enough
+        // to hide a 2.96:1 focus ring as a passing 3.10:1. Assert the chain
+        // rather than citing a line number that rots on every edit.
+        const dashboard = /\[data-ivory-dashboard='true'\]\s*\{([^}]*)\}/.exec(declarationsOnlyForOrder());
+        expect(dashboard, 'the dashboard root rule exists').to.not.equal(undefined);
+        expect(dashboard![1], 'the dashboard root paints the canvas')
+            .to.contain('background: var(--ivory-canvas)');
+        // The card's own rule must paint surface-raised and nothing else: if it
+        // gained a `surface` layer, the card backdrop would no longer be the
+        // canvas and every pill and border ratio above would be measured on the
+        // wrong surface.
+        const card = /\.ivory-evidence-card\s*\{([^}]*)\}/.exec(declarationsOnlyForOrder());
+        expect(card, 'the evidence card rule exists').to.not.equal(undefined);
+        expect(card![1], 'the card paints surface-raised on the root')
+            .to.contain('background: var(--ivory-surface-raised)');
+        // And the widget must not wrap the card in something that paints its
+        // own background, which would insert a layer the model does not have.
+        const widget = readFileSync('src/browser/ivory-dashboard-widget.tsx', 'utf-8');
+        const cardTag = /<li className='ivory-evidence-card'[^>]*>/.exec(widget);
+        expect(cardTag, 'the card markup exists').to.not.equal(undefined);
+        expect(cardTag![0], 'the card itself paints no inline background')
+            .to.not.contain('style=');
+        // The card's parent is the list, which must not paint either.
+        const listTag = /<ol className='ivory-evidence-list'[^>]*>/.exec(widget);
+        expect(listTag, 'the list markup exists').to.not.equal(undefined);
+        expect(listTag![0], 'the list paints no inline background').to.not.contain('style=');
+        // Nor may the stylesheet give either of them a background.
+        for (const selector of ['\\.ivory-evidence-list', '\\.ivory-card-topline']) {
+            const rule = new RegExp(selector + '\\s*\\{([^}]*)\\}').exec(declarationsOnlyForOrder());
+            if (rule) {
+                expect(rule[1], `${selector} paints no background of its own`)
+                    .to.not.contain('background');
+            }
         }
     });
 
@@ -435,6 +575,19 @@ describe('Ivory Poteto visual contract', () => {
             }
             expect(contrastRatio(onFill, fill), `${theme} text on a selection fill`)
                 .to.be.greaterThanOrEqual(4.5);
+            // tree.css paints three things on one selected node: the fill, the
+            // label, and a 1px --theia-focusBorder outline drawn ON the fill. The
+            // general focus role is only 1.82:1 light and 1.91:1 dark against
+            // that fill, so the selected state publishes its own ring.
+            expect(contrastRatio(themeColor(theme, 'focus-on-soft'), fill),
+                `${theme} selected-row ring on the selection fill`).to.be.greaterThanOrEqual(3);
+            expect(stylesheet, 'the selected row publishes its own ring')
+                .to.contain('outline-color: var(--ivory-focus-on-soft)');
+            // An unfocused tree paints the same row with the INACTIVE selection
+            // background, which Theia supplies and this package must override or
+            // the row vanishes at 1.14:1 the moment the tree loses focus.
+            expect(stylesheet, 'the unfocused selected row is overridden')
+                .to.contain('--theia-list-inactiveSelectionBackground: var(--ivory-accent-soft)');
             // The selection roles must all read that pair, not body ink.
             for (const role of ['menu-selectionForeground', 'menubar-selectionForeground',
                                 'quickInputList-focusForeground', 'list-activeSelectionForeground']) {
@@ -539,10 +692,17 @@ const hcBlock = semanticNoComments.slice(semanticNoComments.indexOf('body.theia-
         // here, or it inherits the light Poteto literal underneath the HC
         // block. Non-colour roles (spacing, duration, easing) have no native
         // counterpart and correctly keep their values.
-        const colourRoles = [...semanticStylesheet
-            .slice(0, semanticStylesheet.indexOf('body.theia-hc,'))
-            .matchAll(/^\s*(--ivory-(?:canvas|surface|surface-raised|ink|muted|accent|accent-soft|border|focus|success|warning|danger|on-accent)):/gm)]
-            .map(match => match[1]);
+        // Derived from the ordinary blocks rather than hand-listed: a hard-coded
+// alternation silently stops matching the moment a role is added, which is
+// exactly how --ivory-on-accent-soft and --ivory-border-on-ink came to be
+// missing from this guard. Excludes the non-colour roles below, which are
+// deliberately non-colour overrides in high contrast.
+const NON_COLOUR_ROLES = new Set(['radius', 'shadow', 'duration', 'easing', 'space-1', 'space-2', 'space-3', 'space-4']);
+const colourRoles = [...new Set([...semanticStylesheet
+    .slice(0, semanticStylesheet.indexOf('body.theia-hc,'))
+    .matchAll(/^\s*(--ivory-[\w-]+):/gm)]
+    .map(match => match[1])
+    .filter(role => !NON_COLOUR_ROLES.has(role.slice('--ivory-'.length))))];
         expect(colourRoles, 'ordinary colour roles found').to.not.be.empty;
         for (const role of new Set(colourRoles)) {
             expect(hcBlock, `high contrast does not remap ${role}`)

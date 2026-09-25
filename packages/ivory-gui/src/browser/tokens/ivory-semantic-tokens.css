@@ -29,7 +29,14 @@ html[data-ivory-gui='prototype'] {
      * Theia inherits the same value, so the shell's "this row is selected"
      * signal is invisible without this override. Measured 3.30 on the panel,
      * 3.59 on the card and 3.44 on the canvas. */
+    /* tree.css paints THREE things on one selected row: this fill, the
+     * selection label, and a 1px `--theia-focusBorder` outline. The outline is
+     * drawn on the fill, so it owes 3:1 against the fill and not just against
+     * the surface. #0090ca leaves the light focus #0056cc at 1.82:1 and the
+     * dark focus #8fc0ff at 1.91:1, so the ring gets its own step here rather
+     * than the fill being bent to suit it. */
     --ivory-accent-soft: #0090ca;
+    --ivory-focus-on-soft: #002e6e;
     /* The text on that fill. A mid-blue carries a near-black label at 5.51:1
      * where white reaches only 3.59:1, so both themes label selections this
      * way; the role exists because dark body ink is 3.59:1 on the fill. */
@@ -101,7 +108,14 @@ html[data-ivory-gui='prototype'] body.theia-dark {
      * usable band is narrow. Upstream's #0056cc reaches 2.70:1 and 1.81:1.
      * #0090ca is the same value the light theme uses: 4.93 on the panel,
      * 3.30 on the card, 4.73 on the canvas. */
+    /* tree.css paints THREE things on one selected row: this fill, the
+     * selection label, and a 1px `--theia-focusBorder` outline. The outline is
+     * drawn on the fill, so it owes 3:1 against the fill and not just against
+     * the surface. #0090ca leaves the light focus #0056cc at 1.82:1 and the
+     * dark focus #8fc0ff at 1.91:1, so the ring gets its own step here rather
+     * than the fill being bent to suit it. */
     --ivory-accent-soft: #0090ca;
+    --ivory-focus-on-soft: #002e6e;
     --ivory-on-accent-soft: #0a0a0a;
     /* Focus: upstream's #007AFF measures 2.96:1 on the card and 1.63:1 against
      * the #0056CC selection background it is also painted over, so it is
@@ -116,8 +130,8 @@ html[data-ivory-gui='prototype'] body.theia-dark {
      *
      * The accent is 11px eyebrow text, a card source line, the button fill, and
      * the icon colour on an accent-soft selection row. Upstream's #007AFF
-     * scores 4.24:1 on the canvas, 4.41:1 on the surface and 3.10:1 on the
-     * raised card, then 2.55:1 against the #0056CC selection background, which
+     * scores 4.24:1 on the canvas, 4.41:1 on the surface and 2.96:1 on the
+     * raised card, then 1.63:1 against the #0056CC selection background, which
      * misses the 3:1 non-text minimum. The status roles are 10px/700 pill
      * labels in the status colour itself (see .ivory-status-pill in
      * ivory-gui.css), measured against the 14% tint that pill paints on the
@@ -155,6 +169,10 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
     --ivory-danger: var(--theia-errorBackground, var(--theia-foreground, var(--ivory-ink)));
     --ivory-on-accent: var(--theia-button-foreground, var(--ivory-ink));
     --ivory-on-accent-soft: var(--theia-menu-foreground, var(--theia-foreground, var(--ivory-ink)));
+    /* Not --theia-focusBorder: HC sets that to #007fd4, which is only 2.32:1
+     * on the HC selection fill #094771. --theia-foreground is #cccccc there and
+     * clears 6.08:1, so the selected row keeps a visible ring in HC. */
+    --ivory-focus-on-soft: var(--theia-foreground, var(--theia-focusBorder, var(--ivory-ink)));
     --ivory-border-on-ink: var(--theia-contrastBorder, var(--theia-widget-border, var(--ivory-ink)));
     --ivory-radius: 0px;
     --ivory-shadow: none;
