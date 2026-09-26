@@ -191,10 +191,28 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
      * literals, which score 3.31:1 and 3.26:1 on black and only 2.63:1 and
      * 2.58:1 against Theia's own high-contrast canvas. The native palette is
      * the only defensible source here.
-     */
-    --ivory-success: var(--theia-successBackground, var(--theia-foreground, var(--ivory-ink)));
-    --ivory-warning: var(--theia-warningBackground, var(--theia-foreground, var(--ivory-ink)));
-    --ivory-danger: var(--theia-errorBackground, var(--theia-foreground, var(--ivory-ink)));
+     *
+     * These roles are consumed as the pill's TEXT, so they take a Foreground
+     * role, never a Background one. Measured in the real themes, the
+     * Background flavour is the wrong shape for that: HC Dark's
+     * errorBackground is #000000, black on the #000000 canvas at 1.00:1, and
+     * all three are UNSET in HC Light, where the chain fell through to the
+     * foreground and made success, warning and danger one identical colour.
+     *
+     * A role is only used where the palette defines it in BOTH themes and it
+     * clears 4.5:1 on its own canvas. successForeground is unset in both, and
+     * warningForeground is #000000 in HC Dark (black on black) and unset in
+     * HC Light, so neither can carry a label alone; both fall back to the
+     * theme ink, which the pill already uses under high contrast. The two that
+     * do qualify are the error foreground, #f48771 and #b5200d at 8.55:1 and
+     * 6.61:1, and the editor warning foreground, #ffd370 and #895503 at 14.80:1
+     * and 6.24:1. Under high contrast the pill is painted as ink on a
+     * contrastBorder frame, so this is the fallback path, not the resting one.
+     * An earlier version of this comment credited the Background roles with
+     * being "the only defensible source" without having measured any of them. */
+    --ivory-success: var(--ivory-ink);
+    --ivory-warning: var(--theia-editorWarning-foreground, var(--ivory-ink));
+    --ivory-danger: var(--theia-errorForeground, var(--ivory-ink));
     --ivory-on-accent: var(--theia-button-foreground, var(--ivory-ink));
     --ivory-on-accent-soft: var(--theia-menu-foreground, var(--theia-foreground, var(--ivory-ink)));
     /* The foreground, not focusBorder: focusBorder is #f38518 in HC Dark and

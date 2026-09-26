@@ -880,6 +880,39 @@ describe('Ivory Poteto visual contract', () => {
             .to.have.members(['success', 'warning']);
     });
 
+    it('resolves the high-contrast status roles to text colours that clear AA, not to backgrounds', () => {
+        // The status roles are consumed as the pill's LABEL, so a role whose
+        // native value is a background colour is the wrong shape for the job.
+        // Measured in the real themes that is exactly what the Background
+        // flavour gave: HC Dark's --theia-errorBackground is #000000, black on
+        // the #000000 canvas at 1.00:1, and all three Background roles are
+        // UNSET in HC Light, where the chain fell through to the foreground and
+        // made success, warning and danger one identical colour. This resolves
+        // each role through the real inlines and holds it to 4.5:1 as a label.
+        const semantic = withoutComments(semanticStylesheet);
+        const hcBlock = semantic.slice(semantic.indexOf('body.theia-hc,'));
+        for (const [theme, inlines, card] of [
+            ['HC Dark', THEIA_HC_DARK_INLINES, '#000000'],
+            ['HC Light', THEIA_HC_LIGHT_INLINES, '#ffffff'],
+        ] as const) {
+            const resolve = highContrastResolver(inlines);
+            for (const role of ['success', 'warning', 'danger']) {
+                // No status role may name a Background role: those are fills.
+                const declared = new RegExp(`--ivory-${role}:\\s*([^;]+);`).exec(hcBlock);
+                expect(declared, `${theme}: --ivory-${role} is declared under high contrast`).to.not.equal(undefined);
+                expect(declared![1], `${theme}: --ivory-${role} must not read a *Background role as text`)
+                    .to.not.match(/-Background/);
+                // Resolve the role itself - the resolver walks the var() chain,
+                // the ivory fallback and the theme inline, exactly as a browser
+                // would - and require a real contrast, not just a var() that parses.
+                const resolved = resolve(`--ivory-${role}`);
+                expect(resolved, `${theme}: --ivory-${role} resolves to a colour`).to.match(/^(#|rgb)/);
+                expect(contrastRatio(resolved, card), `${theme}: --ivory-${role} clears AA as a label on the card`)
+                    .to.be.greaterThanOrEqual(4.5);
+            }
+        }
+    });
+
     it('does not tint the high-contrast status pill with its own label colour', () => {
         // `.ivory-status-pill[data-status=...]` sets `color: var(--ivory-<status>)`
         // over `color-mix(in srgb, var(--ivory-<status>) 14%, transparent)` - the
@@ -1510,7 +1543,16 @@ const colourRoles = [...new Set([...semanticStylesheet
         const MUST_NOT_READ_THEIA = new Set([
             '--ivory-border-on-ink', '--ivory-statusBar-label']);
         // Roles allowed to derive from another ivory role.
-        const MAY_READ_IVORY = new Set(['--ivory-statusBar-label']);
+        const MAY_READ_IVORY = new Set([
+            '--ivory-statusBar-label',
+            // The three status roles. --theia-successForeground is UNSET in
+            // both high-contrast themes and --theia-warningForeground is
+            // #000000 in HC Dark and unset in HC Light, so neither can carry a
+            // 10px label on its own; success resolves to the theme ink instead.
+            // The ink is itself a Theia role (--theia-foreground), so this is
+            // still the native palette, reached through one more hop. The
+            // contrast proof for the repointed roles is the test below.
+            '--ivory-success']);
         for (const [role, value] of [...hcBlock.matchAll(/--ivory-[\w-]+:\s*([^;]+);/g)].map(m => [m[0].split(':')[0], m[1]])) {
             if (!hcColourRoles.has(role.replace('--ivory-', ''))) { continue; }
             if (MAY_READ_IVORY.has(role)) {
