@@ -59,7 +59,8 @@ import {
     CHANNEL_OPEN_URL,
     CHANNEL_SET_THEME,
     CHANNEL_OPEN_DEVTOOLS_FOR_WINDOW,
-    CHANNEL_UPDATE_RECENT_WORKSPACES
+    CHANNEL_UPDATE_RECENT_WORKSPACES,
+    CHANNEL_SET_AUTO_HIDE_MENU_BAR
 } from '../electron-common/electron-api';
 import { ElectronMainApplication, ElectronMainApplicationContribution } from './electron-main-application';
 import { Disposable, DisposableCollection, isOSX, isWindows, MaybePromise, URI } from '../common';
@@ -76,7 +77,13 @@ export class TheiaMainApi implements ElectronMainApplicationContribution {
 
     onStart(application: ElectronMainApplication): MaybePromise<void> {
         ipcMain.on(CHANNEL_WC_METADATA, event => {
-            event.returnValue = event.sender.id.toString();
+            // Answered synchronously, so the window has its metadata — including the parsed options
+            // of a forwarded launch — before any frontend code runs. The window is identified by the
+            // IPC sender, so it can only ever read its own.
+            event.returnValue = {
+                webcontentId: event.sender.id.toString(),
+                launchArgs: application.getLaunchArgs(event.sender.id)
+            };
         });
 
         // electron security token
@@ -119,6 +126,20 @@ export class TheiaMainApi implements ElectronMainApplicationContribution {
                 electronWindow.setMenuBarVisibility(visible);
             } else {
                 console.warn(`There is no known secondary window '${windowName}'. Thus, the menu bar could not be made visible.`);
+            }
+        });
+
+        ipcMain.on(CHANNEL_SET_AUTO_HIDE_MENU_BAR, (event, enabled: boolean, windowName: string | undefined) => {
+            let electronWindow;
+            if (windowName) {
+                electronWindow = BrowserWindow.getAllWindows().find(win => win.webContents.mainFrame.name === windowName);
+            } else {
+                electronWindow = BrowserWindow.fromWebContents(event.sender);
+            }
+            if (electronWindow) {
+                electronWindow.autoHideMenuBar = enabled;
+            } else {
+                console.warn(`There is no known secondary window '${windowName}'. Thus, autoHideMenuBar could not be set.`);
             }
         });
 
