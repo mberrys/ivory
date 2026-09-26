@@ -64,6 +64,25 @@ export class IvoryDashboardWidget extends ReactWidget {
         super.onAfterAttach(message);
     }
 
+    /**
+     * Move focus into the widget when it is activated.
+     *
+     * `ApplicationShell.assertActivated` polls `widget.node.contains(activeElement)`
+     * for two seconds and logs a warning when nothing inside has focus. It
+     * logged that for `ivory.dashboard` on every activation, which is a real
+     * keyboard defect rather than noise: a keyboard user who activates the
+     * dashboard stays wherever they were, and the next Tab continues from the
+     * old widget instead of the content just opened.
+     *
+     * The landmark already carries `tabIndex={-1}`, so it is focusable without
+     * joining the tab order - which is what this wants: one focus stop that
+     * announces the dashboard's title, then normal tabbing through its content.
+     */
+    protected override onActivateRequest(message: Message): void {
+        super.onActivateRequest(message);
+        this.node.querySelector<HTMLElement>('[data-ivory-dashboard="true"]')?.focus();
+    }
+
     // The application contribution owns the activation marker for the whole
     // session, so this widget deliberately neither sets nor clears it. Clearing
     // it on detach would strip the theme from a live workbench with no way back

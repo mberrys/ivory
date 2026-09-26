@@ -19,7 +19,7 @@ FrontendApplicationConfigProvider.set({});
 import { expect } from 'chai';
 import * as React from '@theia/core/shared/react';
 import { Container } from '@theia/core/shared/inversify';
-import { MessageLoop } from '@theia/core/shared/@lumino/messaging';
+import { Message, MessageLoop } from '@theia/core/shared/@lumino/messaging';
 import { Widget } from '@theia/core/lib/browser';
 import { IvoryDashboardWidget } from './ivory-dashboard-widget';
 
@@ -38,6 +38,12 @@ describe('Ivory dashboard widget', () => {
             input.dispatchEvent(new view.Event('input', { bubbles: true }));
             MessageLoop.flush();
         });
+    }
+
+    /** Deliver an activation request to a widget the way ApplicationShell does. */
+    function activate(target: Widget): void {
+        const hook = target as unknown as { onActivateRequest(message: Message): void };
+        hook.onActivateRequest(new Message('activate'));
     }
 
     let widget: IvoryDashboardWidget;
@@ -95,6 +101,11 @@ describe('Ivory dashboard widget', () => {
             widget.update();
             MessageLoop.flush();
         });
+        // focus() is a no-op on a detached node, and a widget's node is only in
+        // the document once it is attached. The shell attaches before activating,
+        // so the test does the same - otherwise this asserts nothing.
+        const host = widget.node.ownerDocument.body;
+        host.appendChild(widget.node);
         const landmark = widget.node.querySelector<HTMLElement>('main[data-ivory-dashboard="true"]');
         expect(landmark).to.exist;
         // Theia warns when an activated widget never receives focus. A landmark
@@ -160,5 +171,47 @@ describe('Ivory dashboard widget', () => {
         expect(widget.node.querySelector('[role="status"]')?.textContent)
             .to.equal('Evidence check complete. 3 of 3 local records have a source.');
     });
+    it('moves focus into the widget when it is activated', () => {
+        // ApplicationShell.assertActivated polls node.contains(activeElement) for
+        // two seconds and logs 'Widget was activated, but did not accept focus'
+        // when nothing inside has focus. It logged that for ivory.dashboard on
+        // every activation: a keyboard user who opened the dashboard stayed where
+        // they were, and the next Tab continued from the old widget.
+        React.act(() => {
+            widget.update();
+            MessageLoop.flush();
+        });
+        // focus() is a no-op on a detached node, and a widget's node is only in
+        // the document once it is attached. The shell attaches before activating,
+        // so the test does the same - otherwise this asserts nothing.
+        const host = widget.node.ownerDocument.body;
+        host.appendChild(widget.node);
+        const landmark = widget.node.querySelector<HTMLElement>('main[data-ivory-dashboard="true"]');
+        expect(landmark, 'the landmark exists').to.not.equal(undefined);
+        expect(landmark!.getAttribute('tabindex'), 'one focus stop, announced by its label')
+            .to.equal('-1');
+
+        // Focus elsewhere first, so moving it into the widget is observable.
+        const outside = document.createElement('button');
+        widget.node.ownerDocument.body.appendChild(outside);
+        outside.focus();
+        expect(widget.node.ownerDocument.activeElement, 'the precondition: focus is outside the widget')
+            .to.equal(outside);
+
+        // The hook is protected, which is right for production. The test reaches
+        // it the way the shell does - by sending the activation request down the
+        // widget's own message channel - so this exercises the real dispatch path
+        // rather than a direct call.
+        React.act(() => {
+            activate(widget);
+            MessageLoop.flush();
+        });
+
+        expect(widget.node.ownerDocument.activeElement, 'activation moved focus into the dashboard')
+            .to.equal(landmark);
+        outside.remove();
+        widget.node.remove();
+    });
+
 });
 

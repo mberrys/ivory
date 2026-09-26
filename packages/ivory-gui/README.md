@@ -13,3 +13,14 @@ npm run compile --workspace @theia/ivory-gui
 npx lerna run test --scope @theia/ivory-gui
 npm run lint --workspace @theia/ivory-gui
 ```
+
+## Keyboard entry
+
+Activating the dashboard moves focus to its `<main>` landmark, which carries
+`tabIndex={-1}` so it is a single focus stop that announces the panel's title
+rather than a new entry in the tab order. Without this, `ApplicationShell`
+logs `Widget was activated, but did not accept focus after 2000ms:
+ivory.dashboard` and a keyboard user stays on whatever they had focused before -
+the next Tab continues from the old widget instead of the content just opened.
+The hook is `onActivateRequest`; the landmark's own `tabIndex` is asserted, and
+the focus move is verified in a real browser as well as in jsdom.
