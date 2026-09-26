@@ -1,0 +1,50 @@
+name: Ivory contracts
+
+on:
+  push:
+    paths:
+      - 'packages/ivory-contracts/**'
+      - '.github/workflows/ivory-contracts.yml'
+  pull_request:
+    paths:
+      - 'packages/ivory-contracts/**'
+      - '.github/workflows/ivory-contracts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    name: TypeScript and Python against the shared vectors
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Use Python 3.13
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.13'
+
+      - name: Python implementation
+        run: python -m unittest discover -s packages/ivory-contracts/python/tests -v
+
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: 24.x
+
+      # The package has no native or downloaded dependencies, so install scripts are not needed.
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Build lint rules
+        run: npm run build:tools
+
+      - name: TypeScript implementation
+        run: npx lerna run compile,lint,test --scope @ivory/contracts
