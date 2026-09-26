@@ -150,7 +150,7 @@ and every number in it was the dark theme's.
 | `--ivory-border`, `--ivory-hover`, `--ivory-focus-on-soft` | `#ffffff` | `foreground` |
 | `--ivory-accent`, `--ivory-focus` | `#f38518` | `focusBorder` |
 | `--theia-contrastBorder` | `#6fc3df` | `contrastBorder` |
-| `--ivory-hover-wash` | `#6fc3df` | `contrastBorder`; the colour core halves for the card hover |
+| `--ivory-hover-wash` | `color-mix(in srgb, #ffffff 20%, #000000)` = `#333333` | derived from `foreground` and `editor.background`; no new colour |
 | `--ivory-success` | `#487e02` | `successBackground` |
 | `--ivory-warning` | `rgba(255, 204, 0, 0.8)` | `warningBackground` |
 | `--ivory-danger` | `#000000` | `errorBackground` |
@@ -166,8 +166,10 @@ Painted pairs, all over the `#000000` canvas:
 | hover boundary on the canvas | 21.00:1 | 3 |
 | selected-row ring (`--ivory-focus-on-soft`) on the canvas | 21.00:1 | 3 |
 | `--ivory-focus` (`#f38518`) on the canvas | 8.18:1 | 3 |
-| label on the card hover fill core paints | 6.67:1 | 4.5 |
-| card hover fill against the canvas | 3.15:1 | 1.2 |
+| label on the card hover fill | 12.63:1 | 4.5 |
+| card hover fill against the canvas | 1.66:1 | 1.2 |
+| button label on the resting accent fill | 8.18:1 | 4.5 |
+| button label on the hover ink fill | 21.00:1 | 4.5 |
 
 ### High Contrast Light
 
@@ -183,6 +185,36 @@ Painted pairs, all over the `#000000` canvas:
 | `--ivory-success`, `--ivory-warning`, `--ivory-danger` | `#292929` | fall back to the foreground; this theme defines none |
 
 The status bar boundary measures 8.98:1 against the `#ffffff` app shell.
+
+### The button label, in both of its states
+
+The dashboard command button has two painted states - resting it fills with
+`--ivory-accent` (HC `#f38518`), `:hover` fills with `--ivory-ink` (HC
+`#ffffff`) - and the label was `--ivory-on-accent`, a role chosen for the
+*accent* fill. Under High Contrast Dark the two roles are both `#ffffff`,
+because `button.foreground` defaults to `Color.white` with no per-theme key. A
+live browser measured **2.57:1** at rest and **1.00:1** on hover: the label
+disappeared, and the ordinary-theme test that asserts this exact pair only ever
+ran for the ordinary themes.
+
+The label is now the theme's canvas under high contrast, which is legible on
+both fills: 8.18:1 at rest and 21.00:1 on hover in HC Dark, 5.47:1 and 14.55:1
+in HC Light. The ordinary themes already measured 8.44:1 and 6.02:1 and are
+untouched by the override.
+
+This is the same class as the status bar label above, one level down: a label
+role that suits one fill is not automatically right on the *other* fill the
+same element paints. Enumerate the states, then measure each pair.
+
+### High Contrast Light keeps the hover wash it already has
+
+`list.hoverBackground` has no `hcDark` key but **does** have one for
+`hcLight`: `rgba(15, 74, 133, 0.1)`, which composites to `#e7edf3` over the
+white canvas - a 1.18:1 step with the `#292929` label at 12.34:1. A rule that
+painted high-contrast rows `transparent` and substituted an outline discarded a
+fill the theme already supplies and put a 15.5:1 border on every hovered row in
+that theme. Only High Contrast Dark lacks the role, so only that theme gets the
+boundary treatment now.
 
 ### The status bar label
 

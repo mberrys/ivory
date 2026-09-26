@@ -285,17 +285,35 @@ html[data-ivory-gui='prototype'] #theia-statusBar {
  * measurement that belonged to the dark palette, not this theme. */
 
 html[data-ivory-gui='prototype'] body.theia-hc .theia-TreeNode:hover,
-html[data-ivory-gui='prototype'] body.theia-hcLight .theia-TreeNode:hover,
-html[data-ivory-gui='prototype'] body.theia-hc .lm-Menu-item:hover,
-html[data-ivory-gui='prototype'] body.theia-hcLight .lm-Menu-item:hover {
-    /* In high contrast a hover is a boundary, not a wash, because Theia
-     * defines no list.hoverBackground for the theme - there is no fill to
+html[data-ivory-gui='prototype'] body.theia-hc .lm-Menu-item:hover {
+    /* In High Contrast DARK a hover is a boundary, not a wash, because Theia
+     * defines no list.hoverBackground for that theme - there is no fill to
      * paint and none to wash. --ivory-hover is #ffffff, 21:1 on the black
-     * canvas it is drawn over, so the edge is unmissable. */
+     * canvas it is drawn over, so the edge is unmissable.
+     *
+     * High Contrast LIGHT does define one: rgba(15, 74, 133, 0.1), which
+     * composites to #e7edf3 - a 1.18:1 step off the white canvas with the
+     * #292929 label at 12.34:1. Painting it transparent here threw away a
+     * wash the theme already provides and substituted a 15.5:1 outline on
+     * every hovered row, so that theme gets a rule of its own below and
+     * keeps its native fill. */
     background: transparent;
     outline: 1px solid var(--ivory-hover);
     outline-offset: -1px;
 }
+
+/* High Contrast LIGHT keeps the wash Theia already gives it, and adds no
+   * outline: its native fill is a 1.18:1 step with the label at 12.34:1, which
+   * is the state signal. The outline that suits a black canvas would be a
+   * 15.5:1 border on every hovered row here - heavy, and not a signal the
+   * theme asked for. --ivory-hover-wash is deliberately not used here either:
+   * this is core's own unmixed tree.css:68 fill, and the role is a canvas step
+   * that a neighbouring palette already supplies. */
+html[data-ivory-gui='prototype'] body.theia-hcLight .theia-TreeNode:hover,
+html[data-ivory-gui='prototype'] body.theia-hcLight .lm-Menu-item:hover {
+    background: var(--theia-list-hoverBackground);
+}
+
 
 html[data-ivory-gui='prototype'] body.theia-hc #theia-statusBar,
 html[data-ivory-gui='prototype'] body.theia-hcLight #theia-statusBar,
@@ -514,6 +532,18 @@ html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-command-bu
     font-weight: 700;
     letter-spacing: 0.04em;
     transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+/* The hover fill is the ink band, so the label has to be the theme's CANVAS -
+   not --ivory-on-accent, which is a role chosen for the accent fill. Under High
+   Contrast Dark the two are both #ffffff (button.foreground defaults to white in
+   every theme), which painted the label at 1.00:1 on hover and 2.57:1 at rest:
+   a live browser measured both. The canvas is 21.00:1 on the hover fill and
+   8.18:1 on the resting accent. The ordinary themes already measure well, so
+   this is scoped to high contrast and changes nothing there. */
+html[data-ivory-gui='prototype'] body.theia-hc [data-ivory-dashboard='true'] .ivory-command-button,
+html[data-ivory-gui='prototype'] body.theia-hcLight [data-ivory-dashboard='true'] .ivory-command-button {
+    color: var(--ivory-canvas);
 }
 
 html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-command-button:hover {

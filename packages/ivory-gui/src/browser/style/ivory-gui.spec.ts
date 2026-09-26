@@ -841,10 +841,13 @@ describe('Ivory Poteto visual contract', () => {
         // Nor may the stylesheet give either of them a background.
         for (const selector of ['\\.ivory-evidence-list', '\\.ivory-card-topline']) {
             const rule = new RegExp(selector + '\\s*\\{([^}]*)\\}').exec(declarationsOnlyForOrder());
-            if (rule) {
-                expect(rule[1], `${selector} paints no background of its own`)
-                    .to.not.contain('background');
-            }
+            // Not `if (rule)`: a selector that was renamed or deleted would make
+            // this assertion disappear rather than fail, which is how a guard
+            // rots into a no-op while the suite still reports green. The point of
+            // the assertion is that the rule EXISTS and paints no background.
+            expect(rule, `${selector} exists in the stylesheet`).to.not.equal(undefined);
+            expect(rule![1], `${selector} paints no background of its own`)
+                .to.not.contain('background');
         }
     });
 
@@ -958,9 +961,17 @@ describe('Ivory Poteto visual contract', () => {
         // --theia-statusBar-border from --ivory-border-on-ink, on the strength
         // of a 0px border that only existed because the fixture carried the
         // DARK palette under high-contrast names.
-        const hcPublishesBarRole = /body\.theia-hc[^{]*\{[^}]*--theia-statusBar-border/.test(
-            withoutComments(stylesheet));
-        expect(hcPublishesBarRole, 'HC does not republish a role Theia already defines').to.equal(false);
+        // Scan every HC-capable rule, not just the body block. The obvious
+        // /body\.theia-hc[^{]*\{[^}]*--theia-statusBar-border/ cannot cross a '{',
+        // so it inspects the body rule only and returns false even when an
+        // element rule republishes the role - which is exactly where a violation
+        // would be written. hcCapableRules() is the same collector the cycle
+        // audit uses, so this covers element rules too.
+        const hcBarRoleViolations = hcCapableRules(withoutComments(stylesheet))
+            .filter(rule => /--theia-statusBar-border\s*:/.test(rule[2]))
+            .map(rule => rule[0]);
+        expect(hcBarRoleViolations, 'HC does not republish a role Theia already defines, in any rule')
+            .to.deep.equal([]);
         expect(stylesheet, 'the HC bar keeps the native boundary role')
             .to.contain('var(--theia-contrastBorder, var(--ivory-ink))');
         expect(contrastRatio(highContrastResolver()('--theia-contrastBorder'), '#000000'),
@@ -1115,8 +1126,8 @@ describe('Ivory Poteto visual contract', () => {
     it('does not shadow a high-contrast role Theia already defines', () => {
         // An earlier version of this suite asserted the opposite, on the
         // strength of a claim that high contrast leaves --theia-contrastBorder
-        // empty. It does not: baseColors.js gives it hcDark '#6FC3DF' and
-        // hcLight '#0F4A85', and a live browser confirmed the status bar
+        // empty. It does not: common-frontend-contribution.ts gives it hcDark
+        // '#6FC3DF' and hcLight '#0F4A85', and a live browser confirmed the status bar
         // computes a 1px #6fc3df boundary at 10.55:1. Republishing a role the
         // theme already defines replaces a correct value with one this package
         // chose, which is the shadowing the rest of this suite is about.
@@ -1182,6 +1193,68 @@ describe('Ivory Poteto visual contract', () => {
         expect(stylesheet).to.contain('--theia-list-hoverForeground: var(--ivory-ink)');
     });
 
+    it('keeps the dashboard button label legible in BOTH its states in high contrast', () => {
+        // The button has two painted states and the suite asserted neither under
+        // high contrast. Resting it paints --ivory-accent; :hover paints
+        // --ivory-ink. The label is --ivory-on-accent, a role chosen for the
+        // ACCENT fill - and under High Contrast Dark the two roles are both
+        // #ffffff, because button.foreground defaults to Color.white with no
+        // per-theme key. A live browser measured 2.57:1 at rest and 1.00:1 on
+        // hover: the label disappeared. The fix is the theme's CANVAS, which is
+        // legible on both fills.
+        const expectations: [string, string, string, string][] = [
+            //  theme,   label,   resting fill, hover fill
+            ['dark', '#000000', '#f38518', '#ffffff'],
+            ['light', '#ffffff', '#006bbd', '#292929'],
+        ];
+        for (const [theme, label, resting, hoverFill] of expectations) {
+            expect(contrastRatio(label, resting),
+                `HC ${theme}: the label is legible on the resting accent fill`)
+                .to.be.greaterThanOrEqual(4.5);
+            expect(contrastRatio(label, hoverFill),
+                `HC ${theme}: the label is legible on the hover fill`)
+                .to.be.greaterThanOrEqual(4.5);
+        }
+        // The role cannot be left alone to do this: on-accent IS the ink in HC
+        // Dark, which is the whole defect. Asserted so a future "simplification"
+        // that drops the override is caught.
+        const hc = resolveHighContrast();
+        expect(hc['on-accent'], 'on-accent equals the ink, so it cannot label the ink')
+            .to.equal(hc.ink);
+        const css = withoutComments(stylesheet);
+        expectContains(css, "body.theia-hc [data-ivory-dashboard='true'] .ivory-command-button,\n" +
+            "html[data-ivory-gui='prototype'] body.theia-hcLight [data-ivory-dashboard='true'] .ivory-command-button {\n" +
+            '    color: var(--ivory-canvas);');
+        // And the ordinary themes are untouched: they measured 8.44:1 and 6.02:1
+        // live, so no ordinary-theme button rule may set the canvas label.
+        expect(css, 'the ordinary themes keep their own on-accent')
+            .to.not.match(/body\.theia-(?:dark|light) [^\n]*\.ivory-command-button,\nhtml[^\n]*\.ivory-command-button/);
+    });
+
+    it('keeps the hover wash High Contrast Light already defines', () => {
+        // High Contrast Light defines list.hoverBackground - rgba(15,74,133,0.1),
+        // which composites to #e7edf3, a 1.18:1 step off the white canvas with the
+        // #292929 label at 12.34:1. A rule that painted it transparent discarded a
+        // fill the theme supplies and substituted a 15.5:1 outline on every hovered
+        // row. Only High Contrast DARK lacks the role, so only that theme gets the
+        // boundary treatment.
+        const css = withoutComments(stylesheet);
+        expectContains(css, 'body.theia-hcLight .theia-TreeNode:hover,\n' +
+            "html[data-ivory-gui='prototype'] body.theia-hcLight .lm-Menu-item:hover {\n" +
+            '    background: var(--theia-list-hoverBackground);');
+        // HC Dark has no fill to keep, so the outline is correct there - and the
+        // two rules must not have been merged back into one.
+        // Built from a string so no single line runs long.
+        const selector = 'body\\.theia-hc \\.theia-TreeNode:hover,\\n'
+            + "html\\[data-ivory-gui='prototype'\\] body\\.theia-hc \\.lm-Menu-item:hover ";
+        const darkBlock = new RegExp(selector + '\\{([^}]*)\\}')
+            .exec(css.replace(/\r\n/g, '\n'));
+        expect(darkBlock, 'HC Dark rows are outlined').to.not.equal(undefined);
+        expect(darkBlock![1], 'HC Dark has no fill to wash, so it is a boundary')
+            .to.contain('outline: 1px solid var(--ivory-hover)');
+        expect(darkBlock![1], 'and no fill at all').to.contain('background: transparent');
+    });
+
     it('paints the high-contrast hover wash so EVERY core consumer of the role survives it', () => {
         // --theia-list-hoverBackground has four consumers in core, and they do not
         // agree on what the role means:
@@ -1235,7 +1308,7 @@ describe('Ivory Poteto visual contract', () => {
             .to.be.greaterThanOrEqual(4.5);
         // 5. and the card rule really exists and is scoped to high contrast only.
         const css = withoutComments(stylesheet);
-        expect(css).to.contain('.ivory-evidence-card:hover {\r\n    background: var(--ivory-hover-wash);');
+        expect(css).to.contain('.ivory-evidence-card:hover {\n    background: var(--ivory-hover-wash);');
         expect(css, 'the card override is scoped to the high-contrast themes')
             .to.contain('body.theia-hcLight [data-ivory-dashboard=\'true\'] .ivory-evidence-card:hover');
         // The ordinary themes must NOT get it: there core's mix is correct.
