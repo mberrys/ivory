@@ -237,31 +237,41 @@ unchanged at `18.07:1` and `19.29:1`.
 
 ### What the two themes leave undefined, and what the package supplies
 
-- `list.hoverBackground` is undefined in High Contrast Dark, so a hovered item
+- `list.hoverBackground` is undefined in **High Contrast Dark**, so a hovered item
   would give no signal at all. The package publishes `--ivory-hover-wash` for
-  that role: Theia's own `contrastBorder` (`#6fc3df` dark, `#0f4a85` light).
+  that role: `color-mix(in srgb, var(--ivory-ink) 20%, var(--ivory-canvas))`,
+  which is `#333333` in that theme.
 
-  Two constraints had to hold at once, and each rules out the obvious answer:
+  The value is set by a census, not by arithmetic on one consumer.
+  `--theia-list-hoverBackground` has **61 consumers across 14 packages** and
+  exactly **one** of them mixes it: core's `card.css:36` halves it toward the
+  editor background. The other **51** paint it as a background as-is and pair
+  it with their own label. So the fill has to be a quiet step off the canvas
+  that any of those labels survives: 1.66:1 off black, 12.63:1 under the white
+  label. It is also fine after the mix (17.40:1), which is asserted.
 
-  - The role must be a real *colour*, not the keyword `transparent`. Core paints
-    `.theia-Card-interactive:hover` with `color-mix(in srgb,
-    var(--theia-list-hoverBackground) 50%, var(--theia-editor-background))`.
-    Mixing `transparent` into that computes to `color(srgb 0 0 0 / 0.5)`, which
-    over the black canvas composites to the canvas itself at `1.00:1` — the card
-    silently stops responding to hover. A live browser measured that value.
-  - It cannot be the native foreground either, because core *halves* the role.
-    Half of `#ffffff` is `#808080`, where the white label is only `3.95:1`. Also
-    measured in a live browser, before the role was given its own value.
+  Two earlier values were wrong, in opposite directions:
 
-  `contrastBorder` satisfies both: 6.67:1 for the label and 3.15:1 for the step
-  off the canvas in High Contrast Dark, 5.62:1 and 2.59:1 in High Contrast
-  Light. High Contrast Light does define a 10%-alpha hover wash of its own; the
-  package overrides it so the same role means the same thing in both themes, and
-  because a keyword there would break the `color-mix` just the same.
+  - `transparent`. Looks safe, and the mixed consumer computes it to
+    `color(srgb 0 0 0 / 0.5)`, which over black is the canvas at `1.00:1`.
+  - `contrastBorder` (`#6fc3df`). Correct for the *outline* a tree row draws,
+    and a terrible fill: white on it is `1.99:1`. It survived review because the
+    reasoning counted core's four consumers and tuned for the single mixed one
+    — the same minority the real census inverts.
 
-  Tree and menu *rows* keep `--ivory-hover` and are signalled with a 1px
-  `outline` rather than a wash, because a wash on a black canvas is what sank
-  the label below 4.5:1.
+  An earlier revision also added a rule painting the Ivory card's hover fill so
+  that mix would not run. The card is a plain `<li class="ivory-evidence-card">`
+  with no `theia-Card` class, so `card.css` never matched it: dead CSS defending
+  a consumer that does not exist. Removed, and a test now rejects any such rule.
+
+  High Contrast Light **does** define the role (`rgba(15, 74, 133, 0.1)`, a 1.18:1
+  step with the label at 12.34:1), so that theme keeps its own fill and only
+  High Contrast Dark gets the boundary treatment. The package's wash is still
+  published for it, because the role also reaches the 51 unmixed consumers.
+
+  Tree and menu *rows* in High Contrast Dark keep `--ivory-hover` and are
+  signalled with a 1px `outline` rather than a wash, because a wash light
+  enough to read on black is what sank the label below 4.5:1.
 - `list.activeSelectionBackground` and `list.inactiveSelectionBackground` are
   undefined in High Contrast Dark, so a selected row has no fill. The package
   outlines the unfocused selected row in `--ivory-focus-on-soft` rather than

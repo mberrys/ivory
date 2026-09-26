@@ -203,17 +203,24 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
      * that canvas and 14.55:1 in HC Light. */
     --ivory-focus-on-soft: var(--theia-foreground, var(--theia-focusBorder, var(--ivory-ink)));
     --ivory-hover: var(--theia-foreground, var(--ivory-ink));
-    /* The fill core paints a hovered tree row and card action button with. It is
-     * deliberately NOT a contrast colour: three of core's four consumers of
-     * --theia-list-hoverBackground use the role unmixed as a background and
-     * pair it with their own label (card.css:130 sets --theia-foreground,
-     * tree.css:68 sets --theia-list-hoverForeground), so the fill has to be a
-     * quiet step off the canvas that any of those labels survives. Measured:
-     * step off the canvas and legible under either label. An earlier revision
-     * used contrastBorder here, which is
-     * right for the outline the tree and menu rows draw but wrong as a fill:
-     * white on #6fc3df is 1.99:1. The hovered CARD is painted by ivory-gui.css
-     * instead, so core's 50% mix never runs. */
+    /* The fill behind a hovered row. Deliberately NOT a contrast colour.
+     * --theia-list-hoverBackground has 61 consumers across 14 packages, and
+     * exactly ONE of them mixes it: core's card.css:36 halves it toward the
+     * editor background. The other 51 paint it as a background as-is and pair
+     * it with their own label (card.css:130 sets --theia-foreground,
+     * tree.css:68 sets --theia-list-hoverForeground). So the fill has to be a
+     * quiet step off the canvas that any of those labels survives.
+     *
+     * An earlier revision reasoned only about core's four consumers and tuned
+     * the value for the single mixed one, and then added a rule to paint the
+     * Ivory card itself so the mix would not run. Both were wrong: the card is a
+     * plain <li class="ivory-evidence-card"> with no theia-Card class, so
+     * card.css never matched it and the override was dead CSS. It is removed.
+     *
+     * contrastBorder is wrong here for the same reason it is right for the
+     * outline: white on #6fc3df is 1.99:1, and 51 consumers paint this as a fill.
+     * Measured: 1.66:1 off the black canvas under the white label, 1.48:1 off
+     * the white canvas under the #292929 one. */
     --ivory-hover-wash: color-mix(in srgb, var(--ivory-ink) 20%, var(--ivory-canvas));
     /* Not the inactive-selection wash. High Contrast Dark defines no selection
      * fill at all, so --ivory-accent-soft resolves to the canvas there and a
@@ -221,10 +228,13 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
      * visible on black drops the white label below 4.5:1. In high contrast a
      * hover is a boundary, not a fill - the same strategy the selected row
      * already uses. */
-    /* Not var(--theia-contrastBorder, ...) first: HC leaves that role EMPTY, so
-     * a live browser computed border-top-width: 0px on the status bar and the
-     * bar had no boundary at all. Point at a role that is actually defined in
-     * every theme, so the fallback is never the thing that resolves. */
+    /* Not var(--theia-contrastBorder, ...) first. An earlier version of this
+     * comment claimed high contrast leaves that role EMPTY and cited a live
+     * 0px status-bar border as proof. Both were false: contrastBorder is #6fc3df
+     * in HC Dark and #0f4a85 in HC Light, and the bar computes a 1px boundary at
+     * 10.55:1. The 0px came from a fixture that carried the DARK palette under
+     * high-contrast names. This role still points at a role defined in every
+     * theme, so the fallback is never what resolves. */
     --ivory-border-on-ink: var(--ivory-ink, #000);
     /* Theia writes every --theia-* colour as an INLINE style on <html>
        (color-application-contribution.ts:95). An inline style on the root outranks

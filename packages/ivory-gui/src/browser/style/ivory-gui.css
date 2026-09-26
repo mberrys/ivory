@@ -636,18 +636,6 @@ html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-c
 }
 
 
-/* Under high contrast the card fill is painted here rather than by core.
-     * card.css:36 paints a hovered card with color-mix(in srgb,
-     * --theia-list-hoverBackground 50%, --theia-editor-background), and that
-     * mix is what made the wash unshareable: it drags the fill half way to the
-     * editor background, so a fill chosen to keep the label legible after the
-     * mix is the wrong fill for the three consumers that use the role unmixed.
-     * This rule wins on specificity (0,4,0 against card.css's 0,1,0) and paints
-     * the step the label is actually measured against. */
-html[data-ivory-gui='prototype'] body.theia-hc [data-ivory-dashboard='true'] .ivory-evidence-card:hover,
-html[data-ivory-gui='prototype'] body.theia-hcLight [data-ivory-dashboard='true'] .ivory-evidence-card:hover {
-    background: var(--ivory-hover-wash);
-}
 html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-card:hover {
     border-color: var(--ivory-accent);
     box-shadow: var(--ivory-shadow);
@@ -694,6 +682,28 @@ html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-status-pil
     color: var(--ivory-warning);
     background: color-mix(in srgb, var(--ivory-warning) 14%, transparent);
 }
+
+/* Under high contrast the pill stops tinting the status role with itself.
+     * The label IS the role and the fill is 14% of the SAME role, so the pair
+     * can never separate: the native success #487e02 over its own wash on a
+     * #333333 card measures 2.26:1, and it fails at every card fill. The
+     * native high-contrast status colours are chosen to sit close to the
+     * canvas - that is what the palette is for - so a self-tinted pill is the
+     * wrong shape here.
+     *
+     * The state is carried by the TEXT and the FRAME, both of which clear: the
+     * theme's ink at 12.63:1 / 9.81:1 on the card, and --theia-contrastBorder
+     * at 6.35:1 / 6.06:1 for the 1px boundary that 1.4.11 asks for. Nothing is
+     * colour-only: the status word itself is the label, so "ready" and
+     * "queued" read without relying on hue at all. This is the same strategy
+     * the selected row and the hovered row already use under high contrast. */
+html[data-ivory-gui='prototype'] body.theia-hc [data-ivory-dashboard='true'] .ivory-status-pill,
+html[data-ivory-gui='prototype'] body.theia-hcLight [data-ivory-dashboard='true'] .ivory-status-pill {
+    color: var(--ivory-ink);
+    background: transparent;
+    border: 1px solid var(--theia-contrastBorder, var(--ivory-ink));
+}
+
 
 html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-card h3 {
     margin-bottom: 8px;

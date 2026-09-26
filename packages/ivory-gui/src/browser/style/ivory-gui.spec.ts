@@ -880,6 +880,51 @@ describe('Ivory Poteto visual contract', () => {
             .to.have.members(['success', 'warning']);
     });
 
+    it('does not tint the high-contrast status pill with its own label colour', () => {
+        // `.ivory-status-pill[data-status=...]` sets `color: var(--ivory-<status>)`
+        // over `color-mix(in srgb, var(--ivory-<status>) 14%, transparent)` - the
+        // label IS the role and the fill is 14% of the SAME role, so the pair can
+        // never separate. Under High Contrast Dark the native success #487e02
+        // over its own wash on a #333333 card measures 2.26:1, and it fails at
+        // every card fill. The ordinary themes cleared 5.01-5.35:1 because their
+        // status roles are light enough on a light tint; the native high-contrast
+        // ones are chosen to sit near the canvas, which is the palette's job.
+        //
+        // Under high contrast the pill therefore carries the state in TEXT and
+        // FRAME: the theme's ink for the label, --theia-contrastBorder for the
+        // 1px boundary 1.4.11 asks for. Nothing is colour-only - the status word
+        // is the label - and this is the same strategy the selected and hovered
+        // rows already use under high contrast.
+        const css = withoutComments(stylesheet);
+        expectContains(css, "body.theia-hc [data-ivory-dashboard='true'] .ivory-status-pill,\n" +
+            "html[data-ivory-gui='prototype'] body.theia-hcLight [data-ivory-dashboard='true'] .ivory-status-pill {\n" +
+            '    color: var(--ivory-ink);\n' +
+            '    background: transparent;\n' +
+            '    border: 1px solid var(--theia-contrastBorder, var(--ivory-ink));');
+
+        // The measured pairs, in both real high-contrast themes.
+        const expectations: [string, string, string, string][] = [
+            //  theme,   card,     ink,     contrastBorder
+            ['dark', '#333333', '#ffffff', '#6fc3df'],
+            ['light', '#d4d4d4', '#292929', '#0f4a85'],
+        ];
+        for (const [theme, card, ink, frame] of expectations) {
+            expect(contrastRatio(ink, card), `HC ${theme}: the pill label clears AA on the card`)
+                .to.be.greaterThanOrEqual(4.5);
+            expect(contrastRatio(frame, card), `HC ${theme}: the pill frame clears 1.4.11 on the card`)
+                .to.be.greaterThanOrEqual(3);
+        }
+        // And the shape that failed is gone: no high-contrast pill rule may set a
+        // self-tinted background.
+        const hcPillRules = hcCapableRules(css)
+            .filter(rule => /ivory-status-pill/.test(rule[0]))
+            .map(rule => rule[2]);
+        for (const body of hcPillRules) {
+            expect(body, 'a high-contrast pill never tints the status colour into its own fill')
+                .to.not.contain('color-mix(in srgb, var(--ivory-');
+        }
+    });
+
     it('marks a selected row with a 3:1 fill and readable text on it', () => {
         // A selection is the shell's primary "this row is chosen" signal, so the
         // fill owes 3:1 against every surface Theia paints it on, and the text
@@ -1255,26 +1300,28 @@ describe('Ivory Poteto visual contract', () => {
         expect(darkBlock![1], 'and no fill at all').to.contain('background: transparent');
     });
 
-    it('paints the high-contrast hover wash so EVERY core consumer of the role survives it', () => {
-        // --theia-list-hoverBackground has four consumers in core, and they do not
-        // agree on what the role means:
+    it('paints the high-contrast hover wash so the consumers that share the role all survive it', () => {
+        // --theia-list-hoverBackground has 61 consumers across 14 packages and
+        // they do not agree on what the role means. Exactly ONE mixes it -
+        // core's card.css:36 halves it toward the editor background. The other
+        // 51 paint it as a background as-is and pair it with their own label:
         //
-        //   card.css:36   color-mix(role 50%, editor-background)   MIXED
-        //   card.css:130  background: role                          UNMIXED, label = --theia-foreground
-        //   tree.css:68   background: role                          UNMIXED, label = --theia-list-hoverForeground
-        //   search-box.css:34  var(--theia-widget-border, role)    never runs; widget-border is defined in HC
+        //   card.css:130   background: role   label = --theia-foreground
+        //   tree.css:68    background: role   label = --theia-list-hoverForeground
+        //   search-box.css:34  var(--theia-widget-border, role)  never runs;
+        //                             widget-border is defined in HC
         //
-        // The mix is the trap. It drags the fill half way to the editor
-        // background, so a colour chosen to keep the label legible AFTER the mix
-        // is the wrong colour for the two consumers that use the role as-is. An
-        // earlier revision published contrastBorder here, which is correct for the
-        // outline the tree rows draw but a fill of #6fc3df puts the white label at
-        // 1.99:1 and the dark label at 1.62:1. So:
+        // An earlier revision of this test counted only core's four consumers
+        // and tuned the value for the single MIXED one - then added a rule to
+        // paint the Ivory card itself so the mix would not run. That card is a
+        // plain <li class="ivory-evidence-card"> with no theia-Card class, so
+        // card.css never matched it and the override was dead CSS. Both claims
+        // were fiction; the census is 51 unmixed to 1 mixed.
         //
-        //   * the ROLE is a quiet step off the canvas, legible under either label
-        //   * the CARD, the one mixed consumer, is painted by ivory-gui.css
-        //
-        // This asserts all three constraints in both real high-contrast themes.
+        // The shipped value is right for the majority: a quiet step off the
+        // canvas that any of those labels survives. It also happens to be fine
+        // after the mix, which is asserted so the day someone reintroduces a
+        // real mixed consumer it is measured rather than assumed.
         const expectations: [string, string, string, string, string, number, number][] = [
             //  theme,   role,     card,     label,     canvas,    minLabel, minStep
             ['dark', '#333333', '#333333', '#ffffff', '#000000', 4.5, 1.2],
@@ -1287,18 +1334,27 @@ describe('Ivory Poteto visual contract', () => {
                 .to.be.greaterThanOrEqual(minStep);
             expect(contrastRatio(label, role), `HC ${theme}: the label survives the unmixed fill`)
                 .to.be.greaterThanOrEqual(minLabel);
-            // 2. the mixed consumer is bypassed, and the value that is painted
-            //    instead is legible and still a step.
-            expect(contrastRatio(label, card), `HC ${theme}: the label survives the painted card fill`)
+            expect(contrastRatio(label, card), `HC ${theme}: the label survives the card's own fill`)
                 .to.be.greaterThanOrEqual(minLabel);
-            expect(contrastRatio(card, canvas), `HC ${theme}: the painted card fill is a step`)
+            expect(contrastRatio(card, canvas), `HC ${theme}: the card fill is a step`)
                 .to.be.greaterThanOrEqual(minStep);
+        }
+        // 2. and the one MIXED consumer still works, so a future real mixed
+        //    consumer is not a surprise: core halves the role toward the editor
+        //    background, which in both themes is the canvas.
+        for (const [theme, role, label, canvas] of [
+            ['dark', '#333333', '#ffffff', '#000000'],
+            ['light', '#d4d4d4', '#292929', '#ffffff'],
+        ] as [string, string, string, string][]) {
+            const mixed = mixHalf(role, canvas);
+            expect(contrastRatio(label, mixed), `HC ${theme}: the label survives core's 50% mix too`)
+                .to.be.greaterThanOrEqual(4.5);
         }
         // 3. the wash is derived from the theme's own ink and canvas at a fixed
         //    20%, so it introduces no new colour and tracks the theme.
         expect(semanticStylesheet).to.contain(
             '--ivory-hover-wash: color-mix(in srgb, var(--ivory-ink) 20%, var(--ivory-canvas))');
-        // 4. and the role is genuinely no longer a contrast colour - the property
+        // 4. the role is genuinely no longer a contrast colour - the property
         //    that broke it, asserted so the reasoning cannot rot.
         const hc = resolveHighContrast();
         expect(hc['hover-wash'], 'the wash is not the contrast border any more')
@@ -1306,14 +1362,13 @@ describe('Ivory Poteto visual contract', () => {
         expect(contrastRatio(hc.ink, hc['hover-wash']),
             'the wash is not a contrast colour: the ink label survives it')
             .to.be.greaterThanOrEqual(4.5);
-        // 5. and the card rule really exists and is scoped to high contrast only.
+        // 5. there is NO Ivory rule overriding a card hover fill. The one that
+        //    existed was dead CSS defending a consumer that does not exist; if a
+        //    real mixed consumer is ever added, this forces the reasoning to be
+        //    redone rather than silently re-tuned.
         const css = withoutComments(stylesheet);
-        expect(css).to.contain('.ivory-evidence-card:hover {\n    background: var(--ivory-hover-wash);');
-        expect(css, 'the card override is scoped to the high-contrast themes')
-            .to.contain('body.theia-hcLight [data-ivory-dashboard=\'true\'] .ivory-evidence-card:hover');
-        // The ordinary themes must NOT get it: there core's mix is correct.
-        expect(css, 'the ordinary themes keep core\'s mix')
-            .to.not.contain("body.theia-dark [data-ivory-dashboard='true'] .ivory-evidence-card:hover");
+        expect(css, 'the Ivory card is not painted a hover fill that core would mix')
+            .to.not.match(/\.ivory-evidence-card:hover\s*\{[^}]*background/);
     });
 
     it('gives the selection border role a colour that clears 3:1 on the fill it sits on', () => {
