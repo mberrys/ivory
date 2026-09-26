@@ -203,13 +203,18 @@ html[data-ivory-gui='prototype'] body.theia-hcLight {
      * that canvas and 14.55:1 in HC Light. */
     --ivory-focus-on-soft: var(--theia-foreground, var(--theia-focusBorder, var(--ivory-ink)));
     --ivory-hover: var(--theia-foreground, var(--ivory-ink));
-    /* The colour core mixes to paint a hovered CARD, which is a different
-     * job from the outline the tree and menu rows use. It has to be dark
-     * enough that the white label survives the 50% mix (the foreground
-     * itself mixes to #808080, where white is only 3.95:1) and light enough
-     * to be a visible step off the black canvas. contrastBorder clears
-     * both: 6.67:1 for the label, 3.15:1 for the step. */
-    --ivory-hover-wash: var(--theia-contrastBorder, var(--theia-foreground, var(--ivory-ink)));
+    /* The fill core paints a hovered tree row and card action button with. It is
+     * deliberately NOT a contrast colour: three of core's four consumers of
+     * --theia-list-hoverBackground use the role unmixed as a background and
+     * pair it with their own label (card.css:130 sets --theia-foreground,
+     * tree.css:68 sets --theia-list-hoverForeground), so the fill has to be a
+     * quiet step off the canvas that any of those labels survives. Measured:
+     * step off the canvas and legible under either label. An earlier revision
+     * used contrastBorder here, which is
+     * right for the outline the tree and menu rows draw but wrong as a fill:
+     * white on #6fc3df is 1.99:1. The hovered CARD is painted by ivory-gui.css
+     * instead, so core's 50% mix never runs. */
+    --ivory-hover-wash: color-mix(in srgb, var(--ivory-ink) 20%, var(--ivory-canvas));
     /* Not the inactive-selection wash. High Contrast Dark defines no selection
      * fill at all, so --ivory-accent-soft resolves to the canvas there and a
      * fill-based indicator would be invisible; and a wash light enough to be

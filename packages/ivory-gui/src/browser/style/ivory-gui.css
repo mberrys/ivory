@@ -605,6 +605,19 @@ html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-c
     transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
+
+/* Under high contrast the card fill is painted here rather than by core.
+     * card.css:36 paints a hovered card with color-mix(in srgb,
+     * --theia-list-hoverBackground 50%, --theia-editor-background), and that
+     * mix is what made the wash unshareable: it drags the fill half way to the
+     * editor background, so a fill chosen to keep the label legible after the
+     * mix is the wrong fill for the three consumers that use the role unmixed.
+     * This rule wins on specificity (0,4,0 against card.css's 0,1,0) and paints
+     * the step the label is actually measured against. */
+html[data-ivory-gui='prototype'] body.theia-hc [data-ivory-dashboard='true'] .ivory-evidence-card:hover,
+html[data-ivory-gui='prototype'] body.theia-hcLight [data-ivory-dashboard='true'] .ivory-evidence-card:hover {
+    background: var(--ivory-hover-wash);
+}
 html[data-ivory-gui='prototype'] [data-ivory-dashboard='true'] .ivory-evidence-card:hover {
     border-color: var(--ivory-accent);
     box-shadow: var(--ivory-shadow);

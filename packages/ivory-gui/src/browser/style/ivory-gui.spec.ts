@@ -499,13 +499,24 @@ describe('Ivory Poteto visual contract', () => {
         // behind the label. The native foreground fails here: half of #ffffff
         // is #808080, where white is only 3.95:1. A live browser measured
         // exactly that before the role was given its own value.
-        const mixed = mixHalf(hoverRole, hc.canvas);
-        expect(contrastRatio(hc.ink, mixed),
-            'high contrast: the label on the card hover fill core paints')
+        // The card is painted by ivory-gui.css under high contrast, so the value
+        // to measure is the wash, not core's 50% mix of it - see the test that
+        // walks every core consumer of the role. Both pairs are asserted.
+        expect(contrastRatio(hc.ink, hoverRole),
+            'high contrast: the label on the card hover fill that is painted')
             .to.be.greaterThanOrEqual(4.5);
-        expect(contrastRatio(mixed, hc.canvas),
+        expect(contrastRatio(hoverRole, hc.canvas),
             'high contrast: the card hover fill is a visible step from the canvas')
             .to.be.greaterThanOrEqual(1.2);
+        // The ordinary themes still let core do the mix, so that path stays
+        // measured: it is the reason the role is a step here and a contrast
+        // colour there.
+        for (const theme of ['light', 'dark'] as const) {
+            const mixed = mixHalf(themeColor(theme, 'hover'), themeColor(theme, 'canvas'));
+            expect(contrastRatio(themeColor(theme, 'ink', themeColor(theme, 'canvas')), mixed),
+                `${theme}: the label survives core's 50% card hover mix`)
+                .to.be.greaterThanOrEqual(4.5);
+        }
         // The tree and menu rows are outlined rather than washed, so the
         // boundary itself still has to clear 3:1.
         expect(contrastRatio(hc.hover, hc.canvas),
@@ -1171,6 +1182,67 @@ describe('Ivory Poteto visual contract', () => {
         expect(stylesheet).to.contain('--theia-list-hoverForeground: var(--ivory-ink)');
     });
 
+    it('paints the high-contrast hover wash so EVERY core consumer of the role survives it', () => {
+        // --theia-list-hoverBackground has four consumers in core, and they do not
+        // agree on what the role means:
+        //
+        //   card.css:36   color-mix(role 50%, editor-background)   MIXED
+        //   card.css:130  background: role                          UNMIXED, label = --theia-foreground
+        //   tree.css:68   background: role                          UNMIXED, label = --theia-list-hoverForeground
+        //   search-box.css:34  var(--theia-widget-border, role)    never runs; widget-border is defined in HC
+        //
+        // The mix is the trap. It drags the fill half way to the editor
+        // background, so a colour chosen to keep the label legible AFTER the mix
+        // is the wrong colour for the two consumers that use the role as-is. An
+        // earlier revision published contrastBorder here, which is correct for the
+        // outline the tree rows draw but a fill of #6fc3df puts the white label at
+        // 1.99:1 and the dark label at 1.62:1. So:
+        //
+        //   * the ROLE is a quiet step off the canvas, legible under either label
+        //   * the CARD, the one mixed consumer, is painted by ivory-gui.css
+        //
+        // This asserts all three constraints in both real high-contrast themes.
+        const expectations: [string, string, string, string, string, number, number][] = [
+            //  theme,   role,     card,     label,     canvas,    minLabel, minStep
+            ['dark', '#333333', '#333333', '#ffffff', '#000000', 4.5, 1.2],
+            ['light', '#d4d4d4', '#d4d4d4', '#292929', '#ffffff', 4.5, 1.2],
+        ];
+        for (const [theme, role, card, label, canvas, minLabel, minStep] of expectations) {
+            // 1. the unmixed consumers: the fill is a step, and the label core
+            //    pairs with it survives it.
+            expect(contrastRatio(role, canvas), `HC ${theme}: the fill is a step off the canvas`)
+                .to.be.greaterThanOrEqual(minStep);
+            expect(contrastRatio(label, role), `HC ${theme}: the label survives the unmixed fill`)
+                .to.be.greaterThanOrEqual(minLabel);
+            // 2. the mixed consumer is bypassed, and the value that is painted
+            //    instead is legible and still a step.
+            expect(contrastRatio(label, card), `HC ${theme}: the label survives the painted card fill`)
+                .to.be.greaterThanOrEqual(minLabel);
+            expect(contrastRatio(card, canvas), `HC ${theme}: the painted card fill is a step`)
+                .to.be.greaterThanOrEqual(minStep);
+        }
+        // 3. the wash is derived from the theme's own ink and canvas at a fixed
+        //    20%, so it introduces no new colour and tracks the theme.
+        expect(semanticStylesheet).to.contain(
+            '--ivory-hover-wash: color-mix(in srgb, var(--ivory-ink) 20%, var(--ivory-canvas))');
+        // 4. and the role is genuinely no longer a contrast colour - the property
+        //    that broke it, asserted so the reasoning cannot rot.
+        const hc = resolveHighContrast();
+        expect(hc['hover-wash'], 'the wash is not the contrast border any more')
+            .to.not.equal(hc.border);
+        expect(contrastRatio(hc.ink, hc['hover-wash']),
+            'the wash is not a contrast colour: the ink label survives it')
+            .to.be.greaterThanOrEqual(4.5);
+        // 5. and the card rule really exists and is scoped to high contrast only.
+        const css = withoutComments(stylesheet);
+        expect(css).to.contain('.ivory-evidence-card:hover {\r\n    background: var(--ivory-hover-wash);');
+        expect(css, 'the card override is scoped to the high-contrast themes')
+            .to.contain('body.theia-hcLight [data-ivory-dashboard=\'true\'] .ivory-evidence-card:hover');
+        // The ordinary themes must NOT get it: there core's mix is correct.
+        expect(css, 'the ordinary themes keep core\'s mix')
+            .to.not.contain("body.theia-dark [data-ivory-dashboard='true'] .ivory-evidence-card:hover");
+    });
+
     it('gives the selection border role a colour that clears 3:1 on the fill it sits on', () => {
         // --theia-menu-selectionBorder was mapped to --ivory-accent, which is
         // 1.82:1 light and 1.78:1 dark on the #0090ca fill. Only a later element
@@ -1425,6 +1497,64 @@ function highContrastResolver(inlines: Readonly<Record<string, string>> = THEIA_
         return undefined;
     };
 
+    /**
+     * Evaluate `color-mix(in srgb, A p%, B)` the way the browser does, after A and
+     * B are themselves resolved. The stylesheet mixes on purpose - the status pill
+     * tints, the focus halo and now the hover wash - so a resolver that stops at
+     * the function name hands the caller a string that is not a colour, and every
+     * contrast assertion against it is either vacuous or a type error. The
+     * percentages are read from the declaration, never assumed.
+     */
+    const evaluateMix = (value: string, trail: Set<string>): string => {
+        const call = /^color-mix\(\s*in srgb\s*,\s*(.*)\)$/.exec(value.trim());
+        if (!call) { return value; }
+        // Split on the top-level comma only: rgb() and var() nest.
+        const parts: string[] = [];
+        let depth = 0; let current = '';
+        for (const ch of call[1]) {
+            if (ch === '(') { depth++; } else if (ch === ')') { depth--; }
+            if (ch === ',' && depth === 0) { parts.push(current); current = ''; } else { current += ch; }
+        }
+        parts.push(current);
+        if (parts.length !== 2) { return value; }
+        // The percentage trails the FIRST operand, inside the same
+        // top-level-comma chunk: `color-mix(in srgb, var(--ivory-ink) 20%,
+        // var(--ivory-canvas))` splits into ['var(--ivory-ink) 20%', ' ...'].
+        // Reading a number out of the whole chunk, as the obvious version
+        // does, gets NaN and silently returns the function unevaluated - which
+        // is how a whole suite ends up asserting against a string.
+        const firstChunk = parts[0].trim();
+        const percentMatch = /^(.*?)\s*([\d.]+)%$/.exec(firstChunk);
+        if (!percentMatch) { return value; }
+        const percent = Number(percentMatch[2]) / 100;
+        if (Number.isNaN(percent)) { return value; }
+        parts[0] = percentMatch[1];
+        // The operands are usually roles, not literals: `var(--ivory-ink)` has
+        // to be walked to its colour before it can be mixed, exactly as the
+        // browser does. substitute() returns undefined for a chain that leads
+        // nowhere, and parseColor rejects anything that is not a colour, so an
+        // unresolvable operand falls through and the value is returned as-is
+        // rather than silently mixed as black.
+        const operand = (raw: string): string | undefined => {
+            const trimmed = raw.trim();
+            const resolved = substitute(trimmed, trail);
+            return resolved === undefined ? undefined : resolved;
+        };
+        const firstText = operand(parts[0]);
+        const secondText = operand(parts[1]);
+        if (firstText === undefined || secondText === undefined) { return value; }
+        const first = parseColor(firstText);
+        const second = parseColor(secondText);
+        // Only opaque operands can be mixed here. A translucent one would need
+        // its own backdrop, and guessing one here is how a wrong number reaches
+        // a contrast assertion; the stylesheet's mixes are all opaque.
+        if (!first || !second || first.alpha !== 1 || second.alpha !== 1) { return value; }
+        return '#' + [0, 1, 2]
+            .map(i => Math.round(first.channels[i] * percent + second.channels[i] * (1 - percent))
+                .toString(16).padStart(2, '0'))
+            .join('');
+    };
+
     const resolve = (name: string): string => {
         if (name.startsWith('--theia-') && !body.has(name)) {
             // A Theia property the package does not override: the value lives
@@ -1432,13 +1562,13 @@ function highContrastResolver(inlines: Readonly<Record<string, string>> = THEIA_
             // rather than inventing a colour - the live proof measures those.
             const inline = root.get(name);
             if (inline === undefined) { throw new Error(`${name} is undefined in high contrast`); }
-            return inline;
+            return evaluateMix(inline, new Set([name]));
         }
         const declared = body.get(name) ?? root.get(name);
         if (declared === undefined || declared === '') { throw new Error(`${name} is undefined in high contrast`); }
         const resolved = substitute(declared, new Set([name]));
         if (resolved === undefined) { throw new Error(`${name} has no resolvable argument`); }
-        return resolved;
+        return evaluateMix(resolved, new Set([name]));
     };
 
     return resolve;
