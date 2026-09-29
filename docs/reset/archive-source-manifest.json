@@ -8074,5 +8074,39 @@
     }
   ],
   "r1": "file-by-file provisional disposition recorded; license and implementation checks open; no archive code selected for product",
-  "sourceEntriesCount": 335
+  "sourceEntriesCount": 335,
+  "relocation": {
+    "recordedOn": "2026-09-29",
+    "reason": "mberrys/ivory-archive became unreachable (HTTP 404 to GitHub Actions and the owner's gh login); CI run 36507823752 failed at the archive checkout.",
+    "recoveredVia": "Fetch by commit SHA from mberrys/ivory, which shares the GitHub fork-network object store with the deleted repository.",
+    "repository": "mberrys/ivory",
+    "tagPrefix": "refs/tags/archive/ivory-archive/",
+    "tagProtection": "Repository ruleset 24153197 'archive-evidence-tags' (refs/tags/archive/**): deletion, non_fast_forward and update blocked; no bypass actors.",
+    "heads": {
+      "master": "b0f9e63a6d331135265869a341dce7c7f1eef158",
+      "dev": "bfcb283c4fe32b64b67a325f8f55aca08314296f",
+      "closeout/n1-n7": "b3bf537763b2cbb853a866cfe666a6e573e2ea71",
+      "feat/v41-p02-fragment-context": "bce1896d4dac8e3c8bd0e5a85e235b03c2d9e9b3",
+      "pre-dev-foundation": "fa4647774273eced81f553f8ef7c5e3d96837b28",
+      "cursor-fix-authority-reachability-80e7": "0d016ced08c38b8f1fa36fe34c2c6e8480ece359",
+      "unstable": "7c303b1836421183d7013f0bd679a9a30ff0b5dc",
+      "N5-architecture-proof": "91fe5341ff2d8f3789e636a8bb6fc5d86b547e8c",
+      "cursor-n7-proposal-integrity-aeda": "0aa03e29fbd9b0750de7d0f6400832a9a98889a8",
+      "v2-n1-experiment": "e93f6333bd8e9c6253fbd33a45870b6e7416df24"
+    },
+    "verification": {
+      "devSourceBlobs": "335/335 via scripts/ivory/v5-verify-source.mjs against the recovered bfcb283c4",
+      "branchOnlyBlobs": "72/72 (N5-architecture-proof 48, cursor-n7-proposal-integrity-aeda 4, v2-n1-experiment 20)",
+      "headTrees": "10/10 tree SHAs equal archive.heads[].tree",
+      "importedEvidence": "10/10 files in docs/archive-evidence/ byte-identical to their archive blobs"
+    },
+    "bundle": {
+      "release": "https://github.com/mberrys/ivory/releases/tag/archive/ivory-archive/dev",
+      "asset": "ivory-archive-recovered.bundle",
+      "bytes": 207124315,
+      "sha256": "a5b752a373b903deef83c18842216455249381b549f51d4320968fd8e20559a1",
+      "contents": "git bundle of all 10 heads above"
+    },
+    "note": "archive.repo and archive.heads are unchanged historical values. Only the retrieval location moved; every pinned SHA is identical."
+  }
 }

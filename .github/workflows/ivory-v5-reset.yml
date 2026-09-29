@@ -14,10 +14,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+      # mberrys/ivory-archive is gone; the same commits live here under the
+      # protected tags refs/tags/archive/ivory-archive/* (see manifest.relocation).
       - name: Checkout exact archived development head
         uses: actions/checkout@v4
         with:
-          repository: mberrys/ivory-archive
+          repository: mberrys/ivory
           ref: bfcb283c4fe32b64b67a325f8f55aca08314296f
           path: .audit/archive
           persist-credentials: false
