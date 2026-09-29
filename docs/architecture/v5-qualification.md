@@ -18,9 +18,9 @@
 
 | Gate | Evidence | State |
 |---|---|---|
-| R0 archive identity | [Run 35935099633](https://github.com/mberrys/ivory/actions/runs/35935099633) verified 335 pinned archive-dev source blobs | **Passed**, for the pinned archive source only |
+| R0 archive identity | [Run 35935099633](https://github.com/mberrys/ivory/actions/runs/35935099633) verified 335 pinned archive-dev source blobs on 2026-09-23. Since 2026-09-29, `mberrys/ivory-archive` returns 404 ([run 36507823752](https://github.com/mberrys/ivory/actions/runs/36507823752) fails at checkout) | Historical pass only. **Cannot be re-verified** until the owner restores or re-homes the archive |
 | R0 clean baseline (`b0f9e63a6`) | [Run 35935375013](https://github.com/mberrys/ivory/actions/runs/35935375013): `npm ci`, compile of 94 projects, browser, browser-only and electron bundles; Ubuntu 22.04, Node 24 | **Passed** on the runner (`baseline-verification.md` §1) |
-| R0 clean baseline (`dev@8b94967c4`) | Workflow pin retargeted | **Pending** the first run after the retarget |
+| R0 clean baseline (`dev@8b94967c4`) | [Run 36507823752](https://github.com/mberrys/ivory/actions/runs/36507823752): `npm ci`, compile of 94 projects, browser, browser-only and electron bundles; Ubuntu 22.04.5, Node 24.21.0 | **Passed** on the runner (`baseline-verification.md` §2) |
 | R1 archive disposition | Provisional path-level disposition (`docs/reset/integration-disposition.md`); ADR-009 decides the per-package outcomes | License checks and per-port proof remain open, per slice |
 | Four-way architecture arena | Four independent candidates (A record-centered, B receipt ledger, C no classifier, D embedded library), recorded on the decision page | **Done** 2026-09-27 |
 | Four-way interrogation | Four independent reviews: 51 findings (5 critical, 34 major, 12 minor), with an agreement map and dispositions | **Done** 2026-09-28; baseline revised; no material rearchitecture |

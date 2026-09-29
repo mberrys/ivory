@@ -30,4 +30,10 @@ Every result below holds only for the GitHub-hosted runner it ran on.
   - Ivory work targets `dev`, and `master` mirrors upstream Theia.
   - The reset branch now merges `dev`.
 - The workflow pin moved to this commit.
-- **Result:** pending the first push of the retargeted branch. Do not mark it passed until that named job succeeds.
+- **Result: passed.** [GitHub Actions run 36507823752](https://github.com/mberrys/ivory/actions/runs/36507823752) on reset head `0e9e31341`, job "Clean upstream Theia baseline install and build":
+  - 5m54s on ubuntu-22.04.5 with Node v24.21.0 and npm 11.19.0;
+  - `npm ci` added 2,079 packages;
+  - `lerna run compile` succeeded for 94 projects;
+  - `build:browser`, `build:browser-only` and `build:electron` succeeded;
+  - lockfile SHA-256 `3b777a78cd3e43f4defcd36886d60ce5e22af8683e90a867aac45329a6eaa6cb`.
+- In the same run, the separate `archive-and-boundaries` job failed: `mberrys/ivory-archive` returned "Repository not found" at checkout. That is an archive-identity failure, not a baseline failure; see the ledger.
