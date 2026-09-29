@@ -34,10 +34,10 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
-      - name: Checkout the exact clean reset baseline (not archived development)
+      - name: Checkout the exact clean destination baseline, dev (not archived development)
         uses: actions/checkout@v4
         with:
-          ref: b0f9e63a6d331135265869a341dce7c7f1eef158
+          ref: 8b94967c4cfa0dcf688a345d28b3ac2e0d7e298a
           path: .audit/theia-baseline
           persist-credentials: false
       - uses: actions/setup-node@v4
