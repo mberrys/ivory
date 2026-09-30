@@ -22,6 +22,7 @@ src/node/     project-layout      paths, initProject(), readManifest()
                 recovery            crash recovery at open
                 verify-chain        chain check over the read connection
                 handlers/           built-in commit kinds (none yet)
+                qualification/      failpoint, and the qual.put and qual.hold handlers (IV5-6, never loaded by a product host)
 ```
 
 A project directory holds `ivory-project.json`, `store.sqlite` (with `-wal` and `-shm`), `cas/sha256/<h0h1>/<h2h3>/<64-hex>`, `cas/tmp/<processId>-<random>.tmp` for staging, `leases/<processId>.sqlite` and `runs/`.
@@ -30,7 +31,7 @@ A project directory holds `ivory-project.json`, `store.sqlite` (with `-wal` and 
 
 ## Thread model
 
-`openProjectStore` takes the process lease on the main thread and starts exactly one `worker_threads` Worker per open project. The two exchange messages only: requests `{id, op, args}` and responses `{id, ok, result | error}`. A refusal is an `ok: true` result. The worker owns one write connection (WAL, `synchronous=FULL`, foreign keys on) and one read-only connection. Every read (`headSeq`, change polling, `verifyChain`) uses the read connection, never the write connection, so nothing uncommitted is ever reported. Functions cannot cross threads, so commit handlers are registered by `kind` from modules that the worker `require`s: each exports `commitHandlers`. The built-in module loads first, and a duplicate kind is a startup error.
+`openProjectStore` takes the process lease on the main thread and starts exactly one `worker_threads` Worker per open project. The two exchange messages only: requests `{id, op, args}` and responses `{id, ok, result | error}`. A refusal is an `ok: true` result. The worker owns one write connection (WAL, `synchronous=FULL`, foreign keys on) and one read-only connection. Every read (`headSeq`, `head`, `receiptFor`, change polling, `verifyChain`) uses the read connection, never the write connection, so nothing uncommitted is ever reported. Functions cannot cross threads, so commit handlers are registered by `kind` from modules that the worker `require`s: each exports `commitHandlers`. The built-in module loads first, and a duplicate kind is a startup error.
 
 ## Commit protocol
 
@@ -47,6 +48,31 @@ A project directory holds `ivory-project.json`, `store.sqlite` (with `-wal` and 
 Nothing awaits between BEGIN and COMMIT or ROLLBACK: the transaction body is one synchronous call. Handlers are held to it three ways: the `defineCommitHandler` type rejects an `apply` that returns a promise, the ESLint overrides in `.eslintrc.js` ban async functions, `await`, `yield` and `.then` in `src/node/store/handlers/**` and `src/node/**/test/*-handlers.ts`, and the runtime guard above.
 
 Blobs are admitted before and outside any transaction: staged in `cas/tmp`, fsynced, then renamed. A blob that already exists is verified and touched, which restarts its GC grace. GC deletes unreferenced blobs older than the grace period in short write transactions that re-check the mtime and the references and unlink inside the transaction.
+
+## Reads for observers
+
+- `store.head(): Promise<{seq, digest} | undefined>` is the last committed sequence number and its chain digest, or `undefined` for an empty log. Observers use it to detect a sequence number that never made it into the log.
+- `store.receiptFor(principal, idempotencyKey): Promise<{seq, digest} | undefined>` is the commit that an idempotency key produced, or `undefined` when it committed nothing. Both are read on the read connection.
+
+## Qualification hooks (internal)
+
+`OpenProjectStoreOptions.qualification` is `@internal`. It exists for the IV5-6 harness in `@ivory/qualification` and is never set by a product host. It reaches the worker through `workerData`.
+
+- `synchronous: 'FULL' | 'OFF'` sets `PRAGMA synchronous` of the write connection. The default is `FULL`.
+- `failpoint: {name, afterHits, markerFile}` arms one of five places where the host kills itself. On hit number `afterHits` of `name`, `failpoint(name)` writes `markerFile` synchronously, with the point name and the pid, and then calls `process.kill(process.pid, 'SIGKILL')`. From the worker thread this ends the whole process on Windows and on POSIX. Without a configured failpoint the call does nothing.
+
+| Crash point | Name | Place |
+|---|---|---|
+| C1 | `duringBlobStage` | in blob staging, after the first half of the bytes is written, before fsync and rename |
+| C1 | `beforeBlobInstall` | after the staging file is written, fsynced and closed, before the exists-check and rename |
+| C2 | `afterBlobInstall` | after the rename and directory fsync (or the dedup touch), before `admitBlob` returns |
+| C3 | `beforeDbCommit` | inside the transaction after the `commits` and `blob_refs` inserts, before COMMIT; synchronous |
+| C4 | `afterDbCommit` | after COMMIT, before the worker posts the response |
+
+`qualificationHandlerModule` (exported from `@ivory/core/lib/node`) is the compiled module of two commit kinds, for `handlerModules`:
+
+- `qual.put {key, blob?}` creates `qual_kv(key, blob, seq)` if needed, requires the blob when there is one, inserts the row and returns `{key, seq}`.
+- `qual.hold {ms}` (at most 10 000) blocks synchronously inside `apply` with `Atomics.wait`, so the write lock is held the way a long CLI transaction holds it, and returns `{held: ms}`.
 
 ## Owner decisions of 2026-09-29
 
@@ -72,7 +98,7 @@ npx lerna run lint,test --scope @ivory/core
 
 ## Out of scope
 
-- IV5-6: the bake-off and kill harness.
+- IV5-6: the bake-off and kill harness live in `@ivory/qualification`. This package holds only its hooks.
 - IV5-7: migration, fences and the unsafe-location check.
 - Slice 8: bundling the worker file for Theia.
 - Slice 9: full `verify`. `verifyChain` here exists for the specs and for the N2 evidence.

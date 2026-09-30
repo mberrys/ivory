@@ -141,7 +141,38 @@ export interface RecoveryReport {
     readonly deferred: readonly string[];
 }
 
-export type StoreOp = 'commit' | 'admitBlob' | 'gc' | 'headSeq' | 'verifyChain' | 'recover' | 'close';
+export type StoreOp = 'commit' | 'admitBlob' | 'gc' | 'headSeq' | 'head' | 'receiptFor' | 'verifyChain' | 'recover' | 'close';
+
+/**
+ * The places where the qualification harness kills the host. Each is one call to `failpoint(name)`:
+ * `duringBlobStage` (C1) after half of a blob's bytes are staged, `beforeBlobInstall` (C1) after the staging file
+ * is durable and before it is renamed, `afterBlobInstall` (C2) after the blob is installed and before `admitBlob`
+ * returns, `beforeDbCommit` (C3) inside the transaction after the inserts and before COMMIT, and `afterDbCommit` (C4)
+ * after COMMIT and before the worker posts the response.
+ */
+export type StoreFailpoint = 'duringBlobStage' | 'beforeBlobInstall' | 'afterBlobInstall' | 'beforeDbCommit' | 'afterDbCommit';
+
+export namespace StoreFailpoint {
+    export const ALL: readonly StoreFailpoint[] = ['duringBlobStage', 'beforeBlobInstall', 'afterBlobInstall', 'beforeDbCommit', 'afterDbCommit'];
+}
+
+/** Kills the host with SIGKILL at the `afterHits`-th hit of `name`, after writing `markerFile`. */
+export interface StoreFailpointConfig {
+    readonly name: StoreFailpoint;
+    readonly afterHits: number;
+    readonly markerFile: string;
+}
+
+/**
+ * What only the qualification harness sets: the failpoint and the durability of the write connection.
+ * Product hosts never set it.
+ * @internal
+ */
+export interface StoreQualificationOptions {
+    readonly failpoint?: StoreFailpointConfig;
+    /** The write connection's `PRAGMA synchronous`. Default `'FULL'`. */
+    readonly synchronous?: 'FULL' | 'OFF';
+}
 
 export interface StoreRequest {
     readonly id: number;
@@ -175,6 +206,8 @@ export interface StoreWorkerData {
     readonly pollIntervalMs: number;
     readonly maxInputBytes: number;
     readonly libraryBuild: string;
+    /** @internal */
+    readonly qualification?: StoreQualificationOptions;
 }
 
 export namespace StoreProtocol {

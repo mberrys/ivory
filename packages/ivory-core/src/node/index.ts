@@ -13,4 +13,5 @@ export { fsyncDirectory, fsyncFile } from './durable-fs';
 export { acquireLease, processId, ProcessLease, recoverDeadLeases } from './store/process-lease';
 export { InitProjectOptions, initProject, ProjectLayout, readManifest } from './project-layout';
 export { OpenProjectStoreOptions, openProjectStore, ProjectStore, StoreDisposable } from './store-host';
+export { qualificationHandlerModule } from './store/qualification/qualification-handler-module';
 export { CommitHandler, CommitTransaction, defineCommitHandler, SqlParam, SqlRow, SqlRunResult } from './store/commit-handler';

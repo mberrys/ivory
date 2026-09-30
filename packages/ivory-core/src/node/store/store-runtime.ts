@@ -13,12 +13,13 @@ import { canonicalDigest } from '@ivory/contracts/lib/node';
 import type { DatabaseSync } from 'node:sqlite';
 import { ProjectManifest } from '../../common/project-manifest';
 import {
-    CommitOutcome, GcResult, RecoveryReport, StoreProtocol, StoreRefusal, StoreRefusalInfo, StoreWorkerData, VerifyChainResult
+    CommitOutcome, CommitReceipt, GcResult, RecoveryReport, StoreProtocol, StoreRefusal, StoreRefusalInfo, StoreWorkerData, VerifyChainResult
 } from '../../common/store-protocol';
 import { ProjectLayout, readManifest } from '../project-layout';
 import { admitBlob, collectGarbage } from './cas';
-import { applyCommit, CommitContext, ParsedCommit, readHeadSeq } from './commit-log';
+import { applyCommit, CommitContext, ParsedCommit, readHead, readHeadSeq, readReceipt } from './commit-log';
 import { CommitHandler, loadCommitHandlers } from './commit-handler';
+import { configureFailpoint, failpoint } from './qualification/failpoint';
 import { recoverStore } from './recovery';
 import { assertStoreMatches, ensureSchema, openReadConnection, openWriteConnection } from './store-schema';
 import { verifyChain } from './verify-chain';
@@ -36,6 +37,7 @@ export interface RefusedOperation {
 export class StoreRuntime {
 
     static async open(data: StoreWorkerData, onAdvanced: (seq: number) => void): Promise<{ runtime: StoreRuntime; recovery: RecoveryReport }> {
+        configureFailpoint(data.qualification?.failpoint);
         const handlers = loadCommitHandlers(data.handlerModules);
         const manifest = await readManifest(data.projectDir);
         const layout = ProjectLayout.of(data.projectDir);
@@ -44,7 +46,7 @@ export class StoreRuntime {
         try {
             let recovery: RecoveryReport = { swept: [], skippedAlive: [], malformed: [], deferred: [] };
             if (manifest.role === 'live') {
-                write = await openWriteConnection(layout.store, data.busyTimeoutMs, data.writerBusyBoundMs);
+                write = await openWriteConnection(layout.store, data.busyTimeoutMs, data.writerBusyBoundMs, data.qualification?.synchronous);
                 await ensureSchema(write, manifest.projectId, data.writerBusyBoundMs);
                 read = openReadConnection(layout.store, data.busyTimeoutMs);
                 recovery = recoverStore(data.projectDir, data.processId);
@@ -86,6 +88,14 @@ export class StoreRuntime {
         return readHeadSeq(this.read);
     }
 
+    head(): CommitReceipt | undefined {
+        return readHead(this.read);
+    }
+
+    receiptFor(principal: unknown, idempotencyKey: unknown): CommitReceipt | undefined {
+        return typeof principal === 'string' && typeof idempotencyKey === 'string' ? readReceipt(this.read, principal, idempotencyKey) : undefined;
+    }
+
     verifyChain(): VerifyChainResult {
         return verifyChain(this.read, this.manifest.projectId);
     }
@@ -114,6 +124,8 @@ export class StoreRuntime {
                 // After the acknowledgement, which the worker posts as soon as this job resolves.
                 const seq = outcome.receipt.seq;
                 setImmediate(() => this.advanced(seq));
+                // The commit is durable here, and the acknowledgement is not sent yet.
+                failpoint('afterDbCommit');
             }
             return outcome;
         });

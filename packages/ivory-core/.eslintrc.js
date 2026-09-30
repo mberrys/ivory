@@ -12,6 +12,7 @@ module.exports = {
             // Handlers run between BEGIN and COMMIT, so they must be synchronous.
             files: [
                 'src/node/store/handlers/**/*.ts',
+                'src/node/store/qualification/*-handlers.ts',
                 'src/node/**/test/*-handlers.ts'
             ],
             rules: {

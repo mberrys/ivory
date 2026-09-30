@@ -16,6 +16,7 @@ import * as path from 'path';
 import { GcResult, IvoryStoreError } from '../../common/store-protocol';
 import { fsyncDirectory } from '../durable-fs';
 import { ProjectLayout } from '../project-layout';
+import { failpoint } from './qualification/failpoint';
 import { runImmediateTransaction } from './write-queue';
 
 export interface CasContext {
@@ -65,11 +66,14 @@ export async function admitBlob(context: CasContext, bytes: Uint8Array, ops: Cas
     const staging = path.join(context.layout.casStaging, `${context.processId}-${randomBytes(8).toString('hex')}.tmp`);
     await fs.mkdir(context.layout.casStaging, { recursive: true });
     await stage(staging, bytes);
+    failpoint('beforeBlobInstall');
     try {
         if (await touchExisting(target, digest, ops)) {
+            failpoint('afterBlobInstall');
             return digest;
         }
         await place(context, staging, target, digest, ops);
+        failpoint('afterBlobInstall');
         return digest;
     } finally {
         await fs.rm(staging, { force: true }).catch(() => undefined);
@@ -79,7 +83,10 @@ export async function admitBlob(context: CasContext, bytes: Uint8Array, ops: Cas
 async function stage(staging: string, bytes: Uint8Array): Promise<void> {
     const handle = await fs.open(staging, 'wx');
     try {
-        await handle.writeFile(bytes);
+        const half = bytes.length >> 1;
+        await handle.writeFile(bytes.subarray(0, half));
+        failpoint('duringBlobStage');
+        await handle.writeFile(bytes.subarray(half));
         await handle.sync();
     } finally {
         await handle.close();

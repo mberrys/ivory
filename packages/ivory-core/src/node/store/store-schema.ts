@@ -37,12 +37,14 @@ const SCHEMA_V1 = [
 ];
 
 /** The one connection that writes. Only the store worker opens it. */
-export async function openWriteConnection(file: string, busyTimeoutMs: number, writerBusyBoundMs: number): Promise<DatabaseSync> {
+export async function openWriteConnection(
+    file: string, busyTimeoutMs: number, writerBusyBoundMs: number, synchronous: 'FULL' | 'OFF' = 'FULL'
+): Promise<DatabaseSync> {
     const db = new DatabaseSync(file, { timeout: busyTimeoutMs, enableForeignKeyConstraints: true });
     try {
         const pragmas = await retryWhileBusy(() => busyAsSentinel(() => {
             db.exec('PRAGMA journal_mode=WAL');
-            db.exec('PRAGMA synchronous=FULL');
+            db.exec(`PRAGMA synchronous=${synchronous}`);
         }), writerBusyBoundMs);
         if (pragmas.busy) {
             throw new IvoryStoreError('writer-busy', `${file} stayed locked for ${writerBusyBoundMs} ms while it was opened`);

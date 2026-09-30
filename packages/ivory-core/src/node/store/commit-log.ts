@@ -14,6 +14,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import { CommitOutcome, IvoryStoreError, StoreRefusal } from '../../common/store-protocol';
 import { ProjectLayout } from '../project-layout';
 import { CommitHandler, CommitTransactionImpl } from './commit-handler';
+import { failpoint } from './qualification/failpoint';
 import { TransactionOutcome } from './write-queue';
 
 /** A row of `commits`. The chain digest covers every field but `digest` and `receipt_json`. */
@@ -65,11 +66,18 @@ export function chainDigest(fields: ChainedFields): Sha256Digest {
     });
 }
 
+/** The commit that an idempotency key produced, or `undefined` when the key has committed nothing. */
+export function readReceipt(db: DatabaseSync, principal: string, idempotencyKey: string): { readonly seq: number; readonly digest: Sha256Digest } | undefined {
+    const row = db.prepare('SELECT seq, digest FROM commits WHERE principal_key = ? AND idem_key = ?').get(principal, idempotencyKey);
+    return row === undefined ? undefined : { seq: Number(row.seq), digest: row.digest as Sha256Digest };
+}
+
 export function readHeadSeq(db: DatabaseSync): number {
     return Number(db.prepare('SELECT coalesce(max(seq), 0) AS seq FROM commits').get()?.seq ?? 0);
 }
 
-function readHead(db: DatabaseSync): { readonly seq: number; readonly digest: Sha256Digest } | undefined {
+/** The last commit's sequence number and chain digest, or `undefined` for an empty log. */
+export function readHead(db: DatabaseSync): { readonly seq: number; readonly digest: Sha256Digest } | undefined {
     const row = db.prepare('SELECT seq, digest FROM commits ORDER BY seq DESC LIMIT 1').get();
     return row === undefined ? undefined : { seq: Number(row.seq), digest: row.digest as Sha256Digest };
 }
@@ -148,6 +156,7 @@ export function applyCommit(context: CommitContext, handler: CommitHandler, requ
     for (const blob of tx.requiredBlobs) {
         insertRef.run(blob, seq);
     }
+    failpoint('beforeDbCommit');
     // The caller gets the value as the receipt stores it, which is also what a replay returns.
     const stored = JSON.parse(receiptJson) as { value: unknown };
     return { commit: true, value: { value: stored.value, receipt: { seq, digest }, replayed: false } };
