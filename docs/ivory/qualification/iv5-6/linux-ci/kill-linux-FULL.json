@@ -1,0 +1,159 @@
+{
+  "record": "ivory-qualification@1",
+  "issue": "IV5-6",
+  "gates": [
+    "N2",
+    "J7"
+  ],
+  "kind": "kill",
+  "head": {
+    "commit": "0358eea4a59a66a8da83abccc9ac1609d38b2b43",
+    "branch": "feat/ivory-qualification-bakeoff",
+    "dirty": false
+  },
+  "command": "kill --cycles 100 --points duringBlobStage,beforeBlobInstall,afterBlobInstall,beforeDbCommit,afterDbCommit,random --synchronous FULL --out /home/runner/work/_temp/iv5-6-evidence",
+  "startedAt": "2026-09-30T04:05:57.872Z",
+  "finishedAt": "2026-09-30T04:08:34.104Z",
+  "elapsedMs": 156232,
+  "environment": {
+    "platform": "linux",
+    "osVersion": "#72~22.04.1-Ubuntu SMP Wed Jul 22 23:39:45 UTC 2026",
+    "release": "6.8.0-1064-azure",
+    "arch": "x64",
+    "cpuModel": "AMD EPYC 7763 64-Core Processor",
+    "cpuCount": 4,
+    "memoryBytes": 16765411328,
+    "node": "24.21.0",
+    "sqlite": "3.53.4",
+    "filesystem": "unknown (Command failed: stat -f -c %T /tmp/ivory-qual-kill-pr2q8I)",
+    "projectDir": "/tmp/ivory-qual-kill-pr2q8I"
+  },
+  "config": {
+    "points": [
+      "duringBlobStage",
+      "beforeBlobInstall",
+      "afterBlobInstall",
+      "beforeDbCommit",
+      "afterDbCommit",
+      "random"
+    ],
+    "cycles": 100,
+    "synchronous": "FULL",
+    "seed": 1,
+    "fullCheckEvery": 10
+  },
+  "configDigest": "sha256:a0b8577c8adf1eb9101fd2baabd84d1513819e05aff591ed9abdeb5f2b0d2c8e",
+  "fixtures": {
+    "harnessDigest": "bd1eda8f56c461984967185d774ff338946a4adeb0328d585fc9cb4e751aefb2",
+    "coreDigest": "3bc8dce72c4546bdc5707b1296e28814941346c20aa01213b5161e9d6d788bab"
+  },
+  "ledger": {
+    "file": "kill-linux-FULL.ledger.jsonl",
+    "rows": 600,
+    "sha256": "d0060acba848039a0b8e15d82ae31c03950d76f58aa09a3ac1881bbe5210e53a"
+  },
+  "criteria": {
+    "K1": {
+      "pass": true,
+      "gated": true,
+      "synchronous": "FULL",
+      "rows": 600,
+      "rowsFailed": 0,
+      "failureCounts": {},
+      "lostAcknowledged": 0,
+      "durableExpectationMisses": 0,
+      "pointsComplete": true,
+      "cyclesPerPoint": 100,
+      "targetCyclesPerPoint": 100,
+      "meetsTargetCycles": true,
+      "perPoint": {
+        "duringBlobStage": {
+          "cycles": 100,
+          "passed": 100,
+          "lostAcknowledged": 0,
+          "durable": 0,
+          "notDurable": 100
+        },
+        "beforeBlobInstall": {
+          "cycles": 100,
+          "passed": 100,
+          "lostAcknowledged": 0,
+          "durable": 0,
+          "notDurable": 100
+        },
+        "afterBlobInstall": {
+          "cycles": 100,
+          "passed": 100,
+          "lostAcknowledged": 0,
+          "durable": 0,
+          "notDurable": 100
+        },
+        "beforeDbCommit": {
+          "cycles": 100,
+          "passed": 100,
+          "lostAcknowledged": 0,
+          "durable": 0,
+          "notDurable": 100
+        },
+        "afterDbCommit": {
+          "cycles": 100,
+          "passed": 100,
+          "lostAcknowledged": 0,
+          "durable": 100,
+          "notDurable": 0
+        },
+        "random": {
+          "cycles": 100,
+          "passed": 100,
+          "lostAcknowledged": 0,
+          "durable": 1,
+          "notDurable": 99
+        }
+      },
+      "meanMsPerCycle": 241,
+      "final": {
+        "chainOk": true,
+        "headSeq": 5049,
+        "keys": 5049,
+        "missing": 0,
+        "mismatched": 0,
+        "gc": {
+          "deleted": 0,
+          "skipped": 4327
+        },
+        "referencedBlobs": 4327,
+        "blobsOnDisk": 4327,
+        "unreferencedRemaining": 0,
+        "referencedProblems": [],
+        "stagingLeft": 0
+      }
+    },
+    "P1": {
+      "pass": true,
+      "gated": true,
+      "samples": 1551,
+      "observerErrors": 0,
+      "distinctObserved": 1128,
+      "phantoms": 0,
+      "phantomExamples": [],
+      "finalHeadSeq": 5049
+    },
+    "R1": {
+      "pass": true,
+      "gated": true,
+      "reopens": 600,
+      "sweeps": 600,
+      "sweptNotYetExited": 0,
+      "observerSwept": 0,
+      "observerSkippedReopens": 600
+    }
+  },
+  "outcome": "pass",
+  "failReasons": [],
+  "limits": [
+    "process kill only; power loss, OS crash and cloud-synced folders not claimed",
+    "synchronous=OFF control: process kill leaves the OS page cache intact, so this harness cannot tell OFF from FULL",
+    "the failpoints sit in the store code, so a crash between two failpoints is covered only by the random-timing cycles",
+    "observers read through the store read connection only; a torn read outside the store host is not exercised"
+  ]
+}

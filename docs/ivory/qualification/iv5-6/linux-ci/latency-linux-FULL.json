@@ -1,0 +1,112 @@
+{
+  "record": "ivory-qualification@1",
+  "issue": "IV5-6",
+  "gates": [
+    "N2",
+    "J7"
+  ],
+  "kind": "latency",
+  "head": {
+    "commit": "0358eea4a59a66a8da83abccc9ac1609d38b2b43",
+    "branch": "feat/ivory-qualification-bakeoff",
+    "dirty": false
+  },
+  "command": "latency --duration 120 --out /home/runner/work/_temp/iv5-6-evidence",
+  "startedAt": "2026-09-30T04:11:11.367Z",
+  "finishedAt": "2026-09-30T04:13:23.782Z",
+  "elapsedMs": 132415,
+  "environment": {
+    "platform": "linux",
+    "osVersion": "#72~22.04.1-Ubuntu SMP Wed Jul 22 23:39:45 UTC 2026",
+    "release": "6.8.0-1064-azure",
+    "arch": "x64",
+    "cpuModel": "AMD EPYC 7763 64-Core Processor",
+    "cpuCount": 4,
+    "memoryBytes": 16765411328,
+    "node": "24.21.0",
+    "sqlite": "3.53.4",
+    "filesystem": "unknown (Command failed: stat -f -c %T /tmp/ivory-qual-latency-QtyOEl)",
+    "projectDir": "/tmp/ivory-qual-latency-QtyOEl"
+  },
+  "config": {
+    "duration": 120,
+    "warmup": 5,
+    "victimInterval": 20,
+    "holdMs": 3000,
+    "seed": 1
+  },
+  "configDigest": "sha256:cf7230c39515db6c358b4920bd2cb6f5e9b4f43cb6972939943c7e603f5886d6",
+  "fixtures": {
+    "harnessDigest": "bd1eda8f56c461984967185d774ff338946a4adeb0328d585fc9cb4e751aefb2",
+    "coreDigest": "3bc8dce72c4546bdc5707b1296e28814941346c20aa01213b5161e9d6d788bab"
+  },
+  "ledger": {
+    "file": "latency-linux-FULL.ledger.jsonl",
+    "rows": 623,
+    "sha256": "6b8553c85f80e25c7cb29e62c52aef4ee1cf5cd38c320e104f0be3a3502dde38"
+  },
+  "criteria": {
+    "L1": {
+      "pass": true,
+      "gated": true,
+      "limitMs": 100,
+      "histogramMs": {
+        "count": 11695,
+        "min": 9.068544,
+        "mean": 10.259587600855065,
+        "p50": 10.158079,
+        "p90": 11.231231,
+        "p99": 11.370495,
+        "max": 11.657215
+      },
+      "measuredSeconds": 120,
+      "workbenchCommits": 249,
+      "workbenchCommitted": 249,
+      "writerBusy": 0,
+      "commitErrors": 0,
+      "measuredCommits": 241,
+      "commitLatencyMs": {
+        "count": 241,
+        "p50": 5,
+        "p99": 3006,
+        "max": 3186
+      },
+      "holds": 32
+    },
+    "P1": {
+      "pass": true,
+      "gated": true,
+      "distinctObserved": 248,
+      "observationSamples": 1480,
+      "observationErrors": 0,
+      "phantoms": 0,
+      "phantomExamples": [],
+      "finalHeadSeq": 281,
+      "commitsInLog": 281,
+      "receiptsChecked": 281,
+      "receiptsMissing": 0,
+      "receiptsMismatched": 0,
+      "commitsWithUnknownOutcome": 0,
+      "chainOk": true
+    },
+    "R1": {
+      "pass": true,
+      "gated": true,
+      "victims": 6,
+      "sweeps": 6,
+      "recoveryReports": 82,
+      "violations": 0,
+      "violationExamples": [],
+      "victimsUnswept": 0,
+      "victimLeftovers": 0
+    }
+  },
+  "outcome": "pass",
+  "failReasons": [],
+  "limits": [
+    "process kill only; power loss, OS crash and cloud-synced folders not claimed",
+    "synchronous=OFF control: process kill leaves the OS page cache intact, so this harness cannot tell OFF from FULL",
+    "the failpoints sit in the store code, so a crash between two failpoints is covered only by the random-timing cycles",
+    "observers read through the store read connection only; a torn read outside the store host is not exercised"
+  ]
+}
