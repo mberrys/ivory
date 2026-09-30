@@ -1,0 +1,53 @@
+name: Ivory core
+
+on:
+  push:
+    paths:
+      - 'packages/ivory-core/**'
+      - 'packages/ivory-contracts/**'
+      - '.github/workflows/ivory-core.yml'
+  pull_request:
+    paths:
+      - 'packages/ivory-core/**'
+      - 'packages/ivory-contracts/**'
+      - '.github/workflows/ivory-core.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    name: Store host on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: 24.x
+
+      # The package has no native or downloaded dependencies, so install scripts are not needed.
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Build lint rules
+        run: npm run build:tools
+
+      # Lerna runs the targets of one invocation in parallel, and the tests load `lib/`.
+      - name: Compile
+        run: npx lerna run compile --scope @ivory/core --include-dependencies
+
+      - name: Lint and test
+        run: npx lerna run lint,test --scope @ivory/core
