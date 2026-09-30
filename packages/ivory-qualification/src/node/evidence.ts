@@ -11,7 +11,7 @@
 import { canonicalDigest } from '@ivory/contracts/lib/node';
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
-import { closeSync, fsyncSync, mkdirSync, openSync, readdirSync, readFileSync, writeFileSync } from 'fs';
+import { closeSync, existsSync, fsyncSync, mkdirSync, openSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { LedgerSummary } from './ledger';
@@ -130,7 +130,12 @@ export namespace Evidence {
                     return run('powershell', ['-NoProfile', '-Command', `(Get-Volume -DriveLetter ${drive[0]}).FileSystem`]).trim() || 'unknown';
                 }
             }
-            return run('stat', ['-f', '-c', '%T', directory]).trim();
+            // A temporary project is already removed when the record is written, and its parent is on the same filesystem.
+            let existing = path.resolve(directory);
+            while (!existsSync(existing) && path.dirname(existing) !== existing) {
+                existing = path.dirname(existing);
+            }
+            return run('stat', ['-f', '-c', '%T', existing]).trim();
         } catch (error) {
             return `unknown (${(error as Error).message.split('\n')[0]})`;
         }
