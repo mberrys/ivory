@@ -19,7 +19,8 @@ These are plain functions rather than injectable services on purpose: they defin
 ## Running
 
 ```text
-npx lerna run compile,lint,test --scope @ivory/contracts
+npx lerna run compile --scope @ivory/contracts
+npx lerna run lint,test --scope @ivory/contracts
 npm run test:python --workspace @ivory/contracts
 ```
 

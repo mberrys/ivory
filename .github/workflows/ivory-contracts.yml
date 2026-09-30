@@ -46,5 +46,9 @@ jobs:
       - name: Build lint rules
         run: npm run build:tools
 
+      # Lerna runs the targets of one invocation in parallel, and the tests load `lib/`.
+      - name: Compile
+        run: npx lerna run compile --scope @ivory/contracts
+
       - name: TypeScript implementation
-        run: npx lerna run compile,lint,test --scope @ivory/contracts
+        run: npx lerna run lint,test --scope @ivory/contracts
