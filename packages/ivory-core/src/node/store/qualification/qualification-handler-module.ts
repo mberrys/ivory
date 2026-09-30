@@ -8,9 +8,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-export { ProjectManifest, ProjectRole } from './project-manifest';
-export {
-    ChainProblem, ChainProblemReason, CommitOutcome, CommitReceipt, CommitRefusal, CommitRequest, CommitSuccess, GcResult, IvoryStoreError,
-    IvoryStoreErrorCode, RecoveryReport, StoreFailpoint, StoreFailpointConfig, StoreProtocol, StoreQualificationOptions, StoreRefusal, StoreRefusalCode,
-    StoreRefusalInfo, VerifyChainResult
-} from './store-protocol';
+import * as path from 'path';
+
+/** The compiled module of the qualification commit handlers, for `OpenProjectStoreOptions.handlerModules`. */
+export const qualificationHandlerModule: string = path.join(__dirname, 'qualification-handlers.js');

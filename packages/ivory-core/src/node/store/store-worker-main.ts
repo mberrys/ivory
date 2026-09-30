@@ -24,7 +24,7 @@ function post(message: StoreResponse | StoreWorkerEvent): void {
 }
 
 async function serve(runtime: StoreRuntime, request: StoreRequest): Promise<unknown> {
-    const args = request.args as { bytes?: Uint8Array; graceMs?: number; request?: unknown } | undefined;
+    const args = request.args as { bytes?: Uint8Array; graceMs?: number; request?: unknown; principal?: unknown; idempotencyKey?: unknown } | undefined;
     switch (request.op) {
         case 'commit':
             return runtime.commit(args?.request);
@@ -34,6 +34,10 @@ async function serve(runtime: StoreRuntime, request: StoreRequest): Promise<unkn
             return runtime.gc(args?.graceMs ?? StoreProtocol.DEFAULT_GC_GRACE_MS);
         case 'headSeq':
             return runtime.headSeq();
+        case 'head':
+            return runtime.head();
+        case 'receiptFor':
+            return runtime.receiptFor(args?.principal, args?.idempotencyKey);
         case 'verifyChain':
             return runtime.verifyChain();
         case 'recover':

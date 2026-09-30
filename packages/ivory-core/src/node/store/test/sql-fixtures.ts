@@ -33,6 +33,15 @@ export function readKeyValues(projectDir: string): { key: string; value: string 
     });
 }
 
+/** The rows of `qual_kv`, which the `qual.put` handler writes, or none when the table does not exist. */
+export function readQualKeys(projectDir: string): { key: string; blob: string | undefined; seq: number }[] {
+    return withDatabase(projectDir, true, db => {
+        const table = db.prepare('SELECT 1 AS present FROM sqlite_master WHERE name = \'qual_kv\'').get();
+        const rows = table ? db.prepare('SELECT key, blob, seq FROM qual_kv ORDER BY seq').all() : [];
+        return rows.map(row => ({ key: String(row.key), blob: row.blob ? String(row.blob) : undefined, seq: Number(row.seq) }));
+    });
+}
+
 export function countRows(projectDir: string, table: 'commits' | 'blob_refs'): number {
     return withDatabase(projectDir, true, db => Number(db.prepare(`SELECT count(*) AS n FROM ${table}`).get()?.n));
 }

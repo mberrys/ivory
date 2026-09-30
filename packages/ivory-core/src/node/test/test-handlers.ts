@@ -90,4 +90,11 @@ const remove = defineCommitHandler({
     }
 });
 
-export const commitHandlers: CommitHandler[] = [put, attach, refuse, explode, endTransaction, remove];
+/** Reports `PRAGMA synchronous` of the write connection: 0 for OFF, 2 for FULL. */
+const synchronous = defineCommitHandler({
+    kind: 'test.synchronous',
+    parse: () => ({}),
+    apply: tx => ({ synchronous: Number(tx.get('PRAGMA synchronous')?.synchronous) })
+});
+
+export const commitHandlers: CommitHandler[] = [put, attach, refuse, explode, endTransaction, remove, synchronous];

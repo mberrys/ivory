@@ -14,8 +14,8 @@ import * as path from 'path';
 import { Worker } from 'worker_threads';
 import { ProjectManifest } from '../common/project-manifest';
 import {
-    CommitOutcome, CommitRequest, GcResult, IvoryStoreError, IvoryStoreErrorCode, RecoveryReport, StoreErrorPayload, StoreProtocol, StoreOp,
-    StoreRefusalInfo, StoreRequest, StoreResponse, StoreWorkerData, StoreWorkerEvent, VerifyChainResult
+    CommitOutcome, CommitReceipt, CommitRequest, GcResult, IvoryStoreError, IvoryStoreErrorCode, RecoveryReport, StoreErrorPayload, StoreProtocol,
+    StoreOp, StoreQualificationOptions, StoreRefusalInfo, StoreRequest, StoreResponse, StoreWorkerData, StoreWorkerEvent, VerifyChainResult
 } from '../common/store-protocol';
 import { acquireLease, processId, ProcessLease } from './store/process-lease';
 import { ProjectLayout, readManifest } from './project-layout';
@@ -39,6 +39,12 @@ export interface OpenProjectStoreOptions {
     readonly maxInputBytes?: number;
     /** Recorded in every commit. Defaults to `@ivory/core@<version>`. */
     readonly libraryBuild?: string;
+    /**
+     * A failpoint that kills the host and the durability of the write connection, for the IV5-6 qualification harness.
+     * Product hosts never set it.
+     * @internal
+     */
+    readonly qualification?: StoreQualificationOptions;
 }
 
 /** An open project store. Every operation is a message to the store's worker thread. */
@@ -54,6 +60,10 @@ export interface ProjectStore {
     gc(options?: { readonly graceMs?: number }): Promise<GcResult>;
     /** The highest committed sequence number, read on the read connection. */
     headSeq(): Promise<number>;
+    /** The last committed sequence number and its chain digest, read on the read connection, or `undefined` for an empty log. */
+    head(): Promise<CommitReceipt | undefined>;
+    /** The commit that this idempotency key produced, read on the read connection, or `undefined` when it committed nothing. */
+    receiptFor(principal: string, idempotencyKey: string): Promise<CommitReceipt | undefined>;
     verifyChain(): Promise<VerifyChainResult>;
     recover(): Promise<RecoveryReport>;
     /** Called with the new head when commits land, from this store or another process. Only committed sequence numbers are reported. */
@@ -92,7 +102,8 @@ export async function openProjectStore(projectDir: string, options: OpenProjectS
             busyTimeoutMs: options.busyTimeoutMs ?? StoreProtocol.DEFAULT_BUSY_TIMEOUT_MS,
             pollIntervalMs: options.pollIntervalMs ?? StoreProtocol.DEFAULT_POLL_INTERVAL_MS,
             maxInputBytes: options.maxInputBytes ?? StoreProtocol.DEFAULT_MAX_INPUT_BYTES,
-            libraryBuild: options.libraryBuild ?? readLibraryBuild()
+            libraryBuild: options.libraryBuild ?? readLibraryBuild(),
+            qualification: options.qualification
         };
         worker = new Worker(path.join(__dirname, 'store', 'store-worker-main.js'), { workerData: data });
         const store = new WorkerProjectStore(manifest, worker, lease, () => openProjects.delete(key));
@@ -171,6 +182,14 @@ class WorkerProjectStore implements ProjectStore {
 
     async headSeq(): Promise<number> {
         return await this.request('headSeq', undefined) as number;
+    }
+
+    async head(): Promise<CommitReceipt | undefined> {
+        return await this.request('head', undefined) as CommitReceipt | undefined;
+    }
+
+    async receiptFor(principal: string, idempotencyKey: string): Promise<CommitReceipt | undefined> {
+        return await this.request('receiptFor', { principal, idempotencyKey }) as CommitReceipt | undefined;
     }
 
     async verifyChain(): Promise<VerifyChainResult> {
