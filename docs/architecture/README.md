@@ -11,6 +11,9 @@ The approved Ivory V5.0 architecture baseline, its source-head manifest, and the
 | [adr-010-v5-typed-decision-seam.md](adr-010-v5-typed-decision-seam.md) | ADR-010: the typed decision seam is omitted from the V5.0 runtime, with a re-entry path and predicate. |
 | [v5-qualification.md](v5-qualification.md) | The qualification ledger: reset gates, N1–N7 and J1–J9 status, slices 0–11, and the V5.0 release predicate. |
 | [evidence-record.md](evidence-record.md) | The evidence record every later slice must produce. |
+| [archive-reconciliation.md](archive-reconciliation.md) | P1 archive selection, license disposition, branch differences, package direction, and clean baseline evidence. |
+| [archive-carriers.json](archive-carriers.json) | Verified file-level source and destination identities and license/header assessments. |
+| [v5-package-boundaries.json](v5-package-boundaries.json) | The initial product and qualification dependency allow-lists. |
 | [../reset/archive-source-manifest.json](../reset/archive-source-manifest.json) | The exact source-head and evidence manifest: pinned archive heads, blob counts, and the relocation record. |
 | [../reset/](../reset/) | Reset evidence: project frame, branch reconciliation, integration disposition, baseline verification, experiment plan, lesson-to-carrier map. |
 | [../archive-evidence/](../archive-evidence/) | Historical ADR-001 to ADR-008 and experiment texts, copied verbatim from the archive. |
@@ -39,7 +42,7 @@ ADR-009 and ADR-010 have not changed since `0e9e31341`; `df3a0a340` confirms it.
 
 These stay open. Accepting the design does not pass them.
 
-- **Release gates** in `v5-qualification.md`: slices 0–11; J2, J3, J5, J6, J7, J8 (reduced) and J9 (reframed); the R1 licence and per-port proof for each slice; documentation that matches the selected head.
+- **Release gates** in `v5-qualification.md`: slices 0–11; J2, J3, J5, J6, J7, J8 (reduced) and J9 (reframed); per-port proof for each slice; documentation that matches the selected head. P1's source and license selection is recorded in [archive-reconciliation.md](archive-reconciliation.md).
 - **Owner confirmations** in decision package §20, still unchecked: accept SQLite and the embedded library (slice 1 is the bake-off, with PGlite plus a host process as the fallback); local-only V5.0; Docker Desktop as a pilot prerequisite; the agent pilot precondition, or prioritizing `webauthn-uv`; the seam omission in ADR-010.
 - **Open and labelled, not blocking:** power-loss durability; independent-machine reproduction; live-provider agents; calibration and seam re-entry; heterogeneous-converter remap; the hosted profile.
 - **Interrogation findings** are recorded at cluster level: 51 findings (5 critical, 34 major, 12 minor) in 24 clusters, each with a disposition (decision package §21). The per-finding IDs are in the four Notion review attachments and are not retained here.

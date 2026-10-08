@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "authority": "docs/architecture/adr-009-v5-topology.md",
+  "upstreamBaseline": "8b94967c4cfa0dcf688a345d28b3ac2e0d7e298a",
+  "metadataExceptions": ["package-lock.json"],
+  "packages": {
+    "@ivory/contracts": {
+      "path": "packages/ivory-contracts",
+      "role": "product",
+      "state": "present",
+      "dependencies": ["tslib"],
+      "devDependencies": ["@theia/ext-scripts"]
+    },
+    "@ivory/core": {
+      "path": "packages/ivory-core",
+      "role": "product",
+      "state": "present",
+      "dependencies": ["@ivory/contracts", "tslib"],
+      "devDependencies": ["@theia/ext-scripts"]
+    },
+    "@ivory/qualification": {
+      "path": "packages/ivory-qualification",
+      "role": "qualification",
+      "state": "present",
+      "dependencies": ["@ivory/contracts", "@ivory/core", "tslib"],
+      "devDependencies": ["@theia/ext-scripts"]
+    },
+    "@ivory/cli": {
+      "path": "packages/ivory-cli",
+      "role": "product",
+      "state": "planned",
+      "dependencies": ["@ivory/contracts", "@ivory/core", "@modelcontextprotocol/sdk", "tslib"],
+      "devDependencies": ["@theia/ext-scripts"]
+    },
+    "@ivory/workbench": {
+      "path": "packages/ivory-workbench",
+      "role": "product",
+      "state": "planned",
+      "dependencies": ["@ivory/contracts", "@ivory/core", "@theia/core", "@theia/filesystem", "@theia/workspace", "@theia/editor", "@theia/monaco", "@theia/navigator", "@theia/messages", "tslib"],
+      "devDependencies": ["@theia/ext-scripts"]
+    },
+    "@ivory/browser": {
+      "path": "examples/ivory-browser",
+      "role": "product",
+      "state": "planned",
+      "dependencies": ["@ivory/workbench", "@theia/core", "@theia/filesystem", "@theia/workspace", "@theia/editor", "@theia/monaco", "@theia/navigator", "@theia/messages", "@theia/preferences", "@theia/process"],
+      "devDependencies": ["@theia/cli", "@playwright/test"]
+    }
+  }
+}
