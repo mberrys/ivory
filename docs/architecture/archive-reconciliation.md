@@ -77,7 +77,9 @@ The earlier [build job 109213132022](https://github.com/mberrys/ivory/actions/ru
 
 [ivory-boundaries.yml](../../.github/workflows/ivory-boundaries.yml) repeats the clean baseline build in a separate checkout. It records the pinned source, implementation and workflow identities, runtime versions, runner image, filesystem, lockfile digest, step outcomes, post-build Git status, and log digests. The `p1-clean-baseline` artifact contains the record and raw build logs. Its claim applies to that upstream source on the observed Linux runner. It does not claim a build or runtime qualification of the V5 product.
 
-The separate `p1-package-boundaries` artifact records the implementation SHA and policy/register digests for the static package check. A dirty checkout cannot produce a passing record. CI retains both artifacts for 90 days. The P1 closeout record belongs under `docs/ivory/qualification/p1/` after the hosted result is observed.
+The separate `p1-package-boundaries` artifact records the implementation SHA and policy/register digests for the static package check. A dirty checkout cannot produce a passing record. CI retains both artifacts for 90 days.
+
+Both jobs passed in [run 37850613890](https://github.com/mberrys/ivory/actions/runs/37850613890) on 2026-10-08. The [P1 closeout](../ivory/qualification/p1/README.md) retains the exact records and compressed logs in Git. The baseline result is tied to the upstream source above and to the P1 workflow implementation at `96f3654850c06c0b7333cf4684c0f4e3012054de`.
 
 ## Verification commands
 

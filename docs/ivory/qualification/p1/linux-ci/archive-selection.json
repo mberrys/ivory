@@ -1,0 +1,78 @@
+{
+  "record": "ivory-archive-selection@1",
+  "issue": "mberrys/ivory-issues#2",
+  "gates": [
+    "P1-archive-selection"
+  ],
+  "head": {
+    "commit": "96f3654850c06c0b7333cf4684c0f4e3012054de",
+    "branch": "",
+    "dirty": false
+  },
+  "command": "node scripts/ivory/archive-carriers.mjs; npm ci --ignore-scripts; node --test scripts/ivory/package-boundaries.spec.mjs; node scripts/ivory/check-package-boundaries.mjs --base=ec9e41f2b6991865345069d77791c7cb6422ab1f --record=/home/runner/work/_temp/p1-package-boundaries.json",
+  "workflow": {
+    "path": ".github/workflows/ivory-boundaries.yml",
+    "definitionRef": "mberrys/ivory/.github/workflows/ivory-boundaries.yml@refs/pull/10/merge",
+    "definitionCommit": "f86d73f4e17d157a3690ec6775dc792e9344e960",
+    "run": "https://github.com/mberrys/ivory/actions/runs/37850613890"
+  },
+  "environment": {
+    "platform": "linux",
+    "osVersion": "6.8.0-1064-azure",
+    "arch": "x64",
+    "node": "v24.21.0",
+    "typescript": "5.9.3",
+    "machine": "20261004.315.1",
+    "runner": "Linux"
+  },
+  "fixtures": {
+    "docs/architecture/v5-package-boundaries.json": "afd3fcd382efcfc1206ea483737d7aa3ec08faa8feb589c86968aced00ba15de",
+    "docs/architecture/archive-carriers.json": "0ab227fedab74da864d555604c3c892745c577ff1c0d7d72d8595a74350c9091",
+    "source-manifest-git-bytes": "331f44c0c35e36f713aec43e2bd8d052c1b3ada8a5d77dd5dd18c9247e2c589e"
+  },
+  "criteria": {
+    "sourceIdentities": {
+      "pass": true,
+      "gated": true,
+      "headTrees": 10,
+      "devCarriers": 335,
+      "branchDifferences": 72,
+      "excludedChanges": 294,
+      "licenseNoticeFiles": 5
+    },
+    "selectedDisposition": {
+      "pass": true,
+      "gated": true,
+      "reuse": 10,
+      "rewrite": 131,
+      "reference": 204,
+      "reject": 62,
+      "productByteCopiesAdmitted": 0
+    },
+    "licenseDisposition": {
+      "pass": true,
+      "gated": true,
+      "fileSpdx": 185,
+      "packageDeclarationOnly": 88,
+      "noFileOrPackageDeclaration": 134
+    },
+    "boundaryRefusals": {
+      "pass": true,
+      "gated": true,
+      "tests": 9
+    }
+  },
+  "outcome": "pass",
+  "failReasons": [],
+  "limits": [
+    "License disposition applies to this selection with no archived runtime copy admitted; it is not transitive dependency or future port approval.",
+    "The ten reused documents are historical evidence, not V5 qualification.",
+    "No runtime, durability, client parity, composed research or release qualification is claimed.",
+    "The ledger is the GitHub CLI transcription of the completed archive/boundary job log."
+  ],
+  "ledger": {
+    "file": "archive-boundaries.log.gz",
+    "rows": 320,
+    "sha256": "6231b7ffd1cf32c228c1cac9bfa2e6104d61f7ffce1dbafb01b88dab318dc626"
+  }
+}

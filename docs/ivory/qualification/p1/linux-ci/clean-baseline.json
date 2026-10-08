@@ -1,0 +1,73 @@
+{
+  "record": "ivory-clean-baseline@1",
+  "issue": "mberrys/ivory-issues#2",
+  "gates": [
+    "R0-clean-Theia-baseline"
+  ],
+  "head": {
+    "commit": "8b94967c4cfa0dcf688a345d28b3ac2e0d7e298a",
+    "branch": "dev (pinned upstream baseline)",
+    "dirty": false
+  },
+  "command": "sudo apt-get update; sudo apt-get install -y libx11-dev libxkbfile-dev libsecret-1-dev; npm ci; npm run build; git status --porcelain",
+  "workflow": {
+    "path": ".github/workflows/ivory-boundaries.yml",
+    "implementationCommit": "96f3654850c06c0b7333cf4684c0f4e3012054de",
+    "blob": "c3638eb117e120d8770c19053c30b602a8c13af5",
+    "job": "clean-theia-baseline",
+    "definitionRef": "mberrys/ivory/.github/workflows/ivory-boundaries.yml@refs/pull/10/merge",
+    "definitionCommit": "f86d73f4e17d157a3690ec6775dc792e9344e960",
+    "run": "https://github.com/mberrys/ivory/actions/runs/37850613890",
+    "attempt": "1"
+  },
+  "environment": {
+    "platform": "linux",
+    "osVersion": "6.8.0-1064-azure",
+    "arch": "x64",
+    "node": "v24.21.0",
+    "npm": "11.19.0",
+    "python": "Python 3.13.16",
+    "machine": "20261004.315.1",
+    "runnerImage": "ubuntu22",
+    "runner": "Linux",
+    "filesystem": "ext2/ext3",
+    "osRelease": "PRETTY_NAME=\"Ubuntu 22.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"22.04\"\nVERSION=\"22.04.5 LTS (Jammy Jellyfish)\"\nVERSION_CODENAME=jammy\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=jammy"
+  },
+  "fixtures": {
+    "package-lock.json": "3b777a78cd3e43f4defcd36886d60ce5e22af8683e90a867aac45329a6eaa6cb"
+  },
+  "criteria": {
+    "pinnedCleanCheckout": {
+      "pass": true,
+      "gated": true
+    },
+    "install": {
+      "pass": true,
+      "gated": true
+    },
+    "compileAndThreeApplicationBundles": {
+      "pass": true,
+      "gated": true
+    },
+    "nativePrerequisites": {
+      "pass": true,
+      "gated": true
+    }
+  },
+  "outcome": "pass",
+  "failReasons": [],
+  "logs": [
+    {
+      "file": "p1-baseline-install.log",
+      "sha256": "2ff2929d50f9e685985ad50d2544a3a1da2fb3133f3055bddebb48ad7285c367"
+    },
+    {
+      "file": "p1-baseline-build.log",
+      "sha256": "d3ee9a7b570b12f4e79068c6720b993f15e635e6e6653b2183f3370728fa0fd1"
+    }
+  ],
+  "limits": [
+    "Build of the pinned upstream Theia source only, not the P1 head or the V5 product.",
+    "No installed-product, durability, runtime, cross-platform or dependency-license qualification is claimed."
+  ]
+}
