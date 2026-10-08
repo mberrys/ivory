@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "selectedSourceHead": "bfcb283c4fe32b64b67a325f8f55aca08314296f",
+  "entries": [
+    {
+      "gate": "N1",
+      "contract": "Exact immutable refs; semantic closure, authorship, explicit carry-forward",
+      "proposedCarrier": "CoreRevision/ExactRef/Snapshot/EvidenceLink",
+      "negativeCases": "snapshot mutation, latest selector, dangling refs, actor conflation",
+      "archiveHead": "bfcb283c4fe32b64b67a325f8f55aca08314296f",
+      "acceptedForV5": false,
+      "qualification": "historical bounded only",
+      "status": "needs composed new proof"
+    },
+    {
+      "gate": "N2",
+      "contract": "CAS before one fenced transactional semantic commit; idempotent receipts",
+      "proposedCarrier": "CoreStore/BlobAdmission/Receipt/Outbox",
+      "negativeCases": "SIGKILL, duplicate key changed body, two writers, orphan recovery",
+      "archiveHead": "bfcb283c4fe32b64b67a325f8f55aca08314296f",
+      "acceptedForV5": false,
+      "qualification": "historical bounded only",
+      "status": "needs composed new proof"
+    },
+    {
+      "gate": "N3",
+      "contract": "Supervised immutable RunSpec, staging, rejection of late results",
+      "proposedCarrier": "CoreRunSpec/RunAttempt/CapabilityReport",
+      "negativeCases": "revocation, egress, credentials, fencing, cancellation",
+      "archiveHead": "bfcb283c4fe32b64b67a325f8f55aca08314296f",
+      "acceptedForV5": false,
+      "qualification": "historical bounded only",
+      "status": "needs composed new proof"
+    },
+    {
+      "gate": "N4",
+      "contract": "Pinned representation and exact fragment; honest remap",
+      "proposedCarrier": "SourceRevision/Representation/Fragment",
+      "negativeCases": "duplicate quote, converter drift, unavailable full text, ambiguous remap",
+      "archiveHead": "bfcb283c4fe32b64b67a325f8f55aca08314296f",
+      "acceptedForV5": false,
+      "qualification": "historical bounded only",
+      "status": "needs composed new proof"
+    },
+    {
+      "gate": "N5",
+      "contract": "Clients interchangeable without local adjudication",
+      "proposedCarrier": "CoreCommand/ReadModel/Theia+CLI adapter",
+      "negativeCases": "two-client conflicting writes, stale snapshot, UI local verdict",
+      "archiveHead": "bfcb283c4fe32b64b67a325f8f55aca08314296f",
+      "acceptedForV5": false,
+      "qualification": "historical bounded only",
+      "status": "needs composed new proof"
+    },
+    {
+      "gate": "N6",
+      "contract": "Capsule exact closure and distinct fidelity levels",
+      "proposedCarrier": "CapsuleManifest/ReplayReceipt",
+      "negativeCases": "missing blob, independent machine, changed PDF bytes",
+      "archiveHead": "bfcb283c4fe32b64b67a325f8f55aca08314296f",
+      "acceptedForV5": false,
+      "qualification": "historical bounded only",
+      "status": "needs composed new proof"
+    },
+    {
+      "gate": "N7",
+      "contract": "Scoped agent proposal, human adoption separate, idempotent receipt",
+      "proposedCarrier": "Proposal/Assessment/HumanReview/CoreAcceptanceReceipt",
+      "negativeCases": "prompt injection, revoked capability, stale head, replay",
+      "archiveHead": "bfcb283c4fe32b64b67a325f8f55aca08314296f",
+      "acceptedForV5": false,
+      "qualification": "historical bounded only",
+      "status": "needs composed new proof"
+    }
+  ]
+}
