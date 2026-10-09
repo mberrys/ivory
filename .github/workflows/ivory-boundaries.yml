@@ -1,0 +1,133 @@
+name: Ivory archive and package boundaries
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - 'packages/ivory-*/**'
+      - 'examples/ivory-*/**'
+      - 'scripts/ivory/**'
+      - 'scripts/n5/**'
+      - 'scripts/n7/**'
+      - 'spikes/**'
+      - 'docs/architecture/archive-carriers.json'
+      - 'docs/architecture/v5-package-boundaries.json'
+      - 'package*.json'
+      - '.github/workflows/ivory-boundaries.yml'
+  pull_request:
+    branches: [dev]
+    paths:
+      - 'packages/**'
+      - 'dev-packages/**'
+      - 'examples/**'
+      - 'sample-plugins/**'
+      - 'scripts/ivory/**'
+      - 'scripts/n5/**'
+      - 'scripts/n7/**'
+      - 'spikes/**'
+      - 'docs/architecture/archive-carriers.json'
+      - 'docs/architecture/v5-package-boundaries.json'
+      - 'package*.json'
+      - '.github/workflows/ivory-boundaries.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archive-and-boundaries:
+    name: Archive identities, licenses and package direction
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout implementation and retained archive objects
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: 24.x
+      - name: Verify archive register against Git objects
+        run: node scripts/ivory/archive-carriers.mjs
+      - name: Install build tools without package scripts
+        run: npm ci --ignore-scripts
+      - name: Exercise package boundary refusals
+        run: node --test scripts/ivory/package-boundaries.spec.mjs
+      - name: Check installed graph, literal imports and upstream fence
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || 'ec9e41f2b6991865345069d77791c7cb6422ab1f' }}
+        run: node scripts/ivory/check-package-boundaries.mjs --base="$BASE_SHA" --record="$RUNNER_TEMP/p1-package-boundaries.json"
+      - name: Upload boundary record
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: p1-package-boundaries
+          path: ${{ runner.temp }}/p1-package-boundaries.json
+          if-no-files-found: error
+          retention-days: 90
+
+  clean-theia-baseline:
+    name: Clean pinned upstream Theia install and build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout evidence tools at the implementation head
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Checkout the clean upstream baseline separately
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: 8b94967c4cfa0dcf688a345d28b3ac2e0d7e298a
+          path: .audit/theia-baseline
+          persist-credentials: false
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: 24.x
+      - name: Use Python 3.13
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.13'
+      - name: Install native prerequisites
+        id: native
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libxkbfile-dev libsecret-1-dev
+      - name: Clean install
+        id: install
+        shell: bash
+        working-directory: .audit/theia-baseline
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm ci 2>&1 | tee "$RUNNER_TEMP/p1-baseline-install.log"
+      - name: Compile and build all three baseline apps
+        id: build
+        shell: bash
+        working-directory: .audit/theia-baseline
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run build 2>&1 | tee "$RUNNER_TEMP/p1-baseline-build.log"
+      - name: Record the exact source, environment and result
+        if: ${{ !cancelled() }}
+        env:
+          NATIVE_RESULT: ${{ steps.native.outcome }}
+          INSTALL_RESULT: ${{ steps.install.outcome }}
+          BUILD_RESULT: ${{ steps.build.outcome }}
+        run: node scripts/ivory/record-baseline.mjs .audit/theia-baseline "$RUNNER_TEMP/p1-clean-baseline.json"
+      - name: Upload baseline record and logs
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: p1-clean-baseline
+          path: |
+            ${{ runner.temp }}/p1-baseline-*.log
+            ${{ runner.temp }}/p1-clean-baseline.json
+          if-no-files-found: error
+          retention-days: 90
