@@ -1,0 +1,23 @@
+[
+  {
+    "file": "compile-clean.log.gz",
+    "command": "npx lerna run compile --scope @ivory/contracts",
+    "exitCode": 0,
+    "bytes": 799,
+    "sha256": "sha256:2abee4e249e33f0e55f7bd846786eb58c857a665da2a42ab114b2e77206b4a6a"
+  },
+  {
+    "file": "typescript-clean.log.gz",
+    "command": "npx lerna run lint,test --scope @ivory/contracts",
+    "exitCode": 0,
+    "bytes": 15761,
+    "sha256": "sha256:6833a4a3e058afd6ab4c24f7290945b2153bb44eb55c4f3ffe479318c1edc8a3"
+  },
+  {
+    "file": "python-clean.log.gz",
+    "command": "npm run test:python --workspace @ivory/contracts",
+    "exitCode": 0,
+    "bytes": 908,
+    "sha256": "sha256:c547b12108d0c6cfef920f9ea32b1b137c04e25bf14b443e5636592c02ce0060"
+  }
+]

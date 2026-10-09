@@ -1,0 +1,64 @@
+{
+  "record": "ivory-research-checks@1",
+  "issue": "mberrys/ivory-issues#3",
+  "gates": [
+    "N1"
+  ],
+  "head": {
+    "commit": "7a6ec82c8364fed2811e8c90a2a55b9252f27285",
+    "branch": "feat/research-records-p2",
+    "dirty": false
+  },
+  "command": "npx lerna run compile --scope @ivory/contracts; npx lerna run lint,test --scope @ivory/contracts; npm run test:python --workspace @ivory/contracts",
+  "environment": {
+    "platform": "win32",
+    "osVersion": "Windows 11 Home",
+    "kernel": "10.0.26300",
+    "arch": "x64",
+    "node": "v24.16.0",
+    "python": "Python 3.13.14",
+    "sqlite": "not-exercised",
+    "filesystem": "NTFS",
+    "machine": "mbx"
+  },
+  "fixtures": {
+    "packages/ivory-contracts/test-resources/n1-research-fixture.json": "sha256:87f570d4e3d2d761393e723380d2239b0e2e2355612c5d6d169c3ed83a485f06",
+    "packages/ivory-contracts/test-resources/research-revision-vectors.json": "sha256:e2ff43ef7e5eb29b202af5bca7b29c09f661e2b5a7b57e505888228d40e1da53",
+    "packages/ivory-contracts/test-resources/canonical-json-vectors.json": "sha256:4693153dbb3a4b9682fb082e999d127896d382e9d1c0795bac19fbdbc0829b4f",
+    "packages/ivory-contracts/src/node/test/n1-fixture.ts": "sha256:61ed8dc1c11e1c9c5703f25fbdc334bbf3cd608ce2fec708642593e4ea79758f",
+    "scripts/ivory/verify-research-contracts.mjs": "sha256:2c2c87b030f71d6aaba2c440c3bdaa3340d8a0ef12e36bb9876124a63b62fd26",
+    "docs/archive-evidence/adr-004-n1-exact-reference-contract.md": "sha256:3eb8c7ca15677852488dcfb4c8044fb9197e2e654388cd3c4b846a8c4b7af180",
+    "docs/architecture/adr-009-v5-topology.md": "sha256:b9c9a213f42bf31bd0183e468cd30f1a86cf3233ba42d20b8ffde9631e28bf24",
+    "docs/architecture/adr-010-v5-typed-decision-seam.md": "sha256:85f0c18d84cf5fbc9b85ede02a61dd1054604a4e708aefd114bb7d5414d40a93"
+  },
+  "criteria": {
+    "compile": {
+      "pass": true,
+      "gated": true
+    },
+    "lintAndTypeScript": {
+      "pass": true,
+      "gated": true,
+      "tests": 141
+    },
+    "python": {
+      "pass": true,
+      "gated": true,
+      "tests": 8
+    }
+  },
+  "outcome": "pass",
+  "failReasons": [],
+  "limits": [
+    "P2 pure identity/domain/closure contract only; no authenticated Core command or accepted SQL mutation is exercised.",
+    "The archived N1 trace is adapted to V5 representations, findings, decisions and statement-only claim-basis@1 selection.",
+    "Selectors cover retained UTF-8 byte spans only; converter, PDF/OCR, remap and contextual-citation qualification remain P5.",
+    "Python verifies canonical identities, not domain acceptance, permission checks or researcher presence.",
+    "This is not durability, hosted-client parity, capsule import/export or new human interpretation evidence."
+  ],
+  "ledger": {
+    "file": "checks.ledger.json",
+    "rows": 3,
+    "sha256": "sha256:917b07d3a8cc3615d842841e5bbd3ea875939fd5c63da3e5d4eda1bdbbbdfb40"
+  }
+}

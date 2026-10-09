@@ -4,6 +4,11 @@ This directory retains results for [ivory-issues#3](https://github.com/mberrys/i
 
 The evidence runner records the exact clean implementation SHA, environment, fixture/source digests, commands, observed criteria and limitations. Each result has a separate digested ledger. Output files are created exclusively; reruns require a new name. Local compile, lint, TypeScript and Python results accompany the Windows contract record. Hosted results come from the Ivory contracts workflow's `p2-research-contracts` artifact.
 
+| Record | Implementation | Observed result |
+| --- | --- | --- |
+| [Windows N1 contracts](windows-local/windows-qualification.json) | `7a6ec82c8364fed2811e8c90a2a55b9252f27285`, clean | All 15 criteria pass, including 12/17 snapshot members and all six required refusal classes. |
+| [Windows build and suites](windows-local/checks.json) | Same clean implementation | Compile and lint pass; 141 TypeScript tests and 8 Python tests pass. Three compressed logs and their digests are retained. |
+
 ```text
 npx lerna run compile --scope @ivory/contracts
 npx lerna run lint,test --scope @ivory/contracts
