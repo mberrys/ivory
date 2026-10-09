@@ -1,0 +1,159 @@
+{
+  "record": "ivory-qualification@1",
+  "issue": "IV5-6",
+  "gates": [
+    "N2",
+    "J7"
+  ],
+  "kind": "kill",
+  "head": {
+    "commit": "ee1f0cc9b9e877fc1ad867d976e2ef70784dba9a",
+    "branch": "feat/core-writer-byte-admission",
+    "dirty": false
+  },
+  "command": "kill --cycles 2 --synchronous FULL --seed 7 --out ../../tmp/p3a-kill",
+  "startedAt": "2026-10-09T01:37:12.956Z",
+  "finishedAt": "2026-10-09T01:37:32.135Z",
+  "elapsedMs": 19179,
+  "environment": {
+    "platform": "win32",
+    "osVersion": "Windows 11 Home",
+    "release": "10.0.26300",
+    "arch": "x64",
+    "cpuModel": "12th Gen Intel(R) Core(TM) i9-12900KF",
+    "cpuCount": 24,
+    "memoryBytes": 68501532672,
+    "node": "24.16.0",
+    "sqlite": "3.53.0",
+    "filesystem": "NTFS",
+    "projectDir": "C:\\Users\\micha\\AppData\\Local\\Temp\\ivory-qual-kill-VulYpc"
+  },
+  "config": {
+    "points": [
+      "duringBlobStage",
+      "beforeBlobInstall",
+      "afterBlobInstall",
+      "beforeDbCommit",
+      "afterDbCommit",
+      "random"
+    ],
+    "cycles": 2,
+    "synchronous": "FULL",
+    "seed": 7,
+    "fullCheckEvery": 10
+  },
+  "configDigest": "sha256:a62bdbeeac4daac05038c7b20e15ea0ec46b60a70c2b1e90b1a7c519fd73041e",
+  "fixtures": {
+    "harnessDigest": "b63d3d79e8045009d7d5fa2a0b2d41c65fe28e78015762d028405ca9973eba4f",
+    "coreDigest": "2d8087f4e9ada895dec18bdf549b726d443df01b56c38b345d87656f4f3c2ed1"
+  },
+  "ledger": {
+    "file": "kill-win32-FULL.ledger.jsonl",
+    "rows": 12,
+    "sha256": "6ab0edaf6bdf9d24775da8faa4fea512b80de286925e44e33e03510845bcf2b3"
+  },
+  "criteria": {
+    "K1": {
+      "pass": true,
+      "gated": true,
+      "synchronous": "FULL",
+      "rows": 12,
+      "rowsFailed": 0,
+      "failureCounts": {},
+      "lostAcknowledged": 0,
+      "durableExpectationMisses": 0,
+      "pointsComplete": true,
+      "cyclesPerPoint": 2,
+      "targetCyclesPerPoint": 1000,
+      "meetsTargetCycles": false,
+      "perPoint": {
+        "duringBlobStage": {
+          "cycles": 2,
+          "passed": 2,
+          "lostAcknowledged": 0,
+          "durable": 0,
+          "notDurable": 2
+        },
+        "beforeBlobInstall": {
+          "cycles": 2,
+          "passed": 2,
+          "lostAcknowledged": 0,
+          "durable": 0,
+          "notDurable": 2
+        },
+        "afterBlobInstall": {
+          "cycles": 2,
+          "passed": 2,
+          "lostAcknowledged": 0,
+          "durable": 0,
+          "notDurable": 2
+        },
+        "beforeDbCommit": {
+          "cycles": 2,
+          "passed": 2,
+          "lostAcknowledged": 0,
+          "durable": 0,
+          "notDurable": 2
+        },
+        "afterDbCommit": {
+          "cycles": 2,
+          "passed": 2,
+          "lostAcknowledged": 0,
+          "durable": 2,
+          "notDurable": 0
+        },
+        "random": {
+          "cycles": 2,
+          "passed": 2,
+          "lostAcknowledged": 0,
+          "durable": 0,
+          "notDurable": 2
+        }
+      },
+      "meanMsPerCycle": 1511,
+      "final": {
+        "chainOk": true,
+        "headSeq": 32,
+        "keys": 32,
+        "missing": 0,
+        "mismatched": 0,
+        "gc": {
+          "deleted": 0,
+          "skipped": 31
+        },
+        "referencedBlobs": 31,
+        "blobsOnDisk": 31,
+        "unreferencedRemaining": 0,
+        "referencedProblems": [],
+        "stagingLeft": 0
+      }
+    },
+    "P1": {
+      "pass": true,
+      "gated": true,
+      "samples": 169,
+      "observerErrors": 0,
+      "distinctObserved": 31,
+      "phantoms": 0,
+      "phantomExamples": [],
+      "finalHeadSeq": 32
+    },
+    "R1": {
+      "pass": true,
+      "gated": true,
+      "reopens": 12,
+      "sweeps": 12,
+      "sweptNotYetExited": 0,
+      "observerSwept": 0,
+      "observerSkippedReopens": 0
+    }
+  },
+  "outcome": "pass",
+  "failReasons": [],
+  "limits": [
+    "process kill only; power loss, OS crash and cloud-synced folders not claimed",
+    "synchronous=OFF control: process kill leaves the OS page cache intact, so this harness cannot tell OFF from FULL",
+    "the failpoints sit in the store code, so a crash between two failpoints is covered only by the random-timing cycles",
+    "observers read through the store read connection only; a torn read outside the store host is not exercised"
+  ]
+}

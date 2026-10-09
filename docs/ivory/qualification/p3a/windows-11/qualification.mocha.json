@@ -1,0 +1,2070 @@
+{
+  "stats": {
+    "suites": 32,
+    "tests": 114,
+    "passes": 114,
+    "pending": 0,
+    "failures": 0,
+    "start": "2026-10-09T01:39:14.454Z",
+    "end": "2026-10-09T01:40:28.443Z",
+    "duration": 73989
+  },
+  "tests": [
+    {
+      "title": "holds one OS writer lock even if discovery claims a dead PID, and does not replace that lock file",
+      "fullTitle": "headless Core ownership and byte admission holds one OS writer lock even if discovery claims a dead PID, and does not replace that lock file",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 939,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses a second service in the same process, and a direct writable host while a service owns the project",
+      "fullTitle": "headless Core ownership and byte admission refuses a second service in the same process, and a direct writable host while a service owns the project",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 639,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "admits before semantic visibility, preserves referenced bytes across restart, and rejects corrupt references and reads",
+      "fullTitle": "headless Core ownership and byte admission admits before semantic visibility, preserves referenced bytes across restart, and rejects corrupt references and reads",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 1014,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rejects expected digest mismatch without creating a staged or installed blob",
+      "fullTitle": "headless Core ownership and byte admission rejects expected digest mismatch without creating a staged or installed blob",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 550,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "never resolves the same digest from another project",
+      "fullTitle": "headless Core ownership and byte admission never resolves the same digest from another project",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 1534,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "authenticates and fences every request; rejects browser origins and malformed input",
+      "fullTitle": "headless Core ownership and byte admission authenticates and fences every request; rejects browser origins and malformed input",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 780,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "racing starters attach to one daemon, and detaching does not stop it",
+      "fullTitle": "headless Core ownership and byte admission racing starters attach to one daemon, and detaching does not stop it",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 1108,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "CLI reconnects to the same daemon after a workbench host process closes",
+      "fullTitle": "headless Core ownership and byte admission CLI reconnects to the same daemon after a workbench host process closes",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 1502,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "initProject creates the directories and a manifest that readManifest returns",
+      "fullTitle": "project directory initProject creates the directories and a manifest that readManifest returns",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 69,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    },
+    {
+      "title": "initProject refuses a project id that is not an ExactRef id",
+      "fullTitle": "project directory initProject refuses a project id that is not an ExactRef id",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 63,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    },
+    {
+      "title": "initProject leaves an existing project alone",
+      "fullTitle": "project directory initProject leaves an existing project alone",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 83,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "readManifest refuses a missing or malformed manifest",
+      "fullTitle": "project directory readManifest refuses a missing or malformed manifest",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 9,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "names a blob by the full hex under two shard directories",
+      "fullTitle": "project directory names a blob by the full hex under two shard directories",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "fsyncDirectory works on the current platform",
+      "fullTitle": "durable file system fsyncDirectory works on the current platform",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 17,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "fsyncFile works on the current platform",
+      "fullTitle": "durable file system fsyncFile works on the current platform",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 34,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "fsyncDirectory refuses a directory that does not exist",
+      "fullTitle": "durable file system fsyncDirectory refuses a directory that does not exist",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "is undefined for an empty log and follows the commits after that",
+      "fullTitle": "store host for qualification head is undefined for an empty log and follows the commits after that",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 726,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rejects once the store is closed",
+      "fullTitle": "store host for qualification head rejects once the store is closed",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 489,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "finds the commit of an idempotency key and nothing else",
+      "fullTitle": "store host for qualification receiptFor finds the commit of an idempotency key and nothing else",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 468,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "does not report a commit that was refused",
+      "fullTitle": "store host for qualification receiptFor does not report a commit that was refused",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 898,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "is FULL by default, and OFF when the qualification option says so",
+      "fullTitle": "store host for qualification the synchronous option is FULL by default, and OFF when the qualification option says so",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 2663,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "qual.put records the key, the blob and the sequence number, and replays",
+      "fullTitle": "store host for qualification qualification handlers qual.put records the key, the blob and the sequence number, and replays",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 627,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "qual.put refuses a missing blob and invalid input",
+      "fullTitle": "store host for qualification qualification handlers qual.put refuses a missing blob and invalid input",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 596,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "qual.hold blocks the transaction for the requested time and refuses more than 10 seconds",
+      "fullTitle": "store host for qualification qualification handlers qual.hold blocks the transaction for the requested time and refuses more than 10 seconds",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 1097,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses a project without a manifest",
+      "fullTitle": "store host opening a project refuses a project without a manifest",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "refuses a store that belongs to another project",
+      "fullTitle": "store host opening a project refuses a store that belongs to another project",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1463,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "opens once per process, holds a lease while open, and can be opened again after close",
+      "fullTitle": "store host opening a project opens once per process, holds a lease while open, and can be opened again after close",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 692,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "fails to open, and leaves no lease behind, when a handler module is missing",
+      "fullTitle": "store host opening a project fails to open, and leaves no lease behind, when a handler module is missing",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 736,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses to start with the same handler kind registered twice",
+      "fullTitle": "store host opening a project refuses to start with the same handler kind registered twice",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 333,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "records the library build in every commit",
+      "fullTitle": "store host opening a project records the library build in every commit",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1014,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "numbers commits from 1 in the order they were submitted, and chains them",
+      "fullTitle": "store host commit numbers commits from 1 in the order they were submitted, and chains them",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1297,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "returns the handler value and a receipt, and says it is not a replay",
+      "fullTitle": "store host commit returns the handler value and a receipt, and says it is not a replay",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 845,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "commits and replays a handler that returns nothing",
+      "fullTitle": "store host commit commits and replays a handler that returns nothing",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 703,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "replays the stored receipt for the same request under the same idempotency key",
+      "fullTitle": "store host commit replays the stored receipt for the same request under the same idempotency key",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 471,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses the same idempotency key for a different request, and does not run the handler",
+      "fullTitle": "store host commit refuses the same idempotency key for a different request, and does not run the handler",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 476,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "keeps idempotency keys apart per principal",
+      "fullTitle": "store host commit keeps idempotency keys apart per principal",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1416,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "keeps its receipts across a reopen",
+      "fullTitle": "store host commit keeps its receipts across a reopen",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 753,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses input that is larger than the bound, and accepts input that is exactly as large",
+      "fullTitle": "store host commit refuses input that is larger than the bound, and accepts input that is exactly as large",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 618,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "returns the refusal of a handler with its detail, rolls back its writes, and consumes no sequence number",
+      "fullTitle": "store host commit returns the refusal of a handler with its detail, rolls back its writes, and consumes no sequence number",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 488,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rolls back and rejects when a handler throws, and the next commit takes the same sequence number",
+      "fullTitle": "store host commit rolls back and rejects when a handler throws, and the next commit takes the same sequence number",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 716,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rolls back and rejects a handler that ends the transaction itself",
+      "fullTitle": "store host commit rolls back and rejects a handler that ends the transaction itself",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 822,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "records the blobs a handler requires, once each",
+      "fullTitle": "store host commit records the blobs a handler requires, once each",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1996,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "the kind is not registered",
+      "fullTitle": "store host commit is refused, and consumes no sequence number, when the kind is not registered",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "the principal is blank or too long",
+      "fullTitle": "store host commit is refused, and consumes no sequence number, when the principal is blank or too long",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "the idempotency key is blank or too long",
+      "fullTitle": "store host commit is refused, and consumes no sequence number, when the idempotency key is blank or too long",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "the input is not I-JSON",
+      "fullTitle": "store host commit is refused, and consumes no sequence number, when the input is not I-JSON",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "the handler does not parse the input",
+      "fullTitle": "store host commit is refused, and consumes no sequence number, when the handler does not parse the input",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "binds the genesis digest to the project id",
+      "fullTitle": "store host commit chain binds the genesis digest to the project id",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1027,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "verifyChain flags a tampered receipt",
+      "fullTitle": "store host commit chain verifyChain flags a tampered receipt",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 521,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "verifyChain flags a broken prev_digest at the row, and not at the rows after it",
+      "fullTitle": "store host commit chain verifyChain flags a broken prev_digest at the row, and not at the rows after it",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 813,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "reports each commit of this store once, in order, and stops when disposed",
+      "fullTitle": "store host change notices reports each commit of this store once, in order, and stops when disposed",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 2311,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "reports a commit that another process made once it is committed",
+      "fullTitle": "store host change notices reports a commit that another process made once it is committed",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1126,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses with writer-busy when another writer holds the lock past the bound",
+      "fullTitle": "store host concurrent writers refuses with writer-busy when another writer holds the lock past the bound",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 938,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "serves commits that wait for a writer in the order they were submitted",
+      "fullTitle": "store host concurrent writers serves commits that wait for a writer in the order they were submitted",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1011,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "waits for the write lock of a blob admission behind commits without reordering them",
+      "fullTitle": "store host concurrent writers waits for the write lock of a blob admission behind commits without reordering them",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 631,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "a backup project reads, and refuses commit, admission, GC and recovery with read-only-project",
+      "fullTitle": "store host read-only roles a backup project reads, and refuses commit, admission, GC and recovery with read-only-project",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 544,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "a capsule project reads, and refuses commit, admission, GC and recovery with read-only-project",
+      "fullTitle": "store host read-only roles a capsule project reads, and refuses commit, admission, GC and recovery with read-only-project",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 604,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses to open a read-only project that has no store",
+      "fullTitle": "store host read-only roles refuses to open a read-only project that has no store",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 110,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rejects an async handler with handler-not-synchronous, rolls back what it wrote, and consumes no sequence number",
+      "fullTitle": "store host negative cases await between BEGIN and COMMIT rejects an async handler with handler-not-synchronous, rolls back what it wrote, and consumes no sequence number",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 591,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rejects an async handler that is the first commit, so the table it created is rolled back too",
+      "fullTitle": "store host negative cases await between BEGIN and COMMIT rejects an async handler that is the first commit, so the table it created is rolled back too",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 810,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "never reports a commit row that another connection has inserted but not committed",
+      "fullTitle": "store host negative cases same-connection dirty read never reports a commit row that another connection has inserted but not committed",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1692,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "leaves a live host's lease and staging file alone, and sweeps both once that host is killed",
+      "fullTitle": "store host negative cases recover touching a live lease leaves a live host's lease and staging file alone, and sweeps both once that host is killed",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1384,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "sweeps the leases of dead hosts when the store opens",
+      "fullTitle": "store host negative cases recover touching a live lease sweeps the leases of dead hosts when the store opens",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 642,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "skips a lease whose lock is free but whose pid is a live process",
+      "fullTitle": "store host negative cases recover touching a live lease skips a lease whose lock is free but whose pid is a live process",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 584,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "keeps an old orphan that was admitted again, because the dedup touched it, and a commit can then reference it",
+      "fullTitle": "store host negative cases GC racing a staging dedup keeps an old orphan that was admitted again, because the dedup touched it, and a commit can then reference it",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 856,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses blob-missing, and records no reference, when GC deleted the blob before the commit",
+      "fullTitle": "store host negative cases GC racing a staging dedup refuses blob-missing, and records no reference, when GC deleted the blob before the commit",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 664,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "admits the blob again after GC deleted it",
+      "fullTitle": "store host negative cases GC racing a staging dedup admits the blob again after GC deleted it",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 659,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "stores the bytes under the digest, and leaves no staging file",
+      "fullTitle": "content-addressed blobs admission stores the bytes under the digest, and leaves no staging file",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 161,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "admits the empty blob",
+      "fullTitle": "content-addressed blobs admission admits the empty blob",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 99,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "admits the same bytes twice, concurrently, to one blob",
+      "fullTitle": "content-addressed blobs admission admits the same bytes twice, concurrently, to one blob",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 251,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "tags the staging file with the process id",
+      "fullTitle": "content-addressed blobs admission tags the staging file with the process id",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 149,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses a name that holds other bytes, and does not overwrite them",
+      "fullTitle": "content-addressed blobs admission refuses a name that holds other bytes, and does not overwrite them",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 45,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    },
+    {
+      "title": "admits the same bytes while a handle is open on the blob, without an install, and refreshes the mtime",
+      "fullTitle": "content-addressed blobs Windows EPERM on install onto an open blob admits the same bytes while a handle is open on the blob, without an install, and refreshes the mtime",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 241,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "admits the blob when the install fails with EPERM but the blob has appeared and verifies",
+      "fullTitle": "content-addressed blobs Windows EPERM on install onto an open blob admits the blob when the install fails with EPERM but the blob has appeared and verifies",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 176,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rejects when the install fails with EPERM and there is no blob",
+      "fullTitle": "content-addressed blobs Windows EPERM on install onto an open blob rejects when the install fails with EPERM and there is no blob",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 147,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rejects when the install fails with EPERM and what is there does not verify",
+      "fullTitle": "content-addressed blobs Windows EPERM on install onto an open blob rejects when the install fails with EPERM and what is there does not verify",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 122,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "does not treat other errors from the install as a race",
+      "fullTitle": "content-addressed blobs Windows EPERM on install onto an open blob does not treat other errors from the install as a race",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 114,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "detects corrupted staging before publishing a digest name",
+      "fullTitle": "content-addressed blobs installation corruption detects corrupted staging before publishing a digest name",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 54,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    },
+    {
+      "title": "detects a corrupted installation on durable readback and removes that invalid name",
+      "fullTitle": "content-addressed blobs installation corruption detects a corrupted installation on durable readback and removes that invalid name",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 229,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "cannot replace a different blob that wins the publication race",
+      "fullTitle": "content-addressed blobs installation corruption cannot replace a different blob that wins the publication race",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 128,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "deletes unreferenced blobs older than the grace period and keeps the rest",
+      "fullTitle": "content-addressed blobs garbage collection deletes unreferenced blobs older than the grace period and keeps the rest",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 453,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "with no grace deletes every unreferenced blob, in batches",
+      "fullTitle": "content-addressed blobs garbage collection with no grace deletes every unreferenced blob, in batches",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 1855,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "leaves files that are not blob names alone",
+      "fullTitle": "content-addressed blobs garbage collection leaves files that are not blob names alone",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 115,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "stops and counts the rest as skipped when another writer holds the lock past the bound",
+      "fullTitle": "content-addressed blobs garbage collection stops and counts the rest as skipped when another writer holds the lock past the bound",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 342,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "has nothing to do in an empty store",
+      "fullTitle": "content-addressed blobs garbage collection has nothing to do in an empty store",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 1,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "accepts a synchronous apply",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: typing accepts a synchronous apply",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "does not compile an apply that returns a promise",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: typing does not compile an apply that returns a promise",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "does not compile an apply that may return a promise",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: typing does not compile an apply that may return a promise",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "loads the handlers of each module by kind",
+      "fullTitle": "commit handlers registry loads the handlers of each module by kind",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 3,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "refuses to start with the same kind registered twice",
+      "fullTitle": "commit handlers registry refuses to start with the same kind registered twice",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "refuses a module that does not export commitHandlers",
+      "fullTitle": "commit handlers registry refuses a module that does not export commitHandlers",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "reports async functions, await and promise chains in a handler",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: lint reports async functions, await and promise chains in a handler",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 2820,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "applies the same rules to a test handler module",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: lint applies the same rules to a test handler module",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 51,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    },
+    {
+      "title": "leaves a synchronous handler alone",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: lint leaves a synchronous handler alone",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 15,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "bans node:sqlite outside core/node/store",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: lint bans node:sqlite outside core/node/store",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 66,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    },
+    {
+      "title": "still bans the relative imports that the shared configuration bans",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: lint still bans the relative imports that the shared configuration bans",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 30,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "has a process id of 32 hex digits that is the same for every lease of the process",
+      "fullTitle": "process lease has a process id of 32 hex digits that is the same for every lease of the process",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "creates the lease file whole, with its row, and removes it on release",
+      "fullTitle": "process lease creates the lease file whole, with its row, and removes it on release",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 218,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "records the pid and host kind in the row",
+      "fullTitle": "process lease records the pid and host kind in the row",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 247,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses to take a lease that is already held",
+      "fullTitle": "process lease refuses to take a lease that is already held",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 214,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "sweeps a dead lease and the staging files tagged with its process id, and only those",
+      "fullTitle": "process lease sweeps a dead lease and the staging files tagged with its process id, and only those",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 180,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "never probes its own lease",
+      "fullTitle": "process lease never probes its own lease",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 261,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "leaves a held lease alone",
+      "fullTitle": "process lease leaves a held lease alone",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 193,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "does not treat a lease file without a row as dead, and reports it",
+      "fullTitle": "process lease does not treat a lease file without a row as dead, and reports it",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 134,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "ignores files that are still being created",
+      "fullTitle": "process lease ignores files that are still being created",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 52,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    },
+    {
+      "title": "has nothing to recover in a project without a leases directory",
+      "fullTitle": "process lease has nothing to recover in a project without a leases directory",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "skips a lease whose lock is free but whose pid is a live process",
+      "fullTitle": "process lease skips a lease whose lock is free but whose pid is a live process",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 172,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "sees a lease held by another process as alive, and sweeps it once that process is killed",
+      "fullTitle": "process lease sees a lease held by another process as alive, and sweeps it once that process is killed",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 263,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "does nothing when no failpoint is configured, or when another one is",
+      "fullTitle": "failpoints does nothing when no failpoint is configured, or when another one is",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\qualification\\failpoint.spec.js",
+      "duration": 1,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "kills the host at duringBlobStage and writes the marker first",
+      "fullTitle": "failpoints kills the host at duringBlobStage and writes the marker first",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\qualification\\failpoint.spec.js",
+      "duration": 943,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "kills the host at beforeBlobInstall and writes the marker first",
+      "fullTitle": "failpoints kills the host at beforeBlobInstall and writes the marker first",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\qualification\\failpoint.spec.js",
+      "duration": 1024,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "kills the host at afterBlobInstall and writes the marker first",
+      "fullTitle": "failpoints kills the host at afterBlobInstall and writes the marker first",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\qualification\\failpoint.spec.js",
+      "duration": 2607,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "kills the host at beforeDbCommit and writes the marker first",
+      "fullTitle": "failpoints kills the host at beforeDbCommit and writes the marker first",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\qualification\\failpoint.spec.js",
+      "duration": 916,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "kills the host at afterDbCommit and writes the marker first",
+      "fullTitle": "failpoints kills the host at afterDbCommit and writes the marker first",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\qualification\\failpoint.spec.js",
+      "duration": 1059,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    }
+  ],
+  "pending": [],
+  "failures": [],
+  "passes": [
+    {
+      "title": "holds one OS writer lock even if discovery claims a dead PID, and does not replace that lock file",
+      "fullTitle": "headless Core ownership and byte admission holds one OS writer lock even if discovery claims a dead PID, and does not replace that lock file",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 939,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses a second service in the same process, and a direct writable host while a service owns the project",
+      "fullTitle": "headless Core ownership and byte admission refuses a second service in the same process, and a direct writable host while a service owns the project",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 639,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "admits before semantic visibility, preserves referenced bytes across restart, and rejects corrupt references and reads",
+      "fullTitle": "headless Core ownership and byte admission admits before semantic visibility, preserves referenced bytes across restart, and rejects corrupt references and reads",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 1014,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rejects expected digest mismatch without creating a staged or installed blob",
+      "fullTitle": "headless Core ownership and byte admission rejects expected digest mismatch without creating a staged or installed blob",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 550,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "never resolves the same digest from another project",
+      "fullTitle": "headless Core ownership and byte admission never resolves the same digest from another project",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 1534,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "authenticates and fences every request; rejects browser origins and malformed input",
+      "fullTitle": "headless Core ownership and byte admission authenticates and fences every request; rejects browser origins and malformed input",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 780,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "racing starters attach to one daemon, and detaching does not stop it",
+      "fullTitle": "headless Core ownership and byte admission racing starters attach to one daemon, and detaching does not stop it",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 1108,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "CLI reconnects to the same daemon after a workbench host process closes",
+      "fullTitle": "headless Core ownership and byte admission CLI reconnects to the same daemon after a workbench host process closes",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\core-service.spec.js",
+      "duration": 1502,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "initProject creates the directories and a manifest that readManifest returns",
+      "fullTitle": "project directory initProject creates the directories and a manifest that readManifest returns",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 69,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    },
+    {
+      "title": "initProject refuses a project id that is not an ExactRef id",
+      "fullTitle": "project directory initProject refuses a project id that is not an ExactRef id",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 63,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    },
+    {
+      "title": "initProject leaves an existing project alone",
+      "fullTitle": "project directory initProject leaves an existing project alone",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 83,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "readManifest refuses a missing or malformed manifest",
+      "fullTitle": "project directory readManifest refuses a missing or malformed manifest",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 9,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "names a blob by the full hex under two shard directories",
+      "fullTitle": "project directory names a blob by the full hex under two shard directories",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "fsyncDirectory works on the current platform",
+      "fullTitle": "durable file system fsyncDirectory works on the current platform",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 17,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "fsyncFile works on the current platform",
+      "fullTitle": "durable file system fsyncFile works on the current platform",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 34,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "fsyncDirectory refuses a directory that does not exist",
+      "fullTitle": "durable file system fsyncDirectory refuses a directory that does not exist",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\project-layout.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "is undefined for an empty log and follows the commits after that",
+      "fullTitle": "store host for qualification head is undefined for an empty log and follows the commits after that",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 726,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rejects once the store is closed",
+      "fullTitle": "store host for qualification head rejects once the store is closed",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 489,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "finds the commit of an idempotency key and nothing else",
+      "fullTitle": "store host for qualification receiptFor finds the commit of an idempotency key and nothing else",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 468,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "does not report a commit that was refused",
+      "fullTitle": "store host for qualification receiptFor does not report a commit that was refused",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 898,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "is FULL by default, and OFF when the qualification option says so",
+      "fullTitle": "store host for qualification the synchronous option is FULL by default, and OFF when the qualification option says so",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 2663,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "qual.put records the key, the blob and the sequence number, and replays",
+      "fullTitle": "store host for qualification qualification handlers qual.put records the key, the blob and the sequence number, and replays",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 627,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "qual.put refuses a missing blob and invalid input",
+      "fullTitle": "store host for qualification qualification handlers qual.put refuses a missing blob and invalid input",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 596,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "qual.hold blocks the transaction for the requested time and refuses more than 10 seconds",
+      "fullTitle": "store host for qualification qualification handlers qual.hold blocks the transaction for the requested time and refuses more than 10 seconds",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\qualification.spec.js",
+      "duration": 1097,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses a project without a manifest",
+      "fullTitle": "store host opening a project refuses a project without a manifest",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "refuses a store that belongs to another project",
+      "fullTitle": "store host opening a project refuses a store that belongs to another project",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1463,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "opens once per process, holds a lease while open, and can be opened again after close",
+      "fullTitle": "store host opening a project opens once per process, holds a lease while open, and can be opened again after close",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 692,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "fails to open, and leaves no lease behind, when a handler module is missing",
+      "fullTitle": "store host opening a project fails to open, and leaves no lease behind, when a handler module is missing",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 736,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses to start with the same handler kind registered twice",
+      "fullTitle": "store host opening a project refuses to start with the same handler kind registered twice",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 333,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "records the library build in every commit",
+      "fullTitle": "store host opening a project records the library build in every commit",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1014,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "numbers commits from 1 in the order they were submitted, and chains them",
+      "fullTitle": "store host commit numbers commits from 1 in the order they were submitted, and chains them",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1297,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "returns the handler value and a receipt, and says it is not a replay",
+      "fullTitle": "store host commit returns the handler value and a receipt, and says it is not a replay",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 845,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "commits and replays a handler that returns nothing",
+      "fullTitle": "store host commit commits and replays a handler that returns nothing",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 703,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "replays the stored receipt for the same request under the same idempotency key",
+      "fullTitle": "store host commit replays the stored receipt for the same request under the same idempotency key",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 471,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses the same idempotency key for a different request, and does not run the handler",
+      "fullTitle": "store host commit refuses the same idempotency key for a different request, and does not run the handler",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 476,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "keeps idempotency keys apart per principal",
+      "fullTitle": "store host commit keeps idempotency keys apart per principal",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1416,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "keeps its receipts across a reopen",
+      "fullTitle": "store host commit keeps its receipts across a reopen",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 753,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses input that is larger than the bound, and accepts input that is exactly as large",
+      "fullTitle": "store host commit refuses input that is larger than the bound, and accepts input that is exactly as large",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 618,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "returns the refusal of a handler with its detail, rolls back its writes, and consumes no sequence number",
+      "fullTitle": "store host commit returns the refusal of a handler with its detail, rolls back its writes, and consumes no sequence number",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 488,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rolls back and rejects when a handler throws, and the next commit takes the same sequence number",
+      "fullTitle": "store host commit rolls back and rejects when a handler throws, and the next commit takes the same sequence number",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 716,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rolls back and rejects a handler that ends the transaction itself",
+      "fullTitle": "store host commit rolls back and rejects a handler that ends the transaction itself",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 822,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "records the blobs a handler requires, once each",
+      "fullTitle": "store host commit records the blobs a handler requires, once each",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1996,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "the kind is not registered",
+      "fullTitle": "store host commit is refused, and consumes no sequence number, when the kind is not registered",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "the principal is blank or too long",
+      "fullTitle": "store host commit is refused, and consumes no sequence number, when the principal is blank or too long",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "the idempotency key is blank or too long",
+      "fullTitle": "store host commit is refused, and consumes no sequence number, when the idempotency key is blank or too long",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "the input is not I-JSON",
+      "fullTitle": "store host commit is refused, and consumes no sequence number, when the input is not I-JSON",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "the handler does not parse the input",
+      "fullTitle": "store host commit is refused, and consumes no sequence number, when the handler does not parse the input",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "binds the genesis digest to the project id",
+      "fullTitle": "store host commit chain binds the genesis digest to the project id",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1027,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "verifyChain flags a tampered receipt",
+      "fullTitle": "store host commit chain verifyChain flags a tampered receipt",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 521,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "verifyChain flags a broken prev_digest at the row, and not at the rows after it",
+      "fullTitle": "store host commit chain verifyChain flags a broken prev_digest at the row, and not at the rows after it",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 813,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "reports each commit of this store once, in order, and stops when disposed",
+      "fullTitle": "store host change notices reports each commit of this store once, in order, and stops when disposed",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 2311,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "reports a commit that another process made once it is committed",
+      "fullTitle": "store host change notices reports a commit that another process made once it is committed",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1126,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses with writer-busy when another writer holds the lock past the bound",
+      "fullTitle": "store host concurrent writers refuses with writer-busy when another writer holds the lock past the bound",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 938,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "serves commits that wait for a writer in the order they were submitted",
+      "fullTitle": "store host concurrent writers serves commits that wait for a writer in the order they were submitted",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1011,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "waits for the write lock of a blob admission behind commits without reordering them",
+      "fullTitle": "store host concurrent writers waits for the write lock of a blob admission behind commits without reordering them",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 631,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "a backup project reads, and refuses commit, admission, GC and recovery with read-only-project",
+      "fullTitle": "store host read-only roles a backup project reads, and refuses commit, admission, GC and recovery with read-only-project",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 544,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "a capsule project reads, and refuses commit, admission, GC and recovery with read-only-project",
+      "fullTitle": "store host read-only roles a capsule project reads, and refuses commit, admission, GC and recovery with read-only-project",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 604,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses to open a read-only project that has no store",
+      "fullTitle": "store host read-only roles refuses to open a read-only project that has no store",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 110,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rejects an async handler with handler-not-synchronous, rolls back what it wrote, and consumes no sequence number",
+      "fullTitle": "store host negative cases await between BEGIN and COMMIT rejects an async handler with handler-not-synchronous, rolls back what it wrote, and consumes no sequence number",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 591,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rejects an async handler that is the first commit, so the table it created is rolled back too",
+      "fullTitle": "store host negative cases await between BEGIN and COMMIT rejects an async handler that is the first commit, so the table it created is rolled back too",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 810,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "never reports a commit row that another connection has inserted but not committed",
+      "fullTitle": "store host negative cases same-connection dirty read never reports a commit row that another connection has inserted but not committed",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1692,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "leaves a live host's lease and staging file alone, and sweeps both once that host is killed",
+      "fullTitle": "store host negative cases recover touching a live lease leaves a live host's lease and staging file alone, and sweeps both once that host is killed",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 1384,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "sweeps the leases of dead hosts when the store opens",
+      "fullTitle": "store host negative cases recover touching a live lease sweeps the leases of dead hosts when the store opens",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 642,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "skips a lease whose lock is free but whose pid is a live process",
+      "fullTitle": "store host negative cases recover touching a live lease skips a lease whose lock is free but whose pid is a live process",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 584,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "keeps an old orphan that was admitted again, because the dedup touched it, and a commit can then reference it",
+      "fullTitle": "store host negative cases GC racing a staging dedup keeps an old orphan that was admitted again, because the dedup touched it, and a commit can then reference it",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 856,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses blob-missing, and records no reference, when GC deleted the blob before the commit",
+      "fullTitle": "store host negative cases GC racing a staging dedup refuses blob-missing, and records no reference, when GC deleted the blob before the commit",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 664,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "admits the blob again after GC deleted it",
+      "fullTitle": "store host negative cases GC racing a staging dedup admits the blob again after GC deleted it",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store-host.spec.js",
+      "duration": 659,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "stores the bytes under the digest, and leaves no staging file",
+      "fullTitle": "content-addressed blobs admission stores the bytes under the digest, and leaves no staging file",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 161,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "admits the empty blob",
+      "fullTitle": "content-addressed blobs admission admits the empty blob",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 99,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "admits the same bytes twice, concurrently, to one blob",
+      "fullTitle": "content-addressed blobs admission admits the same bytes twice, concurrently, to one blob",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 251,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "tags the staging file with the process id",
+      "fullTitle": "content-addressed blobs admission tags the staging file with the process id",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 149,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses a name that holds other bytes, and does not overwrite them",
+      "fullTitle": "content-addressed blobs admission refuses a name that holds other bytes, and does not overwrite them",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 45,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    },
+    {
+      "title": "admits the same bytes while a handle is open on the blob, without an install, and refreshes the mtime",
+      "fullTitle": "content-addressed blobs Windows EPERM on install onto an open blob admits the same bytes while a handle is open on the blob, without an install, and refreshes the mtime",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 241,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "admits the blob when the install fails with EPERM but the blob has appeared and verifies",
+      "fullTitle": "content-addressed blobs Windows EPERM on install onto an open blob admits the blob when the install fails with EPERM but the blob has appeared and verifies",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 176,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rejects when the install fails with EPERM and there is no blob",
+      "fullTitle": "content-addressed blobs Windows EPERM on install onto an open blob rejects when the install fails with EPERM and there is no blob",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 147,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "rejects when the install fails with EPERM and what is there does not verify",
+      "fullTitle": "content-addressed blobs Windows EPERM on install onto an open blob rejects when the install fails with EPERM and what is there does not verify",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 122,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "does not treat other errors from the install as a race",
+      "fullTitle": "content-addressed blobs Windows EPERM on install onto an open blob does not treat other errors from the install as a race",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 114,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "detects corrupted staging before publishing a digest name",
+      "fullTitle": "content-addressed blobs installation corruption detects corrupted staging before publishing a digest name",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 54,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    },
+    {
+      "title": "detects a corrupted installation on durable readback and removes that invalid name",
+      "fullTitle": "content-addressed blobs installation corruption detects a corrupted installation on durable readback and removes that invalid name",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 229,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "cannot replace a different blob that wins the publication race",
+      "fullTitle": "content-addressed blobs installation corruption cannot replace a different blob that wins the publication race",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 128,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "deletes unreferenced blobs older than the grace period and keeps the rest",
+      "fullTitle": "content-addressed blobs garbage collection deletes unreferenced blobs older than the grace period and keeps the rest",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 453,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "with no grace deletes every unreferenced blob, in batches",
+      "fullTitle": "content-addressed blobs garbage collection with no grace deletes every unreferenced blob, in batches",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 1855,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "leaves files that are not blob names alone",
+      "fullTitle": "content-addressed blobs garbage collection leaves files that are not blob names alone",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 115,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "stops and counts the rest as skipped when another writer holds the lock past the bound",
+      "fullTitle": "content-addressed blobs garbage collection stops and counts the rest as skipped when another writer holds the lock past the bound",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 342,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "has nothing to do in an empty store",
+      "fullTitle": "content-addressed blobs garbage collection has nothing to do in an empty store",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\cas.spec.js",
+      "duration": 1,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "accepts a synchronous apply",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: typing accepts a synchronous apply",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "does not compile an apply that returns a promise",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: typing does not compile an apply that returns a promise",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "does not compile an apply that may return a promise",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: typing does not compile an apply that may return a promise",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "loads the handlers of each module by kind",
+      "fullTitle": "commit handlers registry loads the handlers of each module by kind",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 3,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "refuses to start with the same kind registered twice",
+      "fullTitle": "commit handlers registry refuses to start with the same kind registered twice",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "refuses a module that does not export commitHandlers",
+      "fullTitle": "commit handlers registry refuses a module that does not export commitHandlers",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "reports async functions, await and promise chains in a handler",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: lint reports async functions, await and promise chains in a handler",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 2820,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "applies the same rules to a test handler module",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: lint applies the same rules to a test handler module",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 51,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    },
+    {
+      "title": "leaves a synchronous handler alone",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: lint leaves a synchronous handler alone",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 15,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "bans node:sqlite outside core/node/store",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: lint bans node:sqlite outside core/node/store",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 66,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    },
+    {
+      "title": "still bans the relative imports that the shared configuration bans",
+      "fullTitle": "commit handlers await between BEGIN and COMMIT: lint still bans the relative imports that the shared configuration bans",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\commit-handler.spec.js",
+      "duration": 30,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "has a process id of 32 hex digits that is the same for every lease of the process",
+      "fullTitle": "process lease has a process id of 32 hex digits that is the same for every lease of the process",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "creates the lease file whole, with its row, and removes it on release",
+      "fullTitle": "process lease creates the lease file whole, with its row, and removes it on release",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 218,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "records the pid and host kind in the row",
+      "fullTitle": "process lease records the pid and host kind in the row",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 247,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "refuses to take a lease that is already held",
+      "fullTitle": "process lease refuses to take a lease that is already held",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 214,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "sweeps a dead lease and the staging files tagged with its process id, and only those",
+      "fullTitle": "process lease sweeps a dead lease and the staging files tagged with its process id, and only those",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 180,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "never probes its own lease",
+      "fullTitle": "process lease never probes its own lease",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 261,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "leaves a held lease alone",
+      "fullTitle": "process lease leaves a held lease alone",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 193,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "does not treat a lease file without a row as dead, and reports it",
+      "fullTitle": "process lease does not treat a lease file without a row as dead, and reports it",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 134,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "ignores files that are still being created",
+      "fullTitle": "process lease ignores files that are still being created",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 52,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    },
+    {
+      "title": "has nothing to recover in a project without a leases directory",
+      "fullTitle": "process lease has nothing to recover in a project without a leases directory",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 0,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "skips a lease whose lock is free but whose pid is a live process",
+      "fullTitle": "process lease skips a lease whose lock is free but whose pid is a live process",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 172,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "sees a lease held by another process as alive, and sweeps it once that process is killed",
+      "fullTitle": "process lease sees a lease held by another process as alive, and sweeps it once that process is killed",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\process-lease.spec.js",
+      "duration": 263,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "does nothing when no failpoint is configured, or when another one is",
+      "fullTitle": "failpoints does nothing when no failpoint is configured, or when another one is",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\qualification\\failpoint.spec.js",
+      "duration": 1,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    },
+    {
+      "title": "kills the host at duringBlobStage and writes the marker first",
+      "fullTitle": "failpoints kills the host at duringBlobStage and writes the marker first",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\qualification\\failpoint.spec.js",
+      "duration": 943,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "kills the host at beforeBlobInstall and writes the marker first",
+      "fullTitle": "failpoints kills the host at beforeBlobInstall and writes the marker first",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\qualification\\failpoint.spec.js",
+      "duration": 1024,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "kills the host at afterBlobInstall and writes the marker first",
+      "fullTitle": "failpoints kills the host at afterBlobInstall and writes the marker first",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\qualification\\failpoint.spec.js",
+      "duration": 2607,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "kills the host at beforeDbCommit and writes the marker first",
+      "fullTitle": "failpoints kills the host at beforeDbCommit and writes the marker first",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\qualification\\failpoint.spec.js",
+      "duration": 916,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    },
+    {
+      "title": "kills the host at afterDbCommit and writes the marker first",
+      "fullTitle": "failpoints kills the host at afterDbCommit and writes the marker first",
+      "file": "C:\\.dev\\repos\\ivory\\packages\\ivory-core\\lib\\node\\store\\qualification\\failpoint.spec.js",
+      "duration": 1059,
+      "currentRetry": 0,
+      "speed": "slow",
+      "err": {}
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{"title":"headless Core ownership and byte admission holds one OS writer lock even if discovery claims a dead PID, and does not replace that lock file","pass":true,"durationMs":939,"error":{}}
+{"title":"headless Core ownership and byte admission refuses a second service in the same process, and a direct writable host while a service owns the project","pass":true,"durationMs":639,"error":{}}
+{"title":"headless Core ownership and byte admission admits before semantic visibility, preserves referenced bytes across restart, and rejects corrupt references and reads","pass":true,"durationMs":1014,"error":{}}
+{"title":"headless Core ownership and byte admission rejects expected digest mismatch without creating a staged or installed blob","pass":true,"durationMs":550,"error":{}}
+{"title":"headless Core ownership and byte admission never resolves the same digest from another project","pass":true,"durationMs":1534,"error":{}}
+{"title":"headless Core ownership and byte admission authenticates and fences every request; rejects browser origins and malformed input","pass":true,"durationMs":780,"error":{}}
+{"title":"headless Core ownership and byte admission racing starters attach to one daemon, and detaching does not stop it","pass":true,"durationMs":1108,"error":{}}
+{"title":"headless Core ownership and byte admission CLI reconnects to the same daemon after a workbench host process closes","pass":true,"durationMs":1502,"error":{}}
+{"title":"project directory initProject creates the directories and a manifest that readManifest returns","pass":true,"durationMs":69,"error":{}}
+{"title":"project directory initProject refuses a project id that is not an ExactRef id","pass":true,"durationMs":63,"error":{}}
+{"title":"project directory initProject leaves an existing project alone","pass":true,"durationMs":83,"error":{}}
+{"title":"project directory readManifest refuses a missing or malformed manifest","pass":true,"durationMs":9,"error":{}}
+{"title":"project directory names a blob by the full hex under two shard directories","pass":true,"durationMs":0,"error":{}}
+{"title":"durable file system fsyncDirectory works on the current platform","pass":true,"durationMs":17,"error":{}}
+{"title":"durable file system fsyncFile works on the current platform","pass":true,"durationMs":34,"error":{}}
+{"title":"durable file system fsyncDirectory refuses a directory that does not exist","pass":true,"durationMs":0,"error":{}}
+{"title":"store host for qualification head is undefined for an empty log and follows the commits after that","pass":true,"durationMs":726,"error":{}}
+{"title":"store host for qualification head rejects once the store is closed","pass":true,"durationMs":489,"error":{}}
+{"title":"store host for qualification receiptFor finds the commit of an idempotency key and nothing else","pass":true,"durationMs":468,"error":{}}
+{"title":"store host for qualification receiptFor does not report a commit that was refused","pass":true,"durationMs":898,"error":{}}
+{"title":"store host for qualification the synchronous option is FULL by default, and OFF when the qualification option says so","pass":true,"durationMs":2663,"error":{}}
+{"title":"store host for qualification qualification handlers qual.put records the key, the blob and the sequence number, and replays","pass":true,"durationMs":627,"error":{}}
+{"title":"store host for qualification qualification handlers qual.put refuses a missing blob and invalid input","pass":true,"durationMs":596,"error":{}}
+{"title":"store host for qualification qualification handlers qual.hold blocks the transaction for the requested time and refuses more than 10 seconds","pass":true,"durationMs":1097,"error":{}}
+{"title":"store host opening a project refuses a project without a manifest","pass":true,"durationMs":1,"error":{}}
+{"title":"store host opening a project refuses a store that belongs to another project","pass":true,"durationMs":1463,"error":{}}
+{"title":"store host opening a project opens once per process, holds a lease while open, and can be opened again after close","pass":true,"durationMs":692,"error":{}}
+{"title":"store host opening a project fails to open, and leaves no lease behind, when a handler module is missing","pass":true,"durationMs":736,"error":{}}
+{"title":"store host opening a project refuses to start with the same handler kind registered twice","pass":true,"durationMs":333,"error":{}}
+{"title":"store host opening a project records the library build in every commit","pass":true,"durationMs":1014,"error":{}}
+{"title":"store host commit numbers commits from 1 in the order they were submitted, and chains them","pass":true,"durationMs":1297,"error":{}}
+{"title":"store host commit returns the handler value and a receipt, and says it is not a replay","pass":true,"durationMs":845,"error":{}}
+{"title":"store host commit commits and replays a handler that returns nothing","pass":true,"durationMs":703,"error":{}}
+{"title":"store host commit replays the stored receipt for the same request under the same idempotency key","pass":true,"durationMs":471,"error":{}}
+{"title":"store host commit refuses the same idempotency key for a different request, and does not run the handler","pass":true,"durationMs":476,"error":{}}
+{"title":"store host commit keeps idempotency keys apart per principal","pass":true,"durationMs":1416,"error":{}}
+{"title":"store host commit keeps its receipts across a reopen","pass":true,"durationMs":753,"error":{}}
+{"title":"store host commit refuses input that is larger than the bound, and accepts input that is exactly as large","pass":true,"durationMs":618,"error":{}}
+{"title":"store host commit returns the refusal of a handler with its detail, rolls back its writes, and consumes no sequence number","pass":true,"durationMs":488,"error":{}}
+{"title":"store host commit rolls back and rejects when a handler throws, and the next commit takes the same sequence number","pass":true,"durationMs":716,"error":{}}
+{"title":"store host commit rolls back and rejects a handler that ends the transaction itself","pass":true,"durationMs":822,"error":{}}
+{"title":"store host commit records the blobs a handler requires, once each","pass":true,"durationMs":1996,"error":{}}
+{"title":"store host commit is refused, and consumes no sequence number, when the kind is not registered","pass":true,"durationMs":0,"error":{}}
+{"title":"store host commit is refused, and consumes no sequence number, when the principal is blank or too long","pass":true,"durationMs":1,"error":{}}
+{"title":"store host commit is refused, and consumes no sequence number, when the idempotency key is blank or too long","pass":true,"durationMs":0,"error":{}}
+{"title":"store host commit is refused, and consumes no sequence number, when the input is not I-JSON","pass":true,"durationMs":0,"error":{}}
+{"title":"store host commit is refused, and consumes no sequence number, when the handler does not parse the input","pass":true,"durationMs":1,"error":{}}
+{"title":"store host commit chain binds the genesis digest to the project id","pass":true,"durationMs":1027,"error":{}}
+{"title":"store host commit chain verifyChain flags a tampered receipt","pass":true,"durationMs":521,"error":{}}
+{"title":"store host commit chain verifyChain flags a broken prev_digest at the row, and not at the rows after it","pass":true,"durationMs":813,"error":{}}
+{"title":"store host change notices reports each commit of this store once, in order, and stops when disposed","pass":true,"durationMs":2311,"error":{}}
+{"title":"store host change notices reports a commit that another process made once it is committed","pass":true,"durationMs":1126,"error":{}}
+{"title":"store host concurrent writers refuses with writer-busy when another writer holds the lock past the bound","pass":true,"durationMs":938,"error":{}}
+{"title":"store host concurrent writers serves commits that wait for a writer in the order they were submitted","pass":true,"durationMs":1011,"error":{}}
+{"title":"store host concurrent writers waits for the write lock of a blob admission behind commits without reordering them","pass":true,"durationMs":631,"error":{}}
+{"title":"store host read-only roles a backup project reads, and refuses commit, admission, GC and recovery with read-only-project","pass":true,"durationMs":544,"error":{}}
+{"title":"store host read-only roles a capsule project reads, and refuses commit, admission, GC and recovery with read-only-project","pass":true,"durationMs":604,"error":{}}
+{"title":"store host read-only roles refuses to open a read-only project that has no store","pass":true,"durationMs":110,"error":{}}
+{"title":"store host negative cases await between BEGIN and COMMIT rejects an async handler with handler-not-synchronous, rolls back what it wrote, and consumes no sequence number","pass":true,"durationMs":591,"error":{}}
+{"title":"store host negative cases await between BEGIN and COMMIT rejects an async handler that is the first commit, so the table it created is rolled back too","pass":true,"durationMs":810,"error":{}}
+{"title":"store host negative cases same-connection dirty read never reports a commit row that another connection has inserted but not committed","pass":true,"durationMs":1692,"error":{}}
+{"title":"store host negative cases recover touching a live lease leaves a live host's lease and staging file alone, and sweeps both once that host is killed","pass":true,"durationMs":1384,"error":{}}
+{"title":"store host negative cases recover touching a live lease sweeps the leases of dead hosts when the store opens","pass":true,"durationMs":642,"error":{}}
+{"title":"store host negative cases recover touching a live lease skips a lease whose lock is free but whose pid is a live process","pass":true,"durationMs":584,"error":{}}
+{"title":"store host negative cases GC racing a staging dedup keeps an old orphan that was admitted again, because the dedup touched it, and a commit can then reference it","pass":true,"durationMs":856,"error":{}}
+{"title":"store host negative cases GC racing a staging dedup refuses blob-missing, and records no reference, when GC deleted the blob before the commit","pass":true,"durationMs":664,"error":{}}
+{"title":"store host negative cases GC racing a staging dedup admits the blob again after GC deleted it","pass":true,"durationMs":659,"error":{}}
+{"title":"content-addressed blobs admission stores the bytes under the digest, and leaves no staging file","pass":true,"durationMs":161,"error":{}}
+{"title":"content-addressed blobs admission admits the empty blob","pass":true,"durationMs":99,"error":{}}
+{"title":"content-addressed blobs admission admits the same bytes twice, concurrently, to one blob","pass":true,"durationMs":251,"error":{}}
+{"title":"content-addressed blobs admission tags the staging file with the process id","pass":true,"durationMs":149,"error":{}}
+{"title":"content-addressed blobs admission refuses a name that holds other bytes, and does not overwrite them","pass":true,"durationMs":45,"error":{}}
+{"title":"content-addressed blobs Windows EPERM on install onto an open blob admits the same bytes while a handle is open on the blob, without an install, and refreshes the mtime","pass":true,"durationMs":241,"error":{}}
+{"title":"content-addressed blobs Windows EPERM on install onto an open blob admits the blob when the install fails with EPERM but the blob has appeared and verifies","pass":true,"durationMs":176,"error":{}}
+{"title":"content-addressed blobs Windows EPERM on install onto an open blob rejects when the install fails with EPERM and there is no blob","pass":true,"durationMs":147,"error":{}}
+{"title":"content-addressed blobs Windows EPERM on install onto an open blob rejects when the install fails with EPERM and what is there does not verify","pass":true,"durationMs":122,"error":{}}
+{"title":"content-addressed blobs Windows EPERM on install onto an open blob does not treat other errors from the install as a race","pass":true,"durationMs":114,"error":{}}
+{"title":"content-addressed blobs installation corruption detects corrupted staging before publishing a digest name","pass":true,"durationMs":54,"error":{}}
+{"title":"content-addressed blobs installation corruption detects a corrupted installation on durable readback and removes that invalid name","pass":true,"durationMs":229,"error":{}}
+{"title":"content-addressed blobs installation corruption cannot replace a different blob that wins the publication race","pass":true,"durationMs":128,"error":{}}
+{"title":"content-addressed blobs garbage collection deletes unreferenced blobs older than the grace period and keeps the rest","pass":true,"durationMs":453,"error":{}}
+{"title":"content-addressed blobs garbage collection with no grace deletes every unreferenced blob, in batches","pass":true,"durationMs":1855,"error":{}}
+{"title":"content-addressed blobs garbage collection leaves files that are not blob names alone","pass":true,"durationMs":115,"error":{}}
+{"title":"content-addressed blobs garbage collection stops and counts the rest as skipped when another writer holds the lock past the bound","pass":true,"durationMs":342,"error":{}}
+{"title":"content-addressed blobs garbage collection has nothing to do in an empty store","pass":true,"durationMs":1,"error":{}}
+{"title":"commit handlers await between BEGIN and COMMIT: typing accepts a synchronous apply","pass":true,"durationMs":0,"error":{}}
+{"title":"commit handlers await between BEGIN and COMMIT: typing does not compile an apply that returns a promise","pass":true,"durationMs":0,"error":{}}
+{"title":"commit handlers await between BEGIN and COMMIT: typing does not compile an apply that may return a promise","pass":true,"durationMs":0,"error":{}}
+{"title":"commit handlers registry loads the handlers of each module by kind","pass":true,"durationMs":3,"error":{}}
+{"title":"commit handlers registry refuses to start with the same kind registered twice","pass":true,"durationMs":0,"error":{}}
+{"title":"commit handlers registry refuses a module that does not export commitHandlers","pass":true,"durationMs":0,"error":{}}
+{"title":"commit handlers await between BEGIN and COMMIT: lint reports async functions, await and promise chains in a handler","pass":true,"durationMs":2820,"error":{}}
+{"title":"commit handlers await between BEGIN and COMMIT: lint applies the same rules to a test handler module","pass":true,"durationMs":51,"error":{}}
+{"title":"commit handlers await between BEGIN and COMMIT: lint leaves a synchronous handler alone","pass":true,"durationMs":15,"error":{}}
+{"title":"commit handlers await between BEGIN and COMMIT: lint bans node:sqlite outside core/node/store","pass":true,"durationMs":66,"error":{}}
+{"title":"commit handlers await between BEGIN and COMMIT: lint still bans the relative imports that the shared configuration bans","pass":true,"durationMs":30,"error":{}}
+{"title":"process lease has a process id of 32 hex digits that is the same for every lease of the process","pass":true,"durationMs":0,"error":{}}
+{"title":"process lease creates the lease file whole, with its row, and removes it on release","pass":true,"durationMs":218,"error":{}}
+{"title":"process lease records the pid and host kind in the row","pass":true,"durationMs":247,"error":{}}
+{"title":"process lease refuses to take a lease that is already held","pass":true,"durationMs":214,"error":{}}
+{"title":"process lease sweeps a dead lease and the staging files tagged with its process id, and only those","pass":true,"durationMs":180,"error":{}}
+{"title":"process lease never probes its own lease","pass":true,"durationMs":261,"error":{}}
+{"title":"process lease leaves a held lease alone","pass":true,"durationMs":193,"error":{}}
+{"title":"process lease does not treat a lease file without a row as dead, and reports it","pass":true,"durationMs":134,"error":{}}
+{"title":"process lease ignores files that are still being created","pass":true,"durationMs":52,"error":{}}
+{"title":"process lease has nothing to recover in a project without a leases directory","pass":true,"durationMs":0,"error":{}}
+{"title":"process lease skips a lease whose lock is free but whose pid is a live process","pass":true,"durationMs":172,"error":{}}
+{"title":"process lease sees a lease held by another process as alive, and sweeps it once that process is killed","pass":true,"durationMs":263,"error":{}}
+{"title":"failpoints does nothing when no failpoint is configured, or when another one is","pass":true,"durationMs":1,"error":{}}
+{"title":"failpoints kills the host at duringBlobStage and writes the marker first","pass":true,"durationMs":943,"error":{}}
+{"title":"failpoints kills the host at beforeBlobInstall and writes the marker first","pass":true,"durationMs":1024,"error":{}}
+{"title":"failpoints kills the host at afterBlobInstall and writes the marker first","pass":true,"durationMs":2607,"error":{}}
+{"title":"failpoints kills the host at beforeDbCommit and writes the marker first","pass":true,"durationMs":916,"error":{}}
+{"title":"failpoints kills the host at afterDbCommit and writes the marker first","pass":true,"durationMs":1059,"error":{}}
