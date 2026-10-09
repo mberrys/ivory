@@ -20,7 +20,17 @@ export type IvoryContractErrorCode =
     | 'invalid-exact-ref'
     | 'cross-project-ref'
     | 'invalid-edge'
-    | 'dangling-ref';
+    | 'dangling-ref'
+    | 'invalid-record'
+    | 'unsupported-schema'
+    | 'wrong-type'
+    | 'invalid-author'
+    | 'digest-mismatch'
+    | 'selector-mismatch'
+    | 'expected-head-conflict'
+    | 'invalid-history'
+    | 'invalid-carry-forward'
+    | 'snapshot-mismatch';
 
 /**
  * Raised when a value violates an Ivory contract. Contract checks fail closed:

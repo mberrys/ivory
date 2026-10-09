@@ -10,3 +10,5 @@
 
 export * from '../common';
 export { canonicalDigest } from './canonical-digest';
+export { carryForwardEvidenceLink, createRevision, freezeSnapshotBody, parseRevision, readResearchGraph } from './research-revision';
+export { blobDigest, verifyFragment } from './verify-fragment';
