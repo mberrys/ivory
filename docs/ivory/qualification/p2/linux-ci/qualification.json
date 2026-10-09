@@ -1,0 +1,238 @@
+{
+  "record": "ivory-research-contracts@1",
+  "issue": "mberrys/ivory-issues#3",
+  "gates": [
+    "N1"
+  ],
+  "head": {
+    "commit": "20188018e93d79bd148caf3d3a98aa92d47f68b5",
+    "branch": "",
+    "dirty": false
+  },
+  "command": "node scripts/ivory/verify-research-contracts.mjs --output /home/runner/work/_temp/p2-contracts/qualification.json",
+  "environment": {
+    "platform": "linux",
+    "osVersion": "#72~22.04.1-Ubuntu SMP Wed Jul 22 23:39:45 UTC 2026",
+    "kernel": "6.8.0-1064-azure",
+    "arch": "x64",
+    "node": "v24.21.0",
+    "python": "Python 3.13.16",
+    "sqlite": "not-exercised",
+    "filesystem": "runner workspace; not durability-qualified",
+    "machine": "ubuntu22"
+  },
+  "fixtures": {
+    "packages/ivory-contracts/test-resources/n1-research-fixture.json": "sha256:87f570d4e3d2d761393e723380d2239b0e2e2355612c5d6d169c3ed83a485f06",
+    "packages/ivory-contracts/test-resources/research-revision-vectors.json": "sha256:4e5a92e2da07ae8a38af34625d1e77547002438b68b74c10436d14d7f9dfac22",
+    "packages/ivory-contracts/test-resources/canonical-json-vectors.json": "sha256:bc6e1d841d52b885de183d9d3dba6b8075fb61d111e82e5332128b22400ce546",
+    "packages/ivory-contracts/src/node/test/n1-fixture.ts": "sha256:61ed8dc1c11e1c9c5703f25fbdc334bbf3cd608ce2fec708642593e4ea79758f",
+    "scripts/ivory/verify-research-contracts.mjs": "sha256:2c2c87b030f71d6aaba2c440c3bdaa3340d8a0ef12e36bb9876124a63b62fd26",
+    "docs/archive-evidence/adr-004-n1-exact-reference-contract.md": "sha256:3eb8c7ca15677852488dcfb4c8044fb9197e2e654388cd3c4b846a8c4b7af180",
+    "docs/architecture/adr-009-v5-topology.md": "sha256:b9c9a213f42bf31bd0183e468cd30f1a86cf3233ba42d20b8ffde9631e28bf24",
+    "docs/architecture/adr-010-v5-typed-decision-seam.md": "sha256:85f0c18d84cf5fbc9b85ede02a61dd1054604a4e708aefd114bb7d5414d40a93"
+  },
+  "sources": {
+    "fixture": {
+      "commit": "bfcb283c4fe32b64b67a325f8f55aca08314296f",
+      "path": "packages/ivory-tower-research-kernel/src/node/fixture.ts",
+      "sha256": "sha256:e804015969d71624493ebcb419140dffa435bdf29967d7bbee035453333cc989",
+      "copyright": "Copyright (C) 2026 Berry Studio and others.",
+      "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0",
+      "adaptation": "V5 UTF-8 representations, mechanical findings and researcher decisions replace the archived explicit-context kernel. Select only statement A; expect claim-basis@1 counts 12 and 17."
+    }
+  },
+  "criteria": {
+    "statement-only-golden-counts": {
+      "pass": true,
+      "gated": true,
+      "expected": [
+        12,
+        17
+      ],
+      "observed": [
+        12,
+        17
+      ]
+    },
+    "explicit-link-finding-decision-basis": {
+      "pass": true,
+      "gated": true,
+      "expected": 4,
+      "observed": 4
+    },
+    "source-correction-preserves-exact-citation": {
+      "pass": true,
+      "gated": true,
+      "expected": "Maya said advising made the next step visible.",
+      "observed": "Maya said advising made the next step visible."
+    },
+    "earlier-snapshot-unchanged": {
+      "pass": true,
+      "gated": true,
+      "expected": {
+        "basisRule": "claim-basis@1",
+        "selected": [
+          {
+            "projectId": "advising-agency",
+            "objectId": "claim-a",
+            "revisionId": "sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76"
+          }
+        ],
+        "asOfSeq": 18,
+        "members": {
+          "basis": [
+            {
+              "projectId": "advising-agency",
+              "objectId": "challenge-decision",
+              "revisionId": "sha256:a139adc569b03d722d6bacbc14067683569f5e5f43b721935fa7a9598ab7925e"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "challenge-finding",
+              "revisionId": "sha256:89c36b70aa70ff2eeeb7f5da9b45fe50e8112d7c0cffdb4e172ca6a3b728c8eb"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "claim-a",
+              "revisionId": "sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "jordan-challenge",
+              "revisionId": "sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3"
+            }
+          ],
+          "closureCount": 12
+        },
+        "manifestDigest": "sha256:12ef3e45b9dce658d8f3c2f2315af23c45c3c046ee4a8278eef7f3183d9ded68",
+        "label": "S1"
+      },
+      "observed": {
+        "basisRule": "claim-basis@1",
+        "selected": [
+          {
+            "projectId": "advising-agency",
+            "objectId": "claim-a",
+            "revisionId": "sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76"
+          }
+        ],
+        "asOfSeq": 18,
+        "members": {
+          "basis": [
+            {
+              "projectId": "advising-agency",
+              "objectId": "challenge-decision",
+              "revisionId": "sha256:a139adc569b03d722d6bacbc14067683569f5e5f43b721935fa7a9598ab7925e"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "challenge-finding",
+              "revisionId": "sha256:89c36b70aa70ff2eeeb7f5da9b45fe50e8112d7c0cffdb4e172ca6a3b728c8eb"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "claim-a",
+              "revisionId": "sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "jordan-challenge",
+              "revisionId": "sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3"
+            }
+          ],
+          "closureCount": 12
+        },
+        "manifestDigest": "sha256:12ef3e45b9dce658d8f3c2f2315af23c45c3c046ee4a8278eef7f3183d9ded68",
+        "label": "S1"
+      }
+    },
+    "explicit-carry-forward-attribution": {
+      "pass": true,
+      "gated": true,
+      "expected": [
+        "Jordan",
+        "Maya",
+        "carried-forward"
+      ],
+      "observed": [
+        "Jordan",
+        "Maya",
+        "carried-forward"
+      ]
+    },
+    "predecessors-and-corrected-head-excluded": {
+      "pass": true,
+      "gated": true,
+      "expected": false,
+      "observed": false
+    },
+    "refuse-wrong-project": {
+      "pass": true,
+      "gated": true,
+      "expected": "cross-project-ref",
+      "observed": "cross-project-ref"
+    },
+    "refuse-wrong-type": {
+      "pass": true,
+      "gated": true,
+      "expected": "wrong-type",
+      "observed": "wrong-type"
+    },
+    "refuse-dangling-ref": {
+      "pass": true,
+      "gated": true,
+      "expected": "dangling-ref",
+      "observed": "dangling-ref"
+    },
+    "refuse-latest-exact-ref": {
+      "pass": true,
+      "gated": true,
+      "expected": "invalid-exact-ref",
+      "observed": "invalid-exact-ref"
+    },
+    "refuse-digest-mismatch": {
+      "pass": true,
+      "gated": true,
+      "expected": "digest-mismatch",
+      "observed": "digest-mismatch"
+    },
+    "refuse-selector-mismatch": {
+      "pass": true,
+      "gated": true,
+      "expected": "selector-mismatch",
+      "observed": "selector-mismatch"
+    },
+    "refuse-stale-expected-head": {
+      "pass": true,
+      "gated": true,
+      "expected": "expected-head-conflict",
+      "observed": "expected-head-conflict"
+    },
+    "returned-revisions-immutable": {
+      "pass": true,
+      "gated": true,
+      "expected": true,
+      "observed": true
+    },
+    "post-freeze-link-excluded": {
+      "pass": true,
+      "gated": true,
+      "expected": false,
+      "observed": false
+    }
+  },
+  "outcome": "pass",
+  "failReasons": [],
+  "limits": [
+    "P2 pure identity/domain/closure contract only; no authenticated Core command or accepted SQL mutation is exercised.",
+    "The archived N1 trace is adapted to V5 representations, findings, decisions and statement-only claim-basis@1 selection.",
+    "Selectors cover retained UTF-8 byte spans only; converter, PDF/OCR, remap and contextual-citation qualification remain P5.",
+    "Python verifies canonical identities, not domain acceptance, permission checks or researcher presence.",
+    "This is not durability, hosted-client parity, capsule import/export or new human interpretation evidence."
+  ],
+  "ledger": {
+    "file": "qualification.ledger.json",
+    "rows": 15,
+    "sha256": "sha256:4df23e0ea1d0e65ec1fb819dd72f1ec51c16a305a5e8e81cfad43e0a82d042ca"
+  }
+}
