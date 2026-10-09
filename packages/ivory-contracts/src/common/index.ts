@@ -13,3 +13,7 @@ export { ExactRef } from './exact-ref';
 export { IvoryContractError, IvoryContractErrorCode } from './ivory-contract-error';
 export { DependencyEdge, semanticClosure } from './semantic-closure';
 export { Sha256Digest } from './sha256-digest';
+export * from './research-record';
+export { parseRevisionPreimage } from './parse-research-record';
+export { decisionKey, ResearchGraph, revisionRef, semanticDependencies, validateRevisionTransition } from './research-graph';
+export { claimBasis, SnapshotMembership } from './claim-basis';

@@ -1,0 +1,2 @@
+# Evidence ledger hashes cover the retained bytes, including newlines.
+*.json text eol=lf

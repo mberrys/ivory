@@ -1,0 +1,23 @@
+{
+  "contract": "ivory-research@1",
+  "source": {
+    "commit": "bfcb283c4fe32b64b67a325f8f55aca08314296f",
+    "path": "packages/ivory-tower-research-kernel/src/node/fixture.ts",
+    "sha256": "sha256:e804015969d71624493ebcb419140dffa435bdf29967d7bbee035453333cc989",
+    "copyright": "Copyright (C) 2026 Berry Studio and others.",
+    "license": "EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0",
+    "adaptation": "V5 UTF-8 representations, mechanical findings and researcher decisions replace the archived explicit-context kernel. Select only statement A; expect claim-basis@1 counts 12 and 17."
+  },
+  "projectId": "advising-agency",
+  "transcript1": "Maya said advising made the next step visible.",
+  "transcript2": "Jordan described advising as negotiated agency.",
+  "table": "sheet,row,column,value\nExcerpt,2,agency,negotiated",
+  "artifact": "T1 | visible next step | agency\nT2 | negotiated agency | agency",
+  "correction": "Maya said advising made the next move visible.",
+  "claim1": "Advising makes agency visible by turning uncertainty into a next step.",
+  "claim2": "Advising makes agency visible by helping a participant name a next step.",
+  "competingClaim": "Agency is negotiated with the advisor rather than simply revealed by advising.",
+  "code1": "A participant describes capacity to act.",
+  "code2": "A participant describes capacity to act with or against constraints.",
+  "expected": { "snapshot1Members": 12, "snapshot2Members": 17 }
+}

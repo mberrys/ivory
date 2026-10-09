@@ -1,0 +1,1242 @@
+[
+  {
+    "name": "T1@1",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "source",
+      "schema": "source@1",
+      "objectId": "T1",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "name": "T1",
+        "blob": "sha256:87b57cabebbe51e344dd2299b66222a8c9fed8c4d61dc7c4c497d61d774fbbfd",
+        "mediaType": "text/plain",
+        "rights": "local-only",
+        "status": "active"
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"blob\":\"sha256:87b57cabebbe51e344dd2299b66222a8c9fed8c4d61dc7c4c497d61d774fbbfd\",\"mediaType\":\"text/plain\",\"name\":\"T1\",\"rights\":\"local-only\",\"status\":\"active\"},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"source\",\"objectId\":\"T1\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"source@1\"}",
+    "revisionId": "sha256:22bb954b1fa8bbf1d400059b95860f8081bb9ac25c26ba2f4d41d60e9cdf400f"
+  },
+  {
+    "name": "T2@2",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "source",
+      "schema": "source@1",
+      "objectId": "T2",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "name": "T2",
+        "blob": "sha256:385d90c2d58e1d7b0304e967a3145b8f8e33c9c78e22412dc9ee4035250d0cbf",
+        "mediaType": "text/plain",
+        "rights": "local-only",
+        "status": "active"
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"blob\":\"sha256:385d90c2d58e1d7b0304e967a3145b8f8e33c9c78e22412dc9ee4035250d0cbf\",\"mediaType\":\"text/plain\",\"name\":\"T2\",\"rights\":\"local-only\",\"status\":\"active\"},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"source\",\"objectId\":\"T2\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"source@1\"}",
+    "revisionId": "sha256:7208c8165d33fa8e787874be00cd92341f905ea5c03592e62a0bcb24932a1323"
+  },
+  {
+    "name": "table@3",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "source",
+      "schema": "source@1",
+      "objectId": "table",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "name": "table",
+        "blob": "sha256:11b82fc9ac17b2b1498db57d1a1f8b3d1c0f1758744ab9c6a44f771ef17e24bb",
+        "mediaType": "text/plain",
+        "rights": "local-only",
+        "status": "active"
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"blob\":\"sha256:11b82fc9ac17b2b1498db57d1a1f8b3d1c0f1758744ab9c6a44f771ef17e24bb\",\"mediaType\":\"text/plain\",\"name\":\"table\",\"rights\":\"local-only\",\"status\":\"active\"},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"source\",\"objectId\":\"table\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"source@1\"}",
+    "revisionId": "sha256:3b7a2eb938fe0e3337cac0effa2bf6feba596eb432b883ed0fe71f0778b6c5dd"
+  },
+  {
+    "name": "T1-text@4",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "representation",
+      "schema": "representation@1",
+      "objectId": "T1-text",
+      "parent": "none",
+      "author": {
+        "kind": "core",
+        "id": "Core"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "source": {
+          "projectId": "advising-agency",
+          "objectId": "T1",
+          "revisionId": "sha256:22bb954b1fa8bbf1d400059b95860f8081bb9ac25c26ba2f4d41d60e9cdf400f"
+        },
+        "blob": "sha256:87b57cabebbe51e344dd2299b66222a8c9fed8c4d61dc7c4c497d61d774fbbfd",
+        "profile": "utf8-text@1",
+        "converter": {
+          "id": "retained-text",
+          "version": "1"
+        },
+        "rights": "local-only"
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Core\",\"kind\":\"core\"},\"body\":{\"blob\":\"sha256:87b57cabebbe51e344dd2299b66222a8c9fed8c4d61dc7c4c497d61d774fbbfd\",\"converter\":{\"id\":\"retained-text\",\"version\":\"1\"},\"profile\":\"utf8-text@1\",\"rights\":\"local-only\",\"source\":{\"objectId\":\"T1\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:22bb954b1fa8bbf1d400059b95860f8081bb9ac25c26ba2f4d41d60e9cdf400f\"}},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"representation\",\"objectId\":\"T1-text\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"representation@1\"}",
+    "revisionId": "sha256:1437564cb6a26db434520667f70107cd3e1cb200e00a05b354bc1044df4fdc1d"
+  },
+  {
+    "name": "T2-text@5",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "representation",
+      "schema": "representation@1",
+      "objectId": "T2-text",
+      "parent": "none",
+      "author": {
+        "kind": "core",
+        "id": "Core"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "source": {
+          "projectId": "advising-agency",
+          "objectId": "T2",
+          "revisionId": "sha256:7208c8165d33fa8e787874be00cd92341f905ea5c03592e62a0bcb24932a1323"
+        },
+        "blob": "sha256:385d90c2d58e1d7b0304e967a3145b8f8e33c9c78e22412dc9ee4035250d0cbf",
+        "profile": "utf8-text@1",
+        "converter": {
+          "id": "retained-text",
+          "version": "1"
+        },
+        "rights": "local-only"
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Core\",\"kind\":\"core\"},\"body\":{\"blob\":\"sha256:385d90c2d58e1d7b0304e967a3145b8f8e33c9c78e22412dc9ee4035250d0cbf\",\"converter\":{\"id\":\"retained-text\",\"version\":\"1\"},\"profile\":\"utf8-text@1\",\"rights\":\"local-only\",\"source\":{\"objectId\":\"T2\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:7208c8165d33fa8e787874be00cd92341f905ea5c03592e62a0bcb24932a1323\"}},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"representation\",\"objectId\":\"T2-text\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"representation@1\"}",
+    "revisionId": "sha256:25237d7c565d61bf6b0d72b72d27647037f9c648d09aab00fd3aeba63ccaa07b"
+  },
+  {
+    "name": "excerpt-matrix@6",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "artifact",
+      "schema": "artifact@1",
+      "objectId": "excerpt-matrix",
+      "parent": "none",
+      "author": {
+        "kind": "core",
+        "id": "Core"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "inputs": [
+          {
+            "projectId": "advising-agency",
+            "objectId": "T1",
+            "revisionId": "sha256:22bb954b1fa8bbf1d400059b95860f8081bb9ac25c26ba2f4d41d60e9cdf400f"
+          },
+          {
+            "projectId": "advising-agency",
+            "objectId": "T2",
+            "revisionId": "sha256:7208c8165d33fa8e787874be00cd92341f905ea5c03592e62a0bcb24932a1323"
+          },
+          {
+            "projectId": "advising-agency",
+            "objectId": "table",
+            "revisionId": "sha256:3b7a2eb938fe0e3337cac0effa2bf6feba596eb432b883ed0fe71f0778b6c5dd"
+          }
+        ],
+        "blob": "sha256:7c01c3dbd40f3846eb26b2ff4ebf5bb67239b593b715800f6c3b576c6c410fb9",
+        "profile": "utf8-text@1",
+        "transformation": "n1-excerpt-matrix@1",
+        "rights": "local-only"
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Core\",\"kind\":\"core\"},\"body\":{\"blob\":\"sha256:7c01c3dbd40f3846eb26b2ff4ebf5bb67239b593b715800f6c3b576c6c410fb9\",\"inputs\":[{\"objectId\":\"T1\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:22bb954b1fa8bbf1d400059b95860f8081bb9ac25c26ba2f4d41d60e9cdf400f\"},{\"objectId\":\"T2\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:7208c8165d33fa8e787874be00cd92341f905ea5c03592e62a0bcb24932a1323\"},{\"objectId\":\"table\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:3b7a2eb938fe0e3337cac0effa2bf6feba596eb432b883ed0fe71f0778b6c5dd\"}],\"profile\":\"utf8-text@1\",\"rights\":\"local-only\",\"transformation\":\"n1-excerpt-matrix@1\"},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"artifact\",\"objectId\":\"excerpt-matrix\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"artifact@1\"}",
+    "revisionId": "sha256:2c38e2c13fbdc8e7e0c73abfc952f6e5318a3c97c80003351578384a55df8a16"
+  },
+  {
+    "name": "T1-span@7",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "fragment",
+      "schema": "fragment@1",
+      "objectId": "T1-span",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "representation": {
+          "projectId": "advising-agency",
+          "objectId": "T1-text",
+          "revisionId": "sha256:1437564cb6a26db434520667f70107cd3e1cb200e00a05b354bc1044df4fdc1d"
+        },
+        "representationDigest": "sha256:87b57cabebbe51e344dd2299b66222a8c9fed8c4d61dc7c4c497d61d774fbbfd",
+        "selector": {
+          "profile": "utf8-bytes@1",
+          "start": 0,
+          "end": 46,
+          "quote": "Maya said advising made the next step visible."
+        }
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"representation\":{\"objectId\":\"T1-text\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:1437564cb6a26db434520667f70107cd3e1cb200e00a05b354bc1044df4fdc1d\"},\"representationDigest\":\"sha256:87b57cabebbe51e344dd2299b66222a8c9fed8c4d61dc7c4c497d61d774fbbfd\",\"selector\":{\"end\":46,\"profile\":\"utf8-bytes@1\",\"quote\":\"Maya said advising made the next step visible.\",\"start\":0}},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"fragment\",\"objectId\":\"T1-span\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"fragment@1\"}",
+    "revisionId": "sha256:fc3c26e7840f04812517d2c70f3922cae67f5ead5a724d86454c43df45670468"
+  },
+  {
+    "name": "T2-span@8",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "fragment",
+      "schema": "fragment@1",
+      "objectId": "T2-span",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "representation": {
+          "projectId": "advising-agency",
+          "objectId": "T2-text",
+          "revisionId": "sha256:25237d7c565d61bf6b0d72b72d27647037f9c648d09aab00fd3aeba63ccaa07b"
+        },
+        "representationDigest": "sha256:385d90c2d58e1d7b0304e967a3145b8f8e33c9c78e22412dc9ee4035250d0cbf",
+        "selector": {
+          "profile": "utf8-bytes@1",
+          "start": 0,
+          "end": 47,
+          "quote": "Jordan described advising as negotiated agency."
+        }
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"representation\":{\"objectId\":\"T2-text\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:25237d7c565d61bf6b0d72b72d27647037f9c648d09aab00fd3aeba63ccaa07b\"},\"representationDigest\":\"sha256:385d90c2d58e1d7b0304e967a3145b8f8e33c9c78e22412dc9ee4035250d0cbf\",\"selector\":{\"end\":47,\"profile\":\"utf8-bytes@1\",\"quote\":\"Jordan described advising as negotiated agency.\",\"start\":0}},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"fragment\",\"objectId\":\"T2-span\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"fragment@1\"}",
+    "revisionId": "sha256:f2609074392b343050b851a3d608fe2b88a62b1abc3d8305c151ca5749033b33"
+  },
+  {
+    "name": "matrix-span@9",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "fragment",
+      "schema": "fragment@1",
+      "objectId": "matrix-span",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "representation": {
+          "projectId": "advising-agency",
+          "objectId": "excerpt-matrix",
+          "revisionId": "sha256:2c38e2c13fbdc8e7e0c73abfc952f6e5318a3c97c80003351578384a55df8a16"
+        },
+        "representationDigest": "sha256:7c01c3dbd40f3846eb26b2ff4ebf5bb67239b593b715800f6c3b576c6c410fb9",
+        "selector": {
+          "profile": "utf8-bytes@1",
+          "start": 0,
+          "end": 63,
+          "quote": "T1 | visible next step | agency\nT2 | negotiated agency | agency"
+        }
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"representation\":{\"objectId\":\"excerpt-matrix\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:2c38e2c13fbdc8e7e0c73abfc952f6e5318a3c97c80003351578384a55df8a16\"},\"representationDigest\":\"sha256:7c01c3dbd40f3846eb26b2ff4ebf5bb67239b593b715800f6c3b576c6c410fb9\",\"selector\":{\"end\":63,\"profile\":\"utf8-bytes@1\",\"quote\":\"T1 | visible next step | agency\\nT2 | negotiated agency | agency\",\"start\":0}},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"fragment\",\"objectId\":\"matrix-span\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"fragment@1\"}",
+    "revisionId": "sha256:7f3e1d64ac8c3c83313bbc444b32a1431b659bc7480860fe716d2e63146bc663"
+  },
+  {
+    "name": "codebook@10",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "codebook",
+      "schema": "codebook@1",
+      "objectId": "codebook",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "name": "Advising agency",
+        "edition": 1,
+        "codes": [
+          {
+            "id": "agency",
+            "label": "Agency",
+            "definition": "A participant describes capacity to act."
+          }
+        ]
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"codes\":[{\"definition\":\"A participant describes capacity to act.\",\"id\":\"agency\",\"label\":\"Agency\"}],\"edition\":1,\"name\":\"Advising agency\"},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"codebook\",\"objectId\":\"codebook\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"codebook@1\"}",
+    "revisionId": "sha256:33f8bffe95ac7ef3163c51ce1848383e73aeb63c7e6b3c1af8ee23884b760aef"
+  },
+  {
+    "name": "maya-annotation@11",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "annotation",
+      "schema": "annotation@1",
+      "objectId": "maya-annotation",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "fragment": {
+          "projectId": "advising-agency",
+          "objectId": "T1-span",
+          "revisionId": "sha256:fc3c26e7840f04812517d2c70f3922cae67f5ead5a724d86454c43df45670468"
+        },
+        "codebook": {
+          "projectId": "advising-agency",
+          "objectId": "codebook",
+          "revisionId": "sha256:33f8bffe95ac7ef3163c51ce1848383e73aeb63c7e6b3c1af8ee23884b760aef"
+        },
+        "codeId": "agency",
+        "rationale": "The participant names a visible next step."
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"codeId\":\"agency\",\"codebook\":{\"objectId\":\"codebook\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:33f8bffe95ac7ef3163c51ce1848383e73aeb63c7e6b3c1af8ee23884b760aef\"},\"fragment\":{\"objectId\":\"T1-span\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:fc3c26e7840f04812517d2c70f3922cae67f5ead5a724d86454c43df45670468\"},\"rationale\":\"The participant names a visible next step.\"},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"annotation\",\"objectId\":\"maya-annotation\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"annotation@1\"}",
+    "revisionId": "sha256:989eb97bfa43dfc317646fc9ba2dfa676a861e8563c504c8c1591b10f40c0fb8"
+  },
+  {
+    "name": "claim-a@12",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "statement",
+      "schema": "statement@1",
+      "objectId": "claim-a",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "wording": "Advising makes agency visible by turning uncertainty into a next step.",
+        "scope": []
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"scope\":[],\"wording\":\"Advising makes agency visible by turning uncertainty into a next step.\"},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"statement\",\"objectId\":\"claim-a\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"statement@1\"}",
+    "revisionId": "sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76"
+  },
+  {
+    "name": "claim-b@13",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "statement",
+      "schema": "statement@1",
+      "objectId": "claim-b",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Jordan"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Jordan"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "wording": "Agency is negotiated with the advisor rather than simply revealed by advising.",
+        "scope": []
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Jordan\",\"kind\":\"researcher\"},\"body\":{\"scope\":[],\"wording\":\"Agency is negotiated with the advisor rather than simply revealed by advising.\"},\"initiatedBy\":{\"id\":\"Jordan\",\"kind\":\"researcher\"},\"kind\":\"statement\",\"objectId\":\"claim-b\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"statement@1\"}",
+    "revisionId": "sha256:994767f20843ee5cc43bdb8c1f77432e5242d6b99d75ddc22cef7f0ed1392b6f"
+  },
+  {
+    "name": "jordan-challenge@14",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "evidence-link",
+      "schema": "evidence-link@1",
+      "objectId": "jordan-challenge",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Jordan"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Jordan"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "statement": {
+          "projectId": "advising-agency",
+          "objectId": "claim-a",
+          "revisionId": "sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76"
+        },
+        "role": "challenges",
+        "cited": [
+          {
+            "projectId": "advising-agency",
+            "objectId": "T1-span",
+            "revisionId": "sha256:fc3c26e7840f04812517d2c70f3922cae67f5ead5a724d86454c43df45670468"
+          },
+          {
+            "projectId": "advising-agency",
+            "objectId": "maya-annotation",
+            "revisionId": "sha256:989eb97bfa43dfc317646fc9ba2dfa676a861e8563c504c8c1591b10f40c0fb8"
+          }
+        ],
+        "context": [
+          {
+            "projectId": "advising-agency",
+            "objectId": "T2-span",
+            "revisionId": "sha256:f2609074392b343050b851a3d608fe2b88a62b1abc3d8305c151ca5749033b33"
+          }
+        ],
+        "rationale": "The same material admits a negotiated reading."
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Jordan\",\"kind\":\"researcher\"},\"body\":{\"cited\":[{\"objectId\":\"T1-span\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:fc3c26e7840f04812517d2c70f3922cae67f5ead5a724d86454c43df45670468\"},{\"objectId\":\"maya-annotation\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:989eb97bfa43dfc317646fc9ba2dfa676a861e8563c504c8c1591b10f40c0fb8\"}],\"context\":[{\"objectId\":\"T2-span\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:f2609074392b343050b851a3d608fe2b88a62b1abc3d8305c151ca5749033b33\"}],\"rationale\":\"The same material admits a negotiated reading.\",\"role\":\"challenges\",\"statement\":{\"objectId\":\"claim-a\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76\"}},\"initiatedBy\":{\"id\":\"Jordan\",\"kind\":\"researcher\"},\"kind\":\"evidence-link\",\"objectId\":\"jordan-challenge\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"evidence-link@1\"}",
+    "revisionId": "sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3"
+  },
+  {
+    "name": "support-b@15",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "evidence-link",
+      "schema": "evidence-link@1",
+      "objectId": "support-b",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Jordan"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Jordan"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "statement": {
+          "projectId": "advising-agency",
+          "objectId": "claim-b",
+          "revisionId": "sha256:994767f20843ee5cc43bdb8c1f77432e5242d6b99d75ddc22cef7f0ed1392b6f"
+        },
+        "role": "supports",
+        "cited": [
+          {
+            "projectId": "advising-agency",
+            "objectId": "T1-span",
+            "revisionId": "sha256:fc3c26e7840f04812517d2c70f3922cae67f5ead5a724d86454c43df45670468"
+          },
+          {
+            "projectId": "advising-agency",
+            "objectId": "matrix-span",
+            "revisionId": "sha256:7f3e1d64ac8c3c83313bbc444b32a1431b659bc7480860fe716d2e63146bc663"
+          }
+        ],
+        "context": [],
+        "rationale": "Relational language."
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Jordan\",\"kind\":\"researcher\"},\"body\":{\"cited\":[{\"objectId\":\"T1-span\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:fc3c26e7840f04812517d2c70f3922cae67f5ead5a724d86454c43df45670468\"},{\"objectId\":\"matrix-span\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:7f3e1d64ac8c3c83313bbc444b32a1431b659bc7480860fe716d2e63146bc663\"}],\"context\":[],\"rationale\":\"Relational language.\",\"role\":\"supports\",\"statement\":{\"objectId\":\"claim-b\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:994767f20843ee5cc43bdb8c1f77432e5242d6b99d75ddc22cef7f0ed1392b6f\"}},\"initiatedBy\":{\"id\":\"Jordan\",\"kind\":\"researcher\"},\"kind\":\"evidence-link\",\"objectId\":\"support-b\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"evidence-link@1\"}",
+    "revisionId": "sha256:04b45cf7d1fc581b2f75046f2cc041a0d227fbf1e27a1374d0afc3ac9d450d66"
+  },
+  {
+    "name": "challenge-finding@16",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "mechanical",
+      "schema": "mechanical@1",
+      "objectId": "challenge-finding",
+      "parent": "none",
+      "author": {
+        "kind": "core",
+        "id": "Core"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "subject": {
+          "projectId": "advising-agency",
+          "objectId": "jordan-challenge",
+          "revisionId": "sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3"
+        },
+        "finding": {
+          "status": "exact",
+          "anchor": {
+            "profile": "utf8-bytes@1",
+            "start": 0,
+            "end": 46,
+            "quoteDigest": "sha256:87b57cabebbe51e344dd2299b66222a8c9fed8c4d61dc7c4c497d61d774fbbfd"
+          },
+          "context": "not-applicable-verified"
+        }
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Core\",\"kind\":\"core\"},\"body\":{\"finding\":{\"anchor\":{\"end\":46,\"profile\":\"utf8-bytes@1\",\"quoteDigest\":\"sha256:87b57cabebbe51e344dd2299b66222a8c9fed8c4d61dc7c4c497d61d774fbbfd\",\"start\":0},\"context\":\"not-applicable-verified\",\"status\":\"exact\"},\"subject\":{\"objectId\":\"jordan-challenge\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3\"}},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"mechanical\",\"objectId\":\"challenge-finding\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"mechanical@1\"}",
+    "revisionId": "sha256:89c36b70aa70ff2eeeb7f5da9b45fe50e8112d7c0cffdb4e172ca6a3b728c8eb"
+  },
+  {
+    "name": "challenge-decision@17",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "decision",
+      "schema": "decision@1",
+      "objectId": "challenge-decision",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "decision": {
+          "question": "challenge-adoption",
+          "subject": {
+            "projectId": "advising-agency",
+            "objectId": "claim-a",
+            "revisionId": "sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76"
+          },
+          "challenge": {
+            "projectId": "advising-agency",
+            "objectId": "jordan-challenge",
+            "revisionId": "sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3"
+          },
+          "outcome": "defer",
+          "rationale": "Keep the competing reading."
+        },
+        "attestation": {
+          "level": "cli-tty",
+          "surface": "cli",
+          "session": "n1-fixture"
+        },
+        "presented": {
+          "basisSchema": "decision-basis@1",
+          "basisDigest": "sha256:18f3156dd21c0f5fe2f451e4b8fdabc842de86219708ae36eccb333ae3c4dbc0"
+        },
+        "libraryBuild": "n1-fixture@1"
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"attestation\":{\"level\":\"cli-tty\",\"session\":\"n1-fixture\",\"surface\":\"cli\"},\"decision\":{\"challenge\":{\"objectId\":\"jordan-challenge\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3\"},\"outcome\":\"defer\",\"question\":\"challenge-adoption\",\"rationale\":\"Keep the competing reading.\",\"subject\":{\"objectId\":\"claim-a\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76\"}},\"libraryBuild\":\"n1-fixture@1\",\"presented\":{\"basisDigest\":\"sha256:18f3156dd21c0f5fe2f451e4b8fdabc842de86219708ae36eccb333ae3c4dbc0\",\"basisSchema\":\"decision-basis@1\"}},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"decision\",\"objectId\":\"challenge-decision\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"decision@1\"}",
+    "revisionId": "sha256:a139adc569b03d722d6bacbc14067683569f5e5f43b721935fa7a9598ab7925e"
+  },
+  {
+    "name": "unrelated-note@18",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "statement",
+      "schema": "statement@1",
+      "objectId": "unrelated-note",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "wording": "An unrelated activity must not enter a snapshot.",
+        "scope": []
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"scope\":[],\"wording\":\"An unrelated activity must not enter a snapshot.\"},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"statement\",\"objectId\":\"unrelated-note\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"statement@1\"}",
+    "revisionId": "sha256:f18342987d08f5b5529d852979dbf8018312553d2d2dbde64bcd129c1f340feb"
+  },
+  {
+    "name": "S1@19",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "snapshot",
+      "schema": "snapshot@1",
+      "objectId": "S1",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "basisRule": "claim-basis@1",
+        "selected": [
+          {
+            "projectId": "advising-agency",
+            "objectId": "claim-a",
+            "revisionId": "sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76"
+          }
+        ],
+        "asOfSeq": 18,
+        "members": {
+          "basis": [
+            {
+              "projectId": "advising-agency",
+              "objectId": "challenge-decision",
+              "revisionId": "sha256:a139adc569b03d722d6bacbc14067683569f5e5f43b721935fa7a9598ab7925e"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "challenge-finding",
+              "revisionId": "sha256:89c36b70aa70ff2eeeb7f5da9b45fe50e8112d7c0cffdb4e172ca6a3b728c8eb"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "claim-a",
+              "revisionId": "sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "jordan-challenge",
+              "revisionId": "sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3"
+            }
+          ],
+          "closureCount": 12
+        },
+        "manifestDigest": "sha256:12ef3e45b9dce658d8f3c2f2315af23c45c3c046ee4a8278eef7f3183d9ded68",
+        "label": "S1"
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"asOfSeq\":18,\"basisRule\":\"claim-basis@1\",\"label\":\"S1\",\"manifestDigest\":\"sha256:12ef3e45b9dce658d8f3c2f2315af23c45c3c046ee4a8278eef7f3183d9ded68\",\"members\":{\"basis\":[{\"objectId\":\"challenge-decision\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:a139adc569b03d722d6bacbc14067683569f5e5f43b721935fa7a9598ab7925e\"},{\"objectId\":\"challenge-finding\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:89c36b70aa70ff2eeeb7f5da9b45fe50e8112d7c0cffdb4e172ca6a3b728c8eb\"},{\"objectId\":\"claim-a\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76\"},{\"objectId\":\"jordan-challenge\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3\"}],\"closureCount\":12},\"selected\":[{\"objectId\":\"claim-a\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76\"}]},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"snapshot\",\"objectId\":\"S1\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"snapshot@1\"}",
+    "revisionId": "sha256:8b4d74048dd6292b9f48cf892f923f7683b3c3b6022b5aa6c8d343802c2bfe30"
+  },
+  {
+    "name": "codebook@20",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "codebook",
+      "schema": "codebook@1",
+      "objectId": "codebook",
+      "parent": {
+        "projectId": "advising-agency",
+        "objectId": "codebook",
+        "revisionId": "sha256:33f8bffe95ac7ef3163c51ce1848383e73aeb63c7e6b3c1af8ee23884b760aef"
+      },
+      "author": {
+        "kind": "researcher",
+        "id": "Jordan"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Jordan"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "name": "Advising agency",
+        "edition": 2,
+        "codes": [
+          {
+            "id": "agency",
+            "label": "Agency",
+            "definition": "A participant describes capacity to act with or against constraints."
+          },
+          {
+            "id": "negotiation",
+            "label": "Negotiation",
+            "definition": "Jointly negotiated agency."
+          }
+        ]
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Jordan\",\"kind\":\"researcher\"},\"body\":{\"codes\":[{\"definition\":\"A participant describes capacity to act with or against constraints.\",\"id\":\"agency\",\"label\":\"Agency\"},{\"definition\":\"Jointly negotiated agency.\",\"id\":\"negotiation\",\"label\":\"Negotiation\"}],\"edition\":2,\"name\":\"Advising agency\"},\"initiatedBy\":{\"id\":\"Jordan\",\"kind\":\"researcher\"},\"kind\":\"codebook\",\"objectId\":\"codebook\",\"origin\":{\"kind\":\"direct\"},\"parent\":{\"objectId\":\"codebook\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:33f8bffe95ac7ef3163c51ce1848383e73aeb63c7e6b3c1af8ee23884b760aef\"},\"projectId\":\"advising-agency\",\"schema\":\"codebook@1\"}",
+    "revisionId": "sha256:55e155646b6952ac59ac47f017c3550604c9336d14a6f2e6026c5420efa701db"
+  },
+  {
+    "name": "jordan-annotation@21",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "annotation",
+      "schema": "annotation@1",
+      "objectId": "jordan-annotation",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Jordan"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Jordan"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "fragment": {
+          "projectId": "advising-agency",
+          "objectId": "T1-span",
+          "revisionId": "sha256:fc3c26e7840f04812517d2c70f3922cae67f5ead5a724d86454c43df45670468"
+        },
+        "codebook": {
+          "projectId": "advising-agency",
+          "objectId": "codebook",
+          "revisionId": "sha256:55e155646b6952ac59ac47f017c3550604c9336d14a6f2e6026c5420efa701db"
+        },
+        "codeId": "negotiation",
+        "rationale": "A competing interpretation of the same span."
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Jordan\",\"kind\":\"researcher\"},\"body\":{\"codeId\":\"negotiation\",\"codebook\":{\"objectId\":\"codebook\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:55e155646b6952ac59ac47f017c3550604c9336d14a6f2e6026c5420efa701db\"},\"fragment\":{\"objectId\":\"T1-span\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:fc3c26e7840f04812517d2c70f3922cae67f5ead5a724d86454c43df45670468\"},\"rationale\":\"A competing interpretation of the same span.\"},\"initiatedBy\":{\"id\":\"Jordan\",\"kind\":\"researcher\"},\"kind\":\"annotation\",\"objectId\":\"jordan-annotation\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"annotation@1\"}",
+    "revisionId": "sha256:9912719c8a5c82f9c6e4829853067d1806449a24f7baa70538ab6c5fd633e70e"
+  },
+  {
+    "name": "T1@22",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "source",
+      "schema": "source@1",
+      "objectId": "T1",
+      "parent": {
+        "projectId": "advising-agency",
+        "objectId": "T1",
+        "revisionId": "sha256:22bb954b1fa8bbf1d400059b95860f8081bb9ac25c26ba2f4d41d60e9cdf400f"
+      },
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "name": "T1",
+        "blob": "sha256:86d6cba154ca8c3b5e9730b772ac487a1b1dc7a269cdc2e65bdb10110964ae17",
+        "mediaType": "text/plain",
+        "rights": "local-only",
+        "status": "active"
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"blob\":\"sha256:86d6cba154ca8c3b5e9730b772ac487a1b1dc7a269cdc2e65bdb10110964ae17\",\"mediaType\":\"text/plain\",\"name\":\"T1\",\"rights\":\"local-only\",\"status\":\"active\"},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"source\",\"objectId\":\"T1\",\"origin\":{\"kind\":\"direct\"},\"parent\":{\"objectId\":\"T1\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:22bb954b1fa8bbf1d400059b95860f8081bb9ac25c26ba2f4d41d60e9cdf400f\"},\"projectId\":\"advising-agency\",\"schema\":\"source@1\"}",
+    "revisionId": "sha256:0d450e73a86df269ec7e6ca2ea2f9d394640fc2f52e694753e4600b62d3b7f3e"
+  },
+  {
+    "name": "claim-a@23",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "statement",
+      "schema": "statement@1",
+      "objectId": "claim-a",
+      "parent": {
+        "projectId": "advising-agency",
+        "objectId": "claim-a",
+        "revisionId": "sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76"
+      },
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "wording": "Advising makes agency visible by helping a participant name a next step.",
+        "scope": []
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"scope\":[],\"wording\":\"Advising makes agency visible by helping a participant name a next step.\"},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"statement\",\"objectId\":\"claim-a\",\"origin\":{\"kind\":\"direct\"},\"parent\":{\"objectId\":\"claim-a\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76\"},\"projectId\":\"advising-agency\",\"schema\":\"statement@1\"}",
+    "revisionId": "sha256:e702cfc59af8f14909f0ecd2595bb877f24e01e1f7167461c4156e25f976ae08"
+  },
+  {
+    "name": "jordan-challenge@24",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "evidence-link",
+      "schema": "evidence-link@1",
+      "objectId": "jordan-challenge",
+      "parent": {
+        "projectId": "advising-agency",
+        "objectId": "jordan-challenge",
+        "revisionId": "sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3"
+      },
+      "author": {
+        "kind": "researcher",
+        "id": "Jordan"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "carried-forward",
+        "from": {
+          "projectId": "advising-agency",
+          "objectId": "jordan-challenge",
+          "revisionId": "sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3"
+        },
+        "originalAuthor": {
+          "kind": "researcher",
+          "id": "Jordan"
+        }
+      },
+      "body": {
+        "statement": {
+          "projectId": "advising-agency",
+          "objectId": "claim-a",
+          "revisionId": "sha256:e702cfc59af8f14909f0ecd2595bb877f24e01e1f7167461c4156e25f976ae08"
+        },
+        "role": "challenges",
+        "cited": [
+          {
+            "projectId": "advising-agency",
+            "objectId": "T1-span",
+            "revisionId": "sha256:fc3c26e7840f04812517d2c70f3922cae67f5ead5a724d86454c43df45670468"
+          },
+          {
+            "projectId": "advising-agency",
+            "objectId": "maya-annotation",
+            "revisionId": "sha256:989eb97bfa43dfc317646fc9ba2dfa676a861e8563c504c8c1591b10f40c0fb8"
+          }
+        ],
+        "context": [
+          {
+            "projectId": "advising-agency",
+            "objectId": "T2-span",
+            "revisionId": "sha256:f2609074392b343050b851a3d608fe2b88a62b1abc3d8305c151ca5749033b33"
+          }
+        ],
+        "rationale": "The same material admits a negotiated reading."
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Jordan\",\"kind\":\"researcher\"},\"body\":{\"cited\":[{\"objectId\":\"T1-span\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:fc3c26e7840f04812517d2c70f3922cae67f5ead5a724d86454c43df45670468\"},{\"objectId\":\"maya-annotation\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:989eb97bfa43dfc317646fc9ba2dfa676a861e8563c504c8c1591b10f40c0fb8\"}],\"context\":[{\"objectId\":\"T2-span\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:f2609074392b343050b851a3d608fe2b88a62b1abc3d8305c151ca5749033b33\"}],\"rationale\":\"The same material admits a negotiated reading.\",\"role\":\"challenges\",\"statement\":{\"objectId\":\"claim-a\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:e702cfc59af8f14909f0ecd2595bb877f24e01e1f7167461c4156e25f976ae08\"}},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"evidence-link\",\"objectId\":\"jordan-challenge\",\"origin\":{\"from\":{\"objectId\":\"jordan-challenge\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3\"},\"kind\":\"carried-forward\",\"originalAuthor\":{\"id\":\"Jordan\",\"kind\":\"researcher\"}},\"parent\":{\"objectId\":\"jordan-challenge\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3\"},\"projectId\":\"advising-agency\",\"schema\":\"evidence-link@1\"}",
+    "revisionId": "sha256:beb5a6f7308d488a5f92769fddc78c2228434b207e913e34e3f6a7d21cc9cb14"
+  },
+  {
+    "name": "challenge-finding@25",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "mechanical",
+      "schema": "mechanical@1",
+      "objectId": "challenge-finding",
+      "parent": {
+        "projectId": "advising-agency",
+        "objectId": "challenge-finding",
+        "revisionId": "sha256:89c36b70aa70ff2eeeb7f5da9b45fe50e8112d7c0cffdb4e172ca6a3b728c8eb"
+      },
+      "author": {
+        "kind": "core",
+        "id": "Core"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "subject": {
+          "projectId": "advising-agency",
+          "objectId": "jordan-challenge",
+          "revisionId": "sha256:beb5a6f7308d488a5f92769fddc78c2228434b207e913e34e3f6a7d21cc9cb14"
+        },
+        "finding": {
+          "status": "exact",
+          "anchor": {
+            "profile": "utf8-bytes@1",
+            "start": 0,
+            "end": 46,
+            "quoteDigest": "sha256:87b57cabebbe51e344dd2299b66222a8c9fed8c4d61dc7c4c497d61d774fbbfd"
+          },
+          "context": "not-applicable-verified"
+        }
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Core\",\"kind\":\"core\"},\"body\":{\"finding\":{\"anchor\":{\"end\":46,\"profile\":\"utf8-bytes@1\",\"quoteDigest\":\"sha256:87b57cabebbe51e344dd2299b66222a8c9fed8c4d61dc7c4c497d61d774fbbfd\",\"start\":0},\"context\":\"not-applicable-verified\",\"status\":\"exact\"},\"subject\":{\"objectId\":\"jordan-challenge\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:beb5a6f7308d488a5f92769fddc78c2228434b207e913e34e3f6a7d21cc9cb14\"}},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"mechanical\",\"objectId\":\"challenge-finding\",\"origin\":{\"kind\":\"direct\"},\"parent\":{\"objectId\":\"challenge-finding\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:89c36b70aa70ff2eeeb7f5da9b45fe50e8112d7c0cffdb4e172ca6a3b728c8eb\"},\"projectId\":\"advising-agency\",\"schema\":\"mechanical@1\"}",
+    "revisionId": "sha256:5b6798d5a795f35cc914ec942768c776493937345f7c73d0370ea651058c0c41"
+  },
+  {
+    "name": "challenge-decision@26",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "decision",
+      "schema": "decision@1",
+      "objectId": "challenge-decision",
+      "parent": {
+        "projectId": "advising-agency",
+        "objectId": "challenge-decision",
+        "revisionId": "sha256:a139adc569b03d722d6bacbc14067683569f5e5f43b721935fa7a9598ab7925e"
+      },
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "decision": {
+          "question": "challenge-adoption",
+          "subject": {
+            "projectId": "advising-agency",
+            "objectId": "claim-a",
+            "revisionId": "sha256:e702cfc59af8f14909f0ecd2595bb877f24e01e1f7167461c4156e25f976ae08"
+          },
+          "challenge": {
+            "projectId": "advising-agency",
+            "objectId": "jordan-challenge",
+            "revisionId": "sha256:beb5a6f7308d488a5f92769fddc78c2228434b207e913e34e3f6a7d21cc9cb14"
+          },
+          "outcome": "defer",
+          "rationale": "The challenge remains open."
+        },
+        "attestation": {
+          "level": "cli-tty",
+          "surface": "cli",
+          "session": "n1-fixture"
+        },
+        "presented": {
+          "basisSchema": "decision-basis@1",
+          "basisDigest": "sha256:725064324799178df2d7f775296dd83705f15e316cf93346b55303725e58bcc6"
+        },
+        "libraryBuild": "n1-fixture@1"
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"attestation\":{\"level\":\"cli-tty\",\"session\":\"n1-fixture\",\"surface\":\"cli\"},\"decision\":{\"challenge\":{\"objectId\":\"jordan-challenge\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:beb5a6f7308d488a5f92769fddc78c2228434b207e913e34e3f6a7d21cc9cb14\"},\"outcome\":\"defer\",\"question\":\"challenge-adoption\",\"rationale\":\"The challenge remains open.\",\"subject\":{\"objectId\":\"claim-a\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:e702cfc59af8f14909f0ecd2595bb877f24e01e1f7167461c4156e25f976ae08\"}},\"libraryBuild\":\"n1-fixture@1\",\"presented\":{\"basisDigest\":\"sha256:725064324799178df2d7f775296dd83705f15e316cf93346b55303725e58bcc6\",\"basisSchema\":\"decision-basis@1\"}},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"decision\",\"objectId\":\"challenge-decision\",\"origin\":{\"kind\":\"direct\"},\"parent\":{\"objectId\":\"challenge-decision\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:a139adc569b03d722d6bacbc14067683569f5e5f43b721935fa7a9598ab7925e\"},\"projectId\":\"advising-agency\",\"schema\":\"decision@1\"}",
+    "revisionId": "sha256:e92d4eab46e237647a16ca3c53013c87719d881a66cc0b4d6f8c59cc8973853a"
+  },
+  {
+    "name": "support-a2@27",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "evidence-link",
+      "schema": "evidence-link@1",
+      "objectId": "support-a2",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "statement": {
+          "projectId": "advising-agency",
+          "objectId": "claim-a",
+          "revisionId": "sha256:e702cfc59af8f14909f0ecd2595bb877f24e01e1f7167461c4156e25f976ae08"
+        },
+        "role": "supports",
+        "cited": [
+          {
+            "projectId": "advising-agency",
+            "objectId": "T1-span",
+            "revisionId": "sha256:fc3c26e7840f04812517d2c70f3922cae67f5ead5a724d86454c43df45670468"
+          },
+          {
+            "projectId": "advising-agency",
+            "objectId": "jordan-annotation",
+            "revisionId": "sha256:9912719c8a5c82f9c6e4829853067d1806449a24f7baa70538ab6c5fd633e70e"
+          }
+        ],
+        "context": [],
+        "rationale": "The revised codebook qualifies the reading."
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"cited\":[{\"objectId\":\"T1-span\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:fc3c26e7840f04812517d2c70f3922cae67f5ead5a724d86454c43df45670468\"},{\"objectId\":\"jordan-annotation\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:9912719c8a5c82f9c6e4829853067d1806449a24f7baa70538ab6c5fd633e70e\"}],\"context\":[],\"rationale\":\"The revised codebook qualifies the reading.\",\"role\":\"supports\",\"statement\":{\"objectId\":\"claim-a\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:e702cfc59af8f14909f0ecd2595bb877f24e01e1f7167461c4156e25f976ae08\"}},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"evidence-link\",\"objectId\":\"support-a2\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"evidence-link@1\"}",
+    "revisionId": "sha256:98746928255275da59567ccf660a6689f4617997d162f9b994eecddfc24f2656"
+  },
+  {
+    "name": "support-finding@28",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "mechanical",
+      "schema": "mechanical@1",
+      "objectId": "support-finding",
+      "parent": "none",
+      "author": {
+        "kind": "core",
+        "id": "Core"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "subject": {
+          "projectId": "advising-agency",
+          "objectId": "support-a2",
+          "revisionId": "sha256:98746928255275da59567ccf660a6689f4617997d162f9b994eecddfc24f2656"
+        },
+        "finding": {
+          "status": "exact",
+          "anchor": {
+            "profile": "utf8-bytes@1",
+            "start": 0,
+            "end": 46,
+            "quoteDigest": "sha256:87b57cabebbe51e344dd2299b66222a8c9fed8c4d61dc7c4c497d61d774fbbfd"
+          },
+          "context": "not-applicable-verified"
+        }
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Core\",\"kind\":\"core\"},\"body\":{\"finding\":{\"anchor\":{\"end\":46,\"profile\":\"utf8-bytes@1\",\"quoteDigest\":\"sha256:87b57cabebbe51e344dd2299b66222a8c9fed8c4d61dc7c4c497d61d774fbbfd\",\"start\":0},\"context\":\"not-applicable-verified\",\"status\":\"exact\"},\"subject\":{\"objectId\":\"support-a2\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:98746928255275da59567ccf660a6689f4617997d162f9b994eecddfc24f2656\"}},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"mechanical\",\"objectId\":\"support-finding\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"mechanical@1\"}",
+    "revisionId": "sha256:688428912c4acae94ac99e9fb3c51c3bbc8d6ab0c02e174a05e3ca27082c3585"
+  },
+  {
+    "name": "support-decision@29",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "decision",
+      "schema": "decision@1",
+      "objectId": "support-decision",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "decision": {
+          "question": "evidence-support",
+          "subject": {
+            "projectId": "advising-agency",
+            "objectId": "support-a2",
+            "revisionId": "sha256:98746928255275da59567ccf660a6689f4617997d162f9b994eecddfc24f2656"
+          },
+          "mechanical": {
+            "projectId": "advising-agency",
+            "objectId": "support-finding",
+            "revisionId": "sha256:688428912c4acae94ac99e9fb3c51c3bbc8d6ab0c02e174a05e3ca27082c3585"
+          },
+          "outcome": "supported",
+          "scope": {},
+          "contrary": [],
+          "rationale": "Researcher judgment."
+        },
+        "attestation": {
+          "level": "cli-tty",
+          "surface": "cli",
+          "session": "n1-fixture"
+        },
+        "presented": {
+          "basisSchema": "decision-basis@1",
+          "basisDigest": "sha256:1b4a5936ae4622944d5bb7049d0a0575a0c95938086c549ebe0ebc41b421e349"
+        },
+        "libraryBuild": "n1-fixture@1"
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"attestation\":{\"level\":\"cli-tty\",\"session\":\"n1-fixture\",\"surface\":\"cli\"},\"decision\":{\"contrary\":[],\"mechanical\":{\"objectId\":\"support-finding\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:688428912c4acae94ac99e9fb3c51c3bbc8d6ab0c02e174a05e3ca27082c3585\"},\"outcome\":\"supported\",\"question\":\"evidence-support\",\"rationale\":\"Researcher judgment.\",\"scope\":{},\"subject\":{\"objectId\":\"support-a2\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:98746928255275da59567ccf660a6689f4617997d162f9b994eecddfc24f2656\"}},\"libraryBuild\":\"n1-fixture@1\",\"presented\":{\"basisDigest\":\"sha256:1b4a5936ae4622944d5bb7049d0a0575a0c95938086c549ebe0ebc41b421e349\",\"basisSchema\":\"decision-basis@1\"}},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"decision\",\"objectId\":\"support-decision\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"decision@1\"}",
+    "revisionId": "sha256:d10a88290e77daa3aa56bce3819fbbda3affee4fa73be415e5c8d72f2ebe95e5"
+  },
+  {
+    "name": "S2@30",
+    "preimage": {
+      "projectId": "advising-agency",
+      "kind": "snapshot",
+      "schema": "snapshot@1",
+      "objectId": "S2",
+      "parent": "none",
+      "author": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "initiatedBy": {
+        "kind": "researcher",
+        "id": "Maya"
+      },
+      "origin": {
+        "kind": "direct"
+      },
+      "body": {
+        "basisRule": "claim-basis@1",
+        "selected": [
+          {
+            "projectId": "advising-agency",
+            "objectId": "claim-a",
+            "revisionId": "sha256:e702cfc59af8f14909f0ecd2595bb877f24e01e1f7167461c4156e25f976ae08"
+          }
+        ],
+        "asOfSeq": 29,
+        "members": {
+          "basis": [
+            {
+              "projectId": "advising-agency",
+              "objectId": "challenge-decision",
+              "revisionId": "sha256:e92d4eab46e237647a16ca3c53013c87719d881a66cc0b4d6f8c59cc8973853a"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "challenge-finding",
+              "revisionId": "sha256:5b6798d5a795f35cc914ec942768c776493937345f7c73d0370ea651058c0c41"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "claim-a",
+              "revisionId": "sha256:e702cfc59af8f14909f0ecd2595bb877f24e01e1f7167461c4156e25f976ae08"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "jordan-challenge",
+              "revisionId": "sha256:beb5a6f7308d488a5f92769fddc78c2228434b207e913e34e3f6a7d21cc9cb14"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "support-a2",
+              "revisionId": "sha256:98746928255275da59567ccf660a6689f4617997d162f9b994eecddfc24f2656"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "support-decision",
+              "revisionId": "sha256:d10a88290e77daa3aa56bce3819fbbda3affee4fa73be415e5c8d72f2ebe95e5"
+            },
+            {
+              "projectId": "advising-agency",
+              "objectId": "support-finding",
+              "revisionId": "sha256:688428912c4acae94ac99e9fb3c51c3bbc8d6ab0c02e174a05e3ca27082c3585"
+            }
+          ],
+          "closureCount": 17
+        },
+        "manifestDigest": "sha256:beb6213b05251dea84da3e4cb100ad436f74fbd1d91c67878163005e1f648b98",
+        "label": "S2"
+      }
+    },
+    "canonical": "{\"author\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"body\":{\"asOfSeq\":29,\"basisRule\":\"claim-basis@1\",\"label\":\"S2\",\"manifestDigest\":\"sha256:beb6213b05251dea84da3e4cb100ad436f74fbd1d91c67878163005e1f648b98\",\"members\":{\"basis\":[{\"objectId\":\"challenge-decision\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:e92d4eab46e237647a16ca3c53013c87719d881a66cc0b4d6f8c59cc8973853a\"},{\"objectId\":\"challenge-finding\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:5b6798d5a795f35cc914ec942768c776493937345f7c73d0370ea651058c0c41\"},{\"objectId\":\"claim-a\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:e702cfc59af8f14909f0ecd2595bb877f24e01e1f7167461c4156e25f976ae08\"},{\"objectId\":\"jordan-challenge\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:beb5a6f7308d488a5f92769fddc78c2228434b207e913e34e3f6a7d21cc9cb14\"},{\"objectId\":\"support-a2\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:98746928255275da59567ccf660a6689f4617997d162f9b994eecddfc24f2656\"},{\"objectId\":\"support-decision\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:d10a88290e77daa3aa56bce3819fbbda3affee4fa73be415e5c8d72f2ebe95e5\"},{\"objectId\":\"support-finding\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:688428912c4acae94ac99e9fb3c51c3bbc8d6ab0c02e174a05e3ca27082c3585\"}],\"closureCount\":17},\"selected\":[{\"objectId\":\"claim-a\",\"projectId\":\"advising-agency\",\"revisionId\":\"sha256:e702cfc59af8f14909f0ecd2595bb877f24e01e1f7167461c4156e25f976ae08\"}]},\"initiatedBy\":{\"id\":\"Maya\",\"kind\":\"researcher\"},\"kind\":\"snapshot\",\"objectId\":\"S2\",\"origin\":{\"kind\":\"direct\"},\"parent\":\"none\",\"projectId\":\"advising-agency\",\"schema\":\"snapshot@1\"}",
+    "revisionId": "sha256:0871646324abf4dc155e23d415a83cef13fade9641b5468be16ea822e31d30ea"
+  }
+]

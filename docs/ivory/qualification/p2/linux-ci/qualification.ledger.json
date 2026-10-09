@@ -1,0 +1,180 @@
+[
+  {
+    "criterion": "statement-only-golden-counts",
+    "expected": [
+      12,
+      17
+    ],
+    "observed": [
+      12,
+      17
+    ],
+    "pass": true
+  },
+  {
+    "criterion": "explicit-link-finding-decision-basis",
+    "expected": 4,
+    "observed": 4,
+    "pass": true
+  },
+  {
+    "criterion": "source-correction-preserves-exact-citation",
+    "expected": "Maya said advising made the next step visible.",
+    "observed": "Maya said advising made the next step visible.",
+    "pass": true
+  },
+  {
+    "criterion": "earlier-snapshot-unchanged",
+    "expected": {
+      "basisRule": "claim-basis@1",
+      "selected": [
+        {
+          "projectId": "advising-agency",
+          "objectId": "claim-a",
+          "revisionId": "sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76"
+        }
+      ],
+      "asOfSeq": 18,
+      "members": {
+        "basis": [
+          {
+            "projectId": "advising-agency",
+            "objectId": "challenge-decision",
+            "revisionId": "sha256:a139adc569b03d722d6bacbc14067683569f5e5f43b721935fa7a9598ab7925e"
+          },
+          {
+            "projectId": "advising-agency",
+            "objectId": "challenge-finding",
+            "revisionId": "sha256:89c36b70aa70ff2eeeb7f5da9b45fe50e8112d7c0cffdb4e172ca6a3b728c8eb"
+          },
+          {
+            "projectId": "advising-agency",
+            "objectId": "claim-a",
+            "revisionId": "sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76"
+          },
+          {
+            "projectId": "advising-agency",
+            "objectId": "jordan-challenge",
+            "revisionId": "sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3"
+          }
+        ],
+        "closureCount": 12
+      },
+      "manifestDigest": "sha256:12ef3e45b9dce658d8f3c2f2315af23c45c3c046ee4a8278eef7f3183d9ded68",
+      "label": "S1"
+    },
+    "observed": {
+      "basisRule": "claim-basis@1",
+      "selected": [
+        {
+          "projectId": "advising-agency",
+          "objectId": "claim-a",
+          "revisionId": "sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76"
+        }
+      ],
+      "asOfSeq": 18,
+      "members": {
+        "basis": [
+          {
+            "projectId": "advising-agency",
+            "objectId": "challenge-decision",
+            "revisionId": "sha256:a139adc569b03d722d6bacbc14067683569f5e5f43b721935fa7a9598ab7925e"
+          },
+          {
+            "projectId": "advising-agency",
+            "objectId": "challenge-finding",
+            "revisionId": "sha256:89c36b70aa70ff2eeeb7f5da9b45fe50e8112d7c0cffdb4e172ca6a3b728c8eb"
+          },
+          {
+            "projectId": "advising-agency",
+            "objectId": "claim-a",
+            "revisionId": "sha256:d3d53c7077a8b1ffb3b74042b4f46f519879fc46cd92ce397eeab82f18744a76"
+          },
+          {
+            "projectId": "advising-agency",
+            "objectId": "jordan-challenge",
+            "revisionId": "sha256:1c5e22688c82efef46762ee771b69741b02d23c8575204ba5d757263f77b77c3"
+          }
+        ],
+        "closureCount": 12
+      },
+      "manifestDigest": "sha256:12ef3e45b9dce658d8f3c2f2315af23c45c3c046ee4a8278eef7f3183d9ded68",
+      "label": "S1"
+    },
+    "pass": true
+  },
+  {
+    "criterion": "explicit-carry-forward-attribution",
+    "expected": [
+      "Jordan",
+      "Maya",
+      "carried-forward"
+    ],
+    "observed": [
+      "Jordan",
+      "Maya",
+      "carried-forward"
+    ],
+    "pass": true
+  },
+  {
+    "criterion": "predecessors-and-corrected-head-excluded",
+    "expected": false,
+    "observed": false,
+    "pass": true
+  },
+  {
+    "criterion": "refuse-wrong-project",
+    "expected": "cross-project-ref",
+    "observed": "cross-project-ref",
+    "pass": true
+  },
+  {
+    "criterion": "refuse-wrong-type",
+    "expected": "wrong-type",
+    "observed": "wrong-type",
+    "pass": true
+  },
+  {
+    "criterion": "refuse-dangling-ref",
+    "expected": "dangling-ref",
+    "observed": "dangling-ref",
+    "pass": true
+  },
+  {
+    "criterion": "refuse-latest-exact-ref",
+    "expected": "invalid-exact-ref",
+    "observed": "invalid-exact-ref",
+    "pass": true
+  },
+  {
+    "criterion": "refuse-digest-mismatch",
+    "expected": "digest-mismatch",
+    "observed": "digest-mismatch",
+    "pass": true
+  },
+  {
+    "criterion": "refuse-selector-mismatch",
+    "expected": "selector-mismatch",
+    "observed": "selector-mismatch",
+    "pass": true
+  },
+  {
+    "criterion": "refuse-stale-expected-head",
+    "expected": "expected-head-conflict",
+    "observed": "expected-head-conflict",
+    "pass": true
+  },
+  {
+    "criterion": "returned-revisions-immutable",
+    "expected": true,
+    "observed": true,
+    "pass": true
+  },
+  {
+    "criterion": "post-freeze-link-excluded",
+    "expected": false,
+    "observed": false,
+    "pass": true
+  }
+]

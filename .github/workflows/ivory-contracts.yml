@@ -4,10 +4,12 @@ on:
   push:
     paths:
       - 'packages/ivory-contracts/**'
+      - 'scripts/ivory/verify-research-contracts.mjs'
       - '.github/workflows/ivory-contracts.yml'
   pull_request:
     paths:
       - 'packages/ivory-contracts/**'
+      - 'scripts/ivory/verify-research-contracts.mjs'
       - '.github/workflows/ivory-contracts.yml'
   workflow_dispatch:
 
@@ -24,6 +26,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Use Python 3.13
@@ -52,3 +55,15 @@ jobs:
 
       - name: TypeScript implementation
         run: npx lerna run lint,test --scope @ivory/contracts
+
+      - name: N1 research contract evidence
+        run: node scripts/ivory/verify-research-contracts.mjs --output "${{ runner.temp }}/p2-contracts/qualification.json"
+
+      - name: Retain N1 evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: p2-research-contracts
+          path: ${{ runner.temp }}/p2-contracts
+          retention-days: 90
+          if-no-files-found: warn
