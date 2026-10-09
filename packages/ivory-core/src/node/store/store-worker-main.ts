@@ -8,6 +8,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
+import { Sha256Digest } from '@ivory/contracts';
 import { parentPort, workerData } from 'worker_threads';
 import { StoreProtocol, StoreRequest, StoreResponse, StoreWorkerData, StoreWorkerEvent } from '../../common/store-protocol';
 import { StoreRuntime } from './store-runtime';
@@ -24,12 +25,17 @@ function post(message: StoreResponse | StoreWorkerEvent): void {
 }
 
 async function serve(runtime: StoreRuntime, request: StoreRequest): Promise<unknown> {
-    const args = request.args as { bytes?: Uint8Array; graceMs?: number; request?: unknown; principal?: unknown; idempotencyKey?: unknown } | undefined;
+    const args = request.args as {
+        bytes?: Uint8Array; expectedDigest?: Sha256Digest; digest: Sha256Digest;
+        graceMs?: number; request?: unknown; principal?: unknown; idempotencyKey?: unknown
+    } | undefined;
     switch (request.op) {
         case 'commit':
             return runtime.commit(args?.request);
         case 'admitBlob':
-            return runtime.admitBlob(args?.bytes ?? new Uint8Array());
+            return runtime.admitBlob(args?.bytes ?? new Uint8Array(), args?.expectedDigest);
+        case 'readBlob':
+            return runtime.readBlob(args!.digest);
         case 'gc':
             return runtime.gc(args?.graceMs ?? StoreProtocol.DEFAULT_GC_GRACE_MS);
         case 'headSeq':

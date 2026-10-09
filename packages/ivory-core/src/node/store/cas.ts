@@ -10,11 +10,11 @@
 
 import { Sha256Digest } from '@ivory/contracts';
 import { createHash, randomBytes } from 'crypto';
-import { createReadStream, promises as fs, statSync, unlinkSync } from 'fs';
+import { closeSync, createReadStream, fstatSync, openSync, promises as fs, readSync, statSync, unlinkSync } from 'fs';
 import type { DatabaseSync } from 'node:sqlite';
 import * as path from 'path';
 import { GcResult, IvoryStoreError } from '../../common/store-protocol';
-import { fsyncDirectory } from '../durable-fs';
+import { fsyncDirectory, fsyncFile } from '../durable-fs';
 import { ProjectLayout } from '../project-layout';
 import { failpoint } from './qualification/failpoint';
 import { runImmediateTransaction } from './write-queue';
@@ -29,18 +29,22 @@ export type BlobCheck = 'valid' | 'corrupt' | 'missing';
 
 /** The steps of admission that the specs replace to force the errors Windows raises. */
 export interface CasFsOps {
-    rename(from: string, to: string): Promise<void>;
+    /** Atomically installs a complete file without replacing an existing name. */
+    install(from: string, to: string): Promise<void>;
     /** Hashes the file and compares it with `digest`. */
     verify(file: string, digest: Sha256Digest): Promise<BlobCheck>;
 }
 
 export const defaultCasFsOps: CasFsOps = {
-    rename: (from, to) => fs.rename(from, to),
+    install: (from, to) => fs.link(from, to),
     verify: async (file, digest) => {
         const hash = createHash('sha256');
         try {
+            if (!(await fs.lstat(file)).isFile()) {
+                return 'corrupt';
+            }
             for await (const chunk of createReadStream(file)) {
-                hash.update(chunk as Buffer);
+                hash.update(chunk);
             }
         } catch (error) {
             if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -52,23 +56,36 @@ export const defaultCasFsOps: CasFsOps = {
     }
 };
 
-const RENAME_RACE_CODES = ['EPERM', 'EBUSY', 'EEXIST'];
+const INSTALL_RACE_CODES = ['EPERM', 'EBUSY', 'EEXIST'];
 const GC_BATCH_SIZE = 64;
 
 /**
  * Stores the bytes and returns their digest. Runs before and outside any transaction: the blob is staged,
- * made durable, and only then renamed to its name, so a name under `cas/sha256` always holds complete bytes.
+ * made durable, and only then linked to its name, so a name under CAS always holds complete bytes.
  * A blob already in the store is verified and touched, which restarts its GC grace, and is never overwritten.
  */
-export async function admitBlob(context: CasContext, bytes: Uint8Array, ops: CasFsOps = defaultCasFsOps): Promise<Sha256Digest> {
+export async function admitBlob(
+    context: CasContext, bytes: Uint8Array, ops: CasFsOps = defaultCasFsOps, expectedDigest?: Sha256Digest
+): Promise<Sha256Digest> {
+    if (!(bytes instanceof Uint8Array) || (expectedDigest !== undefined && !Sha256Digest.is(expectedDigest))) {
+        throw new IvoryStoreError('invalid-argument', 'admission requires bytes and an optional sha256 digest');
+    }
     const digest: Sha256Digest = `sha256:${createHash('sha256').update(bytes).digest('hex')}`;
+    if (expectedDigest !== undefined && digest !== expectedDigest) {
+        throw new IvoryStoreError('digest-mismatch', 'the supplied bytes do not match the expected digest');
+    }
     const target = ProjectLayout.blobPath(context.layout, digest);
     const staging = path.join(context.layout.casStaging, `${context.processId}-${randomBytes(8).toString('hex')}.tmp`);
     await fs.mkdir(context.layout.casStaging, { recursive: true });
-    await stage(staging, bytes);
-    failpoint('beforeBlobInstall');
     try {
+        await stage(staging, bytes);
+        if (await ops.verify(staging, digest) !== 'valid') {
+            throw new IvoryStoreError('cas-corrupt', 'the staged bytes failed digest verification');
+        }
+        failpoint('beforeBlobInstall');
         if (await touchExisting(target, digest, ops)) {
+            await fsyncFile(target);
+            await fsyncDirectory(path.dirname(target));
             failpoint('afterBlobInstall');
             return digest;
         }
@@ -140,15 +157,69 @@ async function place(context: CasContext, staging: string, target: string, diges
         await fsyncDirectory(path.dirname(directory));
     }
     try {
-        await ops.rename(staging, target);
+        await ops.install(staging, target);
     } catch (error) {
-        // On Windows a rename onto a blob that something has open fails. If the blob is there and intact, it is admitted.
-        if (RENAME_RACE_CODES.includes((error as NodeJS.ErrnoException).code ?? '') && await ops.verify(target, digest) === 'valid') {
-            return;
+        // A competing installation may have appeared. Verify and touch it without overwriting its bytes.
+        if (!INSTALL_RACE_CODES.includes((error as NodeJS.ErrnoException).code ?? '') || !await touchExisting(target, digest, ops)) {
+            throw error;
+        }
+    }
+    await fsyncFile(target);
+    await fsyncDirectory(targetDir);
+    if (await ops.verify(target, digest) !== 'valid') {
+        await fs.rm(target, { force: true });
+        await fsyncDirectory(targetDir);
+        throw new IvoryStoreError('cas-corrupt', 'the installed bytes failed durable readback');
+    }
+}
+
+/** Checks the actual bytes inside a synchronous commit, before recording a semantic reference. */
+export function checkBlobSync(layout: ProjectLayout, digest: Sha256Digest): BlobCheck {
+    let handle: number;
+    try {
+        handle = openSync(ProjectLayout.blobPath(layout, digest), 'r');
+    } catch (error) {
+        if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+            return 'missing';
         }
         throw error;
     }
-    await fsyncDirectory(targetDir);
+    try {
+        if (!fstatSync(handle).isFile()) {
+            return 'corrupt';
+        }
+        const hash = createHash('sha256');
+        const buffer = Buffer.alloc(128 * 1024);
+        for (let count = readSync(handle, buffer); count > 0; count = readSync(handle, buffer)) {
+            hash.update(buffer.subarray(0, count));
+        }
+        return `sha256:${hash.digest('hex')}` === digest ? 'valid' : 'corrupt';
+    } finally {
+        closeSync(handle);
+    }
+}
+
+/** Staging and unreferenced installations have no semantic visibility, even after an interrupted admission. */
+export async function readReferencedBlob(db: DatabaseSync, layout: ProjectLayout, digest: Sha256Digest): Promise<Uint8Array> {
+    if (!Sha256Digest.is(digest)) {
+        throw new IvoryStoreError('invalid-argument', 'a blob is read by its sha256 digest');
+    }
+    if (!db.prepare('SELECT 1 FROM blob_refs WHERE digest = ? LIMIT 1').get(digest)) {
+        throw new IvoryStoreError('blob-unreferenced', 'no committed semantic reference exists for this blob');
+    }
+    let bytes: Buffer;
+    try {
+        bytes = await fs.readFile(ProjectLayout.blobPath(layout, digest));
+    } catch (error) {
+        if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+            throw new IvoryStoreError('blob-missing', 'the referenced blob is missing');
+        }
+        throw error;
+    }
+    if (`sha256:${createHash('sha256').update(bytes).digest('hex')}` !== digest) {
+        throw new IvoryStoreError('cas-corrupt', 'the referenced blob failed digest verification');
+    }
+    return bytes;
 }
 
 export interface GcOptions extends CasContext {

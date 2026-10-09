@@ -1,5 +1,21 @@
 # @ivory/core
 
+P3a introduces a detached, reconnectable Core owner. Product clients call startOrAttachCore or connectCore; close detaches the client and stop explicitly shuts down the owner. Every writable openProjectStore also takes the permanent OS-backed singleton lock. Read-only observers can use the readOnly option. [ADR-011](../../docs/architecture/adr-011-p3a-core-ownership.md) is the current ownership and byte-admission contract.
+
+The service descriptor binds the canonical directory, project/store identities and an ownership epoch. PID records never grant ownership. Staging is verified before an atomic installation that cannot overwrite another blob, and installed readback is verified before acknowledgement. readBlob only returns bytes with a committed semantic reference and matching digest; admission by itself leaves an invisible orphan.
+
+After compilation, the local lifecycle CLI is available directly or through npm run core --workspace @ivory/core:
+
+~~~text
+node packages/ivory-core/lib/node/core-cli.js init tmp/p3a-demo fixture-project
+node packages/ivory-core/lib/node/core-cli.js start tmp/p3a-demo
+node packages/ivory-core/lib/node/core-cli.js admit tmp/p3a-demo README.md
+node packages/ivory-core/lib/node/core-cli.js status tmp/p3a-demo
+node packages/ivory-core/lib/node/core-cli.js stop tmp/p3a-demo
+~~~
+
+The local bootstrap transport limits admission to 8 MiB per request. Its same-user capability is not research authorization. A workbench backend can detach and exit while the same headless Core remains available to CLI; UI integration and domain sessions remain later slices.
+
 The Ivory store host: a project directory with a SQLite commit log, a content-addressed blob store and process leases. It depends on `@ivory/contracts` and Node built-ins only, with no Theia, inversify or other storage dependency. Domain commit kinds are added by later slices; this package ships none.
 
 ## Layout
@@ -31,7 +47,7 @@ A project directory holds `ivory-project.json`, `store.sqlite` (with `-wal` and 
 
 ## Thread model
 
-`openProjectStore` takes the process lease on the main thread and starts exactly one `worker_threads` Worker per open project. The two exchange messages only: requests `{id, op, args}` and responses `{id, ok, result | error}`. A refusal is an `ok: true` result. The worker owns one write connection (WAL, `synchronous=FULL`, foreign keys on) and one read-only connection. Every read (`headSeq`, `head`, `receiptFor`, change polling, `verifyChain`) uses the read connection, never the write connection, so nothing uncommitted is ever reported. Functions cannot cross threads, so commit handlers are registered by `kind` from modules that the worker `require`s: each exports `commitHandlers`. The built-in module loads first, and a duplicate kind is a startup error.
+`openProjectStore` takes the singleton writer lock and process lease on the main thread and starts exactly one `worker_threads` Worker per writable project. Read-only observers have only a read connection and no ownership or recovery. The main thread and worker exchange requests `{id, op, args}` and responses `{id, ok, result | error}`. A refusal is an `ok: true` result. The writable worker owns one write connection (WAL, `synchronous=FULL`, foreign keys on) and one read-only connection. Every read (`headSeq`, `head`, `receiptFor`, `readBlob`, change polling, `verifyChain`) uses the read connection, so nothing uncommitted is reported. Functions cannot cross threads, so commit handlers are registered by `kind` from modules that the owner supplies at startup: each exports `commitHandlers`. Clients cannot configure those modules. The built-in module loads first, and a duplicate kind is a startup error.
 
 ## Commit protocol
 
@@ -47,7 +63,7 @@ A project directory holds `ivory-project.json`, `store.sqlite` (with `-wal` and 
 
 Nothing awaits between BEGIN and COMMIT or ROLLBACK: the transaction body is one synchronous call. Handlers are held to it three ways: the `defineCommitHandler` type rejects an `apply` that returns a promise, the ESLint overrides in `.eslintrc.js` ban async functions, `await`, `yield` and `.then` in `src/node/store/handlers/**` and `src/node/**/test/*-handlers.ts`, and the runtime guard above.
 
-Blobs are admitted before and outside any transaction: staged in `cas/tmp`, fsynced, then renamed. A blob that already exists is verified and touched, which restarts its GC grace. GC deletes unreferenced blobs older than the grace period in short write transactions that re-check the mtime and the references and unlink inside the transaction.
+Blobs are admitted before and outside any transaction: staged in `cas/tmp`, fsynced, verified, then atomically linked without overwriting a digest name. The installed file and directories are flushed and readback is verified before acknowledgement. An existing blob is verified and touched, which restarts its GC grace. Admission creates no semantic reference. `requireBlob` hashes bytes before committing a reference, and `readBlob` requires that committed reference and matching bytes. GC deletes unreferenced blobs older than the grace period in short write transactions that re-check the mtime and references and unlink inside the transaction.
 
 ## Reads for observers
 
@@ -63,9 +79,9 @@ Blobs are admitted before and outside any transaction: staged in `cas/tmp`, fsyn
 
 | Crash point | Name | Place |
 |---|---|---|
-| C1 | `duringBlobStage` | in blob staging, after the first half of the bytes is written, before fsync and rename |
-| C1 | `beforeBlobInstall` | after the staging file is written, fsynced and closed, before the exists-check and rename |
-| C2 | `afterBlobInstall` | after the rename and directory fsync (or the dedup touch), before `admitBlob` returns |
+| C1 | `duringBlobStage` | in blob staging, after the first half of the bytes is written, before fsync and installation |
+| C1 | `beforeBlobInstall` | after the staging file is written, fsynced, verified and closed, before installation |
+| C2 | `afterBlobInstall` | after atomic installation, file/directory fsync and verified readback (or durable dedup), before `admitBlob` returns |
 | C3 | `beforeDbCommit` | inside the transaction after the `commits` and `blob_refs` inserts, before COMMIT; synchronous |
 | C4 | `afterDbCommit` | after COMMIT, before the worker posts the response |
 

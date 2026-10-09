@@ -18,7 +18,7 @@
  * - `victim`: opens the store, admits a blob and waits to be killed.
  */
 
-import { CommitOutcome, openProjectStore, ProjectStore, qualificationHandlerModule } from '@ivory/core/lib/node';
+import { acquireLease, CommitOutcome, connectCore, ProjectStore } from '@ivory/core/lib/node';
 import { randomBytes } from 'crypto';
 import { monitorEventLoopDelay } from 'perf_hooks';
 import { sleep } from '../managed-child';
@@ -202,7 +202,8 @@ async function main(): Promise<void> {
     const [role, projectDir, configJson] = process.argv.slice(2) as [LatencyRole, string, string];
     const config = JSON.parse(configJson) as LatencyRoleConfig;
     const startedAt = Date.now();
-    const store = await openProjectStore(projectDir, { hostKind: HOST_KIND[role], handlerModules: [qualificationHandlerModule] });
+    const store = await connectCore(projectDir);
+    const clientLease = acquireLease(projectDir, HOST_KIND[role]);
     const open = { startedAt, endedAt: Date.now(), recovery: store.openRecovery };
     process.on('disconnect', () => process.exit(0));
     if (role === 'victim') {
@@ -221,6 +222,7 @@ async function main(): Promise<void> {
     });
     const part = role === 'workbench' ? await runWorkbench(store, schedule) : role === 'cli' ? await runCli(store, schedule, config) : await runMcp(store, schedule);
     await store.close();
+    clientLease.release();
     const report: RoleReport = {
         type: 'report', role, processId: store.processId, commits: [], observations: [], observationErrors: 0, recoveries: [], ...part
     };

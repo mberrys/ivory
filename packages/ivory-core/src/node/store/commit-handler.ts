@@ -9,10 +9,10 @@
 // *****************************************************************************
 
 import { Sha256Digest } from '@ivory/contracts';
-import { statSync } from 'fs';
 import type { DatabaseSync } from 'node:sqlite';
 import { IvoryStoreError, StoreRefusal } from '../../common/store-protocol';
 import { ProjectLayout } from '../project-layout';
+import { checkBlobSync } from './cas';
 import { commitHandlers as builtInCommitHandlers } from './handlers';
 
 export type SqlParam = string | number | bigint | Uint8Array;
@@ -128,13 +128,12 @@ export class CommitTransactionImpl implements CommitTransaction {
         if (!Sha256Digest.is(digest)) {
             throw new StoreRefusal('invalid-input', 'a blob is referenced by its sha256 digest');
         }
-        try {
-            statSync(ProjectLayout.blobPath(this.layout, digest));
-        } catch (error) {
-            if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-                throw new StoreRefusal('blob-missing', `the blob ${digest} is not in the store`, { digest });
-            }
-            throw error;
+        const check = checkBlobSync(this.layout, digest);
+        if (check === 'missing') {
+            throw new StoreRefusal('blob-missing', `the blob ${digest} is not in the store`, { digest });
+        }
+        if (check === 'corrupt') {
+            throw new StoreRefusal('cas-corrupt', `the blob ${digest} failed digest verification`, { digest });
         }
         this.blobs.add(digest);
     }

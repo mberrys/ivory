@@ -11,6 +11,7 @@
     "src"
   ],
   "scripts": {
+    "core": "node lib/node/core-cli.js",
     "build": "theiaext build",
     "clean": "theiaext clean",
     "compile": "theiaext compile",

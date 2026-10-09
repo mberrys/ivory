@@ -17,6 +17,7 @@ export type StoreRefusalCode =
     | 'input-too-large'
     | 'idempotency-conflict'
     | 'blob-missing'
+    | 'cas-corrupt'
     | 'writer-busy'
     | 'read-only-project';
 
@@ -53,6 +54,7 @@ export type IvoryStoreErrorCode =
     | 'store-mismatch'
     | 'unsupported-schema'
     | 'already-open'
+    | 'writer-owned'
     | 'store-closed'
     | 'worker-failed'
     | 'duplicate-handler'
@@ -60,6 +62,11 @@ export type IvoryStoreErrorCode =
     | 'handler-not-synchronous'
     | 'handler-transaction-control'
     | 'cas-corrupt'
+    | 'digest-mismatch'
+    | 'blob-missing'
+    | 'blob-unreferenced'
+    | 'core-unavailable'
+    | 'invalid-core-response'
     | 'read-only-project'
     | 'writer-busy'
     | 'invalid-argument';
@@ -141,7 +148,7 @@ export interface RecoveryReport {
     readonly deferred: readonly string[];
 }
 
-export type StoreOp = 'commit' | 'admitBlob' | 'gc' | 'headSeq' | 'head' | 'receiptFor' | 'verifyChain' | 'recover' | 'close';
+export type StoreOp = 'commit' | 'admitBlob' | 'readBlob' | 'gc' | 'headSeq' | 'head' | 'receiptFor' | 'verifyChain' | 'recover' | 'close';
 
 /**
  * The places where the qualification harness kills the host. Each is one call to `failpoint(name)`:
@@ -206,6 +213,7 @@ export interface StoreWorkerData {
     readonly pollIntervalMs: number;
     readonly maxInputBytes: number;
     readonly libraryBuild: string;
+    readonly readOnly: boolean;
     /** @internal */
     readonly qualification?: StoreQualificationOptions;
 }

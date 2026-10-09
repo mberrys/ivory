@@ -142,6 +142,9 @@ class KillRun {
             await initProject(this.projectDir, { projectId: PROJECT_ID });
         }
         mkdirSync(this.markerDir, { recursive: true });
+        // A read-only observer cannot create the initial schema on behalf of the writer.
+        const initialized = await openProjectStore(this.projectDir);
+        await initialized.close();
         await this.startObserver();
         const total = this.options.points.length * this.options.cycles;
         let cycle = 0;

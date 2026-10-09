@@ -8,7 +8,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
-import { initProject, openProjectStore, ProjectLayout, qualificationHandlerModule, RecoveryReport } from '@ivory/core/lib/node';
+import { connectCore, CoreService, initProject, ProjectLayout, qualificationHandlerModule, RecoveryReport, startCoreService } from '@ivory/core/lib/node';
 import { existsSync, mkdtempSync, promises as fs, rmSync } from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -107,6 +107,7 @@ export async function runLatency(options: LatencyOptions): Promise<LatencyResult
 }
 
 class LatencyRun {
+    protected core: CoreService | undefined;
     protected readonly layout: ProjectLayout;
     protected readonly registry = new ChildRegistry();
     protected readonly rng: SeededRandom;
@@ -131,18 +132,21 @@ class LatencyRun {
             warmup: this.options.warmup,
             victimInterval: this.options.victimInterval,
             holdMs: HOLD_MS,
-            seed: this.options.seed
+            seed: this.options.seed,
+            topology: 'ivory-core-service@1'
         };
     }
 
     async dispose(): Promise<void> {
         await this.registry.killAll();
+        await this.core?.close();
     }
 
     async execute(): Promise<void> {
         if (!existsSync(this.layout.manifest)) {
             await initProject(this.projectDir, { projectId: PROJECT_ID });
         }
+        this.core = await startCoreService(this.projectDir, { handlerModules: [qualificationHandlerModule] });
         const roleConfig: LatencyRoleConfig = { holdMs: HOLD_MS };
         const script = path.join(__dirname, 'latency-child.js');
         const roles: LatencyRole[] = ['workbench', 'cli', 'mcp'];
@@ -196,7 +200,7 @@ class LatencyRun {
     /** The final recovery, and the whole log read back against every receipt a client was given. */
     protected async finish(): Promise<void> {
         const openedAt = Date.now();
-        const store = await openProjectStore(this.projectDir, { hostKind: 'cli', handlerModules: [qualificationHandlerModule] });
+        const store = await connectCore(this.projectDir);
         try {
             this.recoveries.push({ source: 'final-open', startedAt: openedAt, endedAt: Date.now(), recovery: store.openRecovery });
             const pendingVictims = (): string[] => {

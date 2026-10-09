@@ -6,11 +6,15 @@ on:
       - 'packages/ivory-core/**'
       - 'packages/ivory-contracts/**'
       - '.github/workflows/ivory-core.yml'
+      - 'scripts/ivory/verify-core-admission.mjs'
+      - 'docs/ivory/qualification/p3a/**'
   pull_request:
     paths:
       - 'packages/ivory-core/**'
       - 'packages/ivory-contracts/**'
       - '.github/workflows/ivory-core.yml'
+      - 'scripts/ivory/verify-core-admission.mjs'
+      - 'docs/ivory/qualification/p3a/**'
   workflow_dispatch:
 
 permissions:
@@ -49,5 +53,17 @@ jobs:
       - name: Compile
         run: npx lerna run compile --scope @ivory/core --include-dependencies
 
-      - name: Lint and test
-        run: npx lerna run lint,test --scope @ivory/core
+      - name: Lint
+        run: npx lerna run lint --scope @ivory/core
+
+      - name: Qualify Core ownership and byte admission
+        run: node scripts/ivory/verify-core-admission.mjs --output "${{ runner.temp }}/p3a-evidence/qualification.json"
+
+      - name: Retain P3a evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: p3a-core-${{ matrix.os }}
+          path: ${{ runner.temp }}/p3a-evidence
+          retention-days: 90
+          if-no-files-found: warn
