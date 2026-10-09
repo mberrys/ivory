@@ -15,3 +15,6 @@ export { InitProjectOptions, initProject, ProjectLayout, readManifest } from './
 export { OpenProjectStoreOptions, openProjectStore, ProjectStore, StoreDisposable } from './store-host';
 export { qualificationHandlerModule } from './store/qualification/qualification-handler-module';
 export { CommitHandler, CommitTransaction, defineCommitHandler, SqlParam, SqlRow, SqlRunResult } from './store/commit-handler';
+export { CoreClient, ConnectCoreOptions, connectCore, startOrAttachCore } from './core-client';
+export { CoreIdentity } from './core-protocol';
+export { CoreService, startCoreService } from './core-service';

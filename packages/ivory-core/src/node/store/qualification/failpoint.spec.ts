@@ -8,6 +8,7 @@
 // SPDX-License-Identifier: EPL-2.0 OR GPL-2.0-only WITH Classpath-exception-2.0
 // *****************************************************************************
 
+import { Sha256Digest } from '@ivory/contracts';
 import { expect } from 'chai';
 import { createHash } from 'crypto';
 import { existsSync, promises as fs, readdirSync, statSync } from 'fs';
@@ -62,8 +63,8 @@ describe('failpoints', function (): void {
             expect(child.process.exitCode === 0, 'the child did not exit on its own').to.be.false;
 
             const staged = readdirSync(layout.casStaging).filter(file => file.startsWith(`${processId}-`));
-            const digest = `sha256:${createHash('sha256').update(createHash('sha256').update('k1').digest()).digest('hex')}`;
-            const blob = ProjectLayout.blobPath(layout, digest as never);
+            const digest: Sha256Digest = `sha256:${createHash('sha256').update(createHash('sha256').update('k1').digest()).digest('hex')}`;
+            const blob = ProjectLayout.blobPath(layout, digest);
             switch (name) {
                 case 'duringBlobStage':
                     expect(staged, 'half of the bytes are staged').to.have.length(1);
@@ -90,6 +91,13 @@ describe('failpoints', function (): void {
             expect((await store.head())?.seq ?? 0).to.equal(COMMITTED_AFTER_KILL[name]);
             expect(await store.receiptFor('qual', 'k1') !== undefined).to.equal(name === 'afterDbCommit');
             expect((await store.verifyChain()).ok).to.be.true;
+            if (name !== 'afterDbCommit') {
+                let error: unknown;
+                await store.readBlob(digest).catch(caught => { error = caught; });
+                expect(error, 'interrupted and orphaned bytes stay semantically invisible').to.have.property('code', 'blob-unreferenced');
+            } else {
+                expect(Buffer.from(await store.readBlob(digest))).to.deep.equal(createHash('sha256').update('k1').digest());
+            }
         });
     }
 });

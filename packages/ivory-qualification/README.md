@@ -1,5 +1,7 @@
 # @ivory/qualification
 
+P3a topology update: the latency run now starts one headless Core and connects the workbench, CLI, MCP and victim processes to that owner. Victims hold client process leases, which the owner recovers after they die. The kill observer opens read-only; the harness initializes the store schema with an owner before starting it. New latency records include topology ivory-core-service@1. Earlier multi-writer records remain historical and do not qualify this ownership change.
+
 The IV5-6 qualification harness for the slice-1 store in `@ivory/core`: a kill harness that crashes a child host at the crash points of V5 section 6, and a latency run that puts a workbench, a CLI, an MCP agent and dying hosts on one project. Private, and never loaded by a product host. It has no SQL and no `node:sqlite` import: it talks to the store through `@ivory/core`, using `head()`, `receiptFor()`, the `qualification` open option and the `qual.put` and `qual.hold` commit kinds.
 
 ## Running

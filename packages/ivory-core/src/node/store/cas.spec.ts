@@ -29,7 +29,7 @@ async function backdate(file: string, ageMs: number): Promise<void> {
 }
 
 function eperm(): NodeJS.ErrnoException {
-    return Object.assign(new Error('EPERM: operation not permitted, rename'), { code: 'EPERM' });
+    return Object.assign(new Error('EPERM: operation not permitted, install'), { code: 'EPERM' });
 }
 
 describe('content-addressed blobs', function (): void {
@@ -76,9 +76,9 @@ describe('content-addressed blobs', function (): void {
             let staged: string[] = [];
             const ops: CasFsOps = {
                 ...defaultCasFsOps,
-                rename: async (from, to) => {
+                install: async (from, to) => {
                     staged = stagingFiles();
-                    await defaultCasFsOps.rename(from, to);
+                    await defaultCasFsOps.install(from, to);
                 }
             };
             await admitBlob(context, Buffer.from('tagged'), ops);
@@ -103,33 +103,33 @@ describe('content-addressed blobs', function (): void {
         });
     });
 
-    describe('Windows EPERM on rename onto an open blob', () => {
+    describe('Windows EPERM on install onto an open blob', () => {
 
-        it('admits the same bytes while a handle is open on the blob, without a rename, and refreshes the mtime', async () => {
+        it('admits the same bytes while a handle is open on the blob, without an install, and refreshes the mtime', async () => {
             const bytes = Buffer.from('held open');
             await admitBlob(context, bytes);
             const file = target(bytes);
             await backdate(file, 48 * HOUR);
             const before = (await fs.stat(file)).mtimeMs;
-            let renames = 0;
-            const ops: CasFsOps = { ...defaultCasFsOps, rename: (from, to) => { renames++; return defaultCasFsOps.rename(from, to); } };
+            let installs = 0;
+            const ops: CasFsOps = { ...defaultCasFsOps, install: (from, to) => { installs++; return defaultCasFsOps.install(from, to); } };
             const held = openSync(file, 'r');
             try {
                 expect(await admitBlob(context, bytes, ops)).to.equal(digestOf(bytes));
             } finally {
                 closeSync(held);
             }
-            expect(renames, 'the rename is skipped').to.equal(0);
+            expect(installs, 'the install is skipped').to.equal(0);
             expect((await fs.stat(file)).mtimeMs - before, 'the mtime moved forward').to.be.greaterThan(47 * HOUR);
             expect(stagingFiles()).to.be.empty;
         });
 
-        it('admits the blob when the rename fails with EPERM but the blob has appeared and verifies', async () => {
+        it('admits the blob when the install fails with EPERM but the blob has appeared and verifies', async () => {
             const bytes = Buffer.from('appeared meanwhile');
             const ops: CasFsOps = {
                 ...defaultCasFsOps,
-                rename: async (from, to) => {
-                    // Someone else placed the same bytes, and holds them open, so this rename is refused.
+                install: async (from, to) => {
+                    // Someone else placed the same bytes, and holds them open, so this install is refused.
                     await fs.copyFile(from, to);
                     throw eperm();
                 }
@@ -139,9 +139,9 @@ describe('content-addressed blobs', function (): void {
             expect(stagingFiles()).to.be.empty;
         });
 
-        it('rejects when the rename fails with EPERM and there is no blob', async () => {
+        it('rejects when the install fails with EPERM and there is no blob', async () => {
             const bytes = Buffer.from('nothing appeared');
-            const ops: CasFsOps = { ...defaultCasFsOps, rename: () => Promise.reject(eperm()) };
+            const ops: CasFsOps = { ...defaultCasFsOps, install: () => Promise.reject(eperm()) };
             let error: NodeJS.ErrnoException | undefined;
             try {
                 await admitBlob(context, bytes, ops);
@@ -153,11 +153,11 @@ describe('content-addressed blobs', function (): void {
             expect(stagingFiles()).to.be.empty;
         });
 
-        it('rejects when the rename fails with EPERM and what is there does not verify', async () => {
+        it('rejects when the install fails with EPERM and what is there does not verify', async () => {
             const bytes = Buffer.from('something else appeared');
             const ops: CasFsOps = {
                 ...defaultCasFsOps,
-                rename: async (_from, to) => {
+                install: async (_from, to) => {
                     await fs.writeFile(to, 'other bytes');
                     throw eperm();
                 }
@@ -168,15 +168,15 @@ describe('content-addressed blobs', function (): void {
             } catch (e) {
                 code = (e as NodeJS.ErrnoException).code;
             }
-            expect(code).to.equal('EPERM');
+            expect(code).to.equal('cas-corrupt');
             expect(stagingFiles()).to.be.empty;
         });
 
-        it('does not treat other errors from the rename as a race', async () => {
+        it('does not treat other errors from the install as a race', async () => {
             const bytes = Buffer.from('disk trouble');
             const ops: CasFsOps = {
                 ...defaultCasFsOps,
-                rename: async (from, to) => {
+                install: async (from, to) => {
                     await fs.copyFile(from, to);
                     throw Object.assign(new Error('EIO'), { code: 'EIO' });
                 }
@@ -188,6 +188,55 @@ describe('content-addressed blobs', function (): void {
                 code = (e as NodeJS.ErrnoException).code;
             }
             expect(code).to.equal('EIO');
+        });
+    });
+
+    describe('installation corruption', () => {
+        it('detects corrupted staging before publishing a digest name', async () => {
+            const bytes = Buffer.from('staging fixture');
+            const ops: CasFsOps = {
+                ...defaultCasFsOps,
+                verify: async (file, digest) => {
+                    if (file.endsWith('.tmp')) {
+                        await fs.writeFile(file, 'corrupt staging');
+                    }
+                    return defaultCasFsOps.verify(file, digest);
+                }
+            };
+            let error: unknown;
+            await admitBlob(context, bytes, ops).catch(caught => { error = caught; });
+            expect(error).to.be.instanceOf(IvoryStoreError).with.property('code', 'cas-corrupt');
+            expect(existsSync(target(bytes))).to.be.false;
+            expect(stagingFiles()).to.be.empty;
+        });
+
+        it('detects a corrupted installation on durable readback and removes that invalid name', async () => {
+            const bytes = Buffer.from('readback fixture');
+            const ops: CasFsOps = {
+                ...defaultCasFsOps,
+                install: async (_from, to) => { await fs.writeFile(to, 'corrupt install'); }
+            };
+            let error: unknown;
+            await admitBlob(context, bytes, ops).catch(caught => { error = caught; });
+            expect(error).to.be.instanceOf(IvoryStoreError).with.property('code', 'cas-corrupt');
+            expect(existsSync(target(bytes))).to.be.false;
+            expect(stagingFiles()).to.be.empty;
+        });
+
+        it('cannot replace a different blob that wins the publication race', async () => {
+            const bytes = Buffer.from('publication fixture');
+            const ops: CasFsOps = {
+                ...defaultCasFsOps,
+                install: async (from, to) => {
+                    await fs.writeFile(to, 'race winner');
+                    await defaultCasFsOps.install(from, to);
+                }
+            };
+            let error: unknown;
+            await admitBlob(context, bytes, ops).catch(caught => { error = caught; });
+            expect(error).to.be.instanceOf(IvoryStoreError).with.property('code', 'cas-corrupt');
+            expect(await fs.readFile(target(bytes), 'utf8')).to.equal('race winner');
+            expect(stagingFiles()).to.be.empty;
         });
     });
 

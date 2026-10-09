@@ -21,6 +21,8 @@ export interface ProjectLayout {
     readonly projectDir: string;
     readonly manifest: string;
     readonly store: string;
+    readonly writerLock: string;
+    readonly coreDiscovery: string;
     readonly casRoot: string;
     readonly casStaging: string;
     readonly leases: string;
@@ -36,6 +38,8 @@ export namespace ProjectLayout {
             projectDir: root,
             manifest: path.join(root, ProjectManifest.FILE_NAME),
             store: path.join(root, 'store.sqlite'),
+            writerLock: path.join(root, 'core-writer.sqlite'),
+            coreDiscovery: path.join(root, 'core-service.json'),
             casRoot: path.join(root, 'cas', 'sha256'),
             casStaging: path.join(root, 'cas', 'tmp'),
             leases: path.join(root, 'leases'),

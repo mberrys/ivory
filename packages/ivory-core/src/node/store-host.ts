@@ -9,7 +9,7 @@
 // *****************************************************************************
 
 import { canonicalJson, IvoryContractError, IvoryContractErrorCode, Sha256Digest } from '@ivory/contracts';
-import { readFileSync } from 'fs';
+import { promises as fs, readFileSync } from 'fs';
 import * as path from 'path';
 import { Worker } from 'worker_threads';
 import { ProjectManifest } from '../common/project-manifest';
@@ -19,12 +19,15 @@ import {
 } from '../common/store-protocol';
 import { acquireLease, processId, ProcessLease } from './store/process-lease';
 import { ProjectLayout, readManifest } from './project-layout';
+import { acquireProjectWriter, ProjectWriter } from './store/project-writer';
 
 export interface StoreDisposable {
     dispose(): void;
 }
 
 export interface OpenProjectStoreOptions {
+    /** Opens a live project as an observer, without a writer lock, lease, recovery or mutations. */
+    readonly readOnly?: boolean;
     /** Recorded in the lease, so another host can see what holds a project. */
     readonly hostKind?: string;
     /** Absolute paths of compiled modules that export `commitHandlers`. The built-in handlers always load first. */
@@ -52,11 +55,15 @@ export interface ProjectStore {
     readonly manifest: ProjectManifest;
     /** The process id that names this host in leases and staging files. */
     readonly processId: string;
+    /** Unique for this ownership interval; observers do not own an epoch. */
+    readonly writerEpoch: string | undefined;
     /** What the sweep of dead leases found when the store opened. */
     readonly openRecovery: RecoveryReport;
     commit<O = unknown>(request: CommitRequest): Promise<CommitOutcome<O>>;
     /** Stores the bytes in the content-addressed store. Rejects with `cas-corrupt` when the name is taken by other bytes. */
-    admitBlob(bytes: Uint8Array): Promise<Sha256Digest>;
+    admitBlob(bytes: Uint8Array, expectedDigest?: Sha256Digest): Promise<Sha256Digest>;
+    /** Only committed blob references are visible. Always verifies the installed bytes on read. */
+    readBlob(digest: Sha256Digest): Promise<Uint8Array>;
     gc(options?: { readonly graceMs?: number }): Promise<GcResult>;
     /** The highest committed sequence number, read on the read connection. */
     headSeq(): Promise<number>;
@@ -79,18 +86,21 @@ let cachedLibraryBuild: string | undefined;
  * serve. A live project is opened for writing, any other role read-only.
  */
 export async function openProjectStore(projectDir: string, options: OpenProjectStoreOptions = {}): Promise<ProjectStore> {
-    const layout = ProjectLayout.of(projectDir);
-    const key = process.platform === 'win32' ? layout.projectDir.toLowerCase() : layout.projectDir;
+    const manifest = await readManifest(projectDir);
+    const layout = ProjectLayout.of(await fs.realpath(projectDir));
+    const readOnly = options.readOnly === true || manifest.role !== 'live';
+    const key = `${process.platform === 'win32' ? layout.projectDir.toLowerCase() : layout.projectDir}:${readOnly ? 'read' : 'write'}`;
     if (openProjects.has(key)) {
         throw new IvoryStoreError('already-open', `${layout.projectDir} is already open in this process`);
     }
     openProjects.add(key);
     let lease: ProcessLease | undefined;
     let worker: Worker | undefined;
+    let writer: ProjectWriter | undefined;
     try {
-        const manifest = await readManifest(layout.projectDir);
         const hostKind = options.hostKind ?? 'ivory-core';
-        if (manifest.role === 'live') {
+        if (!readOnly) {
+            writer = await acquireProjectWriter(layout);
             lease = acquireLease(layout.projectDir, hostKind);
         }
         const data: StoreWorkerData = {
@@ -103,15 +113,17 @@ export async function openProjectStore(projectDir: string, options: OpenProjectS
             pollIntervalMs: options.pollIntervalMs ?? StoreProtocol.DEFAULT_POLL_INTERVAL_MS,
             maxInputBytes: options.maxInputBytes ?? StoreProtocol.DEFAULT_MAX_INPUT_BYTES,
             libraryBuild: options.libraryBuild ?? readLibraryBuild(),
+            readOnly,
             qualification: options.qualification
         };
         worker = new Worker(path.join(__dirname, 'store', 'store-worker-main.js'), { workerData: data });
-        const store = new WorkerProjectStore(manifest, worker, lease, () => openProjects.delete(key));
+        const store = new WorkerProjectStore(manifest, worker, lease, writer, () => openProjects.delete(key));
         await store.ready;
         return store;
     } catch (error) {
         await worker?.terminate().catch(() => undefined);
         lease?.release();
+        writer?.release();
         openProjects.delete(key);
         throw error;
     }
@@ -133,6 +145,7 @@ interface PendingRequest {
 class WorkerProjectStore implements ProjectStore {
     readonly ready: Promise<void>;
     readonly processId = processId;
+    readonly writerEpoch: string | undefined;
     openRecovery: RecoveryReport = { swept: [], skippedAlive: [], malformed: [], deferred: [] };
 
     protected nextId = 1;
@@ -147,8 +160,10 @@ class WorkerProjectStore implements ProjectStore {
         readonly manifest: ProjectManifest,
         protected readonly worker: Worker,
         protected readonly lease: ProcessLease | undefined,
+        protected readonly writer: ProjectWriter | undefined,
         protected readonly onClosed: () => void
     ) {
+        this.writerEpoch = writer?.epoch;
         this.ready = new Promise<void>((resolve, reject) => {
             this.resolveReady = resolve;
             this.rejectReady = reject;
@@ -172,8 +187,12 @@ class WorkerProjectStore implements ProjectStore {
         return await this.request('commit', { request: { kind, input, principal, idempotencyKey } }) as CommitOutcome<O>;
     }
 
-    async admitBlob(bytes: Uint8Array): Promise<Sha256Digest> {
-        return this.unwrap(await this.request('admitBlob', { bytes }) as { digest: Sha256Digest } | { refusal: StoreRefusalInfo }).digest;
+    async admitBlob(bytes: Uint8Array, expectedDigest?: Sha256Digest): Promise<Sha256Digest> {
+        return this.unwrap(await this.request('admitBlob', { bytes, expectedDigest }) as { digest: Sha256Digest } | { refusal: StoreRefusalInfo }).digest;
+    }
+
+    async readBlob(digest: Sha256Digest): Promise<Uint8Array> {
+        return await this.request('readBlob', { digest }) as Uint8Array;
     }
 
     async gc(options: { readonly graceMs?: number } = {}): Promise<GcResult> {
@@ -220,7 +239,12 @@ class WorkerProjectStore implements ProjectStore {
         }
         this.failure ??= new IvoryStoreError('store-closed', 'the store is closed');
         await this.worker.terminate().catch(() => undefined);
+        this.releaseOwnership();
+    }
+
+    protected releaseOwnership(): void {
         this.lease?.release();
+        this.writer?.release();
         this.onClosed();
     }
 

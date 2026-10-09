@@ -16,7 +16,7 @@ import {
     CommitOutcome, CommitReceipt, GcResult, RecoveryReport, StoreProtocol, StoreRefusal, StoreRefusalInfo, StoreWorkerData, VerifyChainResult
 } from '../../common/store-protocol';
 import { ProjectLayout, readManifest } from '../project-layout';
-import { admitBlob, collectGarbage } from './cas';
+import { admitBlob, collectGarbage, readReferencedBlob } from './cas';
 import { applyCommit, CommitContext, ParsedCommit, readHead, readHeadSeq, readReceipt } from './commit-log';
 import { CommitHandler, loadCommitHandlers } from './commit-handler';
 import { configureFailpoint, failpoint } from './qualification/failpoint';
@@ -45,7 +45,7 @@ export class StoreRuntime {
         let read: DatabaseSync | undefined;
         try {
             let recovery: RecoveryReport = { swept: [], skippedAlive: [], malformed: [], deferred: [] };
-            if (manifest.role === 'live') {
+            if (manifest.role === 'live' && !data.readOnly) {
                 write = await openWriteConnection(layout.store, data.busyTimeoutMs, data.writerBusyBoundMs, data.qualification?.synchronous);
                 await ensureSchema(write, manifest.projectId, data.writerBusyBoundMs);
                 read = openReadConnection(layout.store, data.busyTimeoutMs);
@@ -131,11 +131,15 @@ export class StoreRuntime {
         });
     }
 
-    admitBlob(bytes: Uint8Array): Promise<{ digest: Sha256Digest } | RefusedOperation> {
+    admitBlob(bytes: Uint8Array, expectedDigest?: Sha256Digest): Promise<{ digest: Sha256Digest } | RefusedOperation> {
         if (this.readOnly) {
             return Promise.resolve(StoreRuntime.readOnlyRefusal());
         }
-        return this.queue.enqueue(async () => ({ digest: await admitBlob({ layout: this.layout, processId: this.data.processId }, bytes) }));
+        return this.queue.enqueue(async () => ({ digest: await admitBlob({ layout: this.layout, processId: this.data.processId }, bytes, undefined, expectedDigest) }));
+    }
+
+    readBlob(digest: Sha256Digest): Promise<Uint8Array> {
+        return readReferencedBlob(this.read, this.layout, digest);
     }
 
     gc(graceMs: number): Promise<GcResult | RefusedOperation> {

@@ -19,7 +19,7 @@ const SAMPLE_INTERVAL_MS = 100;
 
 async function main(): Promise<void> {
     const [projectDir] = process.argv.slice(2);
-    const store = await openProjectStore(projectDir, { hostKind: 'mcp' });
+    const store = await openProjectStore(projectDir, { hostKind: 'mcp', readOnly: true });
     let samples = 0;
     let errors = 0;
     let pending = false;

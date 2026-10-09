@@ -1,0 +1,17 @@
+{
+  "repository": "mberrys/ivory-archive",
+  "commit": "bfcb283c4fe32b64b67a325f8f55aca08314296f",
+  "disposition": "reference only; source bytes verified through retained local Git objects",
+  "files": [
+    {
+      "path": "docs/adr-005-storage-engine.md",
+      "gitBlob": "1e6c5d07f39cef112347f68a3984cbff1fcb4f4b",
+      "sha256": "56638eaf32a91be876304776b5bcb7a262aedea99fd56b48990604233034dd0c"
+    },
+    {
+      "path": "spikes/n2-durable-store/src/blob-admission.mjs",
+      "gitBlob": "18e238cf952b313693b96166fdc2ea6bc52aaeb6",
+      "sha256": "98fd95c976943ee2a9820ee557619a51d630d07d47665654a361d088ab6a7cdf"
+    }
+  ]
+}

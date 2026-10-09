@@ -1,0 +1,180 @@
+{
+  "record": "ivory-p3a-qualification@1",
+  "issue": "mberrys/ivory-issues#4",
+  "gates": [
+    "P3a-writer",
+    "P3a-CAS",
+    "P3a-reconnect"
+  ],
+  "head": {
+    "commit": "ee1f0cc9b9e877fc1ad867d976e2ef70784dba9a",
+    "branch": "feat/core-writer-byte-admission",
+    "dirty": false
+  },
+  "command": [
+    "node",
+    "scripts/ivory/verify-core-admission.mjs",
+    "--output",
+    "tmp/p3a-qualification/qualification.json"
+  ],
+  "testCommand": [
+    "C:\\Program Files\\nodejs\\node.exe",
+    "C:\\.dev\\repos\\ivory\\node_modules\\mocha\\bin\\mocha.js",
+    "--config",
+    "../../configs/mocharc.yml",
+    "--reporter",
+    "json",
+    "./lib/**/*.*spec.js"
+  ],
+  "testWorkingDirectory": "C:\\.dev\\repos\\ivory\\packages\\ivory-core",
+  "startedAt": "2026-10-09T01:37:16.930Z",
+  "finishedAt": "2026-10-09T01:37:28.354Z",
+  "environment": {
+    "platform": "win32",
+    "osVersion": "Windows 11 Home",
+    "release": "10.0.26300",
+    "arch": "x64",
+    "node": "v24.16.0",
+    "sqlite": "3.53.0",
+    "filesystem": "unknown",
+    "projectDir": "C:\\Users\\micha\\AppData\\Local\\Packages\\sandbox.{01505f69-e586-41ea-9b2c-2319d5101b0b}\\AC\\Temp",
+    "machine": "mbx"
+  },
+  "fixtures": {
+    "ownershipAndCli": {
+      "path": "packages/ivory-core/src/node/core-service.spec.ts",
+      "sha256": "0ffc58f71bf741fa411329c9a19a9ffeb726b59ec1decd4d6261794c7c22a363"
+    },
+    "casFaults": {
+      "path": "packages/ivory-core/src/node/store/cas.spec.ts",
+      "sha256": "d559825be84ba4d61e254af1c0ebc40328dea931a163ab0e975cc3b5166f731a"
+    },
+    "crashPoints": {
+      "path": "packages/ivory-core/src/node/store/qualification/failpoint.spec.ts",
+      "sha256": "77eaca6eb67c2edb5e65a47ae8a70fde383867949101787f37c4aa6ea4fe044f"
+    }
+  },
+  "sources": {
+    "sha256": "930431145461f667676b5166b9a32595bb2cd3c0a998d6c82f4d37bcc1025926",
+    "files": 57,
+    "archive": {
+      "repository": "mberrys/ivory-archive",
+      "commit": "bfcb283c4fe32b64b67a325f8f55aca08314296f",
+      "disposition": "reference only; source bytes verified through retained local Git objects",
+      "files": [
+        {
+          "path": "docs/adr-005-storage-engine.md",
+          "gitBlob": "1e6c5d07f39cef112347f68a3984cbff1fcb4f4b",
+          "sha256": "56638eaf32a91be876304776b5bcb7a262aedea99fd56b48990604233034dd0c"
+        },
+        {
+          "path": "spikes/n2-durable-store/src/blob-admission.mjs",
+          "gitBlob": "18e238cf952b313693b96166fdc2ea6bc52aaeb6",
+          "sha256": "98fd95c976943ee2a9820ee557619a51d630d07d47665654a361d088ab6a7cdf"
+        }
+      ]
+    }
+  },
+  "compiledCoreSha256": "c8e09e820ae43bfc30c275127c918a93d26672280fa433b9c6c565c19f689277",
+  "criteria": {
+    "writerOwnership": {
+      "gated": true,
+      "pass": false,
+      "expected": 3,
+      "observed": 3,
+      "tests": [
+        "headless Core ownership and byte admission holds one OS writer lock even if discovery claims a dead PID, and does not replace that lock file",
+        "headless Core ownership and byte admission refuses a second service in the same process, and a direct writable host while a service owns the project",
+        "headless Core ownership and byte admission racing starters attach to one daemon, and detaching does not stop it"
+      ]
+    },
+    "durableAdmission": {
+      "gated": true,
+      "pass": false,
+      "expected": 3,
+      "observed": 3,
+      "tests": [
+        "headless Core ownership and byte admission admits before semantic visibility, preserves referenced bytes across restart, and rejects corrupt references and reads",
+        "headless Core ownership and byte admission rejects expected digest mismatch without creating a staged or installed blob",
+        "headless Core ownership and byte admission never resolves the same digest from another project"
+      ]
+    },
+    "corruptedInstallation": {
+      "gated": true,
+      "pass": false,
+      "expected": 3,
+      "observed": 0,
+      "tests": []
+    },
+    "interruptedAdmission": {
+      "gated": true,
+      "pass": false,
+      "expected": 3,
+      "observed": 3,
+      "tests": [
+        "failpoints kills the host at duringBlobStage and writes the marker first",
+        "failpoints kills the host at beforeBlobInstall and writes the marker first",
+        "failpoints kills the host at afterBlobInstall and writes the marker first"
+      ]
+    },
+    "reconnectAfterHostClose": {
+      "gated": true,
+      "pass": false,
+      "expected": 1,
+      "observed": 1,
+      "tests": [
+        "headless Core ownership and byte admission CLI reconnects to the same daemon after a workbench host process closes"
+      ]
+    },
+    "authenticatedEpoch": {
+      "gated": true,
+      "pass": false,
+      "expected": 1,
+      "observed": 1,
+      "tests": [
+        "headless Core ownership and byte admission authenticates and fences every request; rejects browser origins and malformed input"
+      ]
+    },
+    "regressionSuite": {
+      "gated": true,
+      "pass": false,
+      "tests": 91,
+      "passed": 20,
+      "failures": 74,
+      "pending": 0
+    }
+  },
+  "outcome": "fail",
+  "failReasons": [
+    "criterion:writerOwnership",
+    "criterion:durableAdmission",
+    "criterion:corruptedInstallation",
+    "criterion:interruptedAdmission",
+    "criterion:reconnectAfterHostClose",
+    "criterion:authenticatedEpoch",
+    "criterion:regressionSuite"
+  ],
+  "ledger": {
+    "file": "qualification.ledger.jsonl",
+    "rows": 91,
+    "sha256": "8b6baebba043d1983ef2b1a70913be71469149085b48b477578e087202837d35"
+  },
+  "logs": {
+    "mocha": {
+      "file": "qualification.mocha.json",
+      "sha256": "4d0a727e247a99c4cbb5f27fc9797b7491906734efd917b99027db70dca25d98"
+    },
+    "stderr": {
+      "file": "qualification.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "Local filesystem, process kill only; no hardware power-loss, OS-crash, cloud-sync, removable-drive or hosted-storage claim.",
+    "The workbench host is a real Node client process standing in for Theia; Theia UI and bundling are not qualified.",
+    "The 8 MiB bootstrap transport is a same-user local capability; domain sessions, authorization and streaming remain in P4/P5.",
+    "No research revision, accepted-head, migration, outbox or release gate is qualified by this P3a record.",
+    "Pinned N2 files are historical reference material, not imported runtime or transferred durability evidence.",
+    "Legacy IV5-6 evidence predates the single-owner topology and remains historical."
+  ]
+}
